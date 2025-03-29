@@ -11,6 +11,6 @@ struct GlassCard: ViewModifier {
 
 extension View {
     func glassCard() -> some View {
-        modifier(GlassCard)
+        self.modifier(GlassCard())
     }
 }

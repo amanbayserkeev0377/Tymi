@@ -19,7 +19,7 @@ struct Habit: Identifiable, Codable {
         name: String,
         type: HabitType,
         goal: Double,
-        startDate: Date = Date()
+        startDate: Date = Date(),
         activeDays: Set<Int> = Set(1...7),
         reminderTime: Date? = nil
     ) {
@@ -34,7 +34,7 @@ struct Habit: Identifiable, Codable {
 }
 
 class HabitStore: ObservableObject {
-    @Published private(set) var habits: [Habit]] = []
+    @Published private(set) var habits: [Habit] = []
     private let defaults = UserDefaults.standard
     private let habitsKey = "savedHabits"
     
@@ -60,7 +60,7 @@ class HabitStore: ObservableObject {
     }
     
     private func saveHabits() {
-        if let encoded = try? JSONDecoder().encode(habits) {
+        if let encoded = try? JSONEncoder().encode(habits) {
             defaults.set(encoded, forKey: habitsKey)
         }
     }
