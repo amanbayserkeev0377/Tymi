@@ -25,4 +25,4 @@ enum Weekday: Int, CaseIterable, Codable {
         case .sunday: return "Sun"
         }
     }
-} 
+}

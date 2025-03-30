@@ -1,10 +1,5 @@
 import Foundation
 
-enum HabitType: String, Codable {
-    case count
-    case time
-}
-
 struct Habit: Identifiable, Codable {
     let id: UUID
     var name: String

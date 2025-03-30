@@ -76,7 +76,7 @@ struct TodayView: View {
             }
         }
         .sheet(isPresented: $showingNewHabit) {
-            // TODO: Show newhabitview
+            NewHabitView(habitStore: habitStore)
         }
         .sheet(isPresented: $showingCalendar) {
             // TODO: Show calendarview

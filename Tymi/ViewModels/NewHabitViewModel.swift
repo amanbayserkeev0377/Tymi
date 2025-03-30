@@ -3,7 +3,8 @@ import SwiftUI
 
 @MainActor
 final class NewHabitViewModel: ObservableObject {
-    @Published var name: String - ""
+    // MARK: - Published Properties
+    @Published var name: String = ""
     @Published var type: HabitType = .count
     @Published var goal: String = "1"
     @Published var startDate: Date = Date()
@@ -11,22 +12,26 @@ final class NewHabitViewModel: ObservableObject {
     @Published var reminderEnabled: Bool = false
     @Published var reminderTime: Date = Calendar.current.date(from: DateComponents(hour: 9)) ?? Date()
     
-    // Validation
+    // MARK: - Error Handling
     @Published var showError: Bool = false
     @Published var errorMessage: String = ""
     
+    // MARK: - Private Properties
     private let habitStore: HabitStore
     
+    // MARK: - Initialization
     init(habitStore: HabitStore) {
         self.habitStore = habitStore
     }
     
+    // MARK: - Public Properties
     var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        Double(goal) != nil &&
-        !activeDays.isEmpty
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasValidGoal = Double(goal) != nil && Double(goal)! > 0
+        return !trimmedName.isEmpty && hasValidGoal && !activeDays.isEmpty
     }
     
+    // MARK: - Public Methods
     func createHabit() {
         guard isValid else {
             showError = true
@@ -36,10 +41,9 @@ final class NewHabitViewModel: ObservableObject {
         
         let goalValue: Double
         if type == .time {
-            // Convert into minutes
-            goalValue = (Double(goal) ?? 1) * 60
+            goalValue = Double(goal)! * 60 // Convert minutes to seconds
         } else {
-            goalValue = Double(goal) ?? 1
+            goalValue = Double(goal)!
         }
         
         let habit = Habit(

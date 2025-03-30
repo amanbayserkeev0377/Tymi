@@ -10,7 +10,7 @@ struct StartDateSection: View {
         VStack(spacing: 0) {
             // Date Row
             Button(action :{
-                withAnimation(.spring(response: 0.3)) {
+                withAnimation(.easeInOut(duration: 0.3)) {
                     isCalendarExpanded.toggle()
                 }
             }) {

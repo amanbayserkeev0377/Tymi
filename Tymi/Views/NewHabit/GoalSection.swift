@@ -12,7 +12,7 @@ struct GoalSection: View {
         VStack(spacing: 0) {
             // Goal Row
             Button(action: {
-                withAnimation(.spring(response: 0.3)) {
+                withAnimation(.easeInOut(duration: 0.3)) {
                     isExpanded.toggle()
                 }
             }) {
@@ -34,7 +34,7 @@ struct GoalSection: View {
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .rotationEffect(.degrees(isExpanded ? 90: 0))
-                        .animation(.easeInOut(duration: 0.2), value: isExpanded)
+                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
                 }
             }
             .buttonStyle(.plain)
@@ -47,6 +47,7 @@ struct GoalSection: View {
                         Text("time").tag(HabitType.time)
                     }
                     .pickerStyle(.segmented)
+                    .tint(.gray)
                     .padding(.top, 16)
                     
                     if type == .count {
