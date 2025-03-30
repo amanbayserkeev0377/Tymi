@@ -7,13 +7,17 @@ struct GoalSection: View {
     @State private var hours: Int = 1
     @State private var minutes: Int = 0
     @FocusState private var isCountFieldFocused: Bool
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
             // Goal Row
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
+                withAnimation(.spring(response: 0.3)) {
                     isExpanded.toggle()
+                    if !isExpanded {
+                        isCountFieldFocused = false
+                    }
                 }
             }) {
                 HStack {
@@ -33,28 +37,40 @@ struct GoalSection: View {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.secondary)
-                        .rotationEffect(.degrees(isExpanded ? 90: 0))
-                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
             }
             .buttonStyle(.plain)
             
             if isExpanded {
                 VStack(spacing: 16) {
-                    // Unit selector
+                    // Unit Selector
                     Picker("Type", selection: $type) {
-                        Text("count").tag(HabitType.count)
-                        Text("time").tag(HabitType.time)
+                        Text("Count").tag(HabitType.count)
+                        Text("Time").tag(HabitType.time)
                     }
                     .pickerStyle(.segmented)
-                    .tint(.gray)
                     .padding(.top, 16)
+                    .onChange(of: type) { _ in
+                        isCountFieldFocused = false
+                    }
                     
                     if type == .count {
-                        // Count input
-                        TextField("count", text: $goal)
+                        // Count Input
+                        TextField("Count", text: $goal)
                             .keyboardType(.numberPad)
                             .focused($isCountFieldFocused)
+                            .onChange(of: goal) { newValue in
+                                // Только цифры
+                                let filtered = newValue.filter { $0.isNumber }
+                                if filtered != newValue {
+                                    goal = filtered
+                                }
+                                // Убираем ведущие нули
+                                if let number = Int(filtered), number > 0 {
+                                    goal = String(number)
+                                }
+                            }
                             .padding(.vertical, 10)
                             .padding(.horizontal, 14)
                             .background(Color.white.opacity(0.6))
@@ -79,37 +95,44 @@ struct GoalSection: View {
                         // Time Pickers
                         HStack {
                             // Hours Picker
-                            Picker("hours", selection: $hours) {
+                            Picker("Hours", selection: $hours) {
                                 ForEach(0...23, id: \.self) { hour in
                                     Text("\(hour)h").tag(hour)
                                 }
                             }
                             .pickerStyle(.wheel)
                             .frame(width: 70)
-                            .onChange(of: hours) {
+                            .onChange(of: hours) { _ in
                                 updateGoal()
                             }
                             
                             // Minutes Picker
-                            Picker("minutes", selection: $minutes) {
+                            Picker("Minutes", selection: $minutes) {
                                 ForEach(0...59, id: \.self) { minute in
                                     Text("\(minute)m").tag(minute)
                                 }
                             }
                             .pickerStyle(.wheel)
                             .frame(width: 70)
-                            .onChange(of: minutes) {
+                            .onChange(of: minutes) { _ in
                                 updateGoal()
                             }
                         }
                         .padding(.horizontal)
                     }
                 }
+                .padding(.horizontal)
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
         .padding(16)
         .glassCard()
+        .animation(.easeInOut(duration: 0.3), value: isExpanded)
+        .onChange(of: isCountFieldFocused) { isFocused in
+            if !isFocused && goal.isEmpty {
+                goal = "1"
+            }
+        }
     }
     
     private var goalText: String {

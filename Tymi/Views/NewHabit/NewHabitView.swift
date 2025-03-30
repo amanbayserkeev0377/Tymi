@@ -15,7 +15,7 @@ struct NewHabitView: View {
                 HStack {
                     Spacer()
                     
-                    Text("Add Habit")
+                    Text("New Habit")
                         .font(.title3.bold())
                     
                     Spacer()
@@ -24,8 +24,11 @@ struct NewHabitView: View {
                         viewModel.createHabit()
                         dismiss()
                     }
+                    .font(.body.weight(viewModel.isValid ? .medium : .regular))
+                    .foregroundStyle(viewModel.isValid ? Color.primary : Color.secondary)
+                    .opacity(viewModel.isValid ? 1 : 0.5)
+                    .animation(.easeInOut(duration: 0.2), value: viewModel.isValid)
                     .disabled(!viewModel.isValid)
-                    .fontWeight(.medium)
                 }
                 .padding(.horizontal)
                 .padding(.top, 20)
@@ -68,7 +71,7 @@ struct NewHabitView: View {
                 .ignoresSafeArea()
         )
         .presentationDetents([.fraction(0.7)])
-        .presentationDragIndicator(.visible)
+        .presentationDragIndicator(.hidden)
         .presentationBackground(.thinMaterial)
         .presentationBackgroundInteraction(.enabled)
         .alert("Error", isPresented: $viewModel.showError) {
