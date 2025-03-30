@@ -1,11 +1,18 @@
 import SwiftUI
 
 struct GlassCard: ViewModifier {
+    @Environment(\.colorScheme) var colorScheme
+
     func body(content: Content) -> some View {
         content
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .background(
+                colorScheme == .light
+                ? Color.white.opacity(0.4)
+                : Color.clear
+            )
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
 }
 

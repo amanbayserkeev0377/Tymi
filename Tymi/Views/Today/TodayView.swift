@@ -74,10 +74,23 @@ struct TodayView: View {
                     .padding()
                 }
             }
+            
+            if showingNewHabit {
+                Color.black.opacity(0.1)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                
+                VStack {
+                    Spacer()
+                    BottomSheetView(isPresented: $showingNewHabit) {
+                        NewHabitView(habitStore: habitStore)
+                    }
+                    .frame(height: UIScreen.main.bounds.height * 0.7)
+                    .transition(.move(edge: .bottom))
+                }
+            }
         }
-        .sheet(isPresented: $showingNewHabit) {
-            NewHabitView(habitStore: habitStore)
-        }
+        .animation(.spring(response: 0.3), value: showingNewHabit)
         .sheet(isPresented: $showingCalendar) {
             // TODO: Show calendarview
         }
