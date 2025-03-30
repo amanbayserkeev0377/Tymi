@@ -7,14 +7,14 @@ struct TodayBackground: View {
         LinearGradient(
             colors: colorScheme == .light
                 ? [
-                    Color(red: 0.88, green: 0.89, blue: 1.0),
-                    Color(red: 0.96, green: 0.89, blue: 0.94),
-                    Color(red: 1.0, green: 0.92, blue: 0.85)
+                    Color(red: 0.92, green: 0.89, blue: 0.91),
+                    Color(red: 0.95, green: 0.86, blue: 0.96),
+                    Color(red: 0.88, green: 0.89, blue: 0.99)
                   ]
                 : [
                     Color(red: 0.06, green: 0.08, blue: 0.18),
                     Color(red: 0.14, green: 0.10, blue: 0.20),
-                    Color(red: 0.22, green: 0.09, blue: 0.16)
+                    Color(red: 0.17, green: 0.09, blue: 0.16)
                   ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing

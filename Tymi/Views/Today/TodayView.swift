@@ -75,42 +75,33 @@ struct TodayView: View {
                 }
             }
             
-            if showingNewHabit {
-                Color.black.opacity(0.1)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-                
-                VStack {
-                    Spacer()
-                    BottomSheetView(isPresented: $showingNewHabit) {
-                        NewHabitView(habitStore: habitStore)
-                    }
-                    .frame(height: UIScreen.main.bounds.height * 0.7)
-                    .transition(.move(edge: .bottom))
-                }
+            // NewHabitView
+            BottomSheetContainer(isPresented: $showingNewHabit) {
+                NewHabitView(habitStore: habitStore)
+            }
+            
+            .sheet(isPresented: $showingCalendar) {
+                // TODO: Show calendarview
             }
         }
-        .animation(.spring(response: 0.3), value: showingNewHabit)
-        .sheet(isPresented: $showingCalendar) {
-            // TODO: Show calendarview
-        }
     }
-    
-    private var dateTitle: String {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let selected = calendar.startOfDay(for: selectedDate)
         
-        if calendar.isDate(selected, inSameDayAs: today) {
-            return "Today"
-        } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: -1, to: today)!) {
-            return "Yesterday"
-        } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: today)!) {
-            return "Tomorrow"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEE, d MMMM"
-            return formatter.string(from: selectedDate)
+        private var dateTitle: String {
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            let selected = calendar.startOfDay(for: selectedDate)
+            
+            if calendar.isDate(selected, inSameDayAs: today) {
+                return "Today"
+            } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: -1, to: today)!) {
+                return "Yesterday"
+            } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: today)!) {
+                return "Tomorrow"
+            } else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "EEE, d MMMM"
+                return formatter.string(from: selectedDate)
+            }
         }
     }
-}
+

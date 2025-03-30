@@ -49,14 +49,8 @@ struct BottomSheetView<Content: View>: View {
                 .background(
                     LinearGradient(
                         colors: colorScheme == .light
-                        ? [
-                            Color.white.opacity(0.05),
-                            Color.white.opacity(0.03)
-                        ]
-                        : [
-                            Color.white.opacity(0.02),
-                            Color.white.opacity(0.01)
-                        ],
+                        ? [Color.white.opacity(0.05), Color.white.opacity(0.03)]
+                        : [Color.white.opacity(0.02), Color.white.opacity(0.01)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -68,30 +62,5 @@ struct BottomSheetView<Content: View>: View {
                 .shadow(color: .black.opacity(colorScheme == .light ? 0.15 : 0.5), radius: 20, x: 0, y: -9)
         )
         .ignoresSafeArea(edges: [.bottom])
-    }
-}
-
-#Preview("BottomSheet") {
-    ZStack {
-        TodayBackground()
-        
-        Color.black.opacity(0.1)
-            .ignoresSafeArea()
-        
-        VStack(spacing: 0) {
-            Spacer()
-            BottomSheetView(isPresented: .constant(true)) {
-                VStack {
-                    Text("New Habit")
-                        .font(.headline)
-                        .padding(.bottom)
-                    
-                    Text("This preview helps tune the look and feel.")
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal)
-            }
-            .frame(height: UIScreen.main.bounds.height * 0.7)
-        }
     }
 }
