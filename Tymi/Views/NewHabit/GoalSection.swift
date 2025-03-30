@@ -3,11 +3,10 @@ import SwiftUI
 struct GoalSection: View {
     @Binding var goal: String
     @Binding var type: HabitType
+    @FocusState.Binding var isCountFieldFocused: Bool
     @State private var isExpanded: Bool = false
     @State private var hours: Int = 1
     @State private var minutes: Int = 0
-    @FocusState private var isCountFieldFocused: Bool
-    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
@@ -61,36 +60,25 @@ struct GoalSection: View {
                             .keyboardType(.numberPad)
                             .focused($isCountFieldFocused)
                             .onChange(of: goal) { newValue in
-                                // Только цифры
                                 let filtered = newValue.filter { $0.isNumber }
                                 if filtered != newValue {
                                     goal = filtered
                                 }
-                                // Убираем ведущие нули
                                 if let number = Int(filtered), number > 0 {
                                     goal = String(number)
                                 }
                             }
                             .padding(.vertical, 10)
                             .padding(.horizontal, 14)
-                            .background(Color.white.opacity(0.6))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color(.systemBackground).opacity(0.6))
+                            )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                                    .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                             )
-                            .toolbar {
-                                ToolbarItemGroup(placement: .keyboard) {
-                                    Spacer()
-                                    Button(action: {
-                                        isCountFieldFocused = false
-                                    }) {
-                                        Image(systemName: "keyboard.chevron.compact.down")
-                                            .foregroundStyle(.black)
-                                            .imageScale(.large)
-                                    }
-                                }
-                            }
+                            .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
                     } else {
                         // Time Pickers
                         HStack {

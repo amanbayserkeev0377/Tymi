@@ -9,8 +9,8 @@ struct StartDateSection: View {
     var body: some View {
         VStack(spacing: 0) {
             // Date Row
-            Button(action :{
-                withAnimation(.easeInOut(duration: 0.3)) {
+            Button(action: {
+                withAnimation(.spring(response: 0.3)) {
                     isCalendarExpanded.toggle()
                 }
             }) {
@@ -34,23 +34,24 @@ struct StartDateSection: View {
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .rotationEffect(.degrees(isCalendarExpanded ? 90 : 0))
-                        .animation(.easeInOut(duration: 0.3), value: isCalendarExpanded)
                 }
             }
             .buttonStyle(.plain)
+            .frame(height: 56)
+            .padding(.horizontal, 16)
             
             // Calendar View
             if isCalendarExpanded {
                 DatePicker("", selection: $startDate, displayedComponents: .date)
                     .datePickerStyle(.graphical)
                     .tint(.black)
-                    .padding(.top, 8)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .padding(16)
         .glassCard()
-        .animation(.easeInOut(duration: 0.3), value: isCalendarExpanded)
+        .animation(.spring(response: 0.3), value: isCalendarExpanded)
     }
     
     private var dateText: String {

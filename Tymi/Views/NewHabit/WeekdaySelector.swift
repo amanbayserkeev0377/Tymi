@@ -8,7 +8,7 @@ struct WeekdaySelector: View {
         VStack(spacing: 0) {
             // Header Button
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
+                withAnimation(.spring(response: 0.3)) {
                     isExpanded.toggle()
                 }
             }) {
@@ -33,6 +33,8 @@ struct WeekdaySelector: View {
                 }
             }
             .buttonStyle(.plain)
+            .frame(height: 56)
+            .padding(.horizontal, 16)
             
             if isExpanded {
                 VStack(spacing: 16) {
@@ -40,7 +42,7 @@ struct WeekdaySelector: View {
                     HStack {
                         Spacer()
                         Button(selectedDays.isEmpty ? "All" : "None") {
-                            withAnimation(.easeInOut(duration: 0.3)) {
+                            withAnimation(.spring(response: 0.3)) {
                                 if selectedDays.isEmpty {
                                     selectedDays = Set(1...7)
                                 } else {
@@ -79,13 +81,13 @@ struct WeekdaySelector: View {
                             .buttonStyle(.plain)
                         }
                     }
+                    .padding(.bottom, 8)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .padding(16)
         .glassCard()
-        .animation(.easeInOut(duration: 0.3), value: isExpanded)
+        .animation(.spring(response: 0.3), value: isExpanded)
     }
-} 
+}

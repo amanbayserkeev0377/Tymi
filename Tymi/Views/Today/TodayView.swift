@@ -74,34 +74,34 @@ struct TodayView: View {
                     .padding()
                 }
             }
-            
-            // NewHabitView
-            BottomSheetContainer(isPresented: $showingNewHabit) {
-                NewHabitView(habitStore: habitStore)
-            }
-            
-            .sheet(isPresented: $showingCalendar) {
-                // TODO: Show calendarview
-            }
+        }
+        .sheet(isPresented: $showingNewHabit) {
+            NewHabitView(habitStore: habitStore, isPresented: $showingNewHabit)
+                .presentationDetents([.fraction(0.7)])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(45)
+                .presentationBackground(.ultraThinMaterial)
+        }
+        .sheet(isPresented: $showingCalendar) {
+            // TODO: Show calendarview
         }
     }
         
-        private var dateTitle: String {
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: Date())
-            let selected = calendar.startOfDay(for: selectedDate)
-            
-            if calendar.isDate(selected, inSameDayAs: today) {
-                return "Today"
-            } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: -1, to: today)!) {
-                return "Yesterday"
-            } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: today)!) {
-                return "Tomorrow"
-            } else {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "EEE, d MMMM"
-                return formatter.string(from: selectedDate)
-            }
+    private var dateTitle: String {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selected = calendar.startOfDay(for: selectedDate)
+        
+        if calendar.isDate(selected, inSameDayAs: today) {
+            return "Today"
+        } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: -1, to: today)!) {
+            return "Yesterday"
+        } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: today)!) {
+            return "Tomorrow"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEE, d MMMM"
+            return formatter.string(from: selectedDate)
         }
     }
-
+}
