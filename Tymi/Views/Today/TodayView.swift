@@ -2,9 +2,12 @@ import SwiftUI
 
 struct TodayView: View {
     @EnvironmentObject private var habitStore: HabitStore
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedDate: Date = Date()
     @State private var showingNewHabit = false
     @State private var showingCalendar = false
+    @State private var showingSettings = false
+    @State private var showingFABMenu = false
     
     private var habitsForSelectedDate: [Habit] {
         habitStore.habits.filter { habit in
@@ -25,19 +28,6 @@ struct TodayView: View {
                         .fontWeight(.bold)
                     
                     Spacer()
-                    
-                    Button(action: { showingCalendar.toggle() }) {
-                        Image(systemName: "calendar")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(.primary)
-                    }
-                    
-                    Button {
-                        // TODO: Show settings
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .font(.title3)
-                    }
                 }
                 .padding(.horizontal)
                 
@@ -55,60 +45,155 @@ struct TodayView: View {
                     }
                 }
             }
-            .blur(radius: showingCalendar ? 20 : 0)
+            .blur(radius: showingFABMenu ? 20 : 0)
             
-            // Calendar overlay
-            if showingCalendar {
+            // FAB Menu background
+            if showingFABMenu {
                 Color.black.opacity(0.1)
                     .ignoresSafeArea()
-                    .transition(.opacity)
                     .onTapGesture {
                         withAnimation(.spring(response: 0.3)) {
-                            showingCalendar = false
+                            showingFABMenu = false
                         }
                     }
+                    .transition(.opacity)
                 
+                // Menu items
+                VStack(spacing: 24) {
+                    Spacer()
+                    
+                    // New Habit Button
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            showingFABMenu = false
+                            showingNewHabit = true
+                        }
+                    } label: {
+                        HStack {
+                            Text("New Habit")
+                                .font(.body)
+                            
+                            Image(systemName: "plus")
+                                .font(.body)
+                                .frame(width: 32, height: 32)
+                                .background(Color(uiColor: colorScheme == .dark ? .systemGray5 : .systemGray6))
+                                .clipShape(Circle())
+                        }
+                        .foregroundStyle(colorScheme == .dark ? .white : .black)
+                    }
+                    
+                    // Calendar Button
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            showingFABMenu = false
+                            showingCalendar = true
+                        }
+                    } label: {
+                        HStack {
+                            Text("Calendar")
+                                .font(.body)
+                            
+                            Image(systemName: "calendar")
+                                .font(.body)
+                                .frame(width: 32, height: 32)
+                                .background(Color(uiColor: colorScheme == .dark ? .systemGray5 : .systemGray6))
+                                .clipShape(Circle())
+                        }
+                        .foregroundStyle(colorScheme == .dark ? .white : .black)
+                    }
+                    
+                    // Settings Button
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            showingFABMenu = false
+                            showingSettings = true
+                        }
+                    } label: {
+                        HStack {
+                            Text("Settings")
+                                .font(.body)
+                            
+                            Image(systemName: "gearshape")
+                                .font(.body)
+                                .frame(width: 32, height: 32)
+                                .background(Color(uiColor: colorScheme == .dark ? .systemGray5 : .systemGray6))
+                                .clipShape(Circle())
+                        }
+                        .foregroundStyle(colorScheme == .dark ? .white : .black)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.trailing, 16)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .transition(.opacity)
+            }
+            
+            // FAB Button (only show when menu is not visible)
+            if !showingFABMenu {
                 VStack {
                     Spacer()
-                        .frame(height: 280)
-                    
-                    CalendarView(selectedDate: $selectedDate, isPresented: $showingCalendar)
-                        .padding(.horizontal)
-                    
-                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            withAnimation(.spring(response: 0.3)) {
+                                showingFABMenu = true
+                            }
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .frame(width: 45, height: 45)
+                                .glassCard()
+                        }
+                        .padding()
+                    }
                 }
                 .transition(.opacity)
             }
             
-            // FAB
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    Button {
-                        showingNewHabit = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .frame(width: 45, height: 45)
-                            .glassCard()
+            // New habit modal
+            if showingNewHabit {
+                Color.black
+                    .opacity(0.05)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.3)) {
+                            showingNewHabit = false
+                        }
                     }
-                    .padding()
-                }
+                    .transition(.opacity)
+                
+                NewHabitView(habitStore: habitStore, isPresented: $showingNewHabit)
+                    .transition(.move(edge: .bottom))
+                    .zIndex(2)
             }
-            .opacity(showingCalendar ? 0 : 1)
+            
+            // Settings placeholder
+            if showingSettings {
+                Color.black
+                    .opacity(0.05)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.3)) {
+                            showingSettings = false
+                        }
+                    }
+                    .transition(.opacity)
+                
+                Text("Settings")
+                    .font(.title)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(.ultraThinMaterial)
+                    .transition(.move(edge: .bottom))
+                    .zIndex(2)
+            }
         }
-        .sheet(isPresented: $showingNewHabit) {
-            NewHabitView(habitStore: habitStore, isPresented: $showingNewHabit)
-                .presentationDetents([.fraction(0.7)])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(40)
-                .presentationBackground(.clear)
-        }
-        .animation(.spring(response: 0.3), value: showingCalendar)
+        .animation(.spring(response: 0.3), value: showingFABMenu)
+        .animation(.spring(response: 0.3), value: showingNewHabit)
+        .animation(.spring(response: 0.3), value: showingSettings)
     }
-        
+    
     private var dateTitle: String {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())

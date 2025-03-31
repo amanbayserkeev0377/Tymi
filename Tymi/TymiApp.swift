@@ -13,7 +13,7 @@ struct TymiApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TodayView()
                 .environmentObject(habitStore)
         }
     }
