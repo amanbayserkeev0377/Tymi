@@ -4,7 +4,11 @@ class CalendarViewModel: ObservableObject {
     @Published var selectedDate: Date
     @Published var currentMonth: Date
     
-    private let calendar = Calendar.current
+    private let calendar: Calendar = {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2 // Monday
+        return calendar
+    }()
     
     init(selectedDate: Date = Date()) {
         self.selectedDate = selectedDate
@@ -38,7 +42,7 @@ class CalendarViewModel: ObservableObject {
         }
     }
     
-    // Checks if the given date is the selected date
+    // Checks if the given date is today
     func isToday(_ date: Date) -> Bool {
         calendar.isDateInToday(date)
     }
@@ -46,6 +50,16 @@ class CalendarViewModel: ObservableObject {
     // Checks if the given date is the selected date
     func isSelected(_ date: Date) -> Bool {
         calendar.isDate(date, inSameDayAs: selectedDate)
+    }
+    
+    // Checks if the given date is in the current month
+    func isCurrentMonth(_ date: Date) -> Bool {
+        calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
+    }
+    
+    // Checks if the given date is in the future
+    func isFuture(_ date: Date) -> Bool {
+        date > Date()
     }
     
     // Returns the weekday index for the given date
