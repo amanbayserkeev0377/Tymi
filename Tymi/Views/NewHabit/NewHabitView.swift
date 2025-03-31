@@ -97,7 +97,7 @@ private struct NewHabitContentView: View {
         }
         .frame(maxWidth: min(600, UIScreen.main.bounds.width - 32))
         .frame(maxHeight: UIScreen.main.bounds.height * 0.85)
-        .background(CardBackground())
+        .background(GlassSectionBackground())
     }
 }
 
@@ -162,17 +162,5 @@ private struct SaveButtonView: View {
         .opacity(isValid ? 1 : 0.5)
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
-    }
-}
-
-private struct CardBackground: View {
-    var body: some View {
-        RoundedRectangle(cornerRadius: 24)
-            .fill(.ultraThinMaterial)
-            .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(0.2), radius: 25, x: 0, y: -12)
     }
 }
