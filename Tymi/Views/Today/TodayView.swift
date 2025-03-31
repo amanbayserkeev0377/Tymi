@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TodayView: View {
     @EnvironmentObject private var habitStore: HabitStore
-    @State private var selectedDate = Date()
+    @State private var selectedDate: Date = Date()
     @State private var showingNewHabit = false
     @State private var showingCalendar = false
     
@@ -26,11 +26,10 @@ struct TodayView: View {
                     
                     Spacer()
                     
-                    Button {
-                        showingCalendar = true
-                    } label: {
+                    Button(action: { showingCalendar.toggle() }) {
                         Image(systemName: "calendar")
-                            .font(.title3)
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(.primary)
                     }
                     
                     Button {
@@ -56,6 +55,30 @@ struct TodayView: View {
                     }
                 }
             }
+            .blur(radius: showingCalendar ? 20 : 0)
+            
+            // Calendar overlay
+            if showingCalendar {
+                Color.black.opacity(0.1)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.3)) {
+                            showingCalendar = false
+                        }
+                    }
+                
+                VStack {
+                    Spacer()
+                        .frame(height: 280)
+                    
+                    CalendarView(selectedDate: $selectedDate, isPresented: $showingCalendar)
+                        .padding(.horizontal)
+                    
+                    Spacer()
+                }
+                .transition(.opacity)
+            }
             
             // FAB
             VStack {
@@ -74,17 +97,16 @@ struct TodayView: View {
                     .padding()
                 }
             }
+            .opacity(showingCalendar ? 0 : 1)
         }
         .sheet(isPresented: $showingNewHabit) {
             NewHabitView(habitStore: habitStore, isPresented: $showingNewHabit)
                 .presentationDetents([.fraction(0.7)])
                 .presentationDragIndicator(.visible)
-                .presentationCornerRadius(45)
-                .presentationBackground(.ultraThinMaterial)
+                .presentationCornerRadius(40)
+                .presentationBackground(.clear)
         }
-        .sheet(isPresented: $showingCalendar) {
-            // TODO: Show calendarview
-        }
+        .animation(.spring(response: 0.3), value: showingCalendar)
     }
         
     private var dateTitle: String {

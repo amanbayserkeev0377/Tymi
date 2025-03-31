@@ -3,6 +3,9 @@ import SwiftUI
 class CalendarViewModel: ObservableObject {
     @Published var selectedDate: Date
     @Published var currentMonth: Date
+    @Published var daysWithHabits: Set<Date> = []
+    @Published var completedHabits: Set<Date> = []
+    @Published var partiallyCompletedHabits: Set<Date> = []
     
     private let calendar: Calendar = {
         var calendar = Calendar.current
@@ -13,12 +16,19 @@ class CalendarViewModel: ObservableObject {
     init(selectedDate: Date = Date()) {
         self.selectedDate = selectedDate
         self.currentMonth = selectedDate
+        // TODO: Загрузить дни с привычками из HabitStore
     }
     
-    // Returns all dates withing the current month
+    // Returns all dates for the calendar grid (including previous and next month)
     var dates: [Date] {
-        let interval = DateInterval(start: startOfMonth(), end: endOfMonth())
-        return calendar.generateDates(inside: interval, matching: DateComponents(day: 1, hour: 0, minute: 0, second: 0, nanosecond: 0))
+        let firstWeekday = calendar.component(.weekday, from: startOfMonth())
+        let offsetDays = firstWeekday - 2 // 2 is Monday
+        
+        let startDate = calendar.date(byAdding: .day, value: -offsetDays, to: startOfMonth()) ?? startOfMonth()
+        let endDate = calendar.date(byAdding: .day, value: 42, to: startDate) ?? endOfMonth() // 6 weeks * 7 days
+        
+        let interval = DateInterval(start: startDate, end: endDate)
+        return calendar.generateDates(inside: interval, matching: DateComponents(hour: 0, minute: 0, second: 0, nanosecond: 0))
     }
     
     // Returns the formatted title of the current month
@@ -30,14 +40,14 @@ class CalendarViewModel: ObservableObject {
     
     // Navigates to the previous month
     func previousMonth() {
-        withAnimation {
+        withAnimation(.spring(response: 0.3)) {
             currentMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
         }
     }
     
     // Navigates to the next month
     func nextMonth() {
-        withAnimation {
+        withAnimation(.spring(response: 0.3)) {
             currentMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
         }
     }
@@ -62,9 +72,18 @@ class CalendarViewModel: ObservableObject {
         date > Date()
     }
     
-    // Returns the weekday index for the given date
-    func weekday(for date: Date) -> Int {
-        calendar.component(.weekday, from: date)
+    // Returns the completion status for the given date
+    func completionStatus(for date: Date) -> CompletionStatus {
+        let startOfDay = calendar.startOfDay(for: date)
+        if completedHabits.contains(startOfDay) {
+            return .completed
+        } else if partiallyCompletedHabits.contains(startOfDay) {
+            return .partiallyCompleted
+        } else if daysWithHabits.contains(startOfDay) {
+            return .hasHabits
+        } else {
+            return .none
+        }
     }
     
     // Returns the day component (1...31) for the given date
@@ -106,4 +125,11 @@ extension Calendar {
         }
         return dates
     }
+}
+
+enum CompletionStatus {
+    case none
+    case hasHabits
+    case partiallyCompleted
+    case completed
 }
