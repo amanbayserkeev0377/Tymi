@@ -32,19 +32,14 @@ final class NewHabitViewModel: ObservableObject {
     }
     
     // MARK: - Public Methods
-    func createHabit() {
+    func createHabit() -> Habit? {
         guard isValid else {
             showError = true
             errorMessage = "Please fill in all required fields"
-            return
+            return nil
         }
         
-        let goalValue: Double
-        if type == .time {
-            goalValue = Double(goal)! * 60 // Convert minutes to seconds
-        } else {
-            goalValue = Double(goal)!
-        }
+        let goalValue = Double(goal) ?? 1
         
         let habit = Habit(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -56,6 +51,7 @@ final class NewHabitViewModel: ObservableObject {
         )
         
         habitStore.addHabit(habit)
+        return habit
     }
     
     func toggleDay(_ day: Int) {
