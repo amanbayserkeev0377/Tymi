@@ -3,164 +3,127 @@ import SwiftUI
 struct NewHabitView: View {
     @StateObject private var viewModel: NewHabitViewModel
     @Environment(\.colorScheme) private var colorScheme
+    @Binding var isPresented: Bool
     @FocusState private var isNameFieldFocused: Bool
     @FocusState private var isCountFieldFocused: Bool
-    @Binding var isPresented: Bool
     
-    init(habitStore: HabitStore, isPresented: Binding<Bool>) {
+    var onSave: ((Habit) -> Void)?
+    
+    init(habitStore: HabitStore, isPresented: Binding<Bool>, onSave: ((Habit) -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: NewHabitViewModel(habitStore: habitStore))
         _isPresented = isPresented
+        self.onSave = onSave
     }
     
     var body: some View {
-        ZStack {
-            BackgroundView()
-            NewHabitContentView(
-                viewModel: viewModel,
-                isPresented: $isPresented,
-                isNameFieldFocused: $isNameFieldFocused,
-                isCountFieldFocused: $isCountFieldFocused,
-                colorScheme: colorScheme
+        VStack(spacing: 24) {
+            // Name Field
+            NameFieldView(
+                name: $viewModel.name,
+                isFocused: $isNameFieldFocused
             )
-        }
-        .alert("Error", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(viewModel.errorMessage)
-        }
-    }
-}
-
-private struct BackgroundView: View {
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .ignoresSafeArea()
+            .padding(.horizontal, 24)
             
-            Color.black.opacity(0.05)
-                .ignoresSafeArea()
-        }
-    }
-}
-
-private struct NewHabitContentView: View {
-    @ObservedObject var viewModel: NewHabitViewModel
-    @Binding var isPresented: Bool
-    @FocusState.Binding var isNameFieldFocused: Bool
-    @FocusState.Binding var isCountFieldFocused: Bool
-    let colorScheme: ColorScheme
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            HeaderView(isPresented: $isPresented, colorScheme: colorScheme)
-            
-            ScrollView {
-                VStack(spacing: 24) {
-                    NameFieldView(
-                        name: $viewModel.name,
-                        isNameFieldFocused: $isNameFieldFocused
-                    )
-                    
-                    StartDateSection(startDate: $viewModel.startDate)
-                        .padding(.horizontal, 24)
-                    
-                    GoalSection(
-                        goal: $viewModel.goal,
-                        type: $viewModel.type,
-                        isCountFieldFocused: $isCountFieldFocused
-                    )
-                    .padding(.horizontal, 24)
-                    
-                    WeekdaySelector(selectedDays: $viewModel.activeDays)
-                        .padding(.horizontal, 24)
-                    
-                    ReminderSection(
-                        isEnabled: $viewModel.reminderEnabled,
-                        time: $viewModel.reminderTime
-                    )
-                    .padding(.horizontal, 24)
+            // Type Selection
+            HStack {
+                Button {
+                    viewModel.type = .count
+                } label: {
+                    VStack(spacing: 8) {
+                        Image(systemName: "number")
+                            .font(.title2.weight(.medium))
+                        Text("Count")
+                            .font(.caption.weight(.medium))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(viewModel.type == .count ? Color.primary.opacity(0.1) : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding(.bottom, 24)
+                
+                Button {
+                    viewModel.type = .time
+                } label: {
+                    VStack(spacing: 8) {
+                        Image(systemName: "clock")
+                            .font(.title2.weight(.medium))
+                        Text("Time")
+                            .font(.caption.weight(.medium))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(viewModel.type == .time ? Color.primary.opacity(0.1) : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
             }
-            .scrollDismissesKeyboard(.immediately)
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 24)
             
-            SaveButtonView(
-                isValid: viewModel.isValid,
-                action: {
-                    viewModel.createHabit()
+            // Goal Section
+            GoalSection(
+                goal: $viewModel.goal,
+                type: $viewModel.type,
+                isCountFieldFocused: $isCountFieldFocused
+            )
+            .padding(.horizontal, 24)
+            
+            // Weekday Selection
+            WeekdaySelector(selectedDays: $viewModel.activeDays)
+                .padding(.horizontal, 24)
+            
+            Spacer()
+            
+            // Save Button
+            Button {
+                let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+                feedbackGenerator.prepare()
+                
+                if let habit = viewModel.createHabit() {
+                    feedbackGenerator.impactOccurred()
+                    onSave?(habit)
                     withAnimation(.spring(response: 0.3)) {
                         isPresented = false
                     }
                 }
-            )
+            } label: {
+                Text("Create Habit")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(height: 56)
+                    .frame(maxWidth: .infinity)
+                    .background(.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            .disabled(!viewModel.isValid)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
         }
-        .frame(maxWidth: min(600, UIScreen.main.bounds.width - 32))
-        .frame(maxHeight: UIScreen.main.bounds.height * 0.85)
-        .background(GlassSectionBackground())
+        .padding(.top, 24)
+        .modalStyle(isPresented: $isPresented)
     }
 }
 
-private struct HeaderView: View {
-    @Binding var isPresented: Bool
-    let colorScheme: ColorScheme
+// MARK: - NameFieldView
+struct NameFieldView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Binding var name: String
+    var isFocused: FocusState<Bool>.Binding
     
     var body: some View {
-        HStack {
-            Text("New Habit")
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(colorScheme == .dark ? .white : .black)
-            
-            Spacer()
-            
-            Button {
-                withAnimation(.spring(response: 0.3)) {
-                    isPresented = false
-                }
-            } label: {
-                Image(systemName: "xmark")
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Image(systemName: "pencil")
                     .font(.body.weight(.medium))
                     .foregroundStyle(colorScheme == .dark ? .white : .black)
-                    .frame(width: 32, height: 32)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
+                    .frame(width: 28, height: 28)
+                
+                TextField("Habit Name", text: $name)
+                    .font(.title3.weight(.semibold))
+                    .focused(isFocused)
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 24)
-        .padding(.bottom, 16)
-    }
-}
-
-private struct NameFieldView: View {
-    @Binding var name: String
-    @FocusState.Binding var isNameFieldFocused: Bool
-    
-    var body: some View {
-        TextField("Habit Name", text: $name)
-            .font(.title2.weight(.semibold))
-            .focused($isNameFieldFocused)
-            .padding(.horizontal, 24)
-    }
-}
-
-private struct SaveButtonView: View {
-    let isValid: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text("Save")
-                .font(.body.weight(.semibold))
-                .foregroundStyle(.white)
-                .frame(height: 56)
-                .frame(maxWidth: .infinity)
-                .background(.black)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-        .disabled(!isValid)
-        .opacity(isValid ? 1 : 0.5)
-        .padding(.horizontal, 24)
-        .padding(.bottom, 24)
+        .glassCard()
     }
 }

@@ -8,6 +8,8 @@ struct TodayView: View {
     @State private var showingCalendar = false
     @State private var showingSettings = false
     @State private var showingFABMenu = false
+    @State private var selectedHabit: Habit?
+    @Namespace private var namespace
     
     private var habitsForSelectedDate: [Habit] {
         habitStore.habits.filter { habit in
@@ -20,32 +22,46 @@ struct TodayView: View {
         ZStack {
             TodayBackground()
             
-            VStack(spacing: 20) {
+            VStack(spacing: 0) {
                 // Header
-                HStack {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(dateTitle)
-                        .font(.title)
-                        .fontWeight(.bold)
-                    
-                    Spacer()
+                        .font(.largeTitle.weight(.bold))
                 }
-                .padding(.horizontal)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
                 
-                // Content
-                if habitsForSelectedDate.isEmpty {
-                    EmptyStateView()
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            ForEach(habitsForSelectedDate) { habit in
-                                HabitRowView(habit: habit)
-                                    .padding(.horizontal)
-                            }
+                // Tips carousel
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: -15) {
+                        ForEach(TipCard.tips) { tip in
+                            TipCardView(card: tip, namespace: namespace)
+                                .frame(width: UIScreen.main.bounds.width - 140)
+                                .frame(height: 300)
                         }
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+                }
+                
+                // Habits list
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach(habitsForSelectedDate) { habit in
+                            HabitRowView(habit: habit)
+                                .padding(.horizontal, 24)
+                                .onTapGesture {
+                                    withAnimation(.spring(response: 0.3)) {
+                                        selectedHabit = habit
+                                    }
+                                }
+                        }
+                    }
+                    .padding(.top, 24)
                 }
             }
-            .blur(radius: showingFABMenu ? 20 : 0)
+            .blur(radius: showingFABMenu || showingNewHabit || showingCalendar || showingSettings || selectedHabit != nil ? 20 : 0)
             
             // FAB Menu background
             if showingFABMenu {
@@ -169,7 +185,24 @@ struct TodayView: View {
                     .zIndex(2)
             }
             
-            // Settings placeholder
+            // Calendar modal
+            if showingCalendar {
+                Color.black
+                    .opacity(0.05)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.3)) {
+                            showingCalendar = false
+                        }
+                    }
+                    .transition(.opacity)
+                
+                CalendarView(selectedDate: $selectedDate, isPresented: $showingCalendar)
+                    .transition(.move(edge: .bottom))
+                    .zIndex(2)
+            }
+            
+            // Settings modal
             if showingSettings {
                 Color.black
                     .opacity(0.05)
@@ -181,17 +214,35 @@ struct TodayView: View {
                     }
                     .transition(.opacity)
                 
-                Text("Settings")
-                    .font(.title)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.ultraThinMaterial)
+                SettingsView(isPresented: $showingSettings)
                     .transition(.move(edge: .bottom))
                     .zIndex(2)
+            }
+            
+            // Habit Detail Modal
+            if let habit = selectedHabit {
+                Color.black.opacity(0.05)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.3)) {
+                            selectedHabit = nil
+                        }
+                    }
+                
+                HabitDetailView(habit: habit, isPresented: Binding(
+                    get: { selectedHabit != nil },
+                    set: { if !$0 { selectedHabit = nil } }
+                ))
+                .transition(.move(edge: .bottom))
+                .zIndex(2)
             }
         }
         .animation(.spring(response: 0.3), value: showingFABMenu)
         .animation(.spring(response: 0.3), value: showingNewHabit)
+        .animation(.spring(response: 0.3), value: showingCalendar)
         .animation(.spring(response: 0.3), value: showingSettings)
+        .animation(.spring(response: 0.3), value: selectedHabit)
+        .navigationBarHidden(true)
     }
     
     private var dateTitle: String {
@@ -199,15 +250,15 @@ struct TodayView: View {
         let today = calendar.startOfDay(for: Date())
         let selected = calendar.startOfDay(for: selectedDate)
         
-        if calendar.isDate(selected, inSameDayAs: today) {
+        if calendar.isDateInToday(selectedDate) {
             return "Today"
-        } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: -1, to: today)!) {
+        } else if calendar.isDateInYesterday(selectedDate) {
             return "Yesterday"
-        } else if calendar.isDate(selected, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: today)!) {
+        } else if calendar.isDateInTomorrow(selectedDate) {
             return "Tomorrow"
         } else {
             let formatter = DateFormatter()
-            formatter.dateFormat = "EEE, d MMMM"
+            formatter.dateFormat = "E, d MMM"
             return formatter.string(from: selectedDate)
         }
     }

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct CalendarView: View {
     @StateObject private var viewModel: CalendarViewModel
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var habitStore: HabitStore
     @Binding var isPresented: Bool
@@ -17,12 +16,12 @@ struct CalendarView: View {
     private let weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     
     var body: some View {
-        VStack(spacing: 16) {
-            // Header with month and navigation
+        VStack(spacing: 0) {
+            // Header
             HStack {
                 Text(viewModel.monthTitle)
-                    .font(.title2.weight(.semibold))
-                    .foregroundStyle(colorScheme == .dark ? .white : .black)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.primary)
                 
                 Spacer()
                 
@@ -34,9 +33,11 @@ struct CalendarView: View {
                         }
                     }) {
                         Image(systemName: "chevron.left")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(colorScheme == .dark ? .white : .black)
-                            .frame(width: 44, height: 44)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.primary)
+                            .frame(width: 32, height: 32)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
                     }
                     
                     Button(action: {
@@ -46,16 +47,17 @@ struct CalendarView: View {
                         }
                     }) {
                         Image(systemName: "chevron.right")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(viewModel.isCurrentMonth(Date()) ? 
-                                (colorScheme == .dark ? .white.opacity(0.3) : .black.opacity(0.3)) :
-                                (colorScheme == .dark ? .white : .black))
-                            .frame(width: 44, height: 44)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(viewModel.isCurrentMonth(Date()) ? .secondary : .primary)
+                            .frame(width: 32, height: 32)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
                     }
                     .disabled(viewModel.isCurrentMonth(Date()))
                 }
             }
             .padding(.horizontal, 24)
+            .padding(.vertical, 16)
             
             // Weekday headers
             HStack {
@@ -67,7 +69,7 @@ struct CalendarView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.top, 8)
+            .padding(.bottom, 12)
             
             // Calendar grid
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
@@ -83,12 +85,10 @@ struct CalendarView: View {
                 }
             }
             .padding(.horizontal, 24)
+            .padding(.bottom, 24)
         }
-        .padding(.vertical, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
-        )
+        .frame(width: UIScreen.main.bounds.width - 48)
+        .glassCard()
+        .modalStyle(isPresented: $isPresented)
     }
 }
