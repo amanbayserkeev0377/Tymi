@@ -53,7 +53,7 @@ struct TodayView: View {
                                 .padding(.horizontal, 24)
                                 .onTapGesture {
                                     withAnimation(.easeInOut(duration: 0.3))
- {
+                                    {
                                         selectedHabit = habit
                                     }
                                 }
@@ -202,7 +202,10 @@ struct TodayView: View {
                     .transition(.opacity)
                 
                 CalendarView(selectedDate: $selectedDate, isPresented: $showingCalendar)
-                    .transition(.move(edge: .bottom))
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .bottom).combined(with: .opacity),
+                        removal: .move(edge: .bottom).combined(with: .opacity)
+                    ))
                     .zIndex(2)
             }
             

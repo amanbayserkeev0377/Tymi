@@ -40,6 +40,7 @@ struct WeekdaySelector: View {
             
             if isExpanded {
                 VStack(spacing: 16) {
+                    Divider()
                     // Select/Deselect All Button
                     HStack {
                         Spacer()

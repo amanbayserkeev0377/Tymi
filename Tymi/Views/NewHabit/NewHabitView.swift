@@ -74,7 +74,7 @@ struct NewHabitView: View {
                             if let habit = viewModel.createHabit() {
                                 feedbackGenerator.impactOccurred()
                                 onSave(habit)
-                                withAnimation(.easeInOut()) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
                                     dismiss()
                                 }
                             }
