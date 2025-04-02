@@ -1,43 +1,45 @@
 import SwiftUI
 
 struct ReminderSection: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var isEnabled: Bool
     @Binding var time: Date
-    @Environment(\.colorScheme) var colorScheme
-
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Image(systemName: "bell")
-                    .font(.system(size: 20))
-                    .foregroundStyle(.secondary)
-
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(colorScheme == .dark ? .white : .black)
+                    .frame(width: 28, height: 28)
+                
                 Text("Reminder")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
+                    .font(.title3.weight(.semibold))
+                
                 Spacer()
-
-                ZStack {
-                    DatePicker("", selection: .constant(Date()), displayedComponents: .hourAndMinute)
-                        .labelsHidden()
-                        .opacity(0)
-
-                    if isEnabled {
-                        DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
-                            .labelsHidden()
-                            .transition(.opacity.combined(with: .move(edge: .trailing)))
-                    }
-                }
-                .frame(width: 100)
-
+                
                 Toggle("", isOn: $isEnabled)
                     .labelsHidden()
-                    .tint(colorScheme == .light ? .black : Color.white.opacity(0.4))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            
+            if isEnabled {
+                Divider()
+                    .padding(.horizontal, 16)
+                
+                DatePicker(
+                    "Time",
+                    selection: $time,
+                    displayedComponents: .hourAndMinute
+                )
+                .datePickerStyle(.compact)
+                .labelsHidden()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
         }
-        .padding(16)
         .glassCard()
-        .animation(.easeOut(duration: 0.3), value: isEnabled)
+        .animation(.spring(response: 0.3), value: isEnabled)
     }
 }

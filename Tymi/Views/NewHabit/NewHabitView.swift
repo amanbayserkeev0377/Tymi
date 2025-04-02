@@ -1,113 +1,131 @@
 import SwiftUI
 
 struct NewHabitView: View {
-    @StateObject private var viewModel: NewHabitViewModel
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    @Binding var isPresented: Bool
-    @FocusState private var isNameFieldFocused: Bool
-    @FocusState private var isCountFieldFocused: Bool
+    @StateObject private var viewModel: NewHabitViewModel
+    @FocusState private var focusedField: Field?
     
-    var onSave: ((Habit) -> Void)?
+    let onSave: (Habit) -> Void
     
-    init(habitStore: HabitStore, isPresented: Binding<Bool>, onSave: ((Habit) -> Void)? = nil) {
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    
+    enum Field {
+        case name
+        case count
+    }
+    
+    init(habitStore: HabitStore, onSave: @escaping (Habit) -> Void) {
         _viewModel = StateObject(wrappedValue: NewHabitViewModel(habitStore: habitStore))
-        _isPresented = isPresented
         self.onSave = onSave
     }
     
     var body: some View {
-        VStack(spacing: 24) {
-            // Name Field
-            NameFieldView(
-                name: $viewModel.name,
-                isFocused: $isNameFieldFocused
-            )
-            .padding(.horizontal, 24)
-            
-            // Type Selection
-            HStack {
-                Button {
-                    viewModel.type = .count
-                } label: {
-                    VStack(spacing: 8) {
-                        Image(systemName: "number")
-                            .font(.title2.weight(.medium))
-                        Text("Count")
-                            .font(.caption.weight(.medium))
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                VStack(spacing: 16) {
+                    HStack {
+                        Button {
+                            feedbackGenerator.impactOccurred()
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.body.weight(.medium))
+                                .foregroundStyle(.secondary)
+                                .frame(width: 32, height: 32)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Circle())
+                        }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(viewModel.type == .count ? Color.primary.opacity(0.1) : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                
-                Button {
-                    viewModel.type = .time
-                } label: {
-                    VStack(spacing: 8) {
-                        Image(systemName: "clock")
-                            .font(.title2.weight(.medium))
-                        Text("Time")
-                            .font(.caption.weight(.medium))
+                    .padding(.horizontal, 16)
+                    
+                    VStack(spacing: 16) {
+                        // Name Field
+                        NameFieldView(name: $viewModel.name)
+                            .focused($focusedField, equals: .name)
+                        
+                        // Goal Section
+                        GoalSection(
+                            goal: $viewModel.goal,
+                            type: $viewModel.type,
+                            isCountFieldFocused: focusedField == .count,
+                            onTap: { focusedField = .count }
+                        )
+                        .focused($focusedField, equals: .count)
+                        
+                        // Weekday Selection
+                        WeekdaySelector(selectedDays: $viewModel.activeDays)
+                        
+                        // Reminder Section
+                        ReminderSection(
+                            isEnabled: $viewModel.isReminderEnabled,
+                            time: $viewModel.reminderTime
+                        )
+                        
+                        // Start Date Section
+                        StartDateSection(startDate: $viewModel.startDate)
+                        
+                        Spacer(minLength: 32)
+                        
+                        // Create Button
+                        Button {
+                            feedbackGenerator.prepare()
+                            if let habit = viewModel.createHabit() {
+                                feedbackGenerator.impactOccurred()
+                                onSave(habit)
+                                withAnimation(.spring()) {
+                                    dismiss()
+                                }
+                            }
+                        } label: {
+                            Text("Create Habit")
+                                .font(.title3.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .frame(height: 56)
+                                .frame(maxWidth: .infinity)
+                                .background(.black)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                        .disabled(!viewModel.isValid)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(viewModel.type == .time ? Color.primary.opacity(0.1) : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 16)
                 }
             }
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 24)
             
-            // Goal Section
-            GoalSection(
-                goal: $viewModel.goal,
-                type: $viewModel.type,
-                isCountFieldFocused: $isCountFieldFocused
-            )
-            .padding(.horizontal, 24)
-            
-            // Weekday Selection
-            WeekdaySelector(selectedDays: $viewModel.activeDays)
-                .padding(.horizontal, 24)
-            
-            Spacer()
-            
-            // Save Button
-            Button {
-                let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
-                feedbackGenerator.prepare()
-                
-                if let habit = viewModel.createHabit() {
-                    feedbackGenerator.impactOccurred()
-                    onSave?(habit)
-                    withAnimation(.spring(response: 0.3)) {
-                        isPresented = false
+            // Keyboard Dismiss Button
+            if focusedField != nil {
+                HStack {
+                    Spacer()
+                    Button {
+                        focusedField = nil
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(colorScheme == .dark ? .white : .black)
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
                     }
                 }
-            } label: {
-                Text("Create Habit")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(height: 56)
-                    .frame(maxWidth: .infinity)
-                    .background(.black)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 4)
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .offset(y: 10)),
+                    removal: .opacity.combined(with: .offset(y: 10))
+                ))
             }
-            .disabled(!viewModel.isValid)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
         }
-        .padding(.top, 24)
-        .modalStyle(isPresented: $isPresented)
     }
+}
+
+#Preview {
+    NewHabitView(habitStore: HabitStore(), onSave: { _ in })
 }
 
 // MARK: - NameFieldView
 struct NameFieldView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Binding var name: String
-    var isFocused: FocusState<Bool>.Binding
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -119,7 +137,6 @@ struct NameFieldView: View {
                 
                 TextField("Habit Name", text: $name)
                     .font(.title3.weight(.semibold))
-                    .focused(isFocused)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)

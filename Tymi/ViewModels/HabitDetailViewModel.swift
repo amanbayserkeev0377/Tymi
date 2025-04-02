@@ -54,6 +54,7 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     private var wasRunningBeforeBackground = false
+    private var startTime: Date?
     
     init(habit: Habit) {
         self.habit = habit
@@ -202,17 +203,29 @@ class HabitDetailViewModel: ObservableObject {
         }
     }
     
-    func resumeTimerIfNeeded() {
-        if wasRunningBeforeBackground {
-            startTimer()
-            wasRunningBeforeBackground = false
-        }
+    // MARK: - App Lifecycle
+    func onAppear() {
+        resumeTimerIfNeeded()
     }
     
-    func pauseTimerIfNeeded() {
-        if isPlaying {
-            wasRunningBeforeBackground = true
-            pauseTimer()
+    func onDisappear() {
+        pauseTimerIfNeeded()
+    }
+    
+    // MARK: - Timer Management
+    private func resumeTimerIfNeeded() {
+        guard habit.type == .time, !isCompleted else { return }
+        isPlaying = true
+        startTime = Date()
+    }
+    
+    private func pauseTimerIfNeeded() {
+        guard habit.type == .time else { return }
+        isPlaying = false
+        if let start = startTime {
+            let elapsed = Date().timeIntervalSince(start)
+            currentValue += elapsed
+            startTime = nil
         }
     }
     

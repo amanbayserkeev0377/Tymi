@@ -1,144 +1,119 @@
 import SwiftUI
 
 struct GoalSection: View {
-    @Binding var goal: String
+    @Environment(\.colorScheme) private var colorScheme
+    @Binding var goal: Double
     @Binding var type: HabitType
-    @FocusState.Binding var isCountFieldFocused: Bool
-    @State private var isExpanded: Bool = false
-    @State private var hours: Int = 1
-    @State private var minutes: Int = 0
+    let isCountFieldFocused: Bool
+    let onTap: () -> Void
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Goal Row
-            Button(action: {
-                withAnimation(.spring(response: 0.3)) {
-                    isExpanded.toggle()
-                    if !isExpanded {
-                        isCountFieldFocused = false
-                    }
-                }
-            }) {
-                HStack {
-                    Image(systemName: "trophy")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.secondary)
-                    
-                    Text("Daily Goal")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    Spacer()
-                    
-                    Text(goalText)
-                        .font(.subheadline)
-                    
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                }
-            }
-            .buttonStyle(.plain)
-            
-            if isExpanded {
-                VStack(spacing: 16) {
-                    // Unit Selector
-                    Picker("Type", selection: $type) {
-                        Text("Count").tag(HabitType.count)
-                        Text("Time").tag(HabitType.time)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.top, 16)
-                    .onChange(of: type) { _ in
-                        isCountFieldFocused = false
-                    }
-                    
-                    if type == .count {
-                        // Count Input
-                        TextField("Count", text: $goal)
-                            .keyboardType(.numberPad)
-                            .focused($isCountFieldFocused)
-                            .onChange(of: goal) { newValue in
-                                let filtered = newValue.filter { $0.isNumber }
-                                if filtered != newValue {
-                                    goal = filtered
-                                }
-                                if let number = Int(filtered), number > 0 {
-                                    goal = String(number)
-                                }
-                            }
-                            .padding(.vertical, 10)
-                            .padding(.horizontal, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color(.systemBackground).opacity(0.6))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                            )
-                            .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
-                    } else {
-                        // Time Pickers
-                        HStack {
-                            // Hours Picker
-                            Picker("Hours", selection: $hours) {
-                                ForEach(0...23, id: \.self) { hour in
-                                    Text("\(hour)h").tag(hour)
-                                }
-                            }
-                            .pickerStyle(.wheel)
-                            .frame(width: 70)
-                            .onChange(of: hours) { _ in
-                                updateGoal()
-                            }
-                            
-                            // Minutes Picker
-                            Picker("Minutes", selection: $minutes) {
-                                ForEach(0...59, id: \.self) { minute in
-                                    Text("\(minute)m").tag(minute)
-                                }
-                            }
-                            .pickerStyle(.wheel)
-                            .frame(width: 70)
-                            .onChange(of: minutes) { _ in
-                                updateGoal()
-                            }
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Image(systemName: "trophy")
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(colorScheme == .dark ? .white : .black)
+                    .frame(width: 28, height: 28)
+                
+                Text("Goal")
+                    .font(.title3.weight(.semibold))
+                
+                Spacer()
+                
+                // Compact Type Selection
+                HStack(spacing: 16) {
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            type = .count
                         }
-                        .padding(.horizontal)
+                    } label: {
+                        Image(systemName: "number")
+                            .font(.body.weight(.medium))
+                            .frame(width: 32, height: 32)
+                            .background(type == .count ? Color.primary.opacity(0.1) : Color.clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            type = .time
+                        }
+                    } label: {
+                        Image(systemName: "clock")
+                            .font(.body.weight(.medium))
+                            .frame(width: 32, height: 32)
+                            .background(type == .time ? Color.primary.opacity(0.1) : Color.clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
-                .padding(.horizontal)
-                .transition(.move(edge: .top).combined(with: .opacity))
+                .foregroundStyle(.primary)
             }
-        }
-        .padding(16)
-        .glassCard()
-        .animation(.easeInOut(duration: 0.3), value: isExpanded)
-        .onChange(of: isCountFieldFocused) { isFocused in
-            if !isFocused && goal.isEmpty {
-                goal = "1"
-            }
-        }
-    }
-    
-    private var goalText: String {
-        if type == .count {
-            return "\(goal) times"
-        } else {
-            if hours > 0 && minutes > 0 {
-                return "\(hours)h \(minutes)m"
-            } else if hours > 0 {
-                return "\(hours)h"
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            
+            Divider()
+                .padding(.horizontal, 16)
+            
+            if type == .count {
+                TextField("Count", value: $goal, format: .number)
+                    .keyboardType(.numberPad)
+                    .font(.body.weight(.medium))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .onTapGesture {
+                        onTap()
+                    }
             } else {
-                return "\(minutes)m"
+                HStack {
+                    let dateBinding = Binding<Date>(
+                        get: {
+                            let totalMinutes = Int(goal)
+                            let hours = totalMinutes / 60
+                            let minutes = totalMinutes % 60
+                            var components = DateComponents()
+                            components.hour = hours
+                            components.minute = minutes
+                            return Calendar.current.date(from: components) ?? Date()
+                        },
+                        set: { newDate in
+                            let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                            let totalMinutes = (components.hour ?? 0) * 60 + (components.minute ?? 0)
+                            goal = Double(totalMinutes)
+                        }
+                    )
+                    
+                    TextField("Time", text: .constant(formatTime(minutes: Int(goal))))
+                        .font(.body.weight(.medium))
+                        .disabled(true)
+                    
+                    DatePicker(
+                        "",
+                        selection: dateBinding,
+                        displayedComponents: .hourAndMinute
+                    )
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
         }
+        .glassCard()
     }
     
-    private func updateGoal() {
-        let totalMinutes = hours * 60 + minutes
-        goal = String(totalMinutes)
+    private func formatTime(minutes: Int) -> String {
+        let hours = minutes / 60
+        let mins = minutes % 60
+        return String(format: "%dh %02dm", hours, mins)
     }
+}
+
+#Preview {
+    GoalSection(
+        goal: .constant(90),
+        type: .constant(.time),
+        isCountFieldFocused: true,
+        onTap: {}
+    )
+    .padding()
 }

@@ -156,9 +156,10 @@ struct TodayView: View {
                                 showingFABMenu = true
                             }
                         } label: {
-                            Image(systemName: "plus")
+                            Image(systemName: "hourglass")
                                 .font(.title2)
                                 .fontWeight(.semibold)
+                                .foregroundStyle(colorScheme == .dark ? .white : .black)
                                 .frame(width: 45, height: 45)
                                 .glassCard()
                         }
@@ -180,9 +181,11 @@ struct TodayView: View {
                     }
                     .transition(.opacity)
                 
-                NewHabitView(habitStore: habitStore, isPresented: $showingNewHabit)
-                    .transition(.move(edge: .bottom))
-                    .zIndex(2)
+                NewHabitView(habitStore: habitStore) { habit in
+                    habitStore.addHabit(habit)
+                }
+                .transition(.move(edge: .bottom))
+                .zIndex(2)
             }
             
             // Calendar modal

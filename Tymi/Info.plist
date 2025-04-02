@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
+			<key>CFBundleIconName</key>
+			<string></string>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+		<key>UINewsstandIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UINewsstandBindingEdge</key>
+			<string>UINewsstandBindingEdgeLeft</string>
+			<key>UINewsstandBindingType</key>
+			<string>UINewsstandBindingTypeMagazine</string>
+		</dict>
+		<key>Alternate Icons</key>
+		<dict>
+			<key>Tymi_light</key>
+			<dict>
+				<key>UIPrerenderedIcon</key>
+				<true/>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Tymi_light</string>
+				</array>
+			</dict>
+			<key>Tymi_dark</key>
+			<dict>
+				<key>UIPrerenderedIcon</key>
+				<true/>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Tymi_dark</string>
+				</array>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

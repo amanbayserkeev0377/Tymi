@@ -6,10 +6,10 @@ final class NewHabitViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var name: String = ""
     @Published var type: HabitType = .count
-    @Published var goal: String = "1"
+    @Published var goal: Double = 1
     @Published var startDate: Date = Date()
     @Published var activeDays: Set<Int> = Set(1...7)
-    @Published var reminderEnabled: Bool = false
+    @Published var isReminderEnabled: Bool = false
     @Published var reminderTime: Date = Calendar.current.date(from: DateComponents(hour: 9)) ?? Date()
     
     // MARK: - Error Handling
@@ -27,8 +27,7 @@ final class NewHabitViewModel: ObservableObject {
     // MARK: - Public Properties
     var isValid: Bool {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let hasValidGoal = Double(goal) != nil && Double(goal)! > 0
-        return !trimmedName.isEmpty && hasValidGoal && !activeDays.isEmpty
+        return !trimmedName.isEmpty && goal > 0 && !activeDays.isEmpty
     }
     
     // MARK: - Public Methods
@@ -39,15 +38,13 @@ final class NewHabitViewModel: ObservableObject {
             return nil
         }
         
-        let goalValue = Double(goal) ?? 1
-        
         let habit = Habit(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
             type: type,
-            goal: goalValue,
+            goal: goal,
             startDate: startDate,
             activeDays: activeDays,
-            reminderTime: reminderEnabled ? reminderTime : nil
+            reminderTime: isReminderEnabled ? reminderTime : nil
         )
         
         habitStore.addHabit(habit)
