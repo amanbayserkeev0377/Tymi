@@ -32,7 +32,7 @@ struct ModalView<Content: View>: View {
                                 let generator = UIImpactFeedbackGenerator(style: .light)
                                 generator.impactOccurred()
                                 
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
                                     isPresented = false
                                 }
                             } label: {
@@ -70,11 +70,11 @@ struct ModalView<Content: View>: View {
                                 let generator = UIImpactFeedbackGenerator(style: .light)
                                 generator.impactOccurred()
                                 
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
                                     isPresented = false
                                 }
                             } else {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
                                     offset = .zero
                                 }
                             }

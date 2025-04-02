@@ -13,17 +13,17 @@ struct GoalSection: View {
                 Image(systemName: "trophy")
                     .font(.body.weight(.medium))
                     .foregroundStyle(colorScheme == .dark ? .white : .black)
-                    .frame(width: 28, height: 28)
+                    .frame(width: 26, height: 26)
                 
                 Text("Goal")
-                    .font(.title3.weight(.semibold))
+                    .font(.body.weight(.regular))
                 
                 Spacer()
                 
                 // Compact Type Selection
                 HStack(spacing: 16) {
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             type = .count
                         }
                     } label: {
@@ -35,7 +35,7 @@ struct GoalSection: View {
                     }
                     
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             type = .time
                         }
                     } label: {
@@ -65,6 +65,8 @@ struct GoalSection: View {
                     }
             } else {
                 HStack {
+                    Spacer()
+                    
                     let dateBinding = Binding<Date>(
                         get: {
                             let totalMinutes = Int(goal)
@@ -82,10 +84,6 @@ struct GoalSection: View {
                         }
                     )
                     
-                    TextField("Time", text: .constant(formatTime(minutes: Int(goal))))
-                        .font(.body.weight(.medium))
-                        .disabled(true)
-                    
                     DatePicker(
                         "",
                         selection: dateBinding,
@@ -99,12 +97,6 @@ struct GoalSection: View {
             }
         }
         .glassCard()
-    }
-    
-    private func formatTime(minutes: Int) -> String {
-        let hours = minutes / 60
-        let mins = minutes % 60
-        return String(format: "%dh %02dm", hours, mins)
     }
 }
 

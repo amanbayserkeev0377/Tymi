@@ -40,14 +40,14 @@ class CalendarViewModel: ObservableObject {
     
     // Navigates to the previous month
     func previousMonth() {
-        withAnimation(.spring(response: 0.3)) {
+        withAnimation(.easeInOut(duration: 0.3)) {
             currentMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
         }
     }
     
     // Navigates to the next month
     func nextMonth() {
-        withAnimation(.spring(response: 0.3)) {
+        withAnimation(.easeInOut(duration: 0.3)) {
             currentMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
         }
     }

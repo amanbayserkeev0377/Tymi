@@ -80,7 +80,7 @@ struct HabitDetailView: View {
                 HStack(spacing: 16) {
                     // Undo Button
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             viewModel.undo()
                         }
                     } label: {
@@ -92,7 +92,7 @@ struct HabitDetailView: View {
                     
                     // Decrement Button
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             viewModel.decrement()
                         }
                     } label: {
@@ -103,7 +103,7 @@ struct HabitDetailView: View {
                     
                     // Increment Button
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             viewModel.increment()
                         }
                     } label: {
@@ -114,7 +114,7 @@ struct HabitDetailView: View {
                     
                     // Expand Button
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             viewModel.isExpanded.toggle()
                         }
                     } label: {
@@ -166,7 +166,7 @@ struct HabitDetailView: View {
             
             // Bottom Action Button
             Button {
-                withAnimation(.spring(response: 0.3)) {
+                withAnimation(.easeInOut(duration: 0.3)) {
                     viewModel.toggleTimer()
                 }
             } label: {

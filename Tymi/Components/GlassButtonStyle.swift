@@ -15,6 +15,6 @@ struct GlassButtonStyle: ButtonStyle {
             .clipShape(Circle())
             .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
             .scaleEffect(configuration.isPressed ? 0.95 : 1)
-            .animation(.spring(response: 0.3), value: configuration.isPressed)
+            .animation(.easeInOut(duration: 0.3), value: configuration.isPressed)
     }
 } 

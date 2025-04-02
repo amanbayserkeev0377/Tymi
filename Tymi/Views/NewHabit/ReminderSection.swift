@@ -14,7 +14,7 @@ struct ReminderSection: View {
                     .frame(width: 28, height: 28)
                 
                 Text("Reminder")
-                    .font(.title3.weight(.semibold))
+                    .font(.title3.weight(.regular))
                 
                 Spacer()
                 
@@ -40,6 +40,6 @@ struct ReminderSection: View {
             }
         }
         .glassCard()
-        .animation(.spring(response: 0.3), value: isEnabled)
+        .animation(.easeInOut(duration: 0.3), value: isEnabled)
     }
 }

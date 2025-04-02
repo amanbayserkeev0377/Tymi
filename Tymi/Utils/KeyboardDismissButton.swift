@@ -20,7 +20,7 @@ struct KeyboardDismissButton: View {
                     .shadow(radius: 4)
             }
             .padding(.trailing, 12)
-            .padding(.bottom, 0) // Прижата к клавиатуре
+            .padding(.bottom, 0)
         }
         .transition(
             .asymmetric(

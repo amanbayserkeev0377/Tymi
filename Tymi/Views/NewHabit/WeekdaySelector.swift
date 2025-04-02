@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WeekdaySelector: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var selectedDays: Set<Int>
     @State private var isExpanded: Bool = false
     
@@ -8,18 +9,18 @@ struct WeekdaySelector: View {
         VStack(spacing: 0) {
             // Header Button
             Button(action: {
-                withAnimation(.spring(response: 0.3)) {
+                withAnimation(.easeInOut(duration: 0.3)) {
                     isExpanded.toggle()
                 }
             }) {
                 HStack {
                     Image(systemName: "repeat")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.secondary)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(colorScheme == .dark ? .white : .black)
+                        .frame(width: 26, height: 26)
                     
                     Text("Repeat")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.body.weight(.regular))
                     
                     Spacer()
                     
@@ -30,6 +31,7 @@ struct WeekdaySelector: View {
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                        .animation(.easeInOut(duration: 0.3), value: isExpanded)
                 }
             }
             .buttonStyle(.plain)
@@ -42,7 +44,7 @@ struct WeekdaySelector: View {
                     HStack {
                         Spacer()
                         Button(selectedDays.isEmpty ? "All" : "None") {
-                            withAnimation(.spring(response: 0.3)) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 if selectedDays.isEmpty {
                                     selectedDays = Set(1...7)
                                 } else {
@@ -60,7 +62,7 @@ struct WeekdaySelector: View {
                         ForEach(Weekday.allCases, id: \.self) { day in
                             let isSelected = selectedDays.contains(day.rawValue)
                             Button {
-                                withAnimation(.spring(response: 0.3)) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
                                     if selectedDays.contains(day.rawValue) {
                                         selectedDays.remove(day.rawValue)
                                     } else {
@@ -88,6 +90,6 @@ struct WeekdaySelector: View {
             }
         }
         .glassCard()
-        .animation(.spring(response: 0.3), value: isExpanded)
+        .animation(.easeInOut(duration: 0.3), value: isExpanded)
     }
 }

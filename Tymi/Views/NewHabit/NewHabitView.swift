@@ -74,7 +74,7 @@ struct NewHabitView: View {
                             if let habit = viewModel.createHabit() {
                                 feedbackGenerator.impactOccurred()
                                 onSave(habit)
-                                withAnimation(.spring()) {
+                                withAnimation(.easeInOut()) {
                                     dismiss()
                                 }
                             }
@@ -95,24 +95,9 @@ struct NewHabitView: View {
             
             // Keyboard Dismiss Button
             if focusedField != nil {
-                HStack {
-                    Spacer()
-                    Button {
-                        focusedField = nil
-                    } label: {
-                        Image(systemName: "keyboard.chevron.compact.down")
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(colorScheme == .dark ? .white : .black)
-                            .frame(width: 44, height: 44)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                    }
+                KeyboardDismissButton {
+                    focusedField = nil
                 }
-                .padding(.horizontal, 4)
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .offset(y: 10)),
-                    removal: .opacity.combined(with: .offset(y: 10))
-                ))
             }
         }
     }

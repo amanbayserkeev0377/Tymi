@@ -28,7 +28,7 @@ struct CalendarView: View {
                 HStack(spacing: 20) {
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             viewModel.previousMonth()
                         }
                     }) {
@@ -42,7 +42,7 @@ struct CalendarView: View {
                     
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             viewModel.nextMonth()
                         }
                     }) {

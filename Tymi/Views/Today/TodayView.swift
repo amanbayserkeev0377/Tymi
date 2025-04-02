@@ -52,7 +52,8 @@ struct TodayView: View {
                             HabitRowView(habit: habit)
                                 .padding(.horizontal, 24)
                                 .onTapGesture {
-                                    withAnimation(.spring(response: 0.3)) {
+                                    withAnimation(.easeInOut(duration: 0.3))
+ {
                                         selectedHabit = habit
                                     }
                                 }
@@ -68,7 +69,7 @@ struct TodayView: View {
                 Color.black.opacity(0.1)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             showingFABMenu = false
                         }
                     }
@@ -80,7 +81,7 @@ struct TodayView: View {
                     
                     // New Habit Button
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             showingFABMenu = false
                             showingNewHabit = true
                         }
@@ -100,7 +101,7 @@ struct TodayView: View {
                     
                     // Calendar Button
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             showingFABMenu = false
                             showingCalendar = true
                         }
@@ -120,7 +121,7 @@ struct TodayView: View {
                     
                     // Settings Button
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             showingFABMenu = false
                             showingSettings = true
                         }
@@ -152,7 +153,7 @@ struct TodayView: View {
                     HStack {
                         Spacer()
                         Button {
-                            withAnimation(.spring(response: 0.3)) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 showingFABMenu = true
                             }
                         } label: {
@@ -175,7 +176,7 @@ struct TodayView: View {
                     .opacity(0.05)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             showingNewHabit = false
                         }
                     }
@@ -194,7 +195,7 @@ struct TodayView: View {
                     .opacity(0.05)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             showingCalendar = false
                         }
                     }
@@ -211,7 +212,7 @@ struct TodayView: View {
                     .opacity(0.05)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             showingSettings = false
                         }
                     }
@@ -227,7 +228,7 @@ struct TodayView: View {
                 Color.black.opacity(0.05)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             selectedHabit = nil
                         }
                     }
@@ -240,11 +241,11 @@ struct TodayView: View {
                 .zIndex(2)
             }
         }
-        .animation(.spring(response: 0.3), value: showingFABMenu)
-        .animation(.spring(response: 0.3), value: showingNewHabit)
-        .animation(.spring(response: 0.3), value: showingCalendar)
-        .animation(.spring(response: 0.3), value: showingSettings)
-        .animation(.spring(response: 0.3), value: selectedHabit)
+        .animation(.easeInOut(duration: 0.3), value: showingFABMenu)
+        .animation(.easeInOut(duration: 0.3), value: showingNewHabit)
+        .animation(.easeInOut(duration: 0.3), value: showingCalendar)
+        .animation(.easeInOut(duration: 0.3), value: showingSettings)
+        .animation(.easeInOut(duration: 0.3), value: selectedHabit)
         .navigationBarHidden(true)
     }
     

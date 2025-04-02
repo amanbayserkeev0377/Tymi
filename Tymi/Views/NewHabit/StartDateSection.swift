@@ -14,10 +14,10 @@ struct StartDateSection: View {
                 Image(systemName: "calendar")
                     .font(.body.weight(.medium))
                     .foregroundStyle(colorScheme == .dark ? .white : .black)
-                    .frame(width: 28, height: 28)
+                    .frame(width: 26, height: 26)
                 
                 Text("Start Date")
-                    .font(.title3.weight(.semibold))
+                    .font(.body.weight(.regular))
                 
                 Spacer()
                 

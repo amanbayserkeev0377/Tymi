@@ -82,4 +82,4 @@ struct DayCell: View {
         .buttonStyle(.plain)
         .disabled(isFuture)
     }
-} 
+}
