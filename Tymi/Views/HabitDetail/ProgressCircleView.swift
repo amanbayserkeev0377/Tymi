@@ -10,7 +10,7 @@ struct ProgressCircleView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     private var circleSize: CGFloat {
-        min(UIScreen.main.bounds.width * 0.65, 260)
+        min(UIScreen.main.bounds.width * 0.55, 220)
     }
     
     private var progressPercentage: Double {
@@ -21,57 +21,38 @@ struct ProgressCircleView: View {
         if isCompleted {
             return [.green, .mint]
         }
-        return [.purple, .pink, .orange]
+        if colorScheme == .dark {
+            return [
+                Color(hex: "ba5370"), // 4
+                Color(hex: "4e4376"), // 1
+                Color(hex: "d76d77"), // 2
+                Color(hex: "ffaf7b") // 3
+            ]
+
+        } else {
+            return [
+                Color(red: 180/255, green: 215/255, blue: 255/255),
+                Color(red: 255/255, green: 190/255, blue: 255/255),
+                Color(red: 255/255, green: 143/255, blue: 107/255),
+                Color(red: 255/255, green: 150/255, blue: 170/255)
+            ]
+        }
     }
+    
     
     private var trackColor: Color {
-        colorScheme == .light 
-            ? Color.black.opacity(0.06)
-            : Color.white.opacity(0.1)
+        colorScheme == .light ? .black.opacity(0.06) : .white.opacity(0.1)
     }
     
-    private var shadowColor: Color {
-        colorScheme == .light 
-            ? .black.opacity(0.2)
-            : .black.opacity(0.4)
+    private var textColor: Color {
+        colorScheme == .light ? .black : .white
     }
     
-    private var ringWidth: CGFloat { 40 }
+    private var ringWidth: CGFloat { 32 }
     
     var body: some View {
         ZStack {
-            // Glass background
-            Circle()
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    Circle()
-                        .fill(
-                            .linearGradient(
-                                colors: [
-                                    .white.opacity(colorScheme == .light ? 0.5 : 0.2),
-                                    .clear
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                )
-                .overlay(
-                    Circle()
-                        .stroke(
-                            .linearGradient(
-                                colors: [
-                                    .white.opacity(0.5),
-                                    .clear
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.5
-                        )
-                )
-            
-            // Background Track
+            // Track ring
             Circle()
                 .stroke(
                     trackColor,
@@ -80,41 +61,8 @@ struct ProgressCircleView: View {
                         lineCap: .round
                     )
                 )
-                .overlay(
-                    Circle()
-                        .stroke(
-                            .linearGradient(
-                                colors: [
-                                    .white.opacity(0.3),
-                                    .clear
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.5
-                        )
-                )
             
-            // Glow Effect
-            Circle()
-                .trim(from: 0, to: progressPercentage)
-                .stroke(
-                    AngularGradient(
-                        colors: gradientColors + [gradientColors[0]],
-                        center: .center,
-                        startAngle: .degrees(-90),
-                        endAngle: .degrees(270)
-                    ),
-                    style: StrokeStyle(
-                        lineWidth: ringWidth + 20,
-                        lineCap: .round
-                    )
-                )
-                .blur(radius: 20)
-                .opacity(0.3)
-                .rotationEffect(.degrees(-90))
-            
-            // Progress Ring
+            // Progress ring
             Circle()
                 .trim(from: 0, to: progressPercentage)
                 .stroke(
@@ -129,54 +77,22 @@ struct ProgressCircleView: View {
                         lineCap: .round
                     )
                 )
-                .shadow(color: shadowColor, radius: 10, x: 0, y: 5)
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut(duration: 0.3), value: progressPercentage)
             
-            // Center Content
+            // Center value
             VStack(spacing: 8) {
-                if isCompleted {
-                    Text("Done")
-                        .font(.system(size: 68, weight: .bold))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.green, .mint],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .shadow(
-                            color: shadowColor,
-                            radius: 2,
-                            x: 0,
-                            y: 1
-                        )
-                } else {
-                    Text(valueText)
-                        .font(.system(size: 68, weight: .bold))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: gradientColors,
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .contentTransition(.numericText())
-                        .shadow(
-                            color: shadowColor,
-                            radius: 2,
-                            x: 0,
-                            y: 1
-                        )
-                    
-                    if type == .time {
-                        Text("of \(goalText)")
-                            .font(.title2)
-                            .foregroundStyle(.secondary)
-                    }
+                Text(isCompleted ? "Done" : valueText)
+                    .font(.system(size: 44, weight: .semibold))
+                    .foregroundStyle(textColor)
+                    .contentTransition(.numericText())
+                
+                if type == .time && !isCompleted {
+                    Text("of \(goalText)")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .animation(.easeInOut(duration: 0.3), value: isCompleted)
         }
         .frame(width: circleSize, height: circleSize)
     }
@@ -189,11 +105,9 @@ struct ProgressCircleView: View {
             let hours = Int(currentValue) / 3600
             let minutes = Int(currentValue) / 60 % 60
             let seconds = Int(currentValue) % 60
-            if hours > 0 {
-                return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-            } else {
-                return String(format: "%02d:%02d", minutes, seconds)
-            }
+            return hours > 0
+            ? String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+            : String(format: "%02d:%02d", minutes, seconds)
         }
     }
     
@@ -204,11 +118,26 @@ struct ProgressCircleView: View {
         case .time:
             let hours = Int(goal) / 3600
             let minutes = Int(goal) / 60 % 60
-            if hours > 0 {
-                return "\(hours)h \(minutes)m"
-            } else {
-                return "\(minutes)m"
-            }
+            return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
         }
     }
-} 
+}
+
+#Preview {
+    ZStack {
+        Color.white
+            .opacity(0.01)
+            .background(.ultraThinMaterial)
+            .ignoresSafeArea()
+        
+        ProgressCircleView(
+            progress: 116,
+            goal: 120,
+            type: .count,
+            isCompleted: false,
+            currentValue: 119
+        )
+        .padding(40)
+    }
+    .preferredColorScheme(.dark)
+}
