@@ -28,12 +28,13 @@ struct ProgressCircleView: View {
                 Color(hex: "d76d77"), // 2
                 Color(hex: "ffaf7b") // 3
             ]
-
+            
         } else {
             return [
                 Color(red: 180/255, green: 215/255, blue: 255/255),
                 Color(red: 255/255, green: 190/255, blue: 255/255),
-                Color(red: 255/255, green: 143/255, blue: 107/255),
+                Color(hex: "f4e2d8"),
+                Color(hex: "ffaf7b"),
                 Color(red: 255/255, green: 150/255, blue: 170/255)
             ]
         }
@@ -139,5 +140,5 @@ struct ProgressCircleView: View {
         )
         .padding(40)
     }
-    .preferredColorScheme(.dark)
+    .preferredColorScheme(.light)
 }
