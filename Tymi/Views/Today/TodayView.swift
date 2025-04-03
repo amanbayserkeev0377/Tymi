@@ -8,6 +8,7 @@ struct TodayView: View {
     @State private var showingCalendar = false
     @State private var showingSettings = false
     @State private var showingFABMenu = false
+    @State private var isRotating = false
     @State private var selectedHabit: Habit?
     @Namespace private var namespace
     
@@ -157,12 +158,16 @@ struct TodayView: View {
                                 showingFABMenu = true
                             }
                         } label: {
-                            Image(systemName: "hourglass")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(colorScheme == .dark ? .white : .black)
-                                .frame(width: 45, height: 45)
-                                .glassCard()
+                            Image("Tymi_blank")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 34, height: 34)
+                                    .rotationEffect(.degrees(isRotating ? 360 : 0))
+                                    .animation(.easeInOut(duration: 1.5), value: isRotating)
+                                    .padding(10)
+                                    .glassCard()
+                                    .clipShape(Circle())
+                                    .shadow(radius: 10)
                         }
                         .padding()
                     }
@@ -253,6 +258,18 @@ struct TodayView: View {
         .animation(.easeInOut(duration: 0.3), value: showingSettings)
         .animation(.easeInOut(duration: 0.3), value: selectedHabit)
         .navigationBarHidden(true)
+        
+        .onAppear {
+            startFABRotationLoop()
+        }
+    }
+    
+    private func startFABRotationLoop() {
+        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: 1.5)) {
+                isRotating.toggle()
+            }
+        }
     }
     
     private var dateTitle: String {
