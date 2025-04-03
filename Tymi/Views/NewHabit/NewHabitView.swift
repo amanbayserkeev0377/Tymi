@@ -5,6 +5,7 @@ struct NewHabitView: View {
     @Environment(\.colorScheme) private var colorScheme
     @StateObject private var viewModel: NewHabitViewModel
     @FocusState private var focusedField: Field?
+    @Binding var isPresented: Bool
     
     let onSave: (Habit) -> Void
     
@@ -15,88 +16,75 @@ struct NewHabitView: View {
         case count
     }
     
-    init(habitStore: HabitStore, onSave: @escaping (Habit) -> Void) {
+    init(habitStore: HabitStore, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
         _viewModel = StateObject(wrappedValue: NewHabitViewModel(habitStore: habitStore))
+        _isPresented = isPresented
         self.onSave = onSave
     }
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            ScrollView {
-                VStack(spacing: 16) {
-                    HStack {
-                        Button {
-                            feedbackGenerator.impactOccurred()
-                            dismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.body.weight(.medium))
-                                .foregroundStyle(.secondary)
-                                .frame(width: 32, height: 32)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                        }
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    .padding(.horizontal, 16)
-                    
+        ModalView(isPresented: $isPresented) {
+            ZStack(alignment: .bottom) {
+                ScrollView {
                     VStack(spacing: 16) {
-                        // Name Field
-                        NameFieldView(name: $viewModel.name)
-                            .focused($focusedField, equals: .name)
-                        
-                        // Goal Section
-                        GoalSection(
-                            goal: $viewModel.goal,
-                            type: $viewModel.type,
-                            isCountFieldFocused: focusedField == .count,
-                            onTap: { focusedField = .count }
-                        )
-                        .focused($focusedField, equals: .count)
-                        
-                        // Weekday Selection
-                        WeekdaySelector(selectedDays: $viewModel.activeDays)
-                        
-                        // Reminder Section
-                        ReminderSection(
-                            isEnabled: $viewModel.isReminderEnabled,
-                            time: $viewModel.reminderTime
-                        )
-                        
-                        // Start Date Section
-                        StartDateSection(startDate: $viewModel.startDate)
-                        
-                        Spacer(minLength: 32)
-                        
-                        // Create Button
-                        Button {
-                            feedbackGenerator.prepare()
-                            if let habit = viewModel.createHabit() {
-                                feedbackGenerator.impactOccurred()
-                                onSave(habit)
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    dismiss()
+                        VStack(spacing: 16) {
+                            // Name Field
+                            NameFieldView(name: $viewModel.name)
+                                .focused($focusedField, equals: .name)
+                            
+                            // Goal Section
+                            GoalSection(
+                                goal: $viewModel.goal,
+                                type: $viewModel.type,
+                                isCountFieldFocused: focusedField == .count,
+                                onTap: { focusedField = .count }
+                            )
+                            .focused($focusedField, equals: .count)
+                            
+                            // Weekday Selection
+                            WeekdaySelector(selectedDays: $viewModel.activeDays)
+                            
+                            // Reminder Section
+                            ReminderSection(
+                                isEnabled: $viewModel.isReminderEnabled,
+                                time: $viewModel.reminderTime
+                            )
+                            
+                            // Start Date Section
+                            StartDateSection(startDate: $viewModel.startDate)
+                            
+                            Spacer(minLength: 32)
+                            
+                            // Create Button
+                            Button {
+                                feedbackGenerator.prepare()
+                                if let habit = viewModel.createHabit() {
+                                    feedbackGenerator.impactOccurred()
+                                    onSave(habit)
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        isPresented = false
+                                    }
                                 }
+                            } label: {
+                                Text("Create Habit")
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(height: 56)
+                                    .frame(maxWidth: .infinity)
+                                    .background(.black)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
                             }
-                        } label: {
-                            Text("Create Habit")
-                                .font(.title3.weight(.semibold))
-                                .foregroundStyle(.white)
-                                .frame(height: 56)
-                                .frame(maxWidth: .infinity)
-                                .background(.black)
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .disabled(!viewModel.isValid)
                         }
-                        .disabled(!viewModel.isValid)
+                        .padding(.horizontal, 16)
                     }
-                    .padding(.horizontal, 16)
                 }
-            }
-            
-            // Keyboard Dismiss Button
-            if focusedField != nil {
-                KeyboardDismissButton {
-                    focusedField = nil
+                
+                // Keyboard Dismiss Button
+                if focusedField != nil {
+                    KeyboardDismissButton {
+                        focusedField = nil
+                    }
                 }
             }
         }
@@ -104,7 +92,7 @@ struct NewHabitView: View {
 }
 
 #Preview {
-    NewHabitView(habitStore: HabitStore(), onSave: { _ in })
+    NewHabitView(habitStore: HabitStore(), isPresented: .constant(true), onSave: { _ in })
 }
 
 // MARK: - NameFieldView

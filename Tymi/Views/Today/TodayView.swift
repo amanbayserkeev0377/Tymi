@@ -182,7 +182,10 @@ struct TodayView: View {
                     }
                     .transition(.opacity)
                 
-                NewHabitView(habitStore: habitStore) { habit in
+                NewHabitView(
+                    habitStore: habitStore,
+                    isPresented: $showingNewHabit
+                ) { habit in
                     habitStore.addHabit(habit)
                 }
                 .transition(.move(edge: .bottom))
