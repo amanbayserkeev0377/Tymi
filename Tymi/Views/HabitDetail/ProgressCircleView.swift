@@ -21,13 +21,13 @@ struct ProgressCircleView: View {
         if isCompleted {
             return [.green, .mint]
         }
-        return type == .count ? [.blue, .purple] : [.indigo, .pink]
+        return [.purple, .pink, .orange]
     }
     
     private var trackColor: Color {
         colorScheme == .light 
-            ? Color.black.opacity(0.08)
-            : Color.white.opacity(0.12)
+            ? Color.black.opacity(0.06)
+            : Color.white.opacity(0.1)
     }
     
     private var shadowColor: Color {
@@ -38,91 +38,125 @@ struct ProgressCircleView: View {
     
     private var glowColor: Color {
         colorScheme == .light
-            ? .white.opacity(0.5)
+            ? .white.opacity(0.6)
             : .white.opacity(0.3)
     }
     
-    private var ringWidth: CGFloat { 32 }
+    private var ringWidth: CGFloat { 40 }
     
     var body: some View {
         ZStack {
-            // Glow Aura
+            // Glass background
             Circle()
-                .trim(from: 0, to: progressPercentage)
-                .fill(
-                    AngularGradient(
-                        colors: gradientColors,
-                        center: .center,
-                        startAngle: .degrees(0),
-                        endAngle: .degrees(360)
-                    )
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    Circle()
+                        .fill(
+                            .linearGradient(
+                                colors: [
+                                    .white.opacity(colorScheme == .light ? 0.5 : 0.2),
+                                    .clear
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                 )
-                .blur(radius: 30)
-                .opacity(0.3)
-                .rotationEffect(.degrees(-90))
+                .overlay(
+                    Circle()
+                        .stroke(
+                            .linearGradient(
+                                colors: [
+                                    .white.opacity(0.5),
+                                    .clear
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.5
+                        )
+                )
             
             // Background Track
             Circle()
-                .fill(trackColor)
-                .mask {
-                    ZStack {
-                        Circle()
-                        Circle()
-                            .inset(by: ringWidth)
-                            .fill(Color.black)
-                            .blendMode(.destinationOut)
-                    }
-                }
+                .stroke(
+                    trackColor,
+                    style: StrokeStyle(
+                        lineWidth: ringWidth,
+                        lineCap: .round
+                    )
+                )
+                .overlay(
+                    Circle()
+                        .stroke(
+                            .linearGradient(
+                                colors: [
+                                    .white.opacity(0.3),
+                                    .clear
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.5
+                        )
+                )
             
-            // Progress Circle
+            // Glow Effect
             Circle()
-                .fill(
+                .trim(from: 0, to: progressPercentage)
+                .stroke(
                     AngularGradient(
                         colors: gradientColors + [gradientColors[0]],
                         center: .center,
                         startAngle: .degrees(-90),
                         endAngle: .degrees(270)
-                    )
-                )
-                .mask {
-                    Path { path in
-                        path.addArc(
-                            center: CGPoint(x: circleSize/2, y: circleSize/2),
-                            radius: (circleSize - ringWidth) / 2,
-                            startAngle: .degrees(-90),
-                            endAngle: .degrees(-90 + 360 * progressPercentage),
-                            clockwise: false
-                        )
-                        path.addArc(
-                            center: CGPoint(x: circleSize/2, y: circleSize/2),
-                            radius: circleSize/2,
-                            startAngle: .degrees(-90 + 360 * progressPercentage),
-                            endAngle: .degrees(-90),
-                            clockwise: true
-                        )
-                        path.closeSubpath()
-                    }
-                }
-                .animation(.spring(response: 0.6), value: progressPercentage)
-            
-            // Outer glow
-            Circle()
-                .trim(from: 0, to: progressPercentage)
-                .stroke(
-                    glowColor,
+                    ),
                     style: StrokeStyle(
-                        lineWidth: 1,
+                        lineWidth: ringWidth + 20,
                         lineCap: .round
                     )
                 )
-                .blur(radius: 1)
+                .blur(radius: 20)
+                .opacity(0.3)
                 .rotationEffect(.degrees(-90))
+            
+            // Progress Ring
+            Circle()
+                .trim(from: 0, to: progressPercentage)
+                .stroke(
+                    AngularGradient(
+                        colors: gradientColors + [gradientColors[0]],
+                        center: .center,
+                        startAngle: .degrees(-90),
+                        endAngle: .degrees(270)
+                    ),
+                    style: StrokeStyle(
+                        lineWidth: ringWidth,
+                        lineCap: .round
+                    )
+                )
+                .shadow(color: shadowColor, radius: 10, x: 0, y: 5)
+                .rotationEffect(.degrees(-90))
+                .overlay(
+                    Circle()
+                        .trim(from: 0, to: progressPercentage)
+                        .stroke(
+                            glowColor,
+                            style: StrokeStyle(
+                                lineWidth: 1,
+                                lineCap: .round
+                            )
+                        )
+                        .blur(radius: 1)
+                        .rotationEffect(.degrees(-90))
+                )
+                .animation(.easeInOut(duration: 0.3), value: progressPercentage)
             
             // Center Content
             VStack(spacing: 8) {
                 if isCompleted {
                     Text("Done")
-                        .font(.system(size: 56, weight: .bold))
+                        .font(.system(size: 68, weight: .bold))
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [.green, .mint],
@@ -138,8 +172,14 @@ struct ProgressCircleView: View {
                         )
                 } else {
                     Text(valueText)
-                        .font(.system(size: 56, weight: .bold))
-                        .foregroundStyle(.primary)
+                        .font(.system(size: 68, weight: .bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: gradientColors,
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
                         .contentTransition(.numericText())
                         .shadow(
                             color: shadowColor,
@@ -150,12 +190,12 @@ struct ProgressCircleView: View {
                     
                     if type == .time {
                         Text("of \(goalText)")
-                            .font(.title3)
+                            .font(.title2)
                             .foregroundStyle(.secondary)
                     }
                 }
             }
-            .animation(.spring(response: 0.3), value: isCompleted)
+            .animation(.easeInOut(duration: 0.3), value: isCompleted)
         }
         .frame(width: circleSize, height: circleSize)
     }

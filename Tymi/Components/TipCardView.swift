@@ -120,7 +120,7 @@ struct TipCardView: View {
                 perspective: 1
             )
             .scaleEffect(scale)
-            .animation(.interpolatingSpring(stiffness: 300, damping: 30), value: minX)
+            .animation(.easeInOut(duration: 0.3), value: minX)
             .matchedGeometryEffect(id: "container_\(card.id)", in: namespace)
         }
     }

@@ -76,10 +76,10 @@ struct SettingsView: View {
                                 }
                                 .opacity(viewModel.appIconPreference == preference ? 1 : 0.5)
                                 .scaleEffect(viewModel.appIconPreference == preference ? 1 : 0.95)
-                                .animation(.spring(response: 0.3), value: viewModel.appIconPreference)
+                                .animation(.easeInOut(duration: 0.3), value: viewModel.appIconPreference)
                                 .onTapGesture {
                                     guard !viewModel.isChangingIcon else { return }
-                                    withAnimation(.spring(response: 0.3)) {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
                                         viewModel.appIconPreference = preference
                                     }
                                     let generator = UIImpactFeedbackGenerator(style: .light)
@@ -97,7 +97,7 @@ struct SettingsView: View {
                         }
                     }
                     .padding(.vertical, 8)
-                    .animation(.spring(response: 0.3), value: viewModel.lastError)
+                    .animation(.easeInOut(duration: 0.3), value: viewModel.lastError)
                 } header: {
                     Text("Appearance")
                 }
@@ -107,7 +107,7 @@ struct SettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             isPresented = false
                         }
                     } label: {
