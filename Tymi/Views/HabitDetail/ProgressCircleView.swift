@@ -36,12 +36,6 @@ struct ProgressCircleView: View {
             : .black.opacity(0.4)
     }
     
-    private var glowColor: Color {
-        colorScheme == .light
-            ? .white.opacity(0.6)
-            : .white.opacity(0.3)
-    }
-    
     private var ringWidth: CGFloat { 40 }
     
     var body: some View {
@@ -137,19 +131,6 @@ struct ProgressCircleView: View {
                 )
                 .shadow(color: shadowColor, radius: 10, x: 0, y: 5)
                 .rotationEffect(.degrees(-90))
-                .overlay(
-                    Circle()
-                        .trim(from: 0, to: progressPercentage)
-                        .stroke(
-                            glowColor,
-                            style: StrokeStyle(
-                                lineWidth: 1,
-                                lineCap: .round
-                            )
-                        )
-                        .blur(radius: 1)
-                        .rotationEffect(.degrees(-90))
-                )
                 .animation(.easeInOut(duration: 0.3), value: progressPercentage)
             
             // Center Content
