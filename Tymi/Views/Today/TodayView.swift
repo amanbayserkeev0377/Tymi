@@ -83,39 +83,39 @@ struct TodayView: View {
                     
                     // New Habit Button
                     fabMenuButton(
-                            title: "New habit",
-                            icon: "plus",
-                            action: {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    showingFABMenu = false
-                                    showingNewHabit = true
-                                }
+                        title: "New habit",
+                        icon: "plus",
+                        action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showingFABMenu = false
+                                showingNewHabit = true
                             }
-                        )
+                        }
+                    )
                     
                     // Calendar Button
                     fabMenuButton(
-                            title: "Calendar",
-                            icon: "calendar",
-                            action: {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    showingFABMenu = false
-                                    showingCalendar = true
-                                }
+                        title: "Calendar",
+                        icon: "calendar",
+                        action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showingFABMenu = false
+                                showingCalendar = true
                             }
-                        )
+                        }
+                    )
                     
                     // Settings Button
                     fabMenuButton(
-                            title: "Settings",
-                            icon: "gearshape",
-                            action: {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    showingFABMenu = false
-                                    showingSettings = true
-                                }
+                        title: "Settings",
+                        icon: "gearshape",
+                        action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showingFABMenu = false
+                                showingSettings = true
                             }
-                        )
+                        }
+                    )
                     
                     Spacer()
                 }
@@ -136,15 +136,17 @@ struct TodayView: View {
                             }
                         } label: {
                             Image("Tymi_blank")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 34, height: 34)
-                                    .rotationEffect(.degrees(isRotating ? 360 : 0))
-                                    .animation(.easeInOut(duration: 1.5), value: isRotating)
-                                    .padding(10)
-                                    .glassCard()
-                                    .clipShape(Circle())
-                                    .shadow(radius: 10)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 48, height: 48)
+                                .rotationEffect(.degrees(isRotating ? 360 : 0))
+                                .animation(.easeInOut(duration: 1.5), value: isRotating)
+                                .shadow(
+                                    color: Color(red: 1.0, green: 0.4, blue: 0.3).opacity(0.6),
+                                    radius: 12,
+                                    x: 0,
+                                    y: 4
+                                )
                         }
                         .padding()
                     }
@@ -240,7 +242,7 @@ struct TodayView: View {
             startFABRotationLoop()
         }
     }
-   
+    
     //MARK: - fabMenuButton
     @ViewBuilder
     private func fabMenuButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
@@ -249,7 +251,7 @@ struct TodayView: View {
                 Text(title)
                     .font(.system(size: 19, weight: .regular))
                     .foregroundStyle(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.9))
-
+                
                 Circle()
                     .fill(colorScheme == .dark ? .white.opacity(0.7) : .black.opacity(0.8))
                     .frame(width: 40, height: 40)

@@ -131,31 +131,31 @@ struct HabitDetailView: View {
                         HStack(spacing: 16) {
                             Button(action: { viewModel.decrement(by: 30) }) {
                                 Text("-30")
-                                    .font(.title3.weight(.medium))
+                                    .font(.body.weight(.medium))
                             }
                             .buttonStyle(GlassButtonStyle())
                             
                             Button(action: { viewModel.decrement(by: 10) }) {
                                 Text("-10")
-                                    .font(.title3.weight(.medium))
+                                    .font(.body.weight(.medium))
                             }
                             .buttonStyle(GlassButtonStyle())
                             
                             Button(action: { viewModel.showManualInput = true }) {
                                 Image(systemName: "number")
-                                    .font(.title3.weight(.medium))
+                                    .font(.body.weight(.medium))
                             }
                             .buttonStyle(GlassButtonStyle())
                             
                             Button(action: { viewModel.increment(by: 10) }) {
                                 Text("+10")
-                                    .font(.title3.weight(.medium))
+                                    .font(.body.weight(.medium))
                             }
                             .buttonStyle(GlassButtonStyle())
                             
                             Button(action: { viewModel.increment(by: 30) }) {
                                 Text("+30")
-                                    .font(.title3.weight(.medium))
+                                    .font(.body.weight(.medium))
                             }
                             .buttonStyle(GlassButtonStyle())
                         }
