@@ -79,66 +79,43 @@ struct TodayView: View {
                 // Menu items
                 VStack(spacing: 24) {
                     Spacer()
+                    Spacer(minLength: 60)
                     
                     // New Habit Button
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingFABMenu = false
-                            showingNewHabit = true
-                        }
-                    } label: {
-                        HStack {
-                            Text("New Habit")
-                                .font(.body)
-                            
-                            Image(systemName: "plus")
-                                .font(.body)
-                                .frame(width: 32, height: 32)
-                                .background(Color(uiColor: colorScheme == .dark ? .systemGray5 : .systemGray6))
-                                .clipShape(Circle())
-                        }
-                        .foregroundStyle(colorScheme == .dark ? .white : .black)
-                    }
+                    fabMenuButton(
+                            title: "New habit",
+                            icon: "plus",
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showingFABMenu = false
+                                    showingNewHabit = true
+                                }
+                            }
+                        )
                     
                     // Calendar Button
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingFABMenu = false
-                            showingCalendar = true
-                        }
-                    } label: {
-                        HStack {
-                            Text("Calendar")
-                                .font(.body)
-                            
-                            Image(systemName: "calendar")
-                                .font(.body)
-                                .frame(width: 32, height: 32)
-                                .background(Color(uiColor: colorScheme == .dark ? .systemGray5 : .systemGray6))
-                                .clipShape(Circle())
-                        }
-                        .foregroundStyle(colorScheme == .dark ? .white : .black)
-                    }
+                    fabMenuButton(
+                            title: "Calendar",
+                            icon: "calendar",
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showingFABMenu = false
+                                    showingCalendar = true
+                                }
+                            }
+                        )
                     
                     // Settings Button
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingFABMenu = false
-                            showingSettings = true
-                        }
-                    } label: {
-                        HStack {
-                            Text("Settings")
-                                .font(.body)
-                            
-                            Image(systemName: "gearshape")
-                                .font(.body)
-                                .frame(width: 32, height: 32)
-                                .background(Color(uiColor: colorScheme == .dark ? .systemGray5 : .systemGray6))
-                                .clipShape(Circle())
-                        }
-                        .foregroundStyle(colorScheme == .dark ? .white : .black)
-                    }
+                    fabMenuButton(
+                            title: "Settings",
+                            icon: "gearshape",
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showingFABMenu = false
+                                    showingSettings = true
+                                }
+                            }
+                        )
                     
                     Spacer()
                 }
@@ -264,8 +241,31 @@ struct TodayView: View {
         }
     }
     
+    @ViewBuilder
+    private func fabMenuButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Text(title)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.9))
+
+                Circle()
+                    .fill(colorScheme == .dark ? .white.opacity(0.7) : .black.opacity(0.8))
+                    .frame(width: 42, height: 42)
+                    .overlay(
+                        Image(systemName: icon)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(colorScheme == .dark ? .black.opacity(0.9) : .white.opacity(0.9))
+                    )
+            }
+            .frame(height: 44)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .contentShape(Rectangle())
+        }
+    }
+    
     private func startFABRotationLoop() {
-        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
             withAnimation(.easeInOut(duration: 1.5)) {
                 isRotating.toggle()
             }

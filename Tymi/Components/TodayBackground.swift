@@ -7,10 +7,10 @@ struct TodayBackground: View {
         LinearGradient(
             colors: colorScheme == .light
                 ? [
-                    Color(red: 0.99, green: 0.93, blue: 0.95),
-                    Color(red: 0.95, green: 0.91, blue: 0.91),
-                    Color(red: 0.95, green: 0.95, blue: 0.98)
-                  ]
+                    Color(hex: "ddd6f3"),
+                    Color.white.opacity(0.5),
+                    Color(hex: "FFE4E1")
+                ]
                 : [
                     Color(red: 0.06, green: 0.08, blue: 0.18),
                     Color(red: 0.14, green: 0.10, blue: 0.20),
