@@ -39,179 +39,207 @@ struct HabitDetailView: View {
     }
     
     var body: some View {
-        VStack(spacing: 32) {
-            // Header
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(viewModel.habit.name)
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    
-                    Text(goalText)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Spacer()
-                
-                Button {
-                    viewModel.showOptions = true
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.body.weight(.medium))
-                }
-                .buttonStyle(GlassButtonStyle(size: 44))
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 24)
-            
-            // Progress Circle
-            ProgressCircleView(
-                progress: viewModel.progress,
-                goal: viewModel.habit.goal,
-                type: viewModel.habit.type,
-                isCompleted: viewModel.isCompleted,
-                currentValue: viewModel.currentValue
-            )
-            .padding(.vertical, 16)
-            
-            // Action Buttons Row
-            VStack(spacing: 24) {
-                HStack(spacing: 16) {
-                    // Undo Button
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            viewModel.undo()
-                        }
-                    } label: {
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.title3.weight(.medium))
+        ZStack {
+            VStack(spacing: 32) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(viewModel.habit.name)
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.primary)
+                        
+                        Text(goalText)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(GlassButtonStyle())
-                    .disabled(!viewModel.canUndo)
                     
-                    // Decrement Button
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            viewModel.decrement()
-                        }
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.title3.weight(.medium))
-                    }
-                    .buttonStyle(GlassButtonStyle())
+                    Spacer()
                     
-                    // Increment Button
                     Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            viewModel.increment()
-                        }
+                        viewModel.showOptions = true
                     } label: {
-                        Image(systemName: "plus")
-                            .font(.title3.weight(.medium))
+                        Image(systemName: "ellipsis")
+                            .font(.body.weight(.medium))
                     }
-                    .buttonStyle(GlassButtonStyle())
-                    
-                    // Expand Button
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            viewModel.isExpanded.toggle()
-                        }
-                    } label: {
-                        Image(systemName: viewModel.isExpanded ? "chevron.up" : "chevron.down")
-                            .font(.title3.weight(.medium))
-                    }
-                    .buttonStyle(GlassButtonStyle())
+                    .buttonStyle(GlassButtonStyle(size: 44))
                 }
                 .padding(.horizontal, 24)
+                .padding(.top, 24)
                 
-                // Expanded Controls
-                if viewModel.isExpanded {
+                // Progress Circle
+                ProgressCircleView(
+                    progress: viewModel.progress,
+                    goal: viewModel.habit.goal,
+                    type: viewModel.habit.type,
+                    isCompleted: viewModel.isCompleted,
+                    currentValue: viewModel.currentValue
+                )
+                .padding(.vertical, 16)
+                
+                // Action Buttons Row
+                VStack(spacing: 24) {
                     HStack(spacing: 16) {
-                        Button(action: { viewModel.decrement(by: 30) }) {
-                            Text("-30")
+                        // Undo Button
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                viewModel.undo()
+                            }
+                        } label: {
+                            Image(systemName: "arrow.uturn.backward")
+                                .font(.title3.weight(.medium))
+                        }
+                        .buttonStyle(GlassButtonStyle())
+                        .disabled(!viewModel.canUndo)
+                        
+                        // Decrement Button
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                viewModel.decrement()
+                            }
+                        } label: {
+                            Image(systemName: "minus")
                                 .font(.title3.weight(.medium))
                         }
                         .buttonStyle(GlassButtonStyle())
                         
-                        Button(action: { viewModel.decrement(by: 10) }) {
-                            Text("-10")
+                        // Increment Button
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                viewModel.increment()
+                            }
+                        } label: {
+                            Image(systemName: "plus")
                                 .font(.title3.weight(.medium))
                         }
                         .buttonStyle(GlassButtonStyle())
                         
-                        Button(action: { viewModel.showManualInput = true }) {
-                            Image(systemName: "number")
-                                .font(.title3.weight(.medium))
-                        }
-                        .buttonStyle(GlassButtonStyle())
-                        
-                        Button(action: { viewModel.increment(by: 10) }) {
-                            Text("+10")
-                                .font(.title3.weight(.medium))
-                        }
-                        .buttonStyle(GlassButtonStyle())
-                        
-                        Button(action: { viewModel.increment(by: 30) }) {
-                            Text("+30")
+                        // Expand Button
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                viewModel.isExpanded.toggle()
+                            }
+                        } label: {
+                            Image(systemName: viewModel.isExpanded ? "chevron.up" : "chevron.down")
                                 .font(.title3.weight(.medium))
                         }
                         .buttonStyle(GlassButtonStyle())
                     }
                     .padding(.horizontal, 24)
-                }
-            }
-            
-            Spacer()
-            
-            // Bottom Action Button
-            Button {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    viewModel.toggleTimer()
-                }
-            } label: {
-                HStack {
-                    if viewModel.habit.type == .time {
-                        Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-                            .font(.title3.weight(.semibold))
-                    } else {
-                        Text("Complete")
-                            .font(.title3.weight(.semibold))
+                    
+                    // Expanded Controls
+                    if viewModel.isExpanded {
+                        HStack(spacing: 16) {
+                            Button(action: { viewModel.decrement(by: 30) }) {
+                                Text("-30")
+                                    .font(.title3.weight(.medium))
+                            }
+                            .buttonStyle(GlassButtonStyle())
+                            
+                            Button(action: { viewModel.decrement(by: 10) }) {
+                                Text("-10")
+                                    .font(.title3.weight(.medium))
+                            }
+                            .buttonStyle(GlassButtonStyle())
+                            
+                            Button(action: { viewModel.showManualInput = true }) {
+                                Image(systemName: "number")
+                                    .font(.title3.weight(.medium))
+                            }
+                            .buttonStyle(GlassButtonStyle())
+                            
+                            Button(action: { viewModel.increment(by: 10) }) {
+                                Text("+10")
+                                    .font(.title3.weight(.medium))
+                            }
+                            .buttonStyle(GlassButtonStyle())
+                            
+                            Button(action: { viewModel.increment(by: 30) }) {
+                                Text("+30")
+                                    .font(.title3.weight(.medium))
+                            }
+                            .buttonStyle(GlassButtonStyle())
+                        }
+                        .padding(.horizontal, 24)
                     }
                 }
-                .foregroundStyle(.white)
-                .frame(height: 56)
-                .frame(maxWidth: .infinity)
-                .background(.black)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                
+                Spacer()
+                
+                // Bottom Action Button
+                Button {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        viewModel.toggleTimer()
+                    }
+                } label: {
+                    HStack {
+                        if viewModel.habit.type == .time {
+                            Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
+                                .font(.title3.weight(.semibold))
+                        } else {
+                            Text("Complete")
+                                .font(.title3.weight(.semibold))
+                        }
+                    }
+                    .foregroundStyle(colorScheme == .dark ? .black : .white)
+                    .frame(height: 56)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(
+                                colorScheme == .dark
+                                ? Color.white.opacity(0.4)
+                                : Color.black
+                            )
+                    )
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
-        }
-        .modalStyle(isPresented: $isPresented)
-        .confirmationDialog(
-            "Options",
-            isPresented: $viewModel.showOptions,
-            titleVisibility: .hidden
-        ) {
-            Button("Edit") {
-                onEdit?(viewModel.habit)
+            .modalStyle(isPresented: $isPresented)
+            .confirmationDialog(
+                "Options",
+                isPresented: $viewModel.showOptions,
+                titleVisibility: .hidden
+            ) {
+                Button("Edit") {
+                    onEdit?(viewModel.habit)
+                }
+                
+                Button("Delete", role: .destructive) {
+                    onDelete?(viewModel.habit)
+                }
+                
+                Button("Cancel", role: .cancel) {}
+            }
+            .onChange(of: scenePhase) { newPhase in
+                switch newPhase {
+                case .active:
+                    viewModel.onAppear()
+                case .inactive, .background:
+                    viewModel.onDisappear()
+                @unknown default:
+                    break
+                }
             }
             
-            Button("Delete", role: .destructive) {
-                onDelete?(viewModel.habit)
-            }
-            
-            Button("Cancel", role: .cancel) {}
-        }
-        .onChange(of: scenePhase) { newPhase in
-            switch newPhase {
-            case .active:
-                viewModel.onAppear()
-            case .inactive, .background:
-                viewModel.onDisappear()
-            @unknown default:
-                break
+            // Manual Input Panel
+            if viewModel.showManualInput {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            viewModel.showManualInput = false
+                        }
+                    }
+                
+                ManualInputPanelView(
+                    type: viewModel.habit.type,
+                    isPresented: $viewModel.showManualInput,
+                    initialValue: viewModel.currentValue,
+                    onSubmit: { value in
+                        viewModel.setValue(value)
+                    }
+                )
             }
         }
     }
@@ -269,4 +297,4 @@ struct ExpandedControls: View {
             }
         }
     }
-} 
+}

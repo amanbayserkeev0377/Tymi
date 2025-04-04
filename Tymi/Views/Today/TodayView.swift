@@ -240,18 +240,19 @@ struct TodayView: View {
             startFABRotationLoop()
         }
     }
-    
+   
+    //MARK: - fabMenuButton
     @ViewBuilder
     private func fabMenuButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Text(title)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 19, weight: .regular))
                     .foregroundStyle(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.9))
 
                 Circle()
                     .fill(colorScheme == .dark ? .white.opacity(0.7) : .black.opacity(0.8))
-                    .frame(width: 42, height: 42)
+                    .frame(width: 40, height: 40)
                     .overlay(
                         Image(systemName: icon)
                             .font(.system(size: 16, weight: .medium))
