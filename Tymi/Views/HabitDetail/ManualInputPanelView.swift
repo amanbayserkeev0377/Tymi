@@ -182,7 +182,7 @@ struct ManualInputPanelView: View {
                 } label: {
                     Text("Done")
                         .font(.body.weight(.medium))
-                        .foregroundStyle(colorScheme == .dark ? .black.opacity(0.6) : .white)
+                        .foregroundStyle(colorScheme == .dark ? .black : .white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(

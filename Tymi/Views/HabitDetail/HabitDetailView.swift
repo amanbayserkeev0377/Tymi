@@ -1,5 +1,38 @@
 import SwiftUI
 
+// MARK: - HabitOptionsMenu
+struct HabitOptionsMenu: View {
+    let onChangeValue: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        Menu {
+            Button(action: onChangeValue) {
+                Text("Change value")
+            }
+            
+            Button(action: onEdit) {
+                Text("Edit")
+            }
+            
+            Divider()
+            
+            Button(role: .destructive, action: onDelete) {
+                Text("Delete")
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.body.weight(.medium))
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .buttonStyle(GlassButtonStyle())
+    }
+}
+
 struct HabitDetailView: View {
     @StateObject private var viewModel: HabitDetailViewModel
     @Environment(\.colorScheme) private var colorScheme
@@ -55,13 +88,11 @@ struct HabitDetailView: View {
                     
                     Spacer()
                     
-                    Button {
-                        viewModel.showOptions = true
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .font(.body.weight(.medium))
-                    }
-                    .buttonStyle(GlassButtonStyle(size: 44))
+                    HabitOptionsMenu(
+                        onChangeValue: { viewModel.showManualInput = true },
+                        onEdit: { onEdit?(viewModel.habit) },
+                        onDelete: { onDelete?(viewModel.habit) }
+                    )
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 24)
@@ -196,21 +227,6 @@ struct HabitDetailView: View {
                 .padding(.bottom, 24)
             }
             .modalStyle(isPresented: $isPresented)
-            .confirmationDialog(
-                "Options",
-                isPresented: $viewModel.showOptions,
-                titleVisibility: .hidden
-            ) {
-                Button("Edit") {
-                    onEdit?(viewModel.habit)
-                }
-                
-                Button("Delete", role: .destructive) {
-                    onDelete?(viewModel.habit)
-                }
-                
-                Button("Cancel", role: .cancel) {}
-            }
             .onChange(of: scenePhase) { newPhase in
                 switch newPhase {
                 case .active:
@@ -249,7 +265,9 @@ struct HabitDetailView: View {
         case .count:
             return "\(Int(viewModel.habit.goal)) times"
         case .time:
-            return "\(Int(viewModel.habit.goal / 60)) minutes"
+            let hours = Int(viewModel.habit.goal) / 3600
+            let minutes = Int(viewModel.habit.goal) / 60 % 60
+            return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
         }
     }
 }

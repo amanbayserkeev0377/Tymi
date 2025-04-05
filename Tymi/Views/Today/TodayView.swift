@@ -9,6 +9,7 @@ struct TodayView: View {
     @State private var showingSettings = false
     @State private var showingFABMenu = false
     @State private var isRotating = false
+    @State private var isBreathing = false
     @State private var selectedHabit: Habit?
     @Namespace private var namespace
     
@@ -61,6 +62,48 @@ struct TodayView: View {
                         }
                     }
                     .padding(.top, 24)
+                    
+                    // FAB Button (only show when no modals are visible)
+                    if !showingFABMenu && !showingNewHabit && !showingCalendar && !showingSettings && selectedHabit == nil {
+                        HStack {
+                            Spacer()
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showingFABMenu = true
+                                }
+                            } label: {
+                                Image("Tymi_blank")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 48, height: 48)
+                                    .rotationEffect(.degrees(isRotating ? 360 : 0))
+                                    .scaleEffect(isBreathing ? 1.06 : 1)
+                                    .opacity(isBreathing ? 0.05 : 1)
+                                    .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: isBreathing)
+                                    .padding(12)
+                                    .background(
+                                        Circle()
+                                            .fill(
+                                                colorScheme == .dark
+                                                ? Color.white.opacity(0.05)
+                                                : Color.black.opacity(0.05)
+                                            )
+                                            .frame(width: 60, height: 60)
+                                    )
+                                    .contentShape(Circle())
+                                    .shadow(
+                                        color: Color(red: 1.0, green: 0.4, blue: 0.3).opacity(0.6),
+                                        radius: 12,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .padding()
+                            .offset(y: -64)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 16)
+                    }
                 }
             }
             .blur(radius: showingFABMenu || showingNewHabit || showingCalendar || showingSettings || selectedHabit != nil ? 20 : 0)
@@ -121,36 +164,6 @@ struct TodayView: View {
                 }
                 .padding(.trailing, 16)
                 .frame(maxWidth: .infinity, alignment: .trailing)
-                .transition(.opacity)
-            }
-            
-            // FAB Button (only show when menu is not visible)
-            if !showingFABMenu {
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showingFABMenu = true
-                            }
-                        } label: {
-                            Image("Tymi_blank")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 48, height: 48)
-                                .rotationEffect(.degrees(isRotating ? 360 : 0))
-                                .animation(.easeInOut(duration: 1.5), value: isRotating)
-                                .shadow(
-                                    color: Color(red: 1.0, green: 0.4, blue: 0.3).opacity(0.6),
-                                    radius: 12,
-                                    x: 0,
-                                    y: 4
-                                )
-                        }
-                        .padding()
-                    }
-                }
                 .transition(.opacity)
             }
             

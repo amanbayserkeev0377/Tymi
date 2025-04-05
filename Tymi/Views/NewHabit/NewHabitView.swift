@@ -71,8 +71,14 @@ struct NewHabitView: View {
                                     .foregroundStyle(.white)
                                     .frame(height: 56)
                                     .frame(maxWidth: .infinity)
-                                    .background(.black)
-                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(
+                                                colorScheme == .dark
+                                                ? Color.white.opacity(0.4)
+                                                : Color.black
+                                            )
+                                    )
                             }
                             .disabled(!viewModel.isValid)
                         }
@@ -89,10 +95,6 @@ struct NewHabitView: View {
             }
         }
     }
-}
-
-#Preview {
-    NewHabitView(habitStore: HabitStore(), isPresented: .constant(true), onSave: { _ in })
 }
 
 // MARK: - NameFieldView
