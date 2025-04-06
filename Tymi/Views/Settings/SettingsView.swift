@@ -4,160 +4,284 @@ struct SettingsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Binding var isPresented: Bool
     @AppStorage("enableReminders") private var enableReminders = false
+    @AppStorage("enableAppBadge") private var enableAppBadge = false
+    @AppStorage("firstWeekday") private var firstWeekday = 1 // 1 = Sunday, 2 = Monday
     @State private var selectedSection: SettingsSection? = nil
     
     var body: some View {
-        VStack(spacing: 32) {
-            // Header
-            SettingsHeaderView(isPresented: $isPresented)
-            
-            if let section = selectedSection {
-                // Show selected section
+        ZStack {
+            VStack(spacing: 24) {
                 ScrollView {
                     VStack(spacing: 24) {
-                        // Back button
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                selectedSection = nil
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                    .font(.body.weight(.medium))
-                                Text("Back")
-                                    .font(.body.weight(.medium))
-                            }
-                            .foregroundStyle(.primary)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .padding(.horizontal, 24)
+                        Text("Settings")
+                            .font(.title.weight(.bold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 8)
                         
-                        // Section content
-                        switch section {
-                        case .appearance:
-                            AppearanceSectionView()
-                                .glassCard()
-                        case .notifications:
-                            NotificationsSectionView(enableReminders: $enableReminders)
-                                .glassCard()
-                        case .support:
-                            SupportSectionView()
-                                .glassCard()
-                        }
-                        
-                        Spacer(minLength: 32)
-                    }
-                }
-                .transition(.asymmetric(
-                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                    removal: .move(edge: .leading).combined(with: .opacity)
-                ))
-            } else {
-                // Show sections list
-                ScrollView {
-                    VStack(spacing: 16) {
-                        ForEach(SettingsSection.allCases, id: \.self) { section in
-                            SectionButton(section: section) {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    selectedSection = section
+                        // General Section
+                        VStack(spacing: 0) {
+                            SettingsRow(
+                                icon: "paintbrush.fill",
+                                title: "Appearance",
+                                action: {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        selectedSection = .appearance
+                                    }
                                 }
-                            }
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal, 16)
+                            
+                            SettingsRow(
+                                icon: "bell.fill",
+                                title: "Notifications",
+                                action: {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        selectedSection = .notifications
+                                    }
+                                }
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal, 16)
+                            
+                            SettingsRow(
+                                icon: "globe",
+                                title: "Language",
+                                action: {
+                                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal, 16)
+                            
+                            SettingsRow(
+                                icon: "calendar.badge.clock",
+                                title: "First Day of Week",
+                                action: {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        selectedSection = .firstDayOfWeek
+                                    }
+                                }
+                            )
                         }
+                        .glassCard()
+                        
+                        // Contact Us Section
+                        VStack(spacing: 0) {
+                            SettingsRow(
+                                icon: "envelope.fill",
+                                title: "Send Feedback",
+                                action: {
+                                    print("Send Feedback tapped")
+                                }
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal, 16)
+                            
+                            SettingsRow(
+                                icon: "star.fill",
+                                title: "Rate App",
+                                action: {
+                                    print("Rate App tapped")
+                                }
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal, 16)
+                            
+                            SettingsRow(
+                                icon: "globe",
+                                title: "Visit Website",
+                                action: {
+                                    print("Visit Website tapped")
+                                }
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal, 16)
+                            
+                            SettingsRow(
+                                icon: "x.circle.fill",
+                                title: "Follow on X",
+                                action: {
+                                    print("Follow on X tapped")
+                                }
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal, 16)
+                            
+                            SettingsRow(
+                                icon: "camera.fill",
+                                title: "Follow on Instagram",
+                                action: {
+                                    print("Follow on Instagram tapped")
+                                }
+                            )
+                        }
+                        .glassCard()
+                        
+                        // Other Section
+                        VStack(spacing: 0) {
+                            SettingsRow(
+                                icon: "doc.text.fill",
+                                title: "Terms of Service",
+                                action: {
+                                    print("Terms of Service tapped")
+                                }
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal, 16)
+                            
+                            SettingsRow(
+                                icon: "lock.fill",
+                                title: "Privacy Policy",
+                                action: {
+                                    print("Privacy Policy tapped")
+                                }
+                            )
+                        }
+                        .glassCard()
                         
                         Spacer(minLength: 32)
                     }
                     .padding(.horizontal, 24)
                 }
-                .transition(.asymmetric(
-                    insertion: .move(edge: .leading).combined(with: .opacity),
-                    removal: .move(edge: .trailing).combined(with: .opacity)
-                ))
+                .scrollContentBackground(.hidden)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .blur(radius: selectedSection != nil ? 20 : 0)
+            
+            // Section Views
+            if let section = selectedSection {
+                VStack(spacing: 0) {
+                    HStack {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedSection = nil
+                            }
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.body.weight(.medium))
+                        }
+                        .buttonStyle(GlassButtonStyle(size: 35))
+                        
+                        Spacer()
+                        
+                        Text(section.title)
+                            .font(.title3.weight(.semibold))
+                        
+                        Spacer()
+                        
+                        Color.clear
+                            .frame(width: 35, height: 35)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 16)
+                    
+                    Divider()
+                        .padding(.horizontal, 24)
+                    
+                    Group {
+                        switch section {
+                        case .appearance:
+                            AppearanceSectionView()
+                                .padding(.top, 16)
+                        case .notifications:
+                            NotificationsSectionView(enableReminders: $enableReminders)
+                                .padding(.top, 16)
+                        case .firstDayOfWeek:
+                            FirstDayOfWeekView(firstWeekday: $firstWeekday)
+                                .padding(.top, 16)
+                        }
+                    }
+                }
+                .frame(width: UIScreen.main.bounds.width - 48)
+                .background(Color.clear)
+                .glassCard()
+                .transition(.move(edge: .bottom))
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 24)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        .tint(colorScheme == .dark ? .white : .black)
+        .modalStyle(isPresented: $isPresented)
     }
 }
 
-// MARK: - SettingsSection
-enum SettingsSection: CaseIterable {
-    case appearance
-    case notifications
-    case support
-    
-    var title: String {
-        switch self {
-        case .appearance: return "Appearance"
-        case .notifications: return "Notifications"
-        case .support: return "Support"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .appearance: return "paintbrush.fill"
-        case .notifications: return "bell.fill"
-        case .support: return "questionmark.circle.fill"
-        }
-    }
-}
-
-// MARK: - SectionButton
-struct SectionButton: View {
-    let section: SettingsSection
-    let action: () -> Void
+// MARK: - SettingsRow
+struct SettingsRow: View {
+    let icon: String
+    let title: String
+    var toggleBinding: Binding<Bool>? = nil
+    var action: (() -> Void)? = nil
     
     var body: some View {
-        Button(action: action) {
+        Button(action: { action?() }) {
             HStack {
-                Image(systemName: section.icon)
+                Image(systemName: icon)
                     .font(.title2)
                     .foregroundStyle(.primary)
                     .frame(width: 32, height: 32)
                 
-                Text(section.title)
-                    .font(.title3.weight(.semibold))
+                Text(title)
+                    .font(.body)
                     .foregroundStyle(.primary)
                 
                 Spacer()
                 
-                Image(systemName: "chevron.right")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.secondary)
+                if let binding = toggleBinding {
+                    Toggle("", isOn: binding)
+                        .labelsHidden()
+                        .tint(.purple)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
             }
-            .padding(.vertical, 16)
-            .padding(.horizontal, 20)
-            .glassCard()
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
     }
 }
 
-// MARK: - SettingsHeaderView
-struct SettingsHeaderView: View {
-    @Binding var isPresented: Bool
+// MARK: - SettingsSection
+enum SettingsSection {
+    case appearance
+    case notifications
+    case firstDayOfWeek
+    
+    var title: String {
+        switch self {
+        case .appearance: return "Appearance"
+        case .notifications: return "Notifications"
+        case .firstDayOfWeek: return "First Day of Week"
+        }
+    }
+}
+
+// MARK: - FirstDayOfWeekView
+struct FirstDayOfWeekView: View {
+    @Binding var firstWeekday: Int
     
     var body: some View {
-        HStack {
-            Text("Settings")
-                .font(.title.weight(.bold))
-                .foregroundStyle(.primary)
-            
-            Spacer()
-            
-            Button {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    isPresented = false
-                }
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.body.weight(.medium))
+        VStack(alignment: .leading, spacing: 12) {
+            Picker("", selection: $firstWeekday) {
+                Text("Sunday").tag(1)
+                Text("Monday").tag(2)
             }
-            .buttonStyle(GlassButtonStyle(size: 44))
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 16)
         }
-        .padding(.top, 24)
     }
 }
 
@@ -167,25 +291,15 @@ struct AppearanceSectionView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Section Header
-            HStack {
-                Image(systemName: "paintbrush.fill")
-                    .font(.title2)
-                    .foregroundStyle(.primary)
-                Text("Appearance")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.primary)
-            }
-            
+        VStack(alignment: .leading, spacing: 16) {
             // Dark Mode
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "moon.fill")
-                        .font(.title2)
+                        .font(.body)
                         .foregroundStyle(.primary)
                     Text("Dark Mode")
-                        .font(.title3.weight(.semibold))
+                        .font(.body)
                         .foregroundStyle(.primary)
                 }
                 
@@ -216,13 +330,13 @@ struct AppearanceSectionView: View {
             }
             
             // App Icon
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "app.fill")
-                        .font(.title2)
+                        .font(.body)
                         .foregroundStyle(.primary)
                     Text("App Icon")
-                        .font(.title3.weight(.semibold))
+                        .font(.body)
                         .foregroundStyle(.primary)
                 }
                 
@@ -254,32 +368,25 @@ struct AppearanceSectionView: View {
                 }
             }
         }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 16)
     }
 }
 
 // MARK: - NotificationsSectionView
 struct NotificationsSectionView: View {
     @Binding var enableReminders: Bool
+    @AppStorage("enableAppBadge") private var enableAppBadge = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Section Header
-            HStack {
-                Image(systemName: "bell.fill")
-                    .font(.title2)
-                    .foregroundStyle(.primary)
-                Text("Notifications")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.primary)
-            }
-            
+        VStack(alignment: .leading, spacing: 12) {
             // Enable Reminders Toggle
             HStack {
                 Image(systemName: "bell.badge.fill")
-                    .font(.title2)
+                    .font(.body)
                     .foregroundStyle(.primary)
                 Text("Enable Reminders")
-                    .font(.title3.weight(.semibold))
+                    .font(.body)
                     .foregroundStyle(.primary)
                 
                 Spacer()
@@ -289,14 +396,30 @@ struct NotificationsSectionView: View {
                     .tint(.purple)
             }
             
+            // App Badge Toggle
+            HStack {
+                Image(systemName: "app.badge.fill")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                Text("Show App Icon Badge")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                
+                Spacer()
+                
+                Toggle("", isOn: $enableAppBadge)
+                    .labelsHidden()
+                    .tint(.purple)
+            }
+            
             // Time Picker Placeholder
             if enableReminders {
                 HStack {
                     Image(systemName: "clock.fill")
-                        .font(.title2)
+                        .font(.body)
                         .foregroundStyle(.primary)
                     Text("Reminder Time")
-                        .font(.title3.weight(.semibold))
+                        .font(.body)
                         .foregroundStyle(.primary)
                     
                     Spacer()
@@ -305,98 +428,10 @@ struct NotificationsSectionView: View {
                         .font(.body)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(uiColor: .systemBackground).opacity(0.5))
-                        .background(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(.white.opacity(0.1), lineWidth: 0.5)
-                        )
-                )
             }
         }
-    }
-}
-
-// MARK: - SupportSectionView
-struct SupportSectionView: View {
-    @Environment(\.openURL) private var openURL
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Section Header
-            HStack {
-                Image(systemName: "questionmark.circle.fill")
-                    .font(.title2)
-                    .foregroundStyle(.primary)
-                Text("Support")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.primary)
-            }
-            
-            VStack(alignment: .leading, spacing: 16) {
-                SupportButton(title: "Send Feedback", icon: "envelope.fill") {
-                    print("Send Feedback tapped")
-                }
-                
-                SupportButton(title: "Rate on App Store", icon: "star.fill") {
-                    print("Rate on App Store tapped")
-                }
-                
-                SupportButton(title: "Visit Website", icon: "globe") {
-                    print("Visit Website tapped")
-                }
-                
-                SupportButton(title: "Follow on X", icon: "x.circle.fill") {
-                    print("Follow on X tapped")
-                }
-                
-                SupportButton(title: "Follow on Instagram", icon: "camera.fill") {
-                    print("Follow on Instagram tapped")
-                }
-            }
-        }
-    }
-}
-
-// MARK: - SupportButton
-struct SupportButton: View {
-    let title: String
-    let icon: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundStyle(.primary)
-                Text(title)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.primary)
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(uiColor: .systemBackground).opacity(0.5))
-                    .background(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .strokeBorder(.white.opacity(0.1), lineWidth: 0.5)
-                    )
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, 24)
+        .padding(.bottom, 16)
     }
 }
 
