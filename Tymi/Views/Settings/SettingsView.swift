@@ -9,208 +9,198 @@ struct SettingsView: View {
     @State private var selectedSection: SettingsSection? = nil
     
     var body: some View {
-        ZStack {
-            VStack(spacing: 24) {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        Text("Settings")
-                            .font(.title.weight(.bold))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 24)
-                            .padding(.top, 8)
-                        
-                        // General Section
-                        VStack(spacing: 0) {
-                            SettingsRow(
-                                icon: "paintbrush.fill",
-                                title: "Appearance",
-                                action: {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        selectedSection = .appearance
-                                    }
-                                }
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 16)
-                            
-                            SettingsRow(
-                                icon: "bell.fill",
-                                title: "Notifications",
-                                action: {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        selectedSection = .notifications
-                                    }
-                                }
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 16)
-                            
-                            SettingsRow(
-                                icon: "globe",
-                                title: "Language",
-                                action: {
-                                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                                        UIApplication.shared.open(url)
-                                    }
-                                }
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 16)
-                            
-                            SettingsRow(
-                                icon: "calendar.badge.clock",
-                                title: "First Day of Week",
-                                action: {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        selectedSection = .firstDayOfWeek
-                                    }
-                                }
-                            )
-                        }
-                        .glassCard()
-                        
-                        // Contact Us Section
-                        VStack(spacing: 0) {
-                            SettingsRow(
-                                icon: "envelope.fill",
-                                title: "Send Feedback",
-                                action: {
-                                    print("Send Feedback tapped")
-                                }
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 16)
-                            
-                            SettingsRow(
-                                icon: "star.fill",
-                                title: "Rate App",
-                                action: {
-                                    print("Rate App tapped")
-                                }
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 16)
-                            
-                            SettingsRow(
-                                icon: "globe",
-                                title: "Visit Website",
-                                action: {
-                                    print("Visit Website tapped")
-                                }
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 16)
-                            
-                            SettingsRow(
-                                icon: "x.circle.fill",
-                                title: "Follow on X",
-                                action: {
-                                    print("Follow on X tapped")
-                                }
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 16)
-                            
-                            SettingsRow(
-                                icon: "camera.fill",
-                                title: "Follow on Instagram",
-                                action: {
-                                    print("Follow on Instagram tapped")
-                                }
-                            )
-                        }
-                        .glassCard()
-                        
-                        // Other Section
-                        VStack(spacing: 0) {
-                            SettingsRow(
-                                icon: "doc.text.fill",
-                                title: "Terms of Service",
-                                action: {
-                                    print("Terms of Service tapped")
-                                }
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 16)
-                            
-                            SettingsRow(
-                                icon: "lock.fill",
-                                title: "Privacy Policy",
-                                action: {
-                                    print("Privacy Policy tapped")
-                                }
-                            )
-                        }
-                        .glassCard()
-                        
-                        Spacer(minLength: 32)
-                    }
-                    .padding(.horizontal, 24)
-                }
-                .scrollContentBackground(.hidden)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .blur(radius: selectedSection != nil ? 20 : 0)
-            
-            // Section Views
-            if let section = selectedSection {
+        ModalView(isPresented: $isPresented, title: "Settings") {
+            ZStack {
                 VStack(spacing: 0) {
-                    HStack {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                selectedSection = nil
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // General Section
+                            VStack(spacing: 0) {
+                                SettingsRow(
+                                    icon: "paintbrush.fill",
+                                    title: "Appearance",
+                                    action: {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            selectedSection = .appearance
+                                        }
+                                    }
+                                )
+                                
+                                Divider()
+                                    .padding(.horizontal, 16)
+                                
+                                SettingsRow(
+                                    icon: "bell.fill",
+                                    title: "Notifications",
+                                    action: {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            selectedSection = .notifications
+                                        }
+                                    }
+                                )
+                                
+                                Divider()
+                                    .padding(.horizontal, 16)
+                                
+                                SettingsRow(
+                                    icon: "globe",
+                                    title: "Language",
+                                    action: {
+                                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                                            UIApplication.shared.open(url)
+                                        }
+                                    }
+                                )
+                                
+                                Divider()
+                                    .padding(.horizontal, 16)
+                                
+                                SettingsRow(
+                                    icon: "calendar.badge.clock",
+                                    title: "First Day of Week",
+                                    action: {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            selectedSection = .firstDayOfWeek
+                                        }
+                                    }
+                                )
                             }
-                        } label: {
-                            Image(systemName: "chevron.left")
-                                .font(.body.weight(.medium))
+                            .glassCard()
+                            
+                            // Contact Us Section
+                            VStack(spacing: 0) {
+                                SettingsRow(
+                                    icon: "envelope.fill",
+                                    title: "Send Feedback",
+                                    action: {
+                                        print("Send Feedback tapped")
+                                    }
+                                )
+                                
+                                Divider()
+                                    .padding(.horizontal, 16)
+                                
+                                SettingsRow(
+                                    icon: "star.fill",
+                                    title: "Rate App",
+                                    action: {
+                                        print("Rate App tapped")
+                                    }
+                                )
+                                
+                                Divider()
+                                    .padding(.horizontal, 16)
+                                
+                                SettingsRow(
+                                    icon: "globe",
+                                    title: "Visit Website",
+                                    action: {
+                                        print("Visit Website tapped")
+                                    }
+                                )
+                                
+                                Divider()
+                                    .padding(.horizontal, 16)
+                                
+                                SettingsRow(
+                                    icon: "x.circle.fill",
+                                    title: "Follow on X",
+                                    action: {
+                                        print("Follow on X tapped")
+                                    }
+                                )
+                                
+                                Divider()
+                                    .padding(.horizontal, 16)
+                                
+                                SettingsRow(
+                                    icon: "camera.fill",
+                                    title: "Follow on Instagram",
+                                    action: {
+                                        print("Follow on Instagram tapped")
+                                    }
+                                )
+                            }
+                            .glassCard()
+                            
+                            // Other Section
+                            VStack(spacing: 0) {
+                                SettingsRow(
+                                    icon: "doc.text.fill",
+                                    title: "Terms of Service",
+                                    action: {
+                                        print("Terms of Service tapped")
+                                    }
+                                )
+                                
+                                Divider()
+                                    .padding(.horizontal, 16)
+                                
+                                SettingsRow(
+                                    icon: "lock.fill",
+                                    title: "Privacy Policy",
+                                    action: {
+                                        print("Privacy Policy tapped")
+                                    }
+                                )
+                            }
+                            .glassCard()
                         }
-                        .buttonStyle(GlassButtonStyle(size: 35))
-                        
-                        Spacer()
-                        
-                        Text(section.title)
-                            .font(.title3.weight(.semibold))
-                        
-                        Spacer()
-                        
-                        Color.clear
-                            .frame(width: 35, height: 35)
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 16)
-                    
-                    Divider()
                         .padding(.horizontal, 24)
-                    
-                    Group {
-                        switch section {
-                        case .appearance:
-                            AppearanceSectionView()
-                                .padding(.top, 16)
-                        case .notifications:
-                            NotificationsSectionView(enableReminders: $enableReminders)
-                                .padding(.top, 16)
-                        case .firstDayOfWeek:
-                            FirstDayOfWeekView(firstWeekday: $firstWeekday)
-                                .padding(.top, 16)
-                        }
                     }
                 }
-                .frame(width: UIScreen.main.bounds.width - 48)
-                .background(Color.clear)
-                .glassCard()
-                .transition(.move(edge: .bottom))
+                
+                // Section Views
+                if let section = selectedSection {
+                    VStack(spacing: 0) {
+                        HStack {
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    selectedSection = nil
+                                }
+                            } label: {
+                                Image(systemName: "chevron.left")
+                                    .font(.body.weight(.medium))
+                            }
+                            .buttonStyle(GlassButtonStyle(size: 35))
+                            
+                            Spacer()
+                            
+                            Text(section.title)
+                                .font(.title3.weight(.semibold))
+                            
+                            Spacer()
+                            
+                            Color.clear
+                                .frame(width: 35, height: 35)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        
+                        Divider()
+                            .padding(.horizontal, 24)
+                        
+                        Group {
+                            switch section {
+                            case .appearance:
+                                AppearanceSectionView()
+                                    .padding(.top, 16)
+                            case .notifications:
+                                NotificationsSectionView(enableReminders: $enableReminders)
+                                    .padding(.top, 16)
+                            case .firstDayOfWeek:
+                                FirstDayOfWeekView(firstWeekday: $firstWeekday)
+                                    .padding(.top, 16)
+                            }
+                        }
+                    }
+                    .frame(width: UIScreen.main.bounds.width - 48)
+                    .background(Color.clear)
+                    .glassCard()
+                    .transition(.move(edge: .bottom))
+                }
             }
         }
-        .modalStyle(isPresented: $isPresented)
     }
 }
 

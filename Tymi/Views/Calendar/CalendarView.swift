@@ -16,15 +16,9 @@ struct CalendarView: View {
     private let weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text(viewModel.monthTitle)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.primary)
-                
-                Spacer()
-                
+        ModalView(isPresented: $isPresented, title: viewModel.monthTitle) {
+            VStack(spacing: 0) {
+                // Month Navigation
                 HStack(spacing: 20) {
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -55,40 +49,39 @@ struct CalendarView: View {
                     }
                     .disabled(viewModel.isCurrentMonth(Date()))
                 }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
-            
-            // Weekday headers
-            HStack {
-                ForEach(weekDays, id: \.self) { day in
-                    Text(day)
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
+                
+                // Weekday headers
+                HStack {
+                    ForEach(weekDays, id: \.self) { day in
+                        Text(day)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity)
+                    }
                 }
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 12)
-            
-            // Calendar grid
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
-                ForEach(viewModel.dates, id: \.self) { date in
-                    DayCell(date: date, viewModel: viewModel) {
-                        if !viewModel.isFuture(date) {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                selectedDate = date
-                                isPresented = false
+                .padding(.horizontal, 24)
+                .padding(.bottom, 12)
+                
+                // Calendar grid
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
+                    ForEach(viewModel.dates, id: \.self) { date in
+                        DayCell(date: date, viewModel: viewModel) {
+                            if !viewModel.isFuture(date) {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedDate = date
+                                    isPresented = false
+                                }
                             }
                         }
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .frame(width: UIScreen.main.bounds.width - 48)
+            .glassCard()
         }
-        .frame(width: UIScreen.main.bounds.width - 48)
-        .glassCard()
-        .modalStyle(isPresented: $isPresented)
     }
 }

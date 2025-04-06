@@ -23,68 +23,64 @@ struct NewHabitView: View {
     }
     
     var body: some View {
-        ModalView(isPresented: $isPresented) {
+        ModalView(isPresented: $isPresented, title: "New Habit") {
             ZStack(alignment: .bottom) {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        VStack(spacing: 16) {
-                            // Name Field
-                            NameFieldView(name: $viewModel.name)
-                                .focused($focusedField, equals: .name)
-                            
-                            // Goal Section
-                            GoalSection(
-                                goal: $viewModel.goal,
-                                type: $viewModel.type,
-                                isCountFieldFocused: focusedField == .count,
-                                onTap: { focusedField = .count }
-                            )
-                            .focused($focusedField, equals: .count)
-                            
-                            // Weekday Selection
-                            WeekdaySelector(selectedDays: $viewModel.activeDays)
-                            
-                            // Reminder Section
-                            ReminderSection(
-                                isEnabled: $viewModel.isReminderEnabled,
-                                time: $viewModel.reminderTime
-                            )
-                            
-                            // Start Date Section
-                            StartDateSection(startDate: $viewModel.startDate)
-                            
-                            Spacer(minLength: 32)
-                            
-                            // Create Button
-                            Button {
-                                feedbackGenerator.prepare()
-                                if let habit = viewModel.createHabit() {
-                                    feedbackGenerator.impactOccurred()
-                                    onSave(habit)
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        isPresented = false
-                                    }
-                                }
-                            } label: {
-                                Text("Create Habit")
-                                    .font(.title3.weight(.semibold))
-                                    .foregroundStyle(.white)
-                                    .frame(height: 56)
-                                    .frame(maxWidth: .infinity)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .fill(
-                                                colorScheme == .dark
-                                                ? Color.white.opacity(0.4)
-                                                : Color.black
-                                            )
-                                    )
+                VStack(spacing: 16) {
+                    // Name Field
+                    NameFieldView(name: $viewModel.name)
+                        .focused($focusedField, equals: .name)
+                    
+                    // Goal Section
+                    GoalSection(
+                        goal: $viewModel.goal,
+                        type: $viewModel.type,
+                        isCountFieldFocused: focusedField == .count,
+                        onTap: { focusedField = .count }
+                    )
+                    .focused($focusedField, equals: .count)
+                    
+                    // Weekday Selection
+                    WeekdaySelector(selectedDays: $viewModel.activeDays)
+                    
+                    // Reminder Section
+                    ReminderSection(
+                        isEnabled: $viewModel.isReminderEnabled,
+                        time: $viewModel.reminderTime
+                    )
+                    
+                    // Start Date Section
+                    StartDateSection(startDate: $viewModel.startDate)
+                    
+                    Spacer(minLength: 32)
+                    
+                    // Create Button
+                    Button {
+                        feedbackGenerator.prepare()
+                        if let habit = viewModel.createHabit() {
+                            feedbackGenerator.impactOccurred()
+                            onSave(habit)
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isPresented = false
                             }
-                            .disabled(!viewModel.isValid)
                         }
-                        .padding(.horizontal, 16)
+                    } label: {
+                        Text("Create Habit")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(height: 56)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(
+                                        colorScheme == .dark
+                                        ? Color.white.opacity(0.4)
+                                        : Color.black
+                                    )
+                            )
                     }
+                    .disabled(!viewModel.isValid)
                 }
+                .padding(.horizontal, 16)
                 
                 // Keyboard Dismiss Button
                 if focusedField != nil {

@@ -3,19 +3,20 @@ import SwiftUI
 struct ModalView<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
     @Binding var isPresented: Bool
-    let showCloseButton: Bool
+    let title: String
     let content: Content
     
     @GestureState private var dragOffset = CGSize.zero
     @State private var offset = CGSize.zero
+    @State private var scrollOffset: CGFloat = 0
     
     init(
         isPresented: Binding<Bool>,
-        showCloseButton: Bool = true,
+        title: String,
         @ViewBuilder content: () -> Content
     ) {
         self._isPresented = isPresented
-        self.showCloseButton = showCloseButton
+        self.title = title
         self.content = content()
     }
     
@@ -23,30 +24,49 @@ struct ModalView<Content: View>: View {
         GeometryReader { geometry in
             ZStack {
                 // Modal content
-                VStack {
-                    if showCloseButton {
-                        HStack {
-                            Spacer()
-                            
-                            Button {
-                                let generator = UIImpactFeedbackGenerator(style: .light)
-                                generator.impactOccurred()
-                                
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    isPresented = false
-                                }
-                            } label: {
-                                Image(systemName: "xmark")
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
+                VStack(spacing: 0) {
+                    // Header
+                    HStack {
+                        Spacer()
+                        Text(title)
+                            .font(.title3.weight(.semibold))
+                        Spacer()
+                        
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isPresented = false
                             }
-                            .buttonStyle(GlassButtonStyle(size: 44))
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.body.weight(.medium))
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.top, 24)
+                        .buttonStyle(.plain)
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
                     
-                    content
+                    ScrollView {
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: ScrollOffsetPreferenceKey.self,
+                                value: proxy.frame(in: .named("scroll")).minY
+                            )
+                        }
+                        .frame(height: 0)
+                        
+                        content
+                    }
+                    .coordinateSpace(name: "scroll")
+                    .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+                        scrollOffset = offset
+                        
+                        // Если скролл достиг верха и продолжаем тянуть вверх
+                        if offset < -50 && dragOffset.height < 0 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isPresented = false
+                            }
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .offset(y: offset.height + dragOffset.height)
@@ -60,7 +80,8 @@ struct ModalView<Content: View>: View {
                 .gesture(
                     DragGesture()
                         .updating($dragOffset) { value, state, _ in
-                            if value.translation.height > 0 {
+                            // Разрешаем движение вниз всегда, а вверх только если достигли верха скролла
+                            if value.translation.height > 0 || scrollOffset <= 0 {
                                 state = value.translation
                             }
                         }
@@ -89,11 +110,20 @@ struct ModalView<Content: View>: View {
             )
         )
     }
+    
+    func dismiss() {
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            isPresented = false
+        }
+    }
 }
 
 extension View {
-    func modalStyle(isPresented: Binding<Bool>, showCloseButton: Bool = true) -> some View {
-        ModalView(isPresented: isPresented, showCloseButton: showCloseButton) {
+    func modalStyle(isPresented: Binding<Bool>, title: String) -> some View {
+        ModalView(isPresented: isPresented, title: title) {
             self
         }
     }
