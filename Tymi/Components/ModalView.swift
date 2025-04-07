@@ -8,12 +8,9 @@ struct ModalView<Content: View>: View {
     
     @State private var offset: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
+    @State private var isDragging = false
     
-    // Вычисляем прозрачность на основе смещения
-    private var opacity: CGFloat {
-        let maxOffset: CGFloat = 200 // Максимальное смещение для полного исчезновения
-        return 1 - (offset / maxOffset)
-    }
+    private let dismissThreshold: CGFloat = 100
     
     init(
         isPresented: Binding<Bool>,
@@ -29,6 +26,14 @@ struct ModalView<Content: View>: View {
         ZStack(alignment: .top) {
             ScrollView {
                 VStack(spacing: 0) {
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: ScrollOffsetPreferenceKey.self,
+                            value: proxy.frame(in: .named("scroll")).minY
+                        )
+                    }
+                    .frame(height: 0)
+                    
                     // Ручка
                     Capsule()
                         .fill(Color.primary.opacity(colorScheme == .dark ? 0.3 : 0.15))
@@ -40,17 +45,8 @@ struct ModalView<Content: View>: View {
                         .font(.title3.weight(.semibold))
                         .padding(.vertical, 8)
                     
-                    // Геометрия для отслеживания скролла
-                    GeometryReader { proxy in
-                        Color.clear.preference(
-                            key: ScrollOffsetPreferenceKey.self,
-                            value: proxy.frame(in: .named("scroll")).minY
-                        )
-                    }
-                    .frame(height: 0)
-                    
                     content
-                        .padding(.bottom, 32) // Отступ снизу
+                        .padding(.bottom, 32)
                 }
             }
             .coordinateSpace(name: "scroll")
@@ -58,30 +54,36 @@ struct ModalView<Content: View>: View {
                 scrollOffset = value
             }
             .simultaneousGesture(
-                DragGesture()
-                    .onChanged { value in
-                        // Если скролл в самом верху, разрешаем тянуть вниз
+                DragGesture(minimumDistance: 10)
+                    .onChanged { gesture in
+                        // Разрешаем перетаскивание только если мы в начале списка
                         if scrollOffset >= 0 {
-                            let translation = value.translation.height
-                            offset = translation > 0 ? translation : 0
+                            isDragging = true
+                            let translation = gesture.translation.height
+                            
+                            // Замедляем движение вверх
+                            if translation < 0 {
+                                offset = translation / 3
+                            } else {
+                                offset = translation
+                            }
                         }
                     }
-                    .onEnded { value in
+                    .onEnded { gesture in
+                        isDragging = false
+                        // Обрабатываем жест только если мы в начале списка
                         if scrollOffset >= 0 {
-                            let translation = value.translation.height
-                            if translation > 50 {
+                            let translation = gesture.translation.height
+                            let velocity = gesture.predictedEndLocation.y - gesture.location.y
+                            
+                            if translation > dismissThreshold || (translation > 20 && velocity > 500) {
                                 let generator = UIImpactFeedbackGenerator(style: .light)
                                 generator.impactOccurred()
-                                
                                 withAnimation(.easeOut(duration: 0.2)) {
                                     isPresented = false
                                 }
                             } else {
-                                withAnimation(.interactiveSpring(
-                                    response: 0.3,
-                                    dampingFraction: 0.7,
-                                    blendDuration: 0
-                                )) {
+                                withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3)) {
                                     offset = 0
                                 }
                             }
@@ -91,22 +93,13 @@ struct ModalView<Content: View>: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .offset(y: offset)
-        .opacity(opacity)
+        .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3), value: offset)
         .transition(
             .asymmetric(
                 insertion: .move(edge: .bottom),
                 removal: .move(edge: .bottom).combined(with: .opacity)
             )
         )
-    }
-    
-    func dismiss() {
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
-        
-        withAnimation(.easeInOut(duration: 0.3)) {
-            isPresented = false
-        }
     }
 }
 
