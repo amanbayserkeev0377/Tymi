@@ -24,6 +24,47 @@ struct ModalView<Content: View>: View {
     
     var body: some View {
         ZStack(alignment: .top) {
+            // Background overlay
+            Color.clear
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        isPresented = false
+                    }
+                }
+                .gesture(
+                    DragGesture(minimumDistance: 10)
+                        .onChanged { gesture in
+                            isDragging = true
+                            let translation = gesture.translation.height
+                            
+                            // Замедляем движение вверх
+                            if translation < 0 {
+                                offset = translation / 3
+                            } else {
+                                offset = translation
+                            }
+                        }
+                        .onEnded { gesture in
+                            isDragging = false
+                            let translation = gesture.translation.height
+                            let velocity = gesture.predictedEndLocation.y - gesture.location.y
+                            
+                            if translation > dismissThreshold || (translation > 20 && velocity > 500) {
+                                let generator = UIImpactFeedbackGenerator(style: .light)
+                                generator.impactOccurred()
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    isPresented = false
+                                }
+                            } else {
+                                withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3)) {
+                                    offset = 0
+                                }
+                            }
+                        }
+                )
+            
             VStack(spacing: 0) {
                 // Ручка
                 Capsule()
@@ -38,47 +79,16 @@ struct ModalView<Content: View>: View {
                 
                 content
             }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .offset(y: offset)
-        .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3), value: offset)
-        .transition(
-            .asymmetric(
-                insertion: .move(edge: .bottom),
-                removal: .move(edge: .bottom).combined(with: .opacity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .offset(y: offset)
+            .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3), value: offset)
+            .transition(
+                .asymmetric(
+                    insertion: .move(edge: .bottom),
+                    removal: .move(edge: .bottom).combined(with: .opacity)
+                )
             )
-        )
-        .gesture(
-            DragGesture(minimumDistance: 10)
-                .onChanged { gesture in
-                    isDragging = true
-                    let translation = gesture.translation.height
-                    
-                    // Замедляем движение вверх
-                    if translation < 0 {
-                        offset = translation / 3
-                    } else {
-                        offset = translation
-                    }
-                }
-                .onEnded { gesture in
-                    isDragging = false
-                    let translation = gesture.translation.height
-                    let velocity = gesture.predictedEndLocation.y - gesture.location.y
-                    
-                    if translation > dismissThreshold || (translation > 20 && velocity > 500) {
-                        let generator = UIImpactFeedbackGenerator(style: .light)
-                        generator.impactOccurred()
-                        withAnimation(.easeOut(duration: 0.2)) {
-                            isPresented = false
-                        }
-                    } else {
-                        withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3)) {
-                            offset = 0
-                        }
-                    }
-                }
-        )
+        }
     }
 }
 

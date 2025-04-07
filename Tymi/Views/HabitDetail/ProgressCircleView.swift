@@ -17,6 +17,13 @@ struct ProgressCircleView: View {
         min(progress / goal, 1.0)
     }
     
+    private var overachievement: Double? {
+        if currentValue > goal {
+            return ((currentValue - goal) / goal) * 100
+        }
+        return nil
+    }
+    
     private var gradientColors: [Color] {
         if isCompleted {
             return [.green, .mint]
@@ -83,9 +90,9 @@ struct ProgressCircleView: View {
             
             // Center value
             VStack(spacing: 8) {
-                Text(isCompleted ? "Done" : valueText)
+                Text(isCompleted ? (currentValue > goal ? valueText : "Done") : valueText)
                     .font(.system(size: 44, weight: .semibold))
-                    .foregroundStyle(textColor)
+                    .foregroundStyle(currentValue > goal ? .green : textColor)
                     .contentTransition(.numericText())
                 
                 if type == .time && !isCompleted {
