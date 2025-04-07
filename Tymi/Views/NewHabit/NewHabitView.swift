@@ -24,34 +24,38 @@ struct NewHabitView: View {
     
     var body: some View {
         ModalView(isPresented: $isPresented, title: "New Habit") {
-            ZStack(alignment: .bottom) {
-                VStack(spacing: 16) {
-                    // Name Field
-                    NameFieldView(name: $viewModel.name)
-                        .focused($focusedField, equals: .name)
+            ZStack {
+                VStack(spacing: 0) {
+                    VStack(spacing: 16) {
+                        // Name Field
+                        NameFieldView(name: $viewModel.name)
+                            .focused($focusedField, equals: .name)
+                        
+                        // Goal Section
+                        GoalSection(
+                            goal: $viewModel.goal,
+                            type: $viewModel.type,
+                            isCountFieldFocused: focusedField == .count,
+                            onTap: { focusedField = .count }
+                        )
+                        .focused($focusedField, equals: .count)
+                        
+                        // Weekday Selection
+                        WeekdaySelector(selectedDays: $viewModel.activeDays)
+                        
+                        // Reminder Section
+                        ReminderSection(
+                            isEnabled: $viewModel.isReminderEnabled,
+                            time: $viewModel.reminderTime
+                        )
+                        
+                        // Start Date Section
+                        StartDateSection(startDate: $viewModel.startDate)
+                    }
+                    .padding(.horizontal)
+                    .padding(.top)
                     
-                    // Goal Section
-                    GoalSection(
-                        goal: $viewModel.goal,
-                        type: $viewModel.type,
-                        isCountFieldFocused: focusedField == .count,
-                        onTap: { focusedField = .count }
-                    )
-                    .focused($focusedField, equals: .count)
-                    
-                    // Weekday Selection
-                    WeekdaySelector(selectedDays: $viewModel.activeDays)
-                    
-                    // Reminder Section
-                    ReminderSection(
-                        isEnabled: $viewModel.isReminderEnabled,
-                        time: $viewModel.reminderTime
-                    )
-                    
-                    // Start Date Section
-                    StartDateSection(startDate: $viewModel.startDate)
-                    
-                    Spacer(minLength: 32)
+                    Spacer()
                     
                     // Create Button
                     Button {
@@ -66,7 +70,7 @@ struct NewHabitView: View {
                     } label: {
                         Text("Create Habit")
                             .font(.title3.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(colorScheme == .dark ? .black : .white)
                             .frame(height: 56)
                             .frame(maxWidth: .infinity)
                             .background(
@@ -79,8 +83,9 @@ struct NewHabitView: View {
                             )
                     }
                     .disabled(!viewModel.isValid)
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
                 }
-                .padding(.horizontal, 16)
                 
                 // Keyboard Dismiss Button
                 if focusedField != nil {
