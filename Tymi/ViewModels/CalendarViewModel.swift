@@ -13,10 +13,39 @@ class CalendarViewModel: ObservableObject {
         return calendar
     }()
     
-    init(selectedDate: Date = Date()) {
+    private let habitStore: HabitStore
+    
+    init(selectedDate: Date = Date(), habitStore: HabitStore) {
         self.selectedDate = selectedDate
         self.currentMonth = selectedDate
-        // TODO: Загрузить дни с привычками из HabitStore
+        self.habitStore = habitStore
+        updateProgress()
+    }
+    
+    func updateProgress() {
+        let habits = habitStore.habits
+        var daysWithHabits = Set<Date>()
+        var completedHabits = Set<Date>()
+        var partiallyCompletedHabits = Set<Date>()
+        
+        for habit in habits {
+            let progress = habitStore.getAllProgress(for: habit)
+            
+            for habitProgress in progress {
+                let date = calendar.startOfDay(for: habitProgress.date)
+                daysWithHabits.insert(date)
+                
+                if habitProgress.isCompleted {
+                    completedHabits.insert(date)
+                } else if habitProgress.value > 0 {
+                    partiallyCompletedHabits.insert(date)
+                }
+            }
+        }
+        
+        self.daysWithHabits = daysWithHabits
+        self.completedHabits = completedHabits
+        self.partiallyCompletedHabits = partiallyCompletedHabits
     }
     
     // Returns all dates for the calendar grid (including previous and next month)

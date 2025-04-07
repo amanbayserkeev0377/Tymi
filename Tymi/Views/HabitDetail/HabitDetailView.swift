@@ -46,19 +46,21 @@ struct HabitDetailView: View {
     
     init(
         habit: Habit,
+        habitStore: HabitStore,
         isPresented: Binding<Bool>,
         onEdit: ((Habit) -> Void)? = nil,
         onDelete: ((Habit) -> Void)? = nil,
         onUpdate: ((Habit, Double) -> Void)? = nil,
         onComplete: ((Habit) -> Void)? = nil
     ) {
-        let vm = HabitDetailViewModel(habit: habit)
-        _viewModel = StateObject(wrappedValue: vm)
         _isPresented = isPresented
         self.onEdit = onEdit
         self.onDelete = onDelete
         self.onUpdate = onUpdate
         self.onComplete = onComplete
+        
+        let vm = HabitDetailViewModel(habit: habit, habitStore: habitStore)
+        _viewModel = StateObject(wrappedValue: vm)
         
         vm.onUpdate = { [weak vm] value in
             guard let habit = vm?.habit else { return }

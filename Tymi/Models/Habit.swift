@@ -36,6 +36,7 @@ class HabitStore: ObservableObject {
     @Published private(set) var habits: [Habit] = []
     private let defaults = UserDefaults.standard
     private let habitsKey = "savedHabits"
+    private let statistics = HabitStatistics()
     
     init() {
         loadHabits()
@@ -56,6 +57,24 @@ class HabitStore: ObservableObject {
     func deleteHabit(_ habit: Habit) {
         habits.removeAll { $0.id == habit.id }
         saveHabits()
+    }
+    
+    func saveProgress(for habit: Habit, value: Double, isCompleted: Bool, date: Date = Date()) {
+        let progress = HabitProgress(
+            habitId: habit.id,
+            date: date,
+            value: value,
+            isCompleted: isCompleted
+        )
+        statistics.saveProgress(progress)
+    }
+    
+    func getProgress(for habit: Habit, on date: Date = Date()) -> HabitProgress? {
+        statistics.getProgress(for: habit.id, on: date)
+    }
+    
+    func getAllProgress(for habit: Habit) -> [HabitProgress] {
+        statistics.getAllProgress(for: habit.id)
     }
     
     private func saveHabits() {

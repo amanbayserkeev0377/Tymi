@@ -7,10 +7,10 @@ struct CalendarView: View {
     @Binding var isPresented: Bool
     @Binding var selectedDate: Date
     
-    init(selectedDate: Binding<Date>, isPresented: Binding<Bool>) {
-        _viewModel = StateObject(wrappedValue: CalendarViewModel(selectedDate: selectedDate.wrappedValue))
+    init(selectedDate: Binding<Date>, isPresented: Binding<Bool>, habitStore: HabitStore) {
         _selectedDate = selectedDate
         _isPresented = isPresented
+        _viewModel = StateObject(wrappedValue: CalendarViewModel(selectedDate: selectedDate.wrappedValue, habitStore: habitStore))
     }
     
     private let weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]

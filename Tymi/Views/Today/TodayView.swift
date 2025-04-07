@@ -203,7 +203,7 @@ struct TodayView: View {
                     }
                     .transition(.opacity)
                 
-                CalendarView(selectedDate: $selectedDate, isPresented: $showingCalendar)
+                CalendarView(selectedDate: $selectedDate, isPresented: $showingCalendar, habitStore: habitStore)
                     .transition(.asymmetric(
                         insertion: .move(edge: .bottom).combined(with: .opacity),
                         removal: .move(edge: .bottom).combined(with: .opacity)
@@ -238,10 +238,14 @@ struct TodayView: View {
                         }
                     }
                 
-                HabitDetailView(habit: habit, isPresented: Binding(
-                    get: { selectedHabit != nil },
-                    set: { if !$0 { selectedHabit = nil } }
-                ))
+                HabitDetailView(
+                    habit: habit,
+                    habitStore: habitStore,
+                    isPresented: Binding(
+                        get: { selectedHabit != nil },
+                        set: { if !$0 { selectedHabit = nil } }
+                    )
+                )
                 .transition(.move(edge: .bottom))
                 .zIndex(2)
             }

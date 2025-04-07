@@ -3,6 +3,7 @@ import Combine
 
 class HabitDetailViewModel: ObservableObject {
     let habit: Habit
+    private let habitStore: HabitStore
     
     @Published var progress: Double = 0
     @Published var currentValue: Double = 0
@@ -57,8 +58,9 @@ class HabitDetailViewModel: ObservableObject {
     private var wasRunningBeforeBackground = false
     private var startTime: Date?
     
-    init(habit: Habit) {
+    init(habit: Habit, habitStore: HabitStore) {
         self.habit = habit
+        self.habitStore = habitStore
         loadState()
         feedbackGenerator.prepare()
         notificationGenerator.prepare()
@@ -353,6 +355,13 @@ class HabitDetailViewModel: ObservableObject {
         // Уведомляем об изменениях и сохраняем
         onUpdate?(currentValue)
         saveState()
+        
+        // Сохраняем прогресс в HabitStore
+        habitStore.saveProgress(
+            for: habit,
+            value: currentValue,
+            isCompleted: isCompleted
+        )
     }
     
     private func handleGoalCompletion() {
@@ -362,21 +371,9 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     private func loadState() {
-        if let data = userDefaults.data(forKey: stateKey),
-           let state = try? JSONDecoder().decode(HabitState.self, from: data),
-           state.habitId == habit.id
-        {
-            // Проверяем, не начался ли новый день
-            if Calendar.current.isDateInToday(state.lastUpdate) {
-                currentValue = state.currentValue
-                isCompleted = state.isCompleted
-            } else {
-                // Новый день - сбрасываем прогресс
-                currentValue = 0
-                isCompleted = false
-                // Удаляем старое состояние
-                userDefaults.removeObject(forKey: stateKey)
-            }
+        if let progress = habitStore.getProgress(for: habit) {
+            currentValue = progress.value
+            isCompleted = progress.isCompleted
         } else {
             currentValue = 0
             isCompleted = false
@@ -391,16 +388,11 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     private func saveState() {
-        let state = HabitState(
-            habitId: habit.id,
-            currentValue: currentValue,
-            isCompleted: isCompleted,
-            lastUpdate: Date()
+        habitStore.saveProgress(
+            for: habit,
+            value: currentValue,
+            isCompleted: isCompleted
         )
-        
-        if let data = try? JSONEncoder().encode(state) {
-            userDefaults.set(data, forKey: stateKey)
-        }
     }
     
     deinit {
