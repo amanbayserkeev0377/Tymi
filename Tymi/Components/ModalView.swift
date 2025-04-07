@@ -9,6 +9,12 @@ struct ModalView<Content: View>: View {
     @State private var offset: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
     
+    // Вычисляем прозрачность на основе смещения
+    private var opacity: CGFloat {
+        let maxOffset: CGFloat = 200 // Максимальное смещение для полного исчезновения
+        return 1 - (offset / maxOffset)
+    }
+    
     init(
         isPresented: Binding<Bool>,
         title: String,
@@ -21,9 +27,19 @@ struct ModalView<Content: View>: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // Content
             ScrollView {
                 VStack(spacing: 0) {
+                    // Ручка
+                    Capsule()
+                        .fill(Color.primary.opacity(colorScheme == .dark ? 0.3 : 0.15))
+                        .frame(width: 36, height: 5)
+                        .padding(.top, 8)
+                    
+                    // Header
+                    Text(title)
+                        .font(.title3.weight(.semibold))
+                        .padding(.vertical, 8)
+                    
                     // Геометрия для отслеживания скролла
                     GeometryReader { proxy in
                         Color.clear.preference(
@@ -34,7 +50,7 @@ struct ModalView<Content: View>: View {
                     .frame(height: 0)
                     
                     content
-                        .padding(.top, 44) // Высота header
+                        .padding(.bottom, 32) // Отступ снизу
                 }
             }
             .coordinateSpace(name: "scroll")
@@ -47,9 +63,7 @@ struct ModalView<Content: View>: View {
                         // Если скролл в самом верху, разрешаем тянуть вниз
                         if scrollOffset >= 0 {
                             let translation = value.translation.height
-                            withAnimation(.interactiveSpring()) {
-                                offset = translation > 0 ? translation : 0
-                            }
+                            offset = translation > 0 ? translation : 0
                         }
                     }
                     .onEnded { value in
@@ -63,40 +77,27 @@ struct ModalView<Content: View>: View {
                                     isPresented = false
                                 }
                             } else {
-                                withAnimation(.interactiveSpring()) {
+                                withAnimation(.interactiveSpring(
+                                    response: 0.3,
+                                    dampingFraction: 0.7,
+                                    blendDuration: 0
+                                )) {
                                     offset = 0
                                 }
                             }
                         }
                     }
             )
-            
-            // Fixed Header
-            VStack(spacing: 0) {
-                HStack {
-                    Spacer()
-                    Text(title)
-                        .font(.title3.weight(.semibold))
-                    Spacer()
-                    
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.body.weight(.medium))
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                
-                Spacer()
-            }
-            .frame(height: 44)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .offset(y: offset)
-        .transition(.move(edge: .bottom))
+        .opacity(opacity)
+        .transition(
+            .asymmetric(
+                insertion: .move(edge: .bottom),
+                removal: .move(edge: .bottom).combined(with: .opacity)
+            )
+        )
     }
     
     func dismiss() {
