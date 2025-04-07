@@ -168,6 +168,11 @@ struct ManualInputPanelView: View {
                         .frame(height: 56)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
+                                .fill(
+                                    colorScheme == .dark
+                                    ? Color.white.opacity(0.08)
+                                    : Color.black.opacity(0.05)
+                                )
                                 .stroke(
                                     colorScheme == .dark
                                     ? Color.white.opacity(0.2)
@@ -212,36 +217,8 @@ struct ManualInputPanelView: View {
             .padding(.top, 8)
         }
         .padding(24)
-        .frame(maxWidth: 400)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(
-                    colorScheme == .dark
-                    ? Color.white.opacity(0.08)
-                    : Color.black.opacity(0.05)
-                )
-        )
         .glassCard()
+        .frame(maxWidth: 400)
         .padding(.horizontal, 24)
     }
 }
-
-#Preview {
-    ZStack {
-        Color.black.opacity(0.3)
-            .ignoresSafeArea()
-        
-        VStack {
-            Spacer()
-            
-            ManualInputPanelView(
-                type: .time,
-                isPresented: .constant(true),
-                initialValue: 30,
-                isAddMode: false,
-                onSubmit: { _ in }
-            )
-        }
-    }
-    .preferredColorScheme(.dark)
-} 
