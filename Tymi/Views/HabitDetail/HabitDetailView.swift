@@ -85,7 +85,7 @@ struct HabitDetailView: View {
                             Spacer()
                             
                             HabitOptionsMenu(
-                                onChangeValue: { viewModel.showManualInput = true },
+                                onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
                                 onEdit: { onEdit?(viewModel.habit) },
                                 onDelete: { onDelete?(viewModel.habit) }
                             )
@@ -167,7 +167,7 @@ struct HabitDetailView: View {
                                     }
                                     .buttonStyle(GlassButtonStyle())
                                     
-                                    Button(action: { viewModel.showManualInput = true }) {
+                                    Button(action: { viewModel.showManualInputPanel(isAdd: true) }) {
                                         Image(systemName: "number")
                                             .font(.body.weight(.medium))
                                     }
@@ -238,6 +238,7 @@ struct HabitDetailView: View {
                         type: viewModel.habit.type,
                         isPresented: $viewModel.showManualInput,
                         initialValue: viewModel.currentValue,
+                        isAddMode: viewModel.isAddMode,
                         onSubmit: { value in
                             viewModel.setValue(value)
                         }

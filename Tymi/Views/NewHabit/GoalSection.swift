@@ -69,9 +69,9 @@ struct GoalSection: View {
                     
                     let dateBinding = Binding<Date>(
                         get: {
-                            let totalMinutes = Int(goal)
-                            let hours = totalMinutes / 60
-                            let minutes = totalMinutes % 60
+                            let totalSeconds = Int(goal)
+                            let hours = totalSeconds / 3600
+                            let minutes = (totalSeconds % 3600) / 60
                             var components = DateComponents()
                             components.hour = hours
                             components.minute = minutes
@@ -79,8 +79,9 @@ struct GoalSection: View {
                         },
                         set: { newDate in
                             let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
-                            let totalMinutes = (components.hour ?? 0) * 60 + (components.minute ?? 0)
-                            goal = Double(totalMinutes)
+                            let hours = components.hour ?? 0
+                            let minutes = components.minute ?? 0
+                            goal = Double(hours * 3600 + minutes * 60)
                         }
                     )
                     

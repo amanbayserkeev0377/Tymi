@@ -12,6 +12,7 @@ class HabitDetailViewModel: ObservableObject {
     @Published var isPlaying: Bool = false
     @Published var canUndo: Bool = false
     @Published var showOptions: Bool = false
+    @Published var isAddMode: Bool = false
     
     var onUpdate: ((Double) -> Void)?
     var onComplete: (() -> Void)?
@@ -122,8 +123,11 @@ class HabitDetailViewModel: ObservableObject {
         }
         
         let oldValue = currentValue
-        let newValue = habit.type == .time ? value * 60 : value
-        currentValue = max(0, newValue)
+        if isAddMode {
+            currentValue += value
+        } else {
+            currentValue = value
+        }
         
         if oldValue != currentValue {
             feedbackGenerator.impactOccurred()
@@ -201,6 +205,11 @@ class HabitDetailViewModel: ObservableObject {
         case .reset:
             canUndo = false
         }
+    }
+    
+    func showManualInputPanel(isAdd: Bool = false) {
+        isAddMode = isAdd
+        showManualInput = true
     }
     
     // MARK: - App Lifecycle
