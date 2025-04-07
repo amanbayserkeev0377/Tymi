@@ -6,9 +6,7 @@ struct ModalView<Content: View>: View {
     let title: String
     let content: Content
     
-    @GestureState private var dragOffset = CGSize.zero
-    @State private var offset = CGSize.zero
-    @State private var scrollOffset: CGFloat = 0
+    @State private var offset: CGFloat = 0
     
     init(
         isPresented: Binding<Bool>,
@@ -21,94 +19,60 @@ struct ModalView<Content: View>: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Modal content
-                VStack(spacing: 0) {
-                    // Header
-                    HStack {
-                        Spacer()
-                        Text(title)
-                            .font(.title3.weight(.semibold))
-                        Spacer()
-                        
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                isPresented = false
-                            }
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.body.weight(.medium))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+        ZStack(alignment: .top) {
+            // Modal content
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Spacer()
+                    Text(title)
+                        .font(.title3.weight(.semibold))
+                    Spacer()
                     
-                    ScrollView {
-                        GeometryReader { proxy in
-                            Color.clear.preference(
-                                key: ScrollOffsetPreferenceKey.self,
-                                value: proxy.frame(in: .named("scroll")).minY
-                            )
-                        }
-                        .frame(height: 0)
-                        
-                        content
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.body.weight(.medium))
                     }
-                    .coordinateSpace(name: "scroll")
-                    .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
-                        scrollOffset = offset
-                        
-                        // Если скролл достиг верха и продолжаем тянуть вверх
-                        if offset < -50 && dragOffset.height < 0 {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                isPresented = false
-                            }
-                        }
-                    }
+                    .buttonStyle(.plain)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                
+                ScrollView {
+                    content
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .offset(y: offset)
+            
+            // Overlay для жестов
+            Color.black.opacity(0.01) // Почти прозрачный для жестов
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .offset(y: offset.height + dragOffset.height)
-                .scaleEffect(
-                    1.0 - ((offset.height + dragOffset.height) / (geometry.size.height * 4)),
-                    anchor: .top
-                )
-                .opacity(
-                    1.0 - ((offset.height + dragOffset.height) / (geometry.size.height * 2))
-                )
+                .ignoresSafeArea()
                 .gesture(
                     DragGesture()
-                        .updating($dragOffset) { value, state, _ in
-                            // Разрешаем движение вниз всегда, а вверх только если достигли верха скролла
-                            if value.translation.height > 0 || scrollOffset <= 0 {
-                                state = value.translation
-                            }
+                        .onChanged { value in
+                            let translation = value.translation.height
+                            offset = translation > 0 ? translation : 0
                         }
                         .onEnded { value in
-                            let threshold = geometry.size.height * 0.15
-                            if value.translation.height > threshold {
-                                let generator = UIImpactFeedbackGenerator(style: .light)
-                                generator.impactOccurred()
-                                
-                                withAnimation(.easeInOut(duration: 0.3)) {
+                            let translation = value.translation.height
+                            if translation > 50 {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    offset = 1000
                                     isPresented = false
                                 }
                             } else {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    offset = .zero
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    offset = 0
                                 }
                             }
                         }
                 )
-            }
         }
-        .transition(
-            .asymmetric(
-                insertion: .move(edge: .bottom).combined(with: .opacity),
-                removal: .move(edge: .bottom).combined(with: .opacity)
-            )
-        )
+        .transition(.move(edge: .bottom))
     }
     
     func dismiss() {
