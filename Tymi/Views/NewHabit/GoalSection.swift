@@ -27,11 +27,16 @@ struct GoalSection: View {
                             type = .count
                         }
                     } label: {
-                        Image(systemName: "number")
-                            .font(.body.weight(.medium))
-                            .frame(width: 32, height: 32)
-                            .background(type == .count ? Color.primary.opacity(0.1) : Color.clear)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        VStack(spacing: 4) {
+                            Image(systemName: "numbers")
+                                .font(.body.weight(.medium))
+                                .frame(width: 32, height: 32)
+                                .background(type == .count ? Color.primary.opacity(0.1) : Color.clear)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            Text("count")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                        }
                     }
                     
                     Button {
@@ -39,11 +44,16 @@ struct GoalSection: View {
                             type = .time
                         }
                     } label: {
-                        Image(systemName: "clock")
-                            .font(.body.weight(.medium))
-                            .frame(width: 32, height: 32)
-                            .background(type == .time ? Color.primary.opacity(0.1) : Color.clear)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        VStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.body.weight(.medium))
+                                .frame(width: 32, height: 32)
+                                .background(type == .time ? Color.primary.opacity(0.1) : Color.clear)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            Text("time")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                        }
                     }
                 }
                 .foregroundStyle(.primary)

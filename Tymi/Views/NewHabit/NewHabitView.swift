@@ -36,7 +36,7 @@ struct NewHabitView: View {
     
     var body: some View {
         ModalView(isPresented: $isPresented, title: isEditMode ? "Edit Habit" : "New Habit") {
-            VStack(spacing: 0) {
+            ZStack {
                 VStack(spacing: 16) {
                     // Name Field
                     NameFieldView(name: $viewModel.name)
@@ -62,46 +62,53 @@ struct NewHabitView: View {
                     
                     // Start Date Section
                     StartDateSection(startDate: $viewModel.startDate)
+                    
+                    Spacer()
                 }
                 .padding(.horizontal)
                 .padding(.top)
                 
-                Spacer()
-                
-                // Create/Save Button
-                Button {
-                    feedbackGenerator.prepare()
-                    if let habit = viewModel.createHabit(id: editingHabit?.id) {
-                        feedbackGenerator.impactOccurred()
-                        onSave(habit)
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            isPresented = false
+                VStack {
+                    Spacer()
+                    
+                    // Create/Save Button
+                    Button {
+                        feedbackGenerator.prepare()
+                        if let habit = viewModel.createHabit(id: editingHabit?.id) {
+                            feedbackGenerator.impactOccurred()
+                            onSave(habit)
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isPresented = false
+                            }
                         }
+                    } label: {
+                        Text(isEditMode ? "Save Changes" : "Create Habit")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(colorScheme == .dark ? .black : .white)
+                            .frame(height: 56)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(
+                                        colorScheme == .dark
+                                        ? Color.white.opacity(0.4)
+                                        : Color.black
+                                    )
+                            )
                     }
-                } label: {
-                    Text(isEditMode ? "Save Changes" : "Create Habit")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(colorScheme == .dark ? .black : .white)
-                        .frame(height: 56)
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(
-                                    colorScheme == .dark
-                                    ? Color.white.opacity(0.4)
-                                    : Color.black
-                                )
-                        )
+                    .disabled(!viewModel.isValid)
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
                 }
-                .disabled(!viewModel.isValid)
-                .padding(.horizontal)
-                .padding(.bottom, 16)
-            }
-            
-            // Keyboard Dismiss Button
-            if focusedField != nil {
-                KeyboardDismissButton {
-                    focusedField = nil
+                
+                if focusedField != nil {
+                    VStack {
+                        Spacer()
+                        KeyboardDismissButton {
+                            focusedField = nil
+                        }
+                        .padding(.bottom, 90)
+                    }
                 }
             }
         }

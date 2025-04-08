@@ -59,31 +59,38 @@ struct WeekdaySelector: View {
                     .padding(.top, 8)
                     
                     // Days Grid
-                    HStack(spacing: 8) {
-                        ForEach(Weekday.allCases, id: \.self) { day in
-                            let isSelected = selectedDays.contains(day.rawValue)
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    if selectedDays.contains(day.rawValue) {
-                                        selectedDays.remove(day.rawValue)
-                                    } else {
-                                        selectedDays.insert(day.rawValue)
+                    GeometryReader { geometry in
+                        let availableWidth = geometry.size.width
+                        let spacing: CGFloat = 8
+                        let itemWidth = (availableWidth - (spacing * 6)) / 7
+                        
+                        HStack(spacing: spacing) {
+                            ForEach(Weekday.allCases, id: \.self) { day in
+                                let isSelected = selectedDays.contains(day.rawValue)
+                                Button {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        if selectedDays.contains(day.rawValue) {
+                                            selectedDays.remove(day.rawValue)
+                                        } else {
+                                            selectedDays.insert(day.rawValue)
+                                        }
                                     }
+                                } label: {
+                                    Text(day.shortName)
+                                        .font(.system(size: 15, weight: .medium))
+                                        .frame(width: itemWidth, height: itemWidth)
+                                        .background(isSelected ? Color.primary.opacity(0.1) : Color.clear)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
+                                        )
                                 }
-                            } label: {
-                                Text(day.shortName)
-                                    .font(.system(size: 15, weight: .medium))
-                                    .frame(width: 40, height: 40)
-                                    .background(isSelected ? Color.primary.opacity(0.1) : Color.clear)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                                    )
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
+                    .frame(height: 40)
                     .padding(.bottom, 8)
                 }
                 .padding(.horizontal, 16)
