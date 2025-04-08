@@ -41,6 +41,9 @@ final class AppearanceSettingsViewModel: ObservableObject {
                 guard let self = self else { return }
                 UserDefaults.standard.set(self.colorSchemePreference.rawValue, forKey: "colorSchemePreference")
                 UserDefaults.standard.set(self.appIconPreference.rawValue, forKey: "appIconPreference")
+                
+                self.updateColorScheme()
+                Task { await self.updateAppIcon() }
             }
             .store(in: &subscriptions)
         
@@ -50,13 +53,15 @@ final class AppearanceSettingsViewModel: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.handleSystemThemeChange()
+            Task { @MainActor in
+                await self?.handleSystemThemeChange()
+            }
         }
     }
     
-    private func handleSystemThemeChange() {
+    private func handleSystemThemeChange() async {
         if appIconPreference == .automatic {
-            Task { await updateAppIcon() }
+            await updateAppIcon()
         }
     }
     

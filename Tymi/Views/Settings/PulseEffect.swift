@@ -2,7 +2,6 @@ import SwiftUI
 
 struct PulseEffect: ViewModifier {
     let isSelected: Bool
-    
     @State private var isAnimating = false
     
     func body(content: Content) -> some View {
@@ -13,7 +12,7 @@ struct PulseEffect: ViewModifier {
                     .scaleEffect(isAnimating ? 1.1 : 1.0)
                     .opacity(isAnimating ? 0 : 1)
             )
-            .onChange(of: isSelected) { newValue in
+            .onChange(of: isSelected) { oldValue, newValue in
                 if newValue {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         isAnimating = true

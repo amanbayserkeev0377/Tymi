@@ -3,11 +3,11 @@ import SwiftUI
 struct CalendarView: View {
     @StateObject private var viewModel: CalendarViewModel
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var habitStore: HabitStore
+    @EnvironmentObject private var habitStore: HabitStoreManager
     @Binding var isPresented: Bool
     @Binding var selectedDate: Date
     
-    init(selectedDate: Binding<Date>, isPresented: Binding<Bool>, habitStore: HabitStore) {
+    init(selectedDate: Binding<Date>, isPresented: Binding<Bool>, habitStore: HabitStoreManager) {
         _selectedDate = selectedDate
         _isPresented = isPresented
         _viewModel = StateObject(wrappedValue: CalendarViewModel(selectedDate: selectedDate.wrappedValue, habitStore: habitStore))

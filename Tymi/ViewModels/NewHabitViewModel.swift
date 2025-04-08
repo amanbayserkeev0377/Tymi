@@ -17,14 +17,14 @@ final class NewHabitViewModel: ObservableObject {
     @Published var errorMessage: String = ""
     
     // MARK: - Private Properties
-    private let habitStore: HabitStore
+    private let habitStore: HabitStoreManager
     
     // MARK: - Initialization
-    init(habitStore: HabitStore) {
+    init(habitStore: HabitStoreManager) {
         self.habitStore = habitStore
     }
     
-    init(habitStore: HabitStore, habit: Habit) {
+    init(habitStore: HabitStoreManager, habit: Habit) {
         self.habitStore = habitStore
         self.name = habit.name
         self.type = habit.type

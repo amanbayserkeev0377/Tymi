@@ -3,7 +3,7 @@ import Combine
 
 class HabitDetailViewModel: ObservableObject {
     let habit: Habit
-    private let habitStore: HabitStore
+    private let habitStore: HabitStoreManager
     
     @Published var progress: Double = 0
     @Published var currentValue: Double = 0
@@ -58,7 +58,7 @@ class HabitDetailViewModel: ObservableObject {
     private var wasRunningBeforeBackground = false
     private var startTime: Date?
     
-    init(habit: Habit, habitStore: HabitStore) {
+    init(habit: Habit, habitStore: HabitStoreManager) {
         self.habit = habit
         self.habitStore = habitStore
         loadState()

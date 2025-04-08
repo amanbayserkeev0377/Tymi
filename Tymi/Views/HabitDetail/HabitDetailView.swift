@@ -46,7 +46,7 @@ struct HabitDetailView: View {
     
     init(
         habit: Habit,
-        habitStore: HabitStore,
+        habitStore: HabitStoreManager,
         isPresented: Binding<Bool>,
         onEdit: ((Habit) -> Void)? = nil,
         onDelete: ((Habit) -> Void)? = nil,
@@ -249,7 +249,7 @@ struct HabitDetailView: View {
                         )
                     }
                 }
-                .onChange(of: scenePhase) { newPhase in
+                .onChange(of: scenePhase) { oldPhase, newPhase in
                     switch newPhase {
                     case .active:
                         viewModel.onAppear()

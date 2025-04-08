@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TodayView: View {
-    @EnvironmentObject private var habitStore: HabitStore
+    @EnvironmentObject private var habitStore: HabitStoreManager
     @Environment(\.colorScheme) private var colorScheme
     @State private var selectedDate: Date = Date()
     @State private var showingNewHabit = false
@@ -325,8 +325,6 @@ struct TodayView: View {
     
     private var dateTitle: String {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let selected = calendar.startOfDay(for: selectedDate)
         
         if calendar.isDateInToday(selectedDate) {
             return "Today"

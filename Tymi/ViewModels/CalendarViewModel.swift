@@ -13,9 +13,9 @@ class CalendarViewModel: ObservableObject {
         return calendar
     }()
     
-    private let habitStore: HabitStore
+    private let habitStore: HabitStoreManager
     
-    init(selectedDate: Date = Date(), habitStore: HabitStore) {
+    init(selectedDate: Date = Date(), habitStore: HabitStoreManager) {
         self.selectedDate = selectedDate
         self.currentMonth = selectedDate
         self.habitStore = habitStore

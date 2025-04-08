@@ -85,7 +85,7 @@ struct ManualInputPanelView: View {
                             .multilineTextAlignment(.center)
                             .focused($focusedField, equals: .hours)
                             .foregroundStyle(hoursText == "0" && focusedField != .hours ? .secondary : .primary)
-                            .onChange(of: focusedField) { newValue in
+                            .onChange(of: focusedField) { oldValue, newValue in
                                 if newValue == .hours && hoursText == "0" {
                                     hoursText = ""
                                 }
@@ -112,7 +112,7 @@ struct ManualInputPanelView: View {
                             .multilineTextAlignment(.center)
                             .focused($focusedField, equals: .minutes)
                             .foregroundStyle(minutesText == "0" && focusedField != .minutes ? .secondary : .primary)
-                            .onChange(of: focusedField) { newValue in
+                            .onChange(of: focusedField) { oldValue, newValue in
                                 if newValue == .minutes && minutesText == "0" {
                                     minutesText = ""
                                 }
@@ -136,7 +136,7 @@ struct ManualInputPanelView: View {
                             .multilineTextAlignment(.center)
                             .focused($focusedField, equals: .seconds)
                             .foregroundStyle(secondsText == "0" && focusedField != .seconds ? .secondary : .primary)
-                            .onChange(of: focusedField) { newValue in
+                            .onChange(of: focusedField) { oldValue, newValue in
                                 if newValue == .seconds && secondsText == "0" {
                                     secondsText = ""
                                 }
@@ -220,5 +220,14 @@ struct ManualInputPanelView: View {
         .glassCard()
         .frame(maxWidth: 400)
         .padding(.horizontal, 24)
+        .onChange(of: focusedField) { oldValue, newValue in
+            if newValue == nil {
+                let hoursValue = Double(hoursText) ?? 0
+                let minutesValue = Double(minutesText) ?? 0
+                let totalValue = hoursValue * 3600 + minutesValue * 60
+                onSubmit(totalValue)
+                isPresented = false
+            }
+        }
     }
 }

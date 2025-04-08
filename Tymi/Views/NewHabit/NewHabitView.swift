@@ -18,7 +18,7 @@ struct NewHabitView: View {
         case count
     }
     
-    init(habitStore: HabitStore, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
+    init(habitStore: HabitStoreManager, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
         _viewModel = StateObject(wrappedValue: NewHabitViewModel(habitStore: habitStore))
         _isPresented = isPresented
         self.onSave = onSave
@@ -26,7 +26,7 @@ struct NewHabitView: View {
         self.editingHabit = nil
     }
     
-    init(habitStore: HabitStore, habit: Habit, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
+    init(habitStore: HabitStoreManager, habit: Habit, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
         _viewModel = StateObject(wrappedValue: NewHabitViewModel(habitStore: habitStore, habit: habit))
         _isPresented = isPresented
         self.onSave = onSave
