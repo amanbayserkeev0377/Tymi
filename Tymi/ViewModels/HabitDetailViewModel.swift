@@ -45,6 +45,8 @@ class HabitDetailViewModel: ObservableObject {
         let currentValue: Double
         let isCompleted: Bool
         let lastUpdate: Date
+        let isPlaying: Bool
+        let startTime: Date?
     }
     
     private var userDefaults: UserDefaults {
@@ -64,6 +66,21 @@ class HabitDetailViewModel: ObservableObject {
         loadState()
         feedbackGenerator.prepare()
         notificationGenerator.prepare()
+        
+        // Наблюдаем за жизненным циклом приложения
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
     }
     
     // MARK: - Public Methods
@@ -215,19 +232,54 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     // MARK: - App Lifecycle
+    
+    @objc private func handleAppDidEnterBackground() {
+        wasRunningBeforeBackground = isPlaying
+        if isPlaying {
+            pauseTimerIfNeeded()
+            saveFullState()
+        }
+    }
+    
+    @objc private func handleAppWillEnterForeground() {
+        if wasRunningBeforeBackground && !isCompleted {
+            if let state = loadFullState() {
+                currentValue = state.currentValue
+                isCompleted = state.isCompleted
+                isPlaying = state.isPlaying
+                startTime = state.startTime
+            }
+            resumeTimerIfNeeded()
+        }
+    }
+    
     func onAppear() {
         resumeTimerIfNeeded()
     }
     
     func onDisappear() {
         pauseTimerIfNeeded()
+        saveFullState()
     }
     
     // MARK: - Timer Management
     private func resumeTimerIfNeeded() {
         guard habit.type == .time, !isCompleted else { return }
-        isPlaying = true
-        startTime = Date()
+        
+        if let savedState = loadFullState(), savedState.isPlaying {
+            isPlaying = true
+            startTime = Date()
+            
+            // Учитываем прошедшее время
+            let elapsed = Date().timeIntervalSince(savedState.lastUpdate)
+            if elapsed > 0 && elapsed < 3600 { // Ограничиваем максимум 1 часом
+                currentValue += elapsed
+                updateProgress()
+            }
+        } else {
+            isPlaying = true
+            startTime = Date()
+        }
     }
     
     private func pauseTimerIfNeeded() {
@@ -237,6 +289,7 @@ class HabitDetailViewModel: ObservableObject {
             let elapsed = Date().timeIntervalSince(start)
             currentValue += elapsed
             startTime = nil
+            updateProgress()
         }
     }
     
@@ -371,7 +424,20 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     private func loadState() {
-        if let progress = habitStore.getProgress(for: habit) {
+        if let state = loadFullState() {
+            currentValue = state.currentValue
+            isCompleted = state.isCompleted
+            isPlaying = state.isPlaying
+            startTime = state.startTime
+            
+            // Если таймер был запущен, учитываем прошедшее время
+            if isPlaying {
+                let elapsed = Date().timeIntervalSince(state.lastUpdate)
+                if elapsed > 0 && elapsed < 3600 { // Ограничиваем максимум 1 часом
+                    currentValue += elapsed
+                }
+            }
+        } else if let progress = habitStore.getProgress(for: habit) {
             currentValue = progress.value
             isCompleted = progress.isCompleted
         } else {
@@ -393,6 +459,31 @@ class HabitDetailViewModel: ObservableObject {
             value: currentValue,
             isCompleted: isCompleted
         )
+    }
+    
+    private func saveFullState() {
+        let state = HabitState(
+            habitId: habit.id,
+            currentValue: currentValue,
+            isCompleted: isCompleted,
+            lastUpdate: Date(),
+            isPlaying: isPlaying,
+            startTime: startTime
+        )
+        
+        if let encoded = try? JSONEncoder().encode(state) {
+            userDefaults.set(encoded, forKey: stateKey)
+        }
+    }
+    
+    private func loadFullState() -> HabitState? {
+        guard let data = userDefaults.data(forKey: stateKey),
+              let state = try? JSONDecoder().decode(HabitState.self, from: data),
+              state.habitId == habit.id
+        else {
+            return nil
+        }
+        return state
     }
     
     deinit {

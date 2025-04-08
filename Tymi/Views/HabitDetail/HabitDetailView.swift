@@ -38,6 +38,7 @@ struct HabitDetailView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.scenePhase) private var scenePhase
     @Binding var isPresented: Bool
+    @State private var showDeleteConfirmation = false
     
     var onEdit: ((Habit) -> Void)?
     var onDelete: ((Habit) -> Void)?
@@ -100,7 +101,7 @@ struct HabitDetailView: View {
                                 HabitOptionsMenu(
                                     onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
                                     onEdit: { onEdit?(viewModel.habit) },
-                                    onDelete: { onDelete?(viewModel.habit) }
+                                    onDelete: { showDeleteConfirmation = true }
                                 )
                             }
                             .padding(.horizontal, 24)
@@ -258,6 +259,14 @@ struct HabitDetailView: View {
                     @unknown default:
                         break
                     }
+                }
+                .alert("Delete Habit", isPresented: $showDeleteConfirmation) {
+                    Button("Cancel", role: .cancel) { }
+                    Button("Delete", role: .destructive) {
+                        onDelete?(viewModel.habit)
+                    }
+                } message: {
+                    Text("Are you sure you want to delete this habit? This action cannot be undone.")
                 }
             }
         }

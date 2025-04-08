@@ -100,4 +100,4 @@ struct HabitStatistics {
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
     }
-} 
+}
