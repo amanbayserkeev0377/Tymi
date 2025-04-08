@@ -42,6 +42,15 @@ struct HabitStatistics {
         }
     }
     
+    func deleteAllProgress(for habitId: UUID) {
+        let prefix = progressKey + habitId.uuidString + "_"
+        let keys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix(prefix) }
+        
+        for key in keys {
+            defaults.removeObject(forKey: key)
+        }
+    }
+    
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"

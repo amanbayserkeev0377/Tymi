@@ -56,6 +56,7 @@ class HabitStore: ObservableObject {
     
     func deleteHabit(_ habit: Habit) {
         habits.removeAll { $0.id == habit.id }
+        statistics.deleteAllProgress(for: habit.id)
         saveHabits()
     }
     

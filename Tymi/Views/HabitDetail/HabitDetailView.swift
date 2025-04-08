@@ -181,7 +181,7 @@ struct HabitDetailView: View {
                                         .buttonStyle(GlassButtonStyle())
                                         
                                         Button(action: { viewModel.showManualInputPanel(isAdd: true) }) {
-                                            Image(systemName: "number")
+                                            Image(systemName: "arrow.up")
                                                 .font(.body.weight(.medium))
                                         }
                                         .buttonStyle(GlassButtonStyle())
@@ -299,7 +299,7 @@ struct ExpandedControls: View {
                 .buttonStyle(GlassButtonStyle(size: 44))
                 
                 Button(action: onManualInput) {
-                    Image(systemName: "number")
+                    Image(systemName: "arrow.up")
                         .font(.body.weight(.medium))
                 }
                 .buttonStyle(GlassButtonStyle(size: 44))

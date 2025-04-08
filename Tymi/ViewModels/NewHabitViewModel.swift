@@ -24,6 +24,19 @@ final class NewHabitViewModel: ObservableObject {
         self.habitStore = habitStore
     }
     
+    init(habitStore: HabitStore, habit: Habit) {
+        self.habitStore = habitStore
+        self.name = habit.name
+        self.type = habit.type
+        self.goal = habit.goal
+        self.startDate = habit.startDate
+        self.activeDays = habit.activeDays
+        self.isReminderEnabled = habit.reminderTime != nil
+        if let reminderTime = habit.reminderTime {
+            self.reminderTime = reminderTime
+        }
+    }
+    
     // MARK: - Public Properties
     var isValid: Bool {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -31,7 +44,7 @@ final class NewHabitViewModel: ObservableObject {
     }
     
     // MARK: - Public Methods
-    func createHabit() -> Habit? {
+    func createHabit(id: UUID? = nil) -> Habit? {
         guard isValid else {
             showError = true
             errorMessage = "Please fill in all required fields"
@@ -39,6 +52,7 @@ final class NewHabitViewModel: ObservableObject {
         }
         
         let habit = Habit(
+            id: id ?? UUID(),
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
             type: type,
             goal: goal,
@@ -47,7 +61,6 @@ final class NewHabitViewModel: ObservableObject {
             reminderTime: isReminderEnabled ? reminderTime : nil
         )
         
-        habitStore.addHabit(habit)
         return habit
     }
     

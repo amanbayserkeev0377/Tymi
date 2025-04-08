@@ -11,6 +11,7 @@ struct TodayView: View {
     @State private var isRotating = false
     @State private var isBreathing = false
     @State private var selectedHabit: Habit?
+    @State private var editingHabit: Habit?
     @Namespace private var namespace
     
     private var habitsForSelectedDate: [Habit] {
@@ -133,6 +134,7 @@ struct TodayView: View {
                         action: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 showingFABMenu = false
+                                editingHabit = nil
                                 showingNewHabit = true
                             }
                         }
@@ -177,18 +179,32 @@ struct TodayView: View {
                     .onTapGesture {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showingNewHabit = false
+                            editingHabit = nil
                         }
                     }
                     .transition(.opacity)
                 
-                NewHabitView(
-                    habitStore: habitStore,
-                    isPresented: $showingNewHabit
-                ) { habit in
-                    habitStore.addHabit(habit)
+                if let habit = editingHabit {
+                    NewHabitView(
+                        habitStore: habitStore,
+                        habit: habit,
+                        isPresented: $showingNewHabit
+                    ) { updatedHabit in
+                        habitStore.updateHabit(updatedHabit)
+                        editingHabit = nil
+                    }
+                    .transition(.move(edge: .bottom))
+                    .zIndex(2)
+                } else {
+                    NewHabitView(
+                        habitStore: habitStore,
+                        isPresented: $showingNewHabit
+                    ) { habit in
+                        habitStore.addHabit(habit)
+                    }
+                    .transition(.move(edge: .bottom))
+                    .zIndex(2)
                 }
-                .transition(.move(edge: .bottom))
-                .zIndex(2)
             }
             
             // Calendar modal
@@ -244,7 +260,20 @@ struct TodayView: View {
                     isPresented: Binding(
                         get: { selectedHabit != nil },
                         set: { if !$0 { selectedHabit = nil } }
-                    )
+                    ),
+                    onEdit: { habit in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            editingHabit = habit
+                            selectedHabit = nil
+                            showingNewHabit = true
+                        }
+                    },
+                    onDelete: { habit in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            habitStore.deleteHabit(habit)
+                            selectedHabit = nil
+                        }
+                    }
                 )
                 .transition(.move(edge: .bottom))
                 .zIndex(2)
