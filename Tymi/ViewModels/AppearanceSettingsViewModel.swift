@@ -4,8 +4,24 @@ import Combine
 @MainActor
 final class AppearanceSettingsViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var colorSchemePreference: ColorSchemePreference
-    @Published var appIconPreference: AppIconPreference
+    @Published var colorSchemePreference: ColorSchemePreference {
+        didSet {
+            if oldValue != colorSchemePreference {
+                UserDefaults.standard.set(colorSchemePreference.rawValue, forKey: "colorSchemePreference")
+                updateColorScheme()
+            }
+        }
+    }
+    
+    @Published var appIconPreference: AppIconPreference {
+        didSet {
+            if oldValue != appIconPreference {
+                UserDefaults.standard.set(appIconPreference.rawValue, forKey: "appIconPreference")
+                Task { await updateAppIcon() }
+            }
+        }
+    }
+    
     @Published private(set) var isChangingIcon = false
     @Published private(set) var lastError: String?
     
@@ -35,18 +51,6 @@ final class AppearanceSettingsViewModel: ObservableObject {
     
     // MARK: - Private Methods
     private func setupObservers() {
-        // Observe property changes
-        objectWillChange
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                UserDefaults.standard.set(self.colorSchemePreference.rawValue, forKey: "colorSchemePreference")
-                UserDefaults.standard.set(self.appIconPreference.rawValue, forKey: "appIconPreference")
-                
-                self.updateColorScheme()
-                Task { await self.updateAppIcon() }
-            }
-            .store(in: &subscriptions)
-        
         // Observe system theme changes
         themeObserver = NotificationCenter.default.addObserver(
             forName: UIApplication.didBecomeActiveNotification,
@@ -106,7 +110,4 @@ final class AppearanceSettingsViewModel: ObservableObject {
             isChangingIcon = false
         }
     }
-    
-    // MARK: - Subscriptions
-    private var subscriptions = Set<AnyCancellable>()
 } 

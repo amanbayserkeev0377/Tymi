@@ -13,13 +13,15 @@ struct PulseEffect: ViewModifier {
                     .opacity(isAnimating ? 0 : 1)
             )
             .onChange(of: isSelected) { oldValue, newValue in
-                if newValue {
+                if newValue && !isAnimating {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         isAnimating = true
                     }
                     
-                    withAnimation(.easeInOut(duration: 0.3).delay(0.15)) {
-                        isAnimating = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            isAnimating = false
+                        }
                     }
                 }
             }

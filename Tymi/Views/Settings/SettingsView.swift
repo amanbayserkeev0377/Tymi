@@ -310,9 +310,7 @@ struct AppearanceSectionView: View {
                             )
                             .foregroundStyle(.primary)
                             .onTapGesture {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    viewModel.colorSchemePreference = preference
-                                }
+                                viewModel.colorSchemePreference = preference
                                 let generator = UIImpactFeedbackGenerator(style: .light)
                                 generator.impactOccurred()
                             }
@@ -341,9 +339,7 @@ struct AppearanceSectionView: View {
                             isChanging: viewModel.isChangingIcon && viewModel.appIconPreference == preference,
                             onTap: {
                                 guard !viewModel.isChangingIcon else { return }
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    viewModel.appIconPreference = preference
-                                }
+                                viewModel.appIconPreference = preference
                                 let generator = UIImpactFeedbackGenerator(style: .light)
                                 generator.impactOccurred()
                             }
@@ -355,7 +351,6 @@ struct AppearanceSectionView: View {
                     Text(error)
                         .font(.caption)
                         .foregroundStyle(.red)
-                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
         }

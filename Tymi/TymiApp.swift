@@ -19,6 +19,9 @@ struct TymiApp: App {
                     // Очищаем старые данные при запуске приложения
                     let thirtyDaysAgo = Calendar.current.date(byAddingDays: -30, to: Date()) ?? Date()
                     habitStore.cleanOldData(before: thirtyDaysAgo)
+                    
+                    // Запрашиваем разрешение на уведомления
+                    NotificationService.shared.requestAuthorization()
                 }
         }
     }
