@@ -9,8 +9,23 @@ struct ModalView<Content: View>: View {
     @State private var offset: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
     @State private var isDragging = false
+    @GestureState private var dragState = DragState.inactive
     
     private let dismissThreshold: CGFloat = 100
+    
+    enum DragState {
+        case inactive
+        case dragging(translation: CGFloat)
+        
+        var translation: CGFloat {
+            switch self {
+            case .inactive:
+                return 0
+            case .dragging(let translation):
+                return translation
+            }
+        }
+    }
     
     init(
         isPresented: Binding<Bool>,
@@ -33,37 +48,6 @@ struct ModalView<Content: View>: View {
                         isPresented = false
                     }
                 }
-                .gesture(
-                    DragGesture(minimumDistance: 10)
-                        .onChanged { gesture in
-                            isDragging = true
-                            let translation = gesture.translation.height
-                            
-                            // Замедляем движение вверх
-                            if translation < 0 {
-                                offset = translation / 3
-                            } else {
-                                offset = translation
-                            }
-                        }
-                        .onEnded { gesture in
-                            isDragging = false
-                            let translation = gesture.translation.height
-                            let velocity = gesture.predictedEndLocation.y - gesture.location.y
-                            
-                            if translation > dismissThreshold || (translation > 20 && velocity > 500) {
-                                let generator = UIImpactFeedbackGenerator(style: .light)
-                                generator.impactOccurred()
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    isPresented = false
-                                }
-                            } else {
-                                withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3)) {
-                                    offset = 0
-                                }
-                            }
-                        }
-                )
             
             VStack(spacing: 0) {
                 // Ручка
@@ -77,11 +61,46 @@ struct ModalView<Content: View>: View {
                     .font(.title3.weight(.semibold))
                     .padding(.vertical, 8)
                 
-                content
+                ScrollView {
+                    content
+                        .padding(.bottom, 32) // Добавляем отступ снизу для контента
+                }
+                .simultaneousGesture(
+                    DragGesture()
+                        .updating($dragState) { value, state, _ in
+                            // Обновляем состояние драга только если скролл в начале
+                            if scrollOffset <= 0 {
+                                state = .dragging(translation: value.translation.height)
+                            }
+                        }
+                        .onEnded { value in
+                            let translation = value.translation.height
+                            let velocity = value.predictedEndLocation.y - value.location.y
+                            
+                            if (translation > dismissThreshold || (translation > 20 && velocity > 500)) && scrollOffset <= 0 {
+                                let generator = UIImpactFeedbackGenerator(style: .light)
+                                generator.impactOccurred()
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    isPresented = false
+                                }
+                            }
+                        }
+                )
+                .background(
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: ScrollOffsetPreferenceKey.self,
+                            value: proxy.frame(in: .named("scroll")).minY
+                        )
+                    }
+                )
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    scrollOffset = value
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .offset(y: offset)
-            .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3), value: offset)
+            .offset(y: dragState.translation)
+            .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.3), value: dragState.translation)
             .transition(
                 .asymmetric(
                     insertion: .move(edge: .bottom),
@@ -89,6 +108,7 @@ struct ModalView<Content: View>: View {
                 )
             )
         }
+        .coordinateSpace(name: "scroll")
     }
 }
 
