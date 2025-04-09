@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WeekdaySelector: View {
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) var colorScheme
     @Binding var selectedDays: Set<Int>
     @State private var isExpanded: Bool = false
     
@@ -26,6 +26,7 @@ struct WeekdaySelector: View {
                     
                     Text(selectedDays.count == 7 ? "Every day" : "\(selectedDays.count) days")
                         .font(.subheadline)
+                        .foregroundStyle(.secondary)
                     
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
@@ -97,7 +98,15 @@ struct WeekdaySelector: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .glassCard()
         .animation(.easeInOut(duration: 0.3), value: isExpanded)
     }
 }
+
+#Preview {
+    Form {
+        Section {
+            WeekdaySelector(selectedDays: .constant([1, 3, 5]))
+        }
+    }
+}
+

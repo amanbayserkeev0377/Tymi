@@ -2,90 +2,59 @@ import SwiftUI
 
 struct NewHabitView: View {
     @StateObject private var viewModel: NewHabitViewModel
-    @Environment(\.colorScheme) private var colorScheme
     @Binding var isPresented: Bool
-    let onSave: (Habit) -> Void
-    @State private var isCountFieldFocused: Bool = false
-    
-    private var isEditMode: Bool {
-        viewModel.name != ""
-    }
+    var onSave: (Habit) -> Void
     
     init(habitStore: HabitStoreManager, habit: Habit? = nil, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
-        let vm = NewHabitViewModel(habitStore: habitStore)
-        if let habit = habit {
-            vm.name = habit.name
-            vm.type = habit.type
-            vm.goal = habit.goal
-            vm.startDate = habit.startDate
-            vm.activeDays = habit.activeDays
-            vm.isReminderEnabled = habit.reminderTime != nil
-            vm.reminderTime = habit.reminderTime ?? Date()
-        }
-        _viewModel = StateObject(wrappedValue: vm)
-        _isPresented = isPresented
+        self._viewModel = StateObject(wrappedValue: habit == nil ? 
+            NewHabitViewModel(habitStore: habitStore) : 
+            NewHabitViewModel(habitStore: habitStore, habit: habit!))
+        self._isPresented = isPresented
         self.onSave = onSave
     }
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Name Field
-                    TextField("Habit name", text: $viewModel.name)
-                        .font(.body)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(colorScheme == .dark ? Color.white.opacity(0.05) : Color.black.opacity(0.05))
-                        )
-                        .padding(.horizontal, 24)
-                    
-                    // Goal Section
-                    GoalSection(
-                        goal: $viewModel.goal,
-                        type: $viewModel.type,
-                        isCountFieldFocused: isCountFieldFocused,
-                        onTap: { isCountFieldFocused = true }
-                    )
-                    .padding(.horizontal, 24)
-                    
-                    // Weekday Selector
-                    WeekdaySelector(selectedDays: $viewModel.activeDays)
-                        .padding(.horizontal, 24)
-                    
-                    // Reminder Section
-                    ReminderSection(
-                        isEnabled: $viewModel.isReminderEnabled,
-                        time: $viewModel.reminderTime
-                    )
-                    .padding(.horizontal, 24)
-                    
-                    // Start Date Section
-                    StartDateSection(startDate: $viewModel.startDate)
-                        .padding(.horizontal, 24)
-                }
-                .padding(.vertical, 24)
+        Form {
+            Section {
+                TextField("Habit Name", text: $viewModel.name)
             }
-            .navigationTitle(isEditMode ? "Edit Habit" : "New Habit")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+            
+            Section {
+                GoalSection(goal: $viewModel.goal)
+            }
+            
+            Section {
+                WeekdaySelector(selectedDays: $viewModel.activeDays)
+            }
+            
+            Section {
+                ReminderSection(
+                    isEnabled: $viewModel.isReminderEnabled,
+                    time: $viewModel.reminderTime
+                )
+            }
+            
+            Section {
+                StartDateSection(startDate: $viewModel.startDate)
+            }
+        }
+        .navigationTitle(viewModel.name.isEmpty ? "New Habit" : viewModel.name)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    isPresented = false
+                }
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Save") {
+                    if let habit = viewModel.createHabit() {
+                        onSave(habit)
                         isPresented = false
                     }
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(isEditMode ? "Save" : "Create") {
-                        if let habit = viewModel.createHabit() {
-                            onSave(habit)
-                            isPresented = false
-                        }
-                    }
-                    .fontWeight(.medium)
-                }
+                .disabled(!viewModel.isValid)
             }
         }
     }
@@ -110,6 +79,5 @@ struct NameFieldView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
-        .glassCard()
     }
 }

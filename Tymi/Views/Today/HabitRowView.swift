@@ -20,7 +20,6 @@ struct HabitRowView: View {
                 .foregroundStyle(.secondary)
         }
         .padding()
-        .glassCard()
     }
     
     private var goalText: String {

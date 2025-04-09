@@ -50,7 +50,6 @@ struct ReminderSection: View {
                 .padding(.vertical, 12)
             }
         }
-        .glassCard()
         .animation(.easeInOut(duration: 0.25), value: isEnabled)
     }
 }

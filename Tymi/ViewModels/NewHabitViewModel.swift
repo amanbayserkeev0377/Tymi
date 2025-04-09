@@ -18,6 +18,7 @@ final class NewHabitViewModel: ObservableObject {
     
     // MARK: - Private Properties
     private let habitStore: HabitStoreManager
+    private var habit: Habit?
     
     // MARK: - Initialization
     init(habitStore: HabitStoreManager) {
@@ -26,6 +27,7 @@ final class NewHabitViewModel: ObservableObject {
     
     init(habitStore: HabitStoreManager, habit: Habit) {
         self.habitStore = habitStore
+        self.habit = habit
         self.name = habit.name
         self.type = habit.type
         self.goal = habit.goal
@@ -52,7 +54,7 @@ final class NewHabitViewModel: ObservableObject {
         }
         
         let habit = Habit(
-            id: id ?? UUID(),
+            id: id ?? habit?.id ?? UUID(),
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
             type: type,
             goal: goal,

@@ -217,7 +217,6 @@ struct ManualInputPanelView: View {
             .padding(.top, 8)
         }
         .padding(24)
-        .glassCard()
         .frame(maxWidth: 400)
         .padding(.horizontal, 24)
         .onChange(of: focusedField) { oldValue, newValue in

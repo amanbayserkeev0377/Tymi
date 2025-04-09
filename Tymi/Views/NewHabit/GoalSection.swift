@@ -1,122 +1,72 @@
 import SwiftUI
 
 struct GoalSection: View {
-    @Environment(\.colorScheme) private var colorScheme
     @Binding var goal: Double
-    @Binding var type: HabitType
-    let isCountFieldFocused: Bool
-    let onTap: () -> Void
+    @State private var showingGoalDetail = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        NavigationLink {
+            GoalDetailView(goal: $goal)
+        } label: {
             HStack {
-                Image(systemName: "trophy")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(colorScheme == .dark ? .white : .black)
-                    .frame(width: 26, height: 26)
-                
-                Text("Goal")
-                    .font(.body.weight(.regular))
-                
+                Text("Daily Goal")
                 Spacer()
-                
-                // Compact Type Selection
-                HStack(spacing: 16) {
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            type = .count
-                        }
-                    } label: {
-                        VStack(spacing: 4) {
-                            Image(systemName: "numbers")
-                                .font(.body.weight(.medium))
-                                .frame(width: 32, height: 32)
-                                .background(type == .count ? Color.primary.opacity(0.1) : Color.clear)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            Text("count")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            type = .time
-                        }
-                    } label: {
-                        VStack(spacing: 4) {
-                            Image(systemName: "clock")
-                                .font(.body.weight(.medium))
-                                .frame(width: 32, height: 32)
-                                .background(type == .time ? Color.primary.opacity(0.1) : Color.clear)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            Text("time")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                }
-                .foregroundStyle(.primary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            
-            Divider()
-                .padding(.horizontal, 16)
-            
-            if type == .count {
-                TextField("Count", value: $goal, format: .number)
-                    .keyboardType(.numberPad)
-                    .font(.body.weight(.medium))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .onTapGesture {
-                        onTap()
-                    }
-            } else {
-                HStack {
-                    Spacer()
-                    
-                    let dateBinding = Binding<Date>(
-                        get: {
-                            let totalSeconds = Int(goal)
-                            let hours = totalSeconds / 3600
-                            let minutes = (totalSeconds % 3600) / 60
-                            var components = DateComponents()
-                            components.hour = hours
-                            components.minute = minutes
-                            return Calendar.current.date(from: components) ?? Date()
-                        },
-                        set: { newDate in
-                            let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
-                            let hours = components.hour ?? 0
-                            let minutes = components.minute ?? 0
-                            goal = Double(hours * 3600 + minutes * 60)
-                        }
-                    )
-                    
-                    DatePicker(
-                        "",
-                        selection: dateBinding,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .datePickerStyle(.compact)
-                    .labelsHidden()
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                Text(String(format: "%.1f", goal))
+                    .foregroundStyle(.secondary)
             }
         }
-        .glassCard()
+    }
+}
+
+struct GoalDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var goal: Double
+    @State private var selectedType: GoalType = .count
+    
+    private enum GoalType: String, CaseIterable {
+        case count = "Count"
+        case duration = "Duration"
+        case distance = "Distance"
+    }
+    
+    var body: some View {
+        Form {
+            Section {
+                Picker("Type", selection: $selectedType) {
+                    ForEach(GoalType.allCases, id: \.self) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.vertical, 8)
+            }
+            
+            Section {
+                Stepper(value: $goal, in: 0.5...100, step: 0.5) {
+                    HStack {
+                        Text("Goal")
+                        Spacer()
+                        Text(String(format: "%.1f", goal))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                if selectedType == .duration {
+                    DatePicker("Time", selection: .constant(Date()), displayedComponents: .hourAndMinute)
+                }
+            }
+        }
+        .navigationTitle("Daily Goal")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    GoalSection(
-        goal: .constant(90),
-        type: .constant(.time),
-        isCountFieldFocused: true,
-        onTap: {}
-    )
-    .padding()
+    NavigationStack {
+        Form {
+            Section {
+                GoalSection(goal: .constant(1.0))
+            }
+        }
+    }
 }
