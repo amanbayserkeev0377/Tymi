@@ -1,114 +1,90 @@
 import SwiftUI
 
 struct NewHabitView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @StateObject private var viewModel: NewHabitViewModel
-    @FocusState private var focusedField: Field?
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var isPresented: Bool
-    
     let onSave: (Habit) -> Void
-    let isEditMode: Bool
-    let editingHabit: Habit?
+    @State private var isCountFieldFocused: Bool = false
     
-    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
-    
-    enum Field {
-        case name
-        case count
+    private var isEditMode: Bool {
+        viewModel.name != ""
     }
     
-    init(habitStore: HabitStoreManager, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
-        _viewModel = StateObject(wrappedValue: NewHabitViewModel(habitStore: habitStore))
+    init(habitStore: HabitStoreManager, habit: Habit? = nil, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
+        let vm = NewHabitViewModel(habitStore: habitStore)
+        if let habit = habit {
+            vm.name = habit.name
+            vm.type = habit.type
+            vm.goal = habit.goal
+            vm.startDate = habit.startDate
+            vm.activeDays = habit.activeDays
+            vm.isReminderEnabled = habit.reminderTime != nil
+            vm.reminderTime = habit.reminderTime ?? Date()
+        }
+        _viewModel = StateObject(wrappedValue: vm)
         _isPresented = isPresented
         self.onSave = onSave
-        self.isEditMode = false
-        self.editingHabit = nil
-    }
-    
-    init(habitStore: HabitStoreManager, habit: Habit, isPresented: Binding<Bool>, onSave: @escaping (Habit) -> Void) {
-        _viewModel = StateObject(wrappedValue: NewHabitViewModel(habitStore: habitStore, habit: habit))
-        _isPresented = isPresented
-        self.onSave = onSave
-        self.isEditMode = true
-        self.editingHabit = habit
     }
     
     var body: some View {
-        ModalView(isPresented: $isPresented, title: isEditMode ? "Edit Habit" : "New Habit") {
-            ZStack {
-                VStack(spacing: 16) {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
                     // Name Field
-                    NameFieldView(name: $viewModel.name)
-                        .focused($focusedField, equals: .name)
+                    TextField("Habit name", text: $viewModel.name)
+                        .font(.body)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(colorScheme == .dark ? Color.white.opacity(0.05) : Color.black.opacity(0.05))
+                        )
+                        .padding(.horizontal, 24)
                     
                     // Goal Section
                     GoalSection(
                         goal: $viewModel.goal,
                         type: $viewModel.type,
-                        isCountFieldFocused: focusedField == .count,
-                        onTap: { focusedField = .count }
+                        isCountFieldFocused: isCountFieldFocused,
+                        onTap: { isCountFieldFocused = true }
                     )
-                    .focused($focusedField, equals: .count)
+                    .padding(.horizontal, 24)
                     
-                    // Weekday Selection
+                    // Weekday Selector
                     WeekdaySelector(selectedDays: $viewModel.activeDays)
+                        .padding(.horizontal, 24)
                     
                     // Reminder Section
                     ReminderSection(
                         isEnabled: $viewModel.isReminderEnabled,
                         time: $viewModel.reminderTime
                     )
+                    .padding(.horizontal, 24)
                     
                     // Start Date Section
                     StartDateSection(startDate: $viewModel.startDate)
-                    
-                    Spacer()
+                        .padding(.horizontal, 24)
                 }
-                .padding(.horizontal)
-                .padding(.top)
+                .padding(.vertical, 24)
+            }
+            .navigationTitle(isEditMode ? "Edit Habit" : "New Habit")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                }
                 
-                VStack {
-                    Spacer()
-                    
-                    // Create/Save Button
-                    Button {
-                        feedbackGenerator.prepare()
-                        if let habit = viewModel.createHabit(id: editingHabit?.id) {
-                            feedbackGenerator.impactOccurred()
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(isEditMode ? "Save" : "Create") {
+                        if let habit = viewModel.createHabit() {
                             onSave(habit)
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                isPresented = false
-                            }
+                            isPresented = false
                         }
-                    } label: {
-                        Text(isEditMode ? "Save Changes" : "Create Habit")
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(colorScheme == .dark ? .black : .white)
-                            .frame(height: 56)
-                            .frame(maxWidth: .infinity)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(
-                                        colorScheme == .dark
-                                        ? Color.white.opacity(0.4)
-                                        : Color.black
-                                    )
-                            )
                     }
-                    .disabled(!viewModel.isValid)
-                    .padding(.horizontal)
-                    .padding(.bottom, 16)
-                }
-                
-                if focusedField != nil {
-                    VStack {
-                        Spacer()
-                        KeyboardDismissButton {
-                            focusedField = nil
-                        }
-                        .padding(.bottom, 90)
-                    }
+                    .fontWeight(.medium)
                 }
             }
         }

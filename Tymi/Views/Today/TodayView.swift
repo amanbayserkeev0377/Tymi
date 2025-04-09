@@ -7,12 +7,8 @@ struct TodayView: View {
     @State private var showingNewHabit = false
     @State private var showingCalendar = false
     @State private var showingSettings = false
-    @State private var showingFABMenu = false
-    @State private var isRotating = false
-    @State private var isBreathing = false
     @State private var selectedHabit: Habit?
     @State private var editingHabit: Habit?
-    @Namespace private var namespace
     
     private var habitsForSelectedDate: [Habit] {
         habitStore.habits.filter { habit in
@@ -22,320 +18,187 @@ struct TodayView: View {
     }
     
     var body: some View {
-        ZStack {
-            TodayBackground()
-            
-            VStack(spacing: 0) {
-                // Header
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(dateTitle)
-                        .font(.largeTitle.weight(.bold))
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.top, 16)
-                
-                // Tips carousel
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: -15) {
-                        ForEach(TipCard.tips) { tip in
-                            TipCardView(card: tip, namespace: namespace)
-                                .frame(width: UIScreen.main.bounds.width - 140)
-                                .frame(height: 300)
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
-                }
-                
-                // Habits list
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(habitsForSelectedDate) { habit in
-                            HabitRowView(habit: habit)
-                                .padding(.horizontal, 24)
-                                .onTapGesture {
-                                    withAnimation(.easeInOut(duration: 0.3))
-                                    {
-                                        selectedHabit = habit
-                                    }
-                                }
-                        }
-                    }
-                    .padding(.top, 24)
-                }
-            }
-            .blur(radius: showingFABMenu || showingNewHabit || showingCalendar || showingSettings || selectedHabit != nil ? 20 : 0)
-            
-            // FAB Button (only show when no modals are visible)
-            if !showingFABMenu && !showingNewHabit && !showingCalendar && !showingSettings && selectedHabit == nil {
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showingFABMenu = true
-                            }
-                        } label: {
-                            Image("Tymi_blank")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 56, height: 56)
-                                .rotationEffect(.degrees(isRotating ? 360 : 0))
-                                .scaleEffect(isBreathing ? 1.06 : 1)
-                                .opacity(isBreathing ? 0.05 : 1)
-                                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: isBreathing)
-                                .padding(12)
-                                .background(
-                                    Circle()
-                                        .fill(
-                                            colorScheme == .dark
-                                            ? Color.white.opacity(0.05)
-                                            : Color.black.opacity(0.05)
-                                        )
-                                        .frame(width: 60, height: 60)
-                                )
-                                .contentShape(Circle())
-                                .shadow(
-                                    color: Color(red: 1.0, green: 0.4, blue: 0.3).opacity(0.8),
-                                    radius: 20,
-                                    x: 0,
-                                    y: 6
-                                )
-                        }
-                        .padding(.trailing, 24)
-                        .padding(.bottom, 32)
-                    }
-                }
-                .transition(.opacity)
-            }
-            
-            // FAB Menu background
-            if showingFABMenu {
-                Color.black.opacity(0.1)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingFABMenu = false
-                        }
-                    }
-                    .transition(.opacity)
-                
-                // Menu items
+        NavigationStack {
+            ScrollView {
                 VStack(spacing: 24) {
-                    Spacer()
-                    Spacer(minLength: 60)
+                    // Tips Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Tips & Insights")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 20)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(TipCard.tips) { tip in
+                                    TipItemView(tip: tip)
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                    }
                     
-                    // New Habit Button
-                    fabMenuButton(
-                        title: "New habit",
-                        icon: "plus",
-                        action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showingFABMenu = false
-                                editingHabit = nil
-                                showingNewHabit = true
+                    // Habits Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Today's Habits")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 20)
+                        
+                        LazyVStack(spacing: 12) {
+                            if habitsForSelectedDate.isEmpty {
+                                EmptyStateView()
+                            } else {
+                                ForEach(habitsForSelectedDate) { habit in
+                                    Button {
+                                        selectedHabit = habit
+                                    } label: {
+                                        HabitRowView(habit: habit)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
                         }
-                    )
-                    
-                    // Calendar Button
-                    fabMenuButton(
-                        title: "Calendar",
-                        icon: "calendar",
-                        action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showingFABMenu = false
-                                showingCalendar = true
-                            }
-                        }
-                    )
-                    
-                    // Settings Button
-                    fabMenuButton(
-                        title: "Settings",
-                        icon: "gearshape",
-                        action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showingFABMenu = false
-                                showingSettings = true
-                            }
-                        }
-                    )
-                    
-                    Spacer()
+                        .padding(.horizontal, 20)
+                    }
                 }
-                .padding(.trailing, 16)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .transition(.opacity)
+                .padding(.vertical, 20)
             }
-            
-            // New habit modal
-            if showingNewHabit {
-                Color.black
-                    .opacity(0.05)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingNewHabit = false
+            .navigationTitle("Today")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            showingNewHabit = true
+                        } label: {
+                            Label("New Habit", systemImage: "plus")
+                        }
+                        
+                        Button {
+                            showingCalendar = true
+                        } label: {
+                            Label("Calendar", systemImage: "calendar")
+                        }
+                        
+                        Button {
+                            showingSettings = true
+                        } label: {
+                            Label("Settings", systemImage: "gear")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .font(.body.weight(.medium))
+                    }
+                }
+            }
+            .sheet(isPresented: $showingNewHabit) {
+                NavigationStack {
+                    if let habit = editingHabit {
+                        NewHabitView(
+                            habitStore: habitStore,
+                            habit: habit,
+                            isPresented: $showingNewHabit
+                        ) { updatedHabit in
+                            habitStore.updateHabit(updatedHabit)
                             editingHabit = nil
                         }
+                    } else {
+                        NewHabitView(
+                            habitStore: habitStore,
+                            isPresented: $showingNewHabit
+                        ) { habit in
+                            habitStore.addHabit(habit)
+                        }
                     }
-                    .transition(.opacity)
-                
-                if let habit = editingHabit {
-                    NewHabitView(
-                        habitStore: habitStore,
-                        habit: habit,
-                        isPresented: $showingNewHabit
-                    ) { updatedHabit in
-                        habitStore.updateHabit(updatedHabit)
-                        editingHabit = nil
-                    }
-                    .transition(.move(edge: .bottom))
-                    .zIndex(2)
-                } else {
-                    NewHabitView(
-                        habitStore: habitStore,
-                        isPresented: $showingNewHabit
-                    ) { habit in
-                        habitStore.addHabit(habit)
-                    }
-                    .transition(.move(edge: .bottom))
-                    .zIndex(2)
                 }
+                .presentationDragIndicator(.visible)
             }
-            
-            // Calendar modal
-            if showingCalendar {
-                Color.black
-                    .opacity(0.05)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingCalendar = false
-                        }
-                    }
-                    .transition(.opacity)
-                
-                CalendarView(selectedDate: $selectedDate, isPresented: $showingCalendar, habitStore: habitStore)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .bottom).combined(with: .opacity),
-                        removal: .move(edge: .bottom).combined(with: .opacity)
-                    ))
-                    .zIndex(2)
+            .sheet(isPresented: $showingCalendar) {
+                NavigationStack {
+                    CalendarView(isPresented: $showingCalendar)
+                }
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.medium])
             }
-            
-            // Settings modal
-            if showingSettings {
-                Color.black
-                    .opacity(0.05)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingSettings = false
-                        }
-                    }
-                    .transition(.opacity)
-                
-                SettingsView(isPresented: $showingSettings)
-                    .transition(.move(edge: .bottom))
-                    .zIndex(2)
+            .sheet(isPresented: $showingSettings) {
+                NavigationStack {
+                    SettingsView(isPresented: $showingSettings)
+                }
+                .presentationDragIndicator(.visible)
             }
-            
-            // Habit Detail Modal
-            if let habit = selectedHabit {
-                Color.black.opacity(0.05)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            selectedHabit = nil
-                        }
-                    }
-                
-                HabitDetailView(
-                    habit: habit,
-                    habitStore: habitStore,
-                    isPresented: Binding(
-                        get: { selectedHabit != nil },
-                        set: { if !$0 { selectedHabit = nil } }
-                    ),
-                    onEdit: { habit in
-                        withAnimation(.easeInOut(duration: 0.3)) {
+            .sheet(item: $selectedHabit) { habit in
+                NavigationStack {
+                    HabitDetailView(
+                        habit: habit,
+                        habitStore: habitStore,
+                        isPresented: Binding(
+                            get: { selectedHabit != nil },
+                            set: { if !$0 { selectedHabit = nil } }
+                        ),
+                        onEdit: { habit in
                             editingHabit = habit
                             selectedHabit = nil
                             showingNewHabit = true
-                        }
-                    },
-                    onDelete: { habit in
-                        withAnimation(.easeInOut(duration: 0.3)) {
+                        },
+                        onDelete: { habit in
                             habitStore.deleteHabit(habit)
                             selectedHabit = nil
                         }
-                    }
-                )
-                .transition(.move(edge: .bottom))
-                .zIndex(2)
-            }
-        }
-        .animation(.easeInOut(duration: 0.3), value: showingFABMenu)
-        .animation(.easeInOut(duration: 0.3), value: showingNewHabit)
-        .animation(.easeInOut(duration: 0.3), value: showingCalendar)
-        .animation(.easeInOut(duration: 0.3), value: showingSettings)
-        .animation(.easeInOut(duration: 0.3), value: selectedHabit)
-        .navigationBarHidden(true)
-        
-        .onAppear {
-            startFABRotationLoop()
-        }
-    }
-    
-    //MARK: - fabMenuButton
-    @ViewBuilder
-    private func fabMenuButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Text(title)
-                    .font(.system(size: 19, weight: .regular))
-                    .foregroundStyle(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.9))
-                
-                Circle()
-                    .fill(colorScheme == .dark ? .white.opacity(0.7) : .black.opacity(0.8))
-                    .frame(width: 40, height: 40)
-                    .overlay(
-                        Image(systemName: icon)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(colorScheme == .dark ? .black.opacity(0.9) : .white.opacity(0.9))
                     )
-            }
-            .frame(height: 44)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .contentShape(Rectangle())
-        }
-    }
-    
-    private func startFABRotationLoop() {
-        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-            withAnimation(.easeInOut(duration: 1.5)) {
-                isRotating.toggle()
+                }
+                .presentationDragIndicator(.visible)
             }
         }
     }
+}
+
+// MARK: - TipItemView
+struct TipItemView: View {
+    let tip: TipCard
     
-    private var dateTitle: String {
-        let calendar = Calendar.current
-        
-        if calendar.isDateInToday(selectedDate) {
-            return "Today"
-        } else if calendar.isDateInYesterday(selectedDate) {
-            return "Yesterday"
-        } else if calendar.isDateInTomorrow(selectedDate) {
-            return "Tomorrow"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "E, d MMM"
-            return formatter.string(from: selectedDate)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Icons
+            HStack(spacing: 12) {
+                Image(systemName: tip.icon)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.white)
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(tip.gradient[0]))
+                
+                Spacer()
+            }
+            
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                Text(tip.title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                
+                Text(tip.subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+            
+            // Metadata
+            HStack {
+                Image(systemName: "clock")
+                    .font(.caption.weight(.medium))
+                Text("3 min read")
+                    .font(.caption.weight(.medium))
+                Spacer()
+            }
+            .foregroundStyle(.secondary)
         }
+        .padding(16)
+        .frame(width: 280)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color(.separator), lineWidth: 0.5)
+        )
     }
 }
