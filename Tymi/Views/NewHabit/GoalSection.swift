@@ -17,7 +17,7 @@ struct GoalSection: View {
                 
                 Text("Daily Goal")
                 Spacer()
-                Text(type == .count ? String(Int(goal)) : String(format: "%.1f", goal))
+                Text(type == .count ? "\(Int(goal))" : String(format: "%.1f", goal))
                     .foregroundStyle(.secondary)
             }
         }
@@ -30,7 +30,7 @@ struct GoalDetailView: View {
     @Binding var type: HabitType
     
     var body: some View {
-        Form {
+        List {
             Section {
                 Picker("Type", selection: $type) {
                     Text("Count").tag(HabitType.count)
@@ -70,9 +70,7 @@ struct GoalDetailView: View {
 #Preview {
     NavigationStack {
         Form {
-            Section {
-                GoalSection(goal: .constant(1.0), type: .constant(.count))
-            }
+            GoalSection(goal: .constant(1), type: .constant(.count))
         }
     }
 }

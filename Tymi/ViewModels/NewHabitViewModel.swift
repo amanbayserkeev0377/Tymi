@@ -7,8 +7,8 @@ final class NewHabitViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var type: HabitType = .count
     @Published var goal: Double = 1
-    @Published var selectedDays: Set<Int> = Set(1...7) // По умолчанию каждый день
-    @Published var reminders: [Reminder] = []
+    @Published var selectedDays: Set<Int> = Set(1...7)
+    @Published var reminder: Reminder = Reminder()
     @Published var startDate: Date = Date()
     @Published var repeatType: RepeatType = .daily
     
@@ -30,7 +30,7 @@ final class NewHabitViewModel: ObservableObject {
             self.type = habit.type
             self.goal = habit.goal
             self.selectedDays = habit.activeDays
-            self.reminders = habit.reminders
+            self.reminder = habit.reminders.first ?? Reminder()
             self.startDate = habit.startDate
             self.repeatType = habit.activeDays.count == 7 ? .daily : .weekly
         }
@@ -51,7 +51,8 @@ final class NewHabitViewModel: ObservableObject {
             goal: goal,
             startDate: startDate,
             activeDays: selectedDays,
-            reminders: reminders
+            reminders: reminder.isEnabled ? [reminder] : [],
+            isArchived: false
         )
         return habit
     }

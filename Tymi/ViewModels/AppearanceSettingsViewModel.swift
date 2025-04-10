@@ -30,15 +30,12 @@ final class AppearanceSettingsViewModel: ObservableObject {
     
     // MARK: - Initialization
     init() {
-        // Initialize stored properties first
         let storedColorScheme = UserDefaults.standard.string(forKey: "colorSchemePreference") ?? ColorSchemePreference.automatic.rawValue
         let storedAppIcon = UserDefaults.standard.string(forKey: "appIconPreference") ?? AppIconPreference.automatic.rawValue
         
         self.colorSchemePreference = ColorSchemePreference(rawValue: storedColorScheme) ?? .automatic
         self.appIconPreference = AppIconPreference(rawValue: storedAppIcon) ?? .automatic
         
-        // Setup observers and initial state after initialization
-        setupObservers()
         updateColorScheme()
         Task { await updateAppIcon() }
     }
@@ -78,36 +75,11 @@ final class AppearanceSettingsViewModel: ObservableObject {
     }
     
     private func updateAppIcon() async {
-        guard !isChangingIcon else { return }
+        let iconName = appIconPreference == .automatic ? nil :
+            appIconPreference == .light ? "Tymi_light" : "Tymi_dark"
         
-        let iconName: String?
-        switch appIconPreference {
-        case .automatic:
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let window = windowScene.windows.first
-            else {
-                iconName = nil
-                break
-            }
-            iconName = window.traitCollection.userInterfaceStyle == .dark ? "Tymi_dark" : "Tymi_light"
-            
-        case .light:
-            iconName = "Tymi_light"
-        case .dark:
-            iconName = "Tymi_dark"
-        }
-        
-        // Only change if different from current
         if UIApplication.shared.alternateIconName != iconName {
-            do {
-                isChangingIcon = true
-                lastError = nil
-                try await UIApplication.shared.setAlternateIconName(iconName)
-            } catch {
-                lastError = "Failed to change app icon. Please try again."
-                print("Error setting alternate icon: \(error)")
-            }
-            isChangingIcon = false
+            try? await UIApplication.shared.setAlternateIconName(iconName)
         }
     }
 } 

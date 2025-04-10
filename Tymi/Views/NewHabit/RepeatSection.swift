@@ -1,10 +1,5 @@
 import SwiftUI
 
-enum RepeatType {
-    case daily
-    case weekly
-}
-
 struct RepeatSection: View {
     @Binding var selectedDays: Set<Int>
     @Binding var repeatType: RepeatType
@@ -12,10 +7,39 @@ struct RepeatSection: View {
     
     var body: some View {
         NavigationLink {
-            RepeatSettingsView(
-                selectedDays: $selectedDays,
-                repeatType: $repeatType
-            )
+            Form {
+                Button {
+                    repeatType = .daily
+                    selectedDays = Set(1...7)
+                } label: {
+                    HStack {
+                        Text("Every day")
+                        Spacer()
+                        if repeatType == .daily {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                }
+                
+                NavigationLink {
+                    WeekdaySelectionView(selectedDays: $selectedDays)
+                } label: {
+                    HStack {
+                        Text("Every week")
+                        Spacer()
+                        if repeatType == .weekly {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                }
+                .onChange(of: selectedDays) { _ in
+                    repeatType = .weekly
+                }
+            }
+            .navigationTitle("Repeat")
+            .navigationBarTitleDisplayMode(.inline)
         } label: {
             HStack {
                 Image(systemName: "repeat")
@@ -48,48 +72,6 @@ struct RepeatSection: View {
     }
 }
 
-struct RepeatSettingsView: View {
-    @Binding var selectedDays: Set<Int>
-    @Binding var repeatType: RepeatType
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        List {
-            Button {
-                repeatType = .daily
-                selectedDays = Set(1...7)
-            } label: {
-                HStack {
-                    Text("Every day")
-                    Spacer()
-                    if repeatType == .daily {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(.blue)
-                    }
-                }
-            }
-            
-            NavigationLink {
-                WeekdaySelectionView(selectedDays: $selectedDays)
-            } label: {
-                HStack {
-                    Text("Every week")
-                    Spacer()
-                    if repeatType == .weekly {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(.blue)
-                    }
-                }
-            }
-            .onChange(of: selectedDays) { _ in
-                repeatType = .weekly
-            }
-        }
-        .navigationTitle("Repeat")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
 struct WeekdaySelectionView: View {
     @Binding var selectedDays: Set<Int>
     @Environment(\.dismiss) private var dismiss
@@ -105,7 +87,7 @@ struct WeekdaySelectionView: View {
     ]
     
     var body: some View {
-        List {
+        Form {
             ForEach(weekdays, id: \.0) { day, name in
                 Button {
                     toggleDay(day)

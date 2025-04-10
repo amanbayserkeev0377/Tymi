@@ -23,8 +23,8 @@ class NotificationService {
         let activeReminders = habit.reminders.filter { $0.isEnabled }
         
         for reminder in activeReminders {
-            // Для каждого дня недели в reminder.days создаем отдельное уведомление
-            for day in reminder.days {
+            // Для каждого активного дня в привычке создаем отдельное уведомление
+            for day in habit.activeDays {
                 let content = UNMutableNotificationContent()
                 content.title = "Время для привычки"
                 content.body = "Не забудьте: \(habit.name)"
@@ -33,13 +33,13 @@ class NotificationService {
                 // Получаем компоненты времени из reminder.time
                 let calendar = Calendar.current
                 var components = calendar.dateComponents([.hour, .minute], from: reminder.time)
-                components.weekday = day // 1 = Sunday, 7 = Saturday в UNCalendar
+                components.weekday = day == 7 ? 1 : day + 1 // Конвертируем наши дни (1-7, Mon-Sun) в формат UNCalendar (1-7, Sun-Sat)
                 
                 // Создаем триггер для повторения каждую неделю в указанный день и время
                 let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
                 
                 // Создаем уникальный идентификатор для каждого уведомления
-                let identifier = "\(habit.id)-\(reminder.id)-\(day)"
+                let identifier = "\(habit.id)-\(day)"
                 
                 let request = UNNotificationRequest(
                     identifier: identifier,

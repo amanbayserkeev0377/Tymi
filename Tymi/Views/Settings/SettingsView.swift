@@ -1,33 +1,33 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("firstWeekday") private var firstWeekday: Int = Calendar.current.firstWeekday
+    @StateObject private var viewModel = AppearanceSettingsViewModel()
     @Binding var isPresented: Bool
     
-    private let weekdayOptions = [
-        (name: "System Default", value: Calendar.current.firstWeekday),
-        (name: "Sunday", value: 1),
-        (name: "Monday", value: 2)
-    ]
-    
     var body: some View {
-        Form {
-            Section {
-                Picker("First Day of Week", selection: $firstWeekday) {
-                    ForEach(weekdayOptions, id: \.value) { option in
-                        Text(option.name).tag(option.value)
+        NavigationStack {
+            Form {
+                Section("Appearance") {
+                    Picker("Color Scheme", selection: $viewModel.colorSchemePreference) {
+                        ForEach(ColorSchemePreference.allCases, id: \.self) { preference in
+                            Text(preference.title).tag(preference)
+                        }
+                    }
+                    
+                    Picker("App Icon", selection: $viewModel.appIconPreference) {
+                        ForEach(AppIconPreference.allCases, id: \.self) { preference in
+                            Text(preference.title).tag(preference)
+                        }
                     }
                 }
-            } header: {
-                Text("Calendar")
             }
-        }
-        .navigationTitle("Settings")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Done") {
-                    isPresented = false
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        isPresented = false
+                    }
                 }
             }
         }
@@ -35,7 +35,5 @@ struct SettingsView: View {
 }
 
 #Preview {
-    NavigationStack {
-        SettingsView(isPresented: .constant(true))
-    }
+    SettingsView(isPresented: .constant(true))
 }

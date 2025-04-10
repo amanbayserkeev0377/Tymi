@@ -4,76 +4,60 @@ import SwiftUI
 @MainActor
 final class TodayViewModel: ObservableObject {
     // MARK: - Published Properties
-    @AppStorage("firstWeekday") private var firstWeekday: Int = Calendar.current.firstWeekday
-    @Published var selectedDate: Date = Date()
+    @Published private(set) var weekDates: [Date] = []
+    @Published private(set) var selectedDate: Date = Date()
     @Published var currentWeekDates: [Date] = []
     @Published var daysWithHabits: Set<Date> = []
     @Published var completedHabits: Set<Date> = []
     @Published var partiallyCompletedHabits: Set<Date> = []
     
     // MARK: - Private Properties
-    private var calendar: Calendar {
-        var calendar = Calendar.current
-        calendar.firstWeekday = firstWeekday
-        return calendar
-    }
-    
-    private let habitStore: HabitStoreManager
+    private let calendar = Calendar.current
     private let maxPastWeeks = 2 // Максимальное количество недель в прошлое
     
     // MARK: - Initialization
-    init(habitStore: HabitStoreManager = HabitStoreManager()) {
-        self.habitStore = habitStore
+    init() {
         updateWeekDates()
         updateProgress()
     }
     
     // MARK: - Public Methods
-    func datesForWeek(offset: Int) -> [Date] {
-        let today = Date()
-        
-        // Получаем начало текущей недели
-        guard let currentWeekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)) else {
+    private func updateWeekDates() {
+        let today = calendar.startOfDay(for: Date())
+        weekDates = datesForWeek(containing: today)
+        selectedDate = today
+    }
+    
+    private func datesForWeek(containing date: Date) -> [Date] {
+        guard let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)) else {
             return []
         }
         
-        // Вычисляем начало нужной недели (только в прошлое)
-        guard let targetWeekStart = calendar.date(byAdding: .weekOfYear, value: -abs(offset), to: currentWeekStart) else {
-            return []
-        }
-        
-        // Генерируем даты для недели
-        return (0..<7).compactMap { dayOffset in
-            calendar.date(byAdding: .day, value: dayOffset, to: targetWeekStart)
+        return (0...6).compactMap { day in
+            calendar.date(byAdding: .day, value: day, to: weekStart)
         }
     }
     
-    func moveToWeek(offset: Int) {
-        // Проверяем, не пытаемся ли мы перейти в будущее или слишком далеко в прошлое
-        if offset > 0 || abs(offset) > maxPastWeeks {
-            return
-        }
+    func moveToNextWeek() {
+        guard let firstDate = weekDates.first,
+              let nextWeekStart = calendar.date(byAdding: .weekOfYear, value: 1, to: firstDate)
+        else { return }
         
-        let dates = datesForWeek(offset: offset)
-        guard !dates.isEmpty else { return }
-        
-        currentWeekDates = dates
-        
-        // Если текущая выбранная дата не в новой неделе, выбираем первый доступный день
-        if !dates.contains(where: { calendar.isDate($0, inSameDayAs: selectedDate) }) {
-            for date in dates {
-                if isDateSelectable(date) {
-                    selectedDate = date
-                    break
-                }
-            }
-        }
-        
-        updateProgress()
+        weekDates = datesForWeek(containing: nextWeekStart)
     }
     
-    func updateWeekDates() {
-        currentWeekDates = datesForWeek(offset: 0)
+    func moveToPreviousWeek() {
+        guard let firstDate = weekDates.first,
+              let previousWeekStart = calendar.date(byAdding: .weekOfYear, value: -1, to: firstDate),
+              isDateWithinAllowedRange(previousWeekStart)
+        else { return }
+        
+        weekDates = datesForWeek(containing: previousWeekStart)
+    }
+    
+    func selectDate(_ date: Date) {
+        guard isDateSelectable(date) else { return }
+        selectedDate = date
     }
     
     func updateProgress() {
@@ -102,37 +86,6 @@ final class TodayViewModel: ObservableObject {
         self.partiallyCompletedHabits = partiallyCompletedHabits
     }
     
-    func moveToNextWeek() {
-        guard let nextWeek = calendar.date(byAdding: .day, value: 7, to: currentWeekDates[0]) else {
-            return
-        }
-        currentWeekDates = (0...6).map { day in
-            calendar.date(byAdding: .day, value: day, to: nextWeek) ?? nextWeek
-        }
-    }
-    
-    func moveToPreviousWeek() {
-        guard let previousWeek = calendar.date(byAdding: .day, value: -7, to: currentWeekDates[0]) else {
-            return
-        }
-        
-        // Проверяем, не превышает ли предыдущая неделя максимальное количество дней в прошлом
-        let daysFromToday = calendar.dateComponents([.day], from: previousWeek, to: Date()).day ?? 0
-        if daysFromToday > maxPastWeeks * 7 {
-            return
-        }
-        
-        currentWeekDates = (0...6).map { day in
-            calendar.date(byAdding: .day, value: day, to: previousWeek) ?? previousWeek
-        }
-    }
-    
-    func selectDate(_ date: Date) {
-        if isDateSelectable(date) {
-            selectedDate = date
-        }
-    }
-    
     func isSelected(_ date: Date) -> Bool {
         calendar.isDate(date, inSameDayAs: selectedDate)
     }
@@ -141,15 +94,17 @@ final class TodayViewModel: ObservableObject {
         calendar.isDateInToday(date)
     }
     
-    func isDateSelectable(_ date: Date) -> Bool {
-        // Дата не должна быть в будущем
-        if calendar.compare(date, to: Date(), toGranularity: .day) == .orderedDescending {
+    private func isDateWithinAllowedRange(_ date: Date) -> Bool {
+        let today = calendar.startOfDay(for: Date())
+        guard let maxPastDate = calendar.date(byAdding: .weekOfYear, value: -maxPastWeeks, to: today) else {
             return false
         }
-        
-        // Проверяем, не слишком ли далеко в прошлом
-        let weeksFromToday = calendar.dateComponents([.weekOfYear], from: date, to: Date()).weekOfYear ?? 0
-        return weeksFromToday <= maxPastWeeks
+        return date >= maxPastDate
+    }
+    
+    private func isDateSelectable(_ date: Date) -> Bool {
+        let today = calendar.startOfDay(for: Date())
+        return date <= today && isDateWithinAllowedRange(date)
     }
     
     func completionStatus(for date: Date) -> CompletionStatus {
