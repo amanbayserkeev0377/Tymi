@@ -1,22 +1,24 @@
 import Foundation
 
-struct Habit: Identifiable, Codable, Equatable {
+struct Habit: Identifiable, Codable {
     let id: UUID
     var name: String
     var type: HabitType
     var goal: Double
     var startDate: Date
     var activeDays: Set<Int> // 1 = Monday, 7 = Sunday
-    var reminderTime: Date?
+    var reminders: [Reminder]
+    var isArchived: Bool
     
     init(
         id: UUID = UUID(),
-        name: String,
-        type: HabitType,
-        goal: Double,
+        name: String = "",
+        type: HabitType = .count,
+        goal: Double = 1,
         startDate: Date = Date(),
         activeDays: Set<Int> = Set(1...7),
-        reminderTime: Date? = nil
+        reminders: [Reminder] = [],
+        isArchived: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -24,11 +26,53 @@ struct Habit: Identifiable, Codable, Equatable {
         self.goal = goal
         self.startDate = startDate
         self.activeDays = activeDays
-        self.reminderTime = reminderTime
+        self.reminders = reminders
+        self.isArchived = isArchived
+    }
+}
+
+enum HabitType: String, Codable, CaseIterable {
+    case count
+    case time
+    
+    var title: String {
+        switch self {
+        case .count:
+            return "Count"
+        case .time:
+            return "Timer"
+        }
     }
     
-    static func == (lhs: Habit, rhs: Habit) -> Bool {
-        lhs.id == rhs.id
+    var systemImage: String {
+        switch self {
+        case .count:
+            return "number"
+        case .time:
+            return "timer"
+        }
+    }
+}
+
+enum Weekday: Int, CaseIterable, Codable {
+    case monday = 1
+    case tuesday = 2
+    case wednesday = 3
+    case thursday = 4
+    case friday = 5
+    case saturday = 6
+    case sunday = 7
+    
+    var shortName: String {
+        switch self {
+        case .monday: return "Mon"
+        case .tuesday: return "Tue"
+        case .wednesday: return "Wed"
+        case .thursday: return "Thu"
+        case .friday: return "Fri"
+        case .saturday: return "Sat"
+        case .sunday: return "Sun"
+        }
     }
 }
 
@@ -39,14 +83,13 @@ class HabitStoreManager: ObservableObject {
     
     init() {
         loadHabits()
-        notificationService.requestAuthorization()
     }
     
     func addHabit(_ habit: Habit) {
         habits.append(habit)
         saveHabits()
-        if habit.reminderTime != nil {
-            notificationService.scheduleNotification(for: habit)
+        if habit.reminders.contains(where: { $0.isEnabled }) {
+            notificationService.scheduleNotifications(for: habit)
         }
     }
     
@@ -57,9 +100,9 @@ class HabitStoreManager: ObservableObject {
             saveHabits()
             
             // Обновляем уведомления, если изменилось время напоминания
-            if oldHabit.reminderTime != habit.reminderTime {
-                if habit.reminderTime != nil {
-                    notificationService.scheduleNotification(for: habit)
+            if oldHabit.reminders.contains(where: { $0.isEnabled }) != habit.reminders.contains(where: { $0.isEnabled }) {
+                if habit.reminders.contains(where: { $0.isEnabled }) {
+                    notificationService.scheduleNotifications(for: habit)
                 } else {
                     notificationService.cancelNotifications(for: habit)
                 }

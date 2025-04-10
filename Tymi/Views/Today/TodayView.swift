@@ -140,19 +140,27 @@ struct DateCarouselView: View {
     
     var body: some View {
         GeometryReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(dateRange, id: \.self) { dayOffset in
-                        let date = calendar.date(byAdding: .day, value: dayOffset, to: Date())!
-                        DateCardView(
-                            date: date,
-                            isSelected: calendar.isDate(date, inSameDayAs: selectedDate),
-                            namespace: namespace,
-                            onTap: { onDateSelected(date) }
-                        )
+            ScrollViewReader { scrollView in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(dateRange, id: \.self) { dayOffset in
+                            let date = calendar.date(byAdding: .day, value: dayOffset, to: Date())!
+                            DateCardView(
+                                date: date,
+                                isSelected: calendar.isDate(date, inSameDayAs: selectedDate),
+                                namespace: namespace,
+                                onTap: { onDateSelected(date) }
+                            )
+                            .id(dayOffset)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+                .onAppear {
+                    withAnimation {
+                        scrollView.scrollTo(0, anchor: .trailing)
                     }
                 }
-                .padding(.horizontal, 20)
             }
         }
     }
@@ -242,8 +250,8 @@ struct DateCardView: View {
     private func dayOfWeek() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE"
-        formatter.locale = Locale(identifier: "ru_RU")
-        return formatter.string(from: date).uppercased()
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.string(from: date)
     }
     
     private func dayNumber() -> String {

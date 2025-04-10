@@ -2,16 +2,22 @@ import SwiftUI
 
 struct GoalSection: View {
     @Binding var goal: Double
-    @State private var showingGoalDetail = false
+    @Binding var type: HabitType
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         NavigationLink {
-            GoalDetailView(goal: $goal)
+            GoalDetailView(goal: $goal, type: $type)
         } label: {
             HStack {
+                Image(systemName: "trophy")
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(colorScheme == .dark ? .white : .black)
+                    .frame(width: 28, height: 28)
+                
                 Text("Daily Goal")
                 Spacer()
-                Text(String(format: "%.1f", goal))
+                Text(type == .count ? String(Int(goal)) : String(format: "%.1f", goal))
                     .foregroundStyle(.secondary)
             }
         }
@@ -21,38 +27,38 @@ struct GoalSection: View {
 struct GoalDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var goal: Double
-    @State private var selectedType: GoalType = .count
-    
-    private enum GoalType: String, CaseIterable {
-        case count = "Count"
-        case duration = "Duration"
-        case distance = "Distance"
-    }
+    @Binding var type: HabitType
     
     var body: some View {
         Form {
             Section {
-                Picker("Type", selection: $selectedType) {
-                    ForEach(GoalType.allCases, id: \.self) { type in
-                        Text(type.rawValue).tag(type)
-                    }
+                Picker("Type", selection: $type) {
+                    Text("Count").tag(HabitType.count)
+                    Text("Time").tag(HabitType.time)
                 }
                 .pickerStyle(.segmented)
                 .padding(.vertical, 8)
             }
             
             Section {
-                Stepper(value: $goal, in: 0.5...100, step: 0.5) {
-                    HStack {
-                        Text("Goal")
-                        Spacer()
-                        Text(String(format: "%.1f", goal))
-                            .foregroundStyle(.secondary)
+                if type == .count {
+                    Stepper(value: $goal, in: 1...100, step: 1) {
+                        HStack {
+                            Text("Goal")
+                            Spacer()
+                            Text("\(Int(goal))")
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                }
-                
-                if selectedType == .duration {
-                    DatePicker("Time", selection: .constant(Date()), displayedComponents: .hourAndMinute)
+                } else {
+                    Stepper(value: $goal, in: 0.5...180, step: 0.5) { // максимум 3 часа
+                        HStack {
+                            Text("Hours")
+                            Spacer()
+                            Text(String(format: "%.1f", goal))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
         }
@@ -65,7 +71,7 @@ struct GoalDetailView: View {
     NavigationStack {
         Form {
             Section {
-                GoalSection(goal: .constant(1.0))
+                GoalSection(goal: .constant(1.0), type: .constant(.count))
             }
         }
     }

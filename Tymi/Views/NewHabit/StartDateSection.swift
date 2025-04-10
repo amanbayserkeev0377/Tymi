@@ -1,42 +1,58 @@
 import SwiftUI
 
 struct StartDateSection: View {
-    @Environment(\.colorScheme) private var colorScheme
     @Binding var startDate: Date
-    
-    private var isToday: Bool {
-        Calendar.current.isDateInToday(startDate)
-    }
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var showingDatePicker = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        NavigationLink {
+            StartDatePickerView(startDate: $startDate)
+        } label: {
             HStack {
                 Image(systemName: "calendar")
                     .font(.body.weight(.medium))
                     .foregroundStyle(colorScheme == .dark ? .white : .black)
-                    .frame(width: 26, height: 26)
+                    .frame(width: 28, height: 28)
                 
-                Text("Start Date")
-                    .font(.body.weight(.regular))
-                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Start Date")
+                    Text(startDate.formatted(date: .abbreviated, time: .omitted))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
-                
-                DatePicker(
-                    isToday ? "Today" : "Select Date",
-                    selection: $startDate,
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.compact)
-                .tint(.black)
-                .labelsHidden()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.vertical, 4)
         }
     }
 }
 
+struct StartDatePickerView: View {
+    @Binding var startDate: Date
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        List {
+            DatePicker(
+                "Start Date",
+                selection: $startDate,
+                displayedComponents: .date
+            )
+            .datePickerStyle(.graphical)
+            .padding(.vertical, 8)
+        }
+        .navigationTitle("Start Date")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
 #Preview {
-    StartDateSection(startDate: .constant(Date()))
-        .padding()
+    NavigationStack {
+        Form {
+            Section {
+                StartDateSection(startDate: .constant(Date()))
+            }
+        }
+    }
 }
