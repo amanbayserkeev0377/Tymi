@@ -1,6 +1,6 @@
 import Foundation
 
-struct Habit: Identifiable, Codable {
+struct Habit: Identifiable, Codable, Hashable {
     let id: UUID
     var name: String
     var type: HabitType
@@ -28,6 +28,15 @@ struct Habit: Identifiable, Codable {
         self.activeDays = activeDays
         self.reminders = reminders
         self.isArchived = isArchived
+    }
+    
+    // Реализация Hashable
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Habit, rhs: Habit) -> Bool {
+        lhs.id == rhs.id
     }
 }
 

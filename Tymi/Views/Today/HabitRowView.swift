@@ -2,14 +2,24 @@ import SwiftUI
 
 struct HabitRowView: View {
     let habit: Habit
-
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var backgroundColor: Color {
+        colorScheme == .dark ? Color(.systemGray6) : .white
+    }
+    
+    private var strokeColor: Color {
+        colorScheme == .dark ? Color(.systemGray4) : Color(.systemGray5)
+    }
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(habit.name)
                     .font(.headline)
+                    .foregroundStyle(.primary)
                 
-                Text(goalText)
+                Text("4 tasks to do")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -17,19 +27,26 @@ struct HabitRowView: View {
             Spacer()
             
             Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(.secondary)
         }
-        .padding()
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
+        .background(backgroundColor)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(strokeColor, lineWidth: 1)
+        )
     }
-    
-    private var goalText: String {
-        switch habit.type {
-        case .count:
-            return "\(Int(habit.goal))"
-        case .time:
-            let hours = Int(habit.goal) / 3600
-            let minutes = Int(habit.goal) / 60 % 60
-            return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
-        }
+}
+
+#Preview {
+    VStack(spacing: 16) {
+        HabitRowView(habit: Habit(name: "Getting Started"))
+        HabitRowView(habit: Habit(name: "Daily Exercise"))
+        HabitRowView(habit: Habit(name: "Read a Book"))
     }
+    .padding()
 }
