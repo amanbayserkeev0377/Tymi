@@ -5,6 +5,7 @@ struct HabitOptionsMenu: View {
     let onChangeValue: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
+    let onReset: () -> Void
     
     var body: some View {
         Menu {
@@ -14,6 +15,10 @@ struct HabitOptionsMenu: View {
             
             Button(action: onEdit) {
                 Text("Edit")
+            }
+            
+            Button(action: onReset) {
+                Text("Reset")
             }
             
             Divider()
@@ -36,62 +41,48 @@ struct HabitOptionsMenu: View {
 struct HabitDetailView: View {
     @StateObject private var viewModel: HabitDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var showDeleteConfirmation = false
-    @State private var showManualInput = false
-    @State private var manualInputValue = ""
     
-    var onEdit: ((Habit) -> Void)?
-    var onDelete: ((Habit) -> Void)?
-    var onUpdate: ((Habit, Double) -> Void)?
-    var onComplete: ((Habit) -> Void)?
+    let onEdit: (Habit) -> Void
+    let onDelete: (Habit) -> Void
+    let onUpdate: ((Habit, Double) -> Void)?
+    let onComplete: ((Habit) -> Void)?
     
     init(
         habit: Habit,
         habitStore: HabitStoreManager,
-        onEdit: ((Habit) -> Void)? = nil,
-        onDelete: ((Habit) -> Void)? = nil,
+        onEdit: @escaping (Habit) -> Void,
+        onDelete: @escaping (Habit) -> Void,
         onUpdate: ((Habit, Double) -> Void)? = nil,
         onComplete: ((Habit) -> Void)? = nil
     ) {
+        _viewModel = StateObject(wrappedValue: HabitDetailViewModel(habit: habit, habitStore: habitStore))
         self.onEdit = onEdit
         self.onDelete = onDelete
         self.onUpdate = onUpdate
         self.onComplete = onComplete
         
-        let vm = HabitDetailViewModel(habit: habit, habitStore: habitStore)
-        _viewModel = StateObject(wrappedValue: vm)
-        
-        vm.onUpdate = { [weak vm] value in
-            guard let habit = vm?.habit else { return }
+        viewModel.onUpdate = { value in
             onUpdate?(habit, value)
         }
         
-        vm.onComplete = { [weak vm] in
-            guard let habit = vm?.habit else { return }
+        viewModel.onComplete = {
             onComplete?(habit)
         }
     }
     
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("Progress")
-                                .font(.headline)
-                            Spacer()
-                            Text("\(Int(viewModel.currentValue)) / \(Int(viewModel.habit.goal))")
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        ProgressView(value: viewModel.progress)
-                            .tint(viewModel.isCompleted ? .green : .blue)
-                    }
-                    .padding(.vertical, 8)
-                }
-                
-                Section {
+            ScrollView {
+                VStack(spacing: 24) {
+                    ProgressCircleView(
+                        progress: viewModel.progress,
+                        goal: viewModel.habit.goal,
+                        type: viewModel.habit.type,
+                        isCompleted: viewModel.isCompleted,
+                        currentValue: viewModel.currentValue
+                    )
+                    .padding(.top, 20)
+                    
                     if viewModel.habit.type == .count {
                         Stepper("Count", value: $viewModel.currentValue, in: 0...Double.infinity, step: 1)
                     } else {
@@ -106,56 +97,31 @@ struct HabitDetailView: View {
                             }
                         }
                     }
-                    
-                    Button("Reset") {
-                        viewModel.reset()
-                    }
-                    .foregroundStyle(.red)
                 }
-                
-                Section {
-                    Button("Change Value") {
-                        showManualInput = true
-                    }
-                    
-                    Button("Edit Habit") {
-                        onEdit?(viewModel.habit)
-                    }
-                    
-                    Button("Delete Habit", role: .destructive) {
-                        showDeleteConfirmation = true
-                    }
-                }
+                .padding()
             }
             .navigationTitle(viewModel.habit.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
+                    HabitOptionsMenu(
+                        onChangeValue: { viewModel.showManualInputPanel() },
+                        onEdit: { onEdit(viewModel.habit) },
+                        onDelete: { onDelete(viewModel.habit) },
+                        onReset: { viewModel.reset() }
+                    )
                 }
             }
-            .alert("Delete Habit", isPresented: $showDeleteConfirmation) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
-                    onDelete?(viewModel.habit)
-                }
-            } message: {
-                Text("Are you sure you want to delete this habit? This action cannot be undone.")
-            }
-            .alert("Change Value", isPresented: $showManualInput) {
-                TextField("Value", text: $manualInputValue)
-                    .keyboardType(.numberPad)
-                
-                Button("Cancel", role: .cancel) { }
-                Button("OK") {
-                    if let value = Double(manualInputValue) {
+            .sheet(isPresented: $viewModel.showManualInput) {
+                ManualInputPanelView(
+                    type: viewModel.habit.type,
+                    isPresented: $viewModel.showManualInput,
+                    initialValue: viewModel.currentValue,
+                    isAddMode: viewModel.isAddMode,
+                    onSubmit: { value in
                         viewModel.setValue(value)
                     }
-                }
-            } message: {
-                Text("Enter a new value for this habit")
+                )
             }
         }
     }
@@ -204,11 +170,4 @@ struct ExpandedControls: View {
             }
         }
     }
-}
-
-#Preview {
-    HabitDetailView(
-        habit: Habit(name: "Morning Workout"),
-        habitStore: HabitStoreManager()
-    )
 }

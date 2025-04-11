@@ -6,8 +6,8 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Appearance") {
+            List {
+                Section {
                     Picker("Color Scheme", selection: $viewModel.colorSchemePreference) {
                         ForEach(ColorSchemePreference.allCases, id: \.self) { preference in
                             Text(preference.title).tag(preference)
@@ -22,7 +22,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {

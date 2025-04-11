@@ -14,7 +14,7 @@ struct TodayView: View {
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, d MMMM yyyy"
+        formatter.dateFormat = "EEEE, d MMM"
         formatter.locale = Locale(identifier: "en_US")
         return formatter
     }()
@@ -76,7 +76,8 @@ struct TodayView: View {
                     .padding(.top, 20)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(dateTitle)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
@@ -84,11 +85,6 @@ struct TodayView: View {
                     } label: {
                         Image(systemName: "gearshape")
                     }
-                }
-                
-                ToolbarItem(placement: .principal) {
-                    Text(dateTitle)
-                        .font(.headline)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -176,4 +172,5 @@ struct EmptyStateView: View {
     TodayView()
         .environmentObject(HabitStoreManager())
 }
+
 
