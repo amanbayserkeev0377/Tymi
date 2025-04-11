@@ -34,7 +34,7 @@ struct RepeatSection: View {
                         }
                     }
                 }
-                .onChange(of: selectedDays) { _ in
+                .onChange(of: selectedDays) {
                     repeatType = .weekly
                 }
             }

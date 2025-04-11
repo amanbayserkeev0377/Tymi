@@ -29,7 +29,7 @@ struct HabitOptionsMenu: View {
         } label: {
             Image(systemName: "ellipsis")
                 .font(.body.weight(.medium))
-                .frame(width: 44, height: 44)
+                .frame(width: 40, height: 40)
                 .contentShape(Rectangle())
         }
         .menuStyle(.borderlessButton)
@@ -40,6 +40,7 @@ struct HabitOptionsMenu: View {
 
 struct HabitDetailView: View {
     @StateObject private var viewModel: HabitDetailViewModel
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     
     let onEdit: (Habit) -> Void
@@ -60,14 +61,6 @@ struct HabitDetailView: View {
         self.onDelete = onDelete
         self.onUpdate = onUpdate
         self.onComplete = onComplete
-        
-        viewModel.onUpdate = { value in
-            onUpdate?(habit, value)
-        }
-        
-        viewModel.onComplete = {
-            onComplete?(habit)
-        }
     }
     
     var body: some View {
@@ -147,26 +140,33 @@ struct HabitDetailView: View {
                             )
                         }
                         .padding()
-                        .background(Color(.systemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         .padding(.horizontal)
                     }
                     
                     Button {
-                        viewModel.setValue(viewModel.habit.goal)
+                        viewModel.setValue(viewModel.habit.goal.doubleValue)
                     } label: {
                         Text("Complete")
                             .font(.body.weight(.medium))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(colorScheme == .light ? .white : .black)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
                             .background(
-                                Color(.label)
-                                    .clipShape(RoundedRectangle(cornerRadius: 28))
+                                (colorScheme == .light ? Color.black : Color.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 18))
                             )
                     }
                     .padding(.horizontal)
                     .padding(.top, 8)
+                }
+            }
+            .onAppear {
+                viewModel.onUpdate = { value in
+                    onUpdate?(viewModel.habit, value)
+                }
+                
+                viewModel.onComplete = {
+                    onComplete?(viewModel.habit)
                 }
             }
             .navigationTitle(viewModel.habit.name)
@@ -193,6 +193,7 @@ struct HabitDetailView: View {
                 )
             }
         }
+        .withBackground()
     }
 }
 

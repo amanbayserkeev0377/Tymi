@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct ProgressCircleView: View {
-    let progress: Double
-    let goal: Double
+    let progress: ValueType
+    let goal: GoalValue
     let type: HabitType
     let isCompleted: Bool
-    let currentValue: Double
+    let currentValue: ValueType
     
     @Environment(\.colorScheme) private var colorScheme
     
@@ -14,12 +14,12 @@ struct ProgressCircleView: View {
     }
     
     private var progressPercentage: Double {
-        min(progress / goal, 1.0)
+        min(progress.doubleValue / goal.doubleValue, 1.0)
     }
     
     private var overachievement: Double? {
-        if currentValue > goal {
-            return ((currentValue - goal) / goal) * 100
+        if currentValue.doubleValue > goal.doubleValue {
+            return ((currentValue.doubleValue - goal.doubleValue) / goal.doubleValue) * 100
         }
         return nil
     }
@@ -90,9 +90,9 @@ struct ProgressCircleView: View {
             
             // Center value
             VStack(spacing: 8) {
-                Text(isCompleted ? (currentValue > goal ? valueText : "Done") : valueText)
+                Text(isCompleted ? (currentValue.doubleValue > goal.doubleValue ? valueText : "Done") : valueText)
                     .font(.system(size: 44, weight: .semibold))
-                    .foregroundStyle(currentValue > goal ? .green : textColor)
+                    .foregroundStyle(currentValue.doubleValue > goal.doubleValue ? .green : textColor)
                     .contentTransition(.numericText())
                 
                 if type == .time && !isCompleted {
@@ -108,25 +108,37 @@ struct ProgressCircleView: View {
     private var valueText: String {
         switch type {
         case .count:
-            return "\(Int(currentValue))"
+            if case .count(let value) = currentValue {
+                return "\(value)"
+            }
+            return "0"
         case .time:
-            let hours = Int(currentValue) / 3600
-            let minutes = Int(currentValue) / 60 % 60
-            let seconds = Int(currentValue) % 60
-            return hours > 0
-            ? String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-            : String(format: "%02d:%02d", minutes, seconds)
+            if case .time(let value) = currentValue {
+                let hours = Int(value) / 3600
+                let minutes = Int(value) / 60 % 60
+                let seconds = Int(value) % 60
+                return hours > 0
+                ? String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+                : String(format: "%02d:%02d", minutes, seconds)
+            }
+            return "00:00"
         }
     }
     
     private var goalText: String {
         switch type {
         case .count:
-            return "\(Int(goal))"
+            if case .count(let value) = goal {
+                return "\(value)"
+            }
+            return "0"
         case .time:
-            let hours = Int(goal) / 3600
-            let minutes = Int(goal) / 60 % 60
-            return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
+            if case .time(let value) = goal {
+                let hours = Int(value) / 3600
+                let minutes = Int(value) / 60 % 60
+                return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
+            }
+            return "0m"
         }
     }
 }
@@ -139,11 +151,11 @@ struct ProgressCircleView: View {
             .ignoresSafeArea()
         
         ProgressCircleView(
-            progress: 116,
-            goal: 120,
+            progress: .count(116),
+            goal: .count(120),
             type: .count,
             isCompleted: false,
-            currentValue: 119
+            currentValue: .count(119)
         )
         .padding(40)
     }

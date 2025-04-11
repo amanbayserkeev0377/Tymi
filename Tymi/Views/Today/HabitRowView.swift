@@ -14,10 +14,10 @@ struct HabitRowView: View {
     
     private var goalText: String {
         if habit.type == .count {
-            return "\(Int(habit.goal))"
+            return "\(Int(habit.goal.doubleValue))"
         } else {
-            let hours = Int(habit.goal) / 3600
-            let minutes = Int(habit.goal) / 60 % 60
+            let hours = Int(habit.goal.doubleValue) / 3600
+            let minutes = Int(habit.goal.doubleValue) / 60 % 60
             
             if hours > 0 {
                 return "\(hours)h \(minutes)m"

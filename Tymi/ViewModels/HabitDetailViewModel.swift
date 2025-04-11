@@ -1,12 +1,31 @@
 import SwiftUI
 import Combine
 
+enum ValueType {
+    case count(Int32)
+    case time(Double)
+    
+    var doubleValue: Double {
+        switch self {
+        case .count(let value): return Double(value)
+        case .time(let value): return value
+        }
+    }
+    
+    static func fromDouble(_ value: Double, type: HabitType) -> ValueType {
+        switch type {
+        case .count: return .count(Int32(min(max(value, 0), Double(Int32.max))))
+        case .time: return .time(max(value, 0))
+        }
+    }
+}
+
 class HabitDetailViewModel: ObservableObject {
     let habit: Habit
     private let habitStore: HabitStoreManager
     
-    @Published var progress: Double = 0
-    @Published var currentValue: Double = 0
+    @Published var progress: ValueType
+    @Published var currentValue: ValueType
     @Published var isCompleted: Bool = false
     @Published var isExpanded: Bool = false
     @Published var showManualInput: Bool = false
@@ -19,8 +38,8 @@ class HabitDetailViewModel: ObservableObject {
     var onComplete: (() -> Void)?
     
     private struct ProgressAction {
-        let oldValue: Double
-        let newValue: Double
+        let oldValue: ValueType
+        let newValue: ValueType
         let type: ActionType
         let timestamp: Date
         
@@ -42,11 +61,73 @@ class HabitDetailViewModel: ObservableObject {
     
     private struct HabitState: Codable {
         let habitId: UUID
-        let currentValue: Double
+        let currentValue: ValueType
         let isCompleted: Bool
         let lastUpdate: Date
         let isPlaying: Bool
         let startTime: Date?
+        let habitType: HabitType
+        
+        init(habitId: UUID, currentValue: ValueType, isCompleted: Bool, lastUpdate: Date, isPlaying: Bool, startTime: Date?, habitType: HabitType) {
+            self.habitId = habitId
+            self.currentValue = currentValue
+            self.isCompleted = isCompleted
+            self.lastUpdate = lastUpdate
+            self.isPlaying = isPlaying
+            self.startTime = startTime
+            self.habitType = habitType
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case habitId, currentValue, isCompleted, lastUpdate, isPlaying, startTime, habitType
+            case countValue, timeValue, type
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            habitId = try container.decode(UUID.self, forKey: .habitId)
+            isCompleted = try container.decode(Bool.self, forKey: .isCompleted)
+            lastUpdate = try container.decode(Date.self, forKey: .lastUpdate)
+            isPlaying = try container.decode(Bool.self, forKey: .isPlaying)
+            startTime = try container.decodeIfPresent(Date.self, forKey: .startTime)
+            habitType = try container.decode(HabitType.self, forKey: .habitType)
+            
+            // Проверяем, есть ли старый формат (Double)
+            if let doubleValue = try? container.decode(Double.self, forKey: .currentValue) {
+                currentValue = ValueType.fromDouble(doubleValue, type: habitType)
+            } else {
+                let type = try container.decode(String.self, forKey: .type)
+                switch type {
+                case "count":
+                    let value = try container.decode(Int32.self, forKey: .countValue)
+                    currentValue = .count(value)
+                case "time":
+                    let value = try container.decode(Double.self, forKey: .timeValue)
+                    currentValue = .time(value)
+                default:
+                    throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid value type")
+                }
+            }
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(habitId, forKey: .habitId)
+            try container.encode(isCompleted, forKey: .isCompleted)
+            try container.encode(lastUpdate, forKey: .lastUpdate)
+            try container.encode(isPlaying, forKey: .isPlaying)
+            try container.encodeIfPresent(startTime, forKey: .startTime)
+            try container.encode(habitType, forKey: .habitType)
+            
+            switch currentValue {
+            case .count(let value):
+                try container.encode("count", forKey: .type)
+                try container.encode(value, forKey: .countValue)
+            case .time(let value):
+                try container.encode("time", forKey: .type)
+                try container.encode(value, forKey: .timeValue)
+            }
+        }
     }
     
     private var userDefaults: UserDefaults {
@@ -63,6 +144,8 @@ class HabitDetailViewModel: ObservableObject {
     init(habit: Habit, habitStore: HabitStoreManager) {
         self.habit = habit
         self.habitStore = habitStore
+        self.currentValue = habit.type == .count ? .count(0) : .time(0)
+        self.progress = habit.type == .count ? .count(0) : .time(0)
         loadState()
         feedbackGenerator.prepare()
         notificationGenerator.prepare()
@@ -96,10 +179,10 @@ class HabitDetailViewModel: ObservableObject {
         let increment = habit.type == .time ? amount * 60 : amount
         
         // Защита от переполнения
-        let newValue = currentValue + increment
-        guard !newValue.isInfinite && !newValue.isNaN else { return }
+        let newDoubleValue = currentValue.doubleValue + increment
+        guard !newDoubleValue.isInfinite && !newDoubleValue.isNaN else { return }
         
-        currentValue = newValue
+        currentValue = ValueType.fromDouble(newDoubleValue, type: habit.type)
         
         saveAction(
             .init(
@@ -124,9 +207,10 @@ class HabitDetailViewModel: ObservableObject {
         
         let decrement = habit.type == .time ? amount * 60 : amount
         let oldValue = currentValue
-        currentValue = max(0, currentValue - decrement)
+        let newDoubleValue = max(0, currentValue.doubleValue - decrement)
+        currentValue = ValueType.fromDouble(newDoubleValue, type: habit.type)
         
-        if oldValue != currentValue {
+        if oldValue.doubleValue != currentValue.doubleValue {
             feedbackGenerator.impactOccurred()
         }
         
@@ -143,12 +227,13 @@ class HabitDetailViewModel: ObservableObject {
         
         let oldValue = currentValue
         if isAddMode {
-            currentValue += value
+            let newDoubleValue = currentValue.doubleValue + value
+            currentValue = ValueType.fromDouble(newDoubleValue, type: habit.type)
         } else {
-            currentValue = value
+            currentValue = ValueType.fromDouble(value, type: habit.type)
         }
         
-        if oldValue != currentValue {
+        if oldValue.doubleValue != currentValue.doubleValue {
             feedbackGenerator.impactOccurred()
         }
         
@@ -171,16 +256,16 @@ class HabitDetailViewModel: ObservableObject {
         }
         
         let oldValue = currentValue
-        currentValue = 0
+        currentValue = habit.type == .count ? .count(0) : .time(0)
         
-        if oldValue != 0 {
+        if oldValue.doubleValue != 0 {
             notificationGenerator.notificationOccurred(.warning)
         }
         
         saveAction(
             .init(
                 oldValue: oldValue,
-                newValue: 0,
+                newValue: currentValue,
                 type: .reset,
                 timestamp: Date()
             )
@@ -248,8 +333,23 @@ class HabitDetailViewModel: ObservableObject {
                 isCompleted = state.isCompleted
                 isPlaying = state.isPlaying
                 startTime = state.startTime
+                
+                // Если таймер был запущен, учитываем прошедшее время
+                if isPlaying {
+                    let elapsed = Date().timeIntervalSince(state.lastUpdate)
+                    if elapsed > 0 && elapsed < 3600 { // Ограничиваем максимум 1 часом
+                        switch currentValue {
+                        case .time(let value):
+                            let newValue = value + elapsed
+                            currentValue = .time(newValue)
+                        default:
+                            break
+                        }
+                        updateProgress()
+                    }
+                    resumeTimerIfNeeded()
+                }
             }
-            resumeTimerIfNeeded()
         }
     }
     
@@ -273,7 +373,13 @@ class HabitDetailViewModel: ObservableObject {
             // Учитываем прошедшее время
             let elapsed = Date().timeIntervalSince(savedState.lastUpdate)
             if elapsed > 0 && elapsed < 3600 { // Ограничиваем максимум 1 часом
-                currentValue += elapsed
+                switch currentValue {
+                case .time(let value):
+                    let newValue = value + elapsed
+                    currentValue = .time(newValue)
+                default:
+                    break
+                }
                 updateProgress()
             }
         } else {
@@ -287,7 +393,7 @@ class HabitDetailViewModel: ObservableObject {
         isPlaying = false
         if let start = startTime {
             let elapsed = Date().timeIntervalSince(start)
-            currentValue += elapsed
+            currentValue = ValueType.fromDouble(currentValue.doubleValue + elapsed, type: habit.type)
             startTime = nil
             updateProgress()
         }
@@ -321,7 +427,7 @@ class HabitDetailViewModel: ObservableObject {
             
             // Ограничиваем максимальный интервал
             let cappedTimeDiff = min(timeDiff, 1.0)
-            let newValue = self.currentValue + cappedTimeDiff
+            let newValue = self.currentValue.doubleValue + cappedTimeDiff
             
             // Защита от переполнения
             guard newValue.isFinite && !newValue.isNaN else {
@@ -330,11 +436,11 @@ class HabitDetailViewModel: ObservableObject {
             }
             
             let oldValue = self.currentValue
-            self.currentValue = newValue
+            self.currentValue = ValueType.fromDouble(newValue, type: self.habit.type)
             self.lastTimerUpdate = now
             
             // Обновляем только при реальных изменениях
-            if oldValue != newValue {
+            if oldValue.doubleValue != newValue {
                 self.updateProgress()
             }
         }
@@ -377,88 +483,54 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     private func updateProgress() {
-        // Сначала проверяем валидность
-        guard !currentValue.isNaN && !currentValue.isInfinite else {
-            currentValue = 0
-            progress = 0
-            return
-        }
+        progress = ValueType.fromDouble(
+            min(currentValue.doubleValue, habit.goal.doubleValue),
+            type: habit.type
+        )
         
-        // Затем обновляем все значения
-        let oldProgress = progress
-        let newProgress = min(max(0, currentValue), habit.goal)
-        
-        // Проверяем, есть ли реальные изменения
-        guard oldProgress != newProgress else { return }
-        
-        // Обновляем только если есть изменения
-        progress = newProgress
-        let wasCompleted = isCompleted
-        isCompleted = currentValue >= habit.goal
-        
-        // Обрабатываем достижение цели
-        if isCompleted {
-            if isPlaying { pauseTimer() }
-            if !wasCompleted { 
-                handleGoalCompletion()
+        let isNowCompleted = currentValue.doubleValue >= habit.goal.doubleValue
+        if isNowCompleted != isCompleted {
+            isCompleted = isNowCompleted
+            if isCompleted {
                 notificationGenerator.notificationOccurred(.success)
+                onComplete?()
             }
         }
         
-        // Уведомляем об изменениях и сохраняем
-        onUpdate?(currentValue)
-        saveState()
-        
-        // Сохраняем прогресс в HabitStore
-        habitStore.saveProgress(
-            for: habit,
-            value: currentValue,
-            isCompleted: isCompleted
-        )
-    }
-    
-    private func handleGoalCompletion() {
-        isCompleted = true
-        if isPlaying { pauseTimer() }
-        onComplete?()
+        let doubleValue: Double = currentValue.doubleValue
+        onUpdate?(doubleValue)
     }
     
     private func loadState() {
-        if let state = loadFullState() {
-            currentValue = state.currentValue
-            isCompleted = state.isCompleted
-            isPlaying = state.isPlaying
-            startTime = state.startTime
-            
-            // Если таймер был запущен, учитываем прошедшее время
-            if isPlaying {
-                let elapsed = Date().timeIntervalSince(state.lastUpdate)
-                if elapsed > 0 && elapsed < 3600 { // Ограничиваем максимум 1 часом
-                    currentValue += elapsed
-                }
-            }
-        } else if let progress = habitStore.getProgress(for: habit) {
-            currentValue = progress.value
-            isCompleted = progress.isCompleted
-        } else {
-            currentValue = 0
-            isCompleted = false
+        guard let data = userDefaults.data(forKey: stateKey),
+              let state = try? JSONDecoder().decode(HabitState.self, from: data),
+              state.habitId == habit.id
+        else {
+            return
         }
         
-        // Защита от некорректных значений при загрузке
-        if currentValue.isNaN || currentValue.isInfinite || currentValue < 0 {
-            currentValue = 0
-        }
+        currentValue = state.currentValue
+        isCompleted = state.isCompleted
+        isPlaying = state.isPlaying
+        startTime = state.startTime
         
         updateProgress()
     }
     
     private func saveState() {
-        habitStore.saveProgress(
-            for: habit,
-            value: currentValue,
-            isCompleted: isCompleted
+        let state = HabitState(
+            habitId: habit.id,
+            currentValue: currentValue,
+            isCompleted: isCompleted,
+            lastUpdate: Date(),
+            isPlaying: isPlaying,
+            startTime: startTime,
+            habitType: habit.type
         )
+        
+        if let data = try? JSONEncoder().encode(state) {
+            userDefaults.set(data, forKey: stateKey)
+        }
     }
     
     private func saveFullState() {
@@ -468,11 +540,12 @@ class HabitDetailViewModel: ObservableObject {
             isCompleted: isCompleted,
             lastUpdate: Date(),
             isPlaying: isPlaying,
-            startTime: startTime
+            startTime: startTime,
+            habitType: habit.type
         )
         
-        if let encoded = try? JSONEncoder().encode(state) {
-            userDefaults.set(encoded, forKey: stateKey)
+        if let data = try? JSONEncoder().encode(state) {
+            userDefaults.set(data, forKey: stateKey)
         }
     }
     
@@ -483,10 +556,11 @@ class HabitDetailViewModel: ObservableObject {
         else {
             return nil
         }
+        
         return state
     }
     
     deinit {
         pauseTimer()
     }
-} 
+}

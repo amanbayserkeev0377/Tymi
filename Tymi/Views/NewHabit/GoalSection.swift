@@ -17,7 +17,7 @@ struct GoalSection: View {
                 
                 Text("Daily Goal")
                 Spacer()
-                Text(type == .count ? "\(Int(goal))" : formatTime(goal))
+                Text(type == .count ? String(format: "%.0f", goal) : formatTime(goal))
                     .foregroundStyle(.secondary)
             }
         }
@@ -25,7 +25,7 @@ struct GoalSection: View {
     
     private func formatTime(_ seconds: Double) -> String {
         let hours = Int(seconds) / 3600
-        let minutes = Int(seconds) / 60 % 60
+        let minutes = Int(seconds.truncatingRemainder(dividingBy: 3600)) / 60
         
         if hours > 0 {
             return "\(hours)h \(minutes)m"
@@ -74,7 +74,7 @@ struct GoalDetailView: View {
                             }
                         }
                         .onAppear {
-                            countText = "\(Int(goal))"
+                            countText = String(format: "%.0f", goal)
                         }
                 } else {
                     HStack {
@@ -123,10 +123,10 @@ struct GoalDetailView: View {
     
     private func updateUI() {
         if type == .count {
-            countText = "\(Int(goal))"
+            countText = String(format: "%.0f", goal)
         } else {
             hours = Int(goal) / 3600
-            minutes = Int(goal) / 60 % 60
+            minutes = Int(goal.truncatingRemainder(dividingBy: 3600)) / 60
         }
     }
 }

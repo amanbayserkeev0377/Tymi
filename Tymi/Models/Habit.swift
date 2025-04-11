@@ -1,10 +1,55 @@
 import Foundation
 
+enum GoalValue: Codable {
+    case count(Int32)
+    case time(Double)
+    
+    // Реализация Codable
+    enum CodingKeys: String, CodingKey {
+        case type, countValue, timeValue
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+        switch type {
+        case "count":
+            let value = try container.decode(Int32.self, forKey: .countValue)
+            self = .count(value)
+        case "time":
+            let value = try container.decode(Double.self, forKey: .timeValue)
+            self = .time(value)
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid goal type")
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .count(let value):
+            try container.encode("count", forKey: .type)
+            try container.encode(value, forKey: .countValue)
+        case .time(let value):
+            try container.encode("time", forKey: .type)
+            try container.encode(value, forKey: .timeValue)
+        }
+    }
+    
+    // Геттер для получения значения как Double (для совместимости)
+    var doubleValue: Double {
+        switch self {
+        case .count(let value): return Double(value)
+        case .time(let value): return value
+        }
+    }
+}
+
 struct Habit: Identifiable, Codable, Hashable {
     let id: UUID
     var name: String
     var type: HabitType
-    var goal: Double
+    var goal: GoalValue
     var startDate: Date
     var activeDays: Set<Int> // 1 = Sunday, 2 = Monday, ..., 7 = Saturday (Calendar.current.firstWeekday)
     var reminders: [Reminder]
@@ -14,7 +59,7 @@ struct Habit: Identifiable, Codable, Hashable {
         id: UUID = UUID(),
         name: String = "",
         type: HabitType = .count,
-        goal: Double = 1,
+        goal: GoalValue? = nil,
         startDate: Date = Date(),
         activeDays: Set<Int> = Set(1...7),
         reminders: [Reminder] = [],
@@ -23,7 +68,7 @@ struct Habit: Identifiable, Codable, Hashable {
         self.id = id
         self.name = name
         self.type = type
-        self.goal = goal
+        self.goal = goal ?? (type == .count ? .count(1) : .time(1))
         self.startDate = startDate
         self.activeDays = activeDays
         self.reminders = reminders

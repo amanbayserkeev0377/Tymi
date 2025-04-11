@@ -53,6 +53,13 @@ struct NewHabitView: View {
                     .disabled(!viewModel.isValid)
                 }
             }
+            .alert("Goal Limit Reached", isPresented: $viewModel.showLimitAlert) {
+                Button("OK") {
+                    viewModel.showLimitAlert = false
+                }
+            } message: {
+                Text("Maximum goal for Count is 2,147,483,647, for Timer is 999 hours 59 minutes.")
+            }
         }
     }
 }
