@@ -27,7 +27,6 @@ class HabitDetailViewModel: ObservableObject {
     @Published var progress: ValueType
     @Published var currentValue: ValueType
     @Published var isCompleted: Bool = false
-    @Published var isExpanded: Bool = false
     @Published var showManualInput: Bool = false
     @Published var isPlaying: Bool = false
     @Published var canUndo: Bool = false
@@ -42,6 +41,15 @@ class HabitDetailViewModel: ObservableObject {
         let newValue: ValueType
         let type: ActionType
         let timestamp: Date
+        let addedAmount: Double?
+        
+        init(oldValue: ValueType, newValue: ValueType, type: ActionType, timestamp: Date, addedAmount: Double? = nil) {
+            self.oldValue = oldValue
+            self.newValue = newValue
+            self.type = type
+            self.timestamp = timestamp
+            self.addedAmount = addedAmount
+        }
         
         enum ActionType: Equatable {
             case increment(amount: Double)
@@ -189,7 +197,8 @@ class HabitDetailViewModel: ObservableObject {
                 oldValue: oldValue,
                 newValue: currentValue,
                 type: .increment(amount: amount),
-                timestamp: Date()
+                timestamp: Date(),
+                addedAmount: increment
             )
         )
         
@@ -237,12 +246,14 @@ class HabitDetailViewModel: ObservableObject {
             feedbackGenerator.impactOccurred()
         }
         
+        let addedAmount = isAddMode ? value : value - oldValue.doubleValue
         saveAction(
             .init(
                 oldValue: oldValue,
                 newValue: currentValue,
                 type: .manualInput,
-                timestamp: Date()
+                timestamp: Date(),
+                addedAmount: addedAmount
             )
         )
         
@@ -267,7 +278,8 @@ class HabitDetailViewModel: ObservableObject {
                 oldValue: oldValue,
                 newValue: currentValue,
                 type: .reset,
-                timestamp: Date()
+                timestamp: Date(),
+                addedAmount: nil
             )
         )
         
@@ -299,13 +311,16 @@ class HabitDetailViewModel: ObservableObject {
         
         switch action.type {
         case .increment, .manualInput:
-            currentValue = action.oldValue
-            lastAction = nil
-            canUndo = false
-            
-            feedbackGenerator.impactOccurred()
-            updateProgress()
-            saveState()
+            if let amount = action.addedAmount {
+                let newDoubleValue = max(0, currentValue.doubleValue - amount)
+                currentValue = ValueType.fromDouble(newDoubleValue, type: habit.type)
+                lastAction = nil
+                canUndo = false
+                
+                feedbackGenerator.impactOccurred()
+                updateProgress()
+                saveState()
+            }
         case .reset:
             canUndo = false
         }
