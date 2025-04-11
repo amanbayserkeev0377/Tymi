@@ -114,38 +114,7 @@ struct HabitDetailView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-                
-                Spacer()
-                
-                Text(viewModel.habit.name)
-                    .font(.headline)
-                
-                Spacer()
-                
-                Button {
-                    viewModel.showOptions = true
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(.horizontal)
-            .padding(.top, 8)
-            .padding(.bottom, 16)
-            
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
                     // Progress Circle
@@ -261,6 +230,18 @@ struct HabitDetailView: View {
                     .padding(.top, 8)
                 }
             }
+            .navigationTitle(viewModel.habit.name)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HabitOptionsMenu(
+                        onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
+                        onEdit: { onEdit(viewModel.habit) },
+                        onDelete: { onDelete(viewModel.habit) },
+                        onReset: { viewModel.reset() }
+                    )
+                }
+            }
         }
         .background(backgroundColor)
         .onAppear {
@@ -281,14 +262,6 @@ struct HabitDetailView: View {
                 onSubmit: { value in
                     viewModel.setValue(value)
                 }
-            )
-        }
-        .sheet(isPresented: $viewModel.showOptions) {
-            HabitOptionsMenu(
-                onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
-                onEdit: { onEdit(viewModel.habit) },
-                onDelete: { onDelete(viewModel.habit) },
-                onReset: { viewModel.reset() }
             )
         }
     }
