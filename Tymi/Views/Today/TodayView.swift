@@ -12,10 +12,10 @@ struct TodayView: View {
     private let feedback = UIImpactFeedbackGenerator(style: .light)
     
     private let calendar = Calendar.current
-    private let relativeDateFormatter: DateFormatter = {
+    private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, d MMM yyyy"
-        formatter.doesRelativeDateFormatting = true
+        formatter.dateFormat = "EEEE, d MMMM yyyy"
+        formatter.locale = Locale(identifier: "en_US")
         return formatter
     }()
     
@@ -28,7 +28,7 @@ struct TodayView: View {
         } else if calendar.isDate(selected, equalTo: calendar.date(byAdding: .day, value: -1, to: today)!, toGranularity: .day) {
             return "Yesterday"
         } else {
-            return relativeDateFormatter.string(from: selected)
+            return dateFormatter.string(from: selected)
         }
     }
     
@@ -48,7 +48,25 @@ struct TodayView: View {
                 } else {
                     VStack(alignment: .leading, spacing: 16) {
                         ForEach(habitsForSelectedDate) { habit in
-                            NavigationLink(value: habit) {
+                            NavigationLink {
+                                HabitDetailView(
+                                    habit: habit,
+                                    habitStore: habitStore,
+                                    onEdit: { habit in
+                                        editingHabit = habit
+                                        showingNewHabit = true
+                                    },
+                                    onDelete: { habit in
+                                        habitStore.deleteHabit(habit)
+                                    },
+                                    onUpdate: { habit, value in
+                                        // TODO: Implement progress update
+                                    },
+                                    onComplete: { habit in
+                                        // TODO: Implement completion
+                                    }
+                                )
+                            } label: {
                                 HabitRowView(habit: habit)
                             }
                             .buttonStyle(.plain)
@@ -69,19 +87,23 @@ struct TodayView: View {
                 }
                 
                 ToolbarItem(placement: .principal) {
-                    Button {
-                        showingCalendar = true
-                    } label: {
-                        Text(dateTitle)
-                            .font(.headline)
-                    }
+                    Text(dateTitle)
+                        .font(.headline)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingNewHabit = true
-                    } label: {
-                        Image(systemName: "plus")
+                    HStack(spacing: 16) {
+                        Button {
+                            showingCalendar = true
+                        } label: {
+                            Image(systemName: "calendar")
+                        }
+                        
+                        Button {
+                            showingNewHabit = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
             }
@@ -106,26 +128,6 @@ struct TodayView: View {
                 NavigationStack {
                     SettingsView(isPresented: $showingSettings)
                 }
-            }
-            .navigationDestination(for: Habit.self) { habit in
-                HabitDetailView(
-                    habit: habit,
-                    habitStore: habitStore,
-                    isPresented: .constant(true),
-                    onEdit: { habit in
-                        editingHabit = habit
-                        showingNewHabit = true
-                    },
-                    onDelete: { habit in
-                        habitStore.deleteHabit(habit)
-                    },
-                    onUpdate: { habit, value in
-                        // TODO: Implement progress update
-                    },
-                    onComplete: { habit in
-                        // TODO: Implement completion
-                    }
-                )
             }
             .sheet(isPresented: $showingCalendar) {
                 CalendarPickerView(selectedDate: $selectedDate)

@@ -35,10 +35,10 @@ struct HabitOptionsMenu: View {
 
 struct HabitDetailView: View {
     @StateObject private var viewModel: HabitDetailViewModel
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.scenePhase) private var scenePhase
-    @Binding var isPresented: Bool
+    @Environment(\.dismiss) private var dismiss
     @State private var showDeleteConfirmation = false
+    @State private var showManualInput = false
+    @State private var manualInputValue = ""
     
     var onEdit: ((Habit) -> Void)?
     var onDelete: ((Habit) -> Void)?
@@ -48,13 +48,11 @@ struct HabitDetailView: View {
     init(
         habit: Habit,
         habitStore: HabitStoreManager,
-        isPresented: Binding<Bool>,
         onEdit: ((Habit) -> Void)? = nil,
         onDelete: ((Habit) -> Void)? = nil,
         onUpdate: ((Habit, Double) -> Void)? = nil,
         onComplete: ((Habit) -> Void)? = nil
     ) {
-        _isPresented = isPresented
         self.onEdit = onEdit
         self.onDelete = onDelete
         self.onUpdate = onUpdate
@@ -75,162 +73,90 @@ struct HabitDetailView: View {
     }
     
     var body: some View {
-        ZStack {
-            if viewModel.showManualInput {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            viewModel.showManualInput = false
+        NavigationStack {
+            List {
+                Section {
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Progress")
+                                .font(.headline)
+                            Spacer()
+                            Text("\(Int(viewModel.currentValue)) / \(Int(viewModel.habit.goal))")
+                                .foregroundStyle(.secondary)
                         }
-                    }
-            }
-            
-            VStack(spacing: 0) {
-                VStack(spacing: 32) {
-                    // Options Menu
-                    HStack {
-                        Text(goalText)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
                         
-                        Spacer()
-                        
-                        HabitOptionsMenu(
-                            onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
-                            onEdit: { onEdit?(viewModel.habit) },
-                            onDelete: { showDeleteConfirmation = true }
-                        )
+                        ProgressView(value: viewModel.progress)
+                            .tint(viewModel.isCompleted ? .green : .blue)
                     }
-                    .padding(.horizontal, 24)
-                    
-                    // Progress Circle
-                    ProgressCircleView(
-                        progress: viewModel.progress,
-                        goal: viewModel.habit.goal,
-                        type: viewModel.habit.type,
-                        isCompleted: viewModel.isCompleted,
-                        currentValue: viewModel.currentValue
-                    )
-                    .padding(.vertical, 16)
-                    
-                    // Action Buttons Row
-                    HStack(spacing: 16) {
-                        if viewModel.habit.type == .count {
-                            Button {
-                                viewModel.decrement()
-                            } label: {
-                                Image(systemName: "minus")
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 44, height: 44)
-                                    .background(.ultraThinMaterial)
-                                    .clipShape(Circle())
-                            }
-                            
-                            Button {
-                                viewModel.increment()
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 44, height: 44)
-                                    .background(.ultraThinMaterial)
-                                    .clipShape(Circle())
-                            }
-                        } else {
+                    .padding(.vertical, 8)
+                }
+                
+                Section {
+                    if viewModel.habit.type == .count {
+                        Stepper("Count", value: $viewModel.currentValue, in: 0...Double.infinity, step: 1)
+                    } else {
+                        HStack {
+                            Text("Timer")
+                            Spacer()
                             Button {
                                 viewModel.toggleTimer()
                             } label: {
-                                Image(systemName: viewModel.isPlaying ? "pause" : "play")
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 44, height: 44)
-                                    .background(.ultraThinMaterial)
-                                    .clipShape(Circle())
-                            }
-                        }
-                        
-                        Button {
-                            viewModel.showManualInputPanel(isAdd: true)
-                        } label: {
-                            Image(systemName: "plus.forwardslash.minus")
-                                .font(.body.weight(.medium))
-                                .foregroundStyle(.primary)
-                                .frame(width: 44, height: 44)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                        }
-                        
-                        Button {
-                            viewModel.reset()
-                        } label: {
-                            Image(systemName: "arrow.counterclockwise")
-                                .font(.body.weight(.medium))
-                                .foregroundStyle(.primary)
-                                .frame(width: 44, height: 44)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                        }
-                        
-                        if viewModel.canUndo {
-                            Button {
-                                viewModel.undo()
-                            } label: {
-                                Image(systemName: "arrow.uturn.backward")
-                                    .font(.body.weight(.medium))
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 44, height: 44)
-                                    .background(.ultraThinMaterial)
-                                    .clipShape(Circle())
+                                Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
+                                    .foregroundStyle(viewModel.isPlaying ? .red : .green)
                             }
                         }
                     }
-                    .padding(.horizontal, 24)
+                    
+                    Button("Reset") {
+                        viewModel.reset()
+                    }
+                    .foregroundStyle(.red)
                 }
-                .padding(.vertical, 24)
+                
+                Section {
+                    Button("Change Value") {
+                        showManualInput = true
+                    }
+                    
+                    Button("Edit Habit") {
+                        onEdit?(viewModel.habit)
+                    }
+                    
+                    Button("Delete Habit", role: .destructive) {
+                        showDeleteConfirmation = true
+                    }
+                }
             }
-            
-            if viewModel.showManualInput {
-                ManualInputPanelView(
-                    type: viewModel.habit.type,
-                    isPresented: $viewModel.showManualInput,
-                    initialValue: viewModel.currentValue,
-                    isAddMode: viewModel.isAddMode,
-                    onSubmit: { value in
+            .navigationTitle(viewModel.habit.name)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+            .alert("Delete Habit", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    onDelete?(viewModel.habit)
+                }
+            } message: {
+                Text("Are you sure you want to delete this habit? This action cannot be undone.")
+            }
+            .alert("Change Value", isPresented: $showManualInput) {
+                TextField("Value", text: $manualInputValue)
+                    .keyboardType(.numberPad)
+                
+                Button("Cancel", role: .cancel) { }
+                Button("OK") {
+                    if let value = Double(manualInputValue) {
                         viewModel.setValue(value)
                     }
-                )
+                }
+            } message: {
+                Text("Enter a new value for this habit")
             }
-        }
-        .onChange(of: scenePhase) { oldPhase, newPhase in
-            switch newPhase {
-            case .active:
-                viewModel.onAppear()
-            case .inactive, .background:
-                viewModel.onDisappear()
-            @unknown default:
-                break
-            }
-        }
-        .alert("Delete Habit", isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
-                onDelete?(viewModel.habit)
-            }
-        } message: {
-            Text("Are you sure you want to delete this habit? This action cannot be undone.")
-        }
-    }
-    
-    private var goalText: String {
-        switch viewModel.habit.type {
-        case .count:
-            return "\(Int(viewModel.habit.goal)) times"
-        case .time:
-            let hours = Int(viewModel.habit.goal) / 3600
-            let minutes = Int(viewModel.habit.goal) / 60 % 60
-            return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
         }
     }
 }
@@ -278,4 +204,11 @@ struct ExpandedControls: View {
             }
         }
     }
+}
+
+#Preview {
+    HabitDetailView(
+        habit: Habit(name: "Morning Workout"),
+        habitStore: HabitStoreManager()
+    )
 }

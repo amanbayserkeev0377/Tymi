@@ -12,6 +12,21 @@ struct HabitRowView: View {
         colorScheme == .dark ? Color(.systemGray4) : Color(.systemGray5)
     }
     
+    private var goalText: String {
+        if habit.type == .count {
+            return "\(Int(habit.goal))"
+        } else {
+            let hours = Int(habit.goal) / 3600
+            let minutes = Int(habit.goal) / 60 % 60
+            
+            if hours > 0 {
+                return "\(hours)h \(minutes)m"
+            } else {
+                return "\(minutes)m"
+            }
+        }
+    }
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
@@ -19,7 +34,7 @@ struct HabitRowView: View {
                     .font(.headline)
                     .foregroundStyle(.primary)
                 
-                Text("4 tasks to do")
+                Text("\(goalText)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

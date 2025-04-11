@@ -6,7 +6,7 @@ struct Habit: Identifiable, Codable, Hashable {
     var type: HabitType
     var goal: Double
     var startDate: Date
-    var activeDays: Set<Int> // 1 = Monday, 7 = Sunday
+    var activeDays: Set<Int> // 1 = Sunday, 2 = Monday, ..., 7 = Saturday (Calendar.current.firstWeekday)
     var reminders: [Reminder]
     var isArchived: Bool
     
@@ -50,37 +50,6 @@ enum HabitType: String, Codable, CaseIterable {
             return "Count"
         case .time:
             return "Timer"
-        }
-    }
-    
-    var systemImage: String {
-        switch self {
-        case .count:
-            return "number"
-        case .time:
-            return "timer"
-        }
-    }
-}
-
-enum Weekday: Int, CaseIterable, Codable {
-    case monday = 1
-    case tuesday = 2
-    case wednesday = 3
-    case thursday = 4
-    case friday = 5
-    case saturday = 6
-    case sunday = 7
-    
-    var shortName: String {
-        switch self {
-        case .monday: return "Mon"
-        case .tuesday: return "Tue"
-        case .wednesday: return "Wed"
-        case .thursday: return "Thu"
-        case .friday: return "Fri"
-        case .saturday: return "Sat"
-        case .sunday: return "Sun"
         }
     }
 }

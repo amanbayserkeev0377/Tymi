@@ -30,7 +30,7 @@ final class NewHabitViewModel: ObservableObject {
             self.type = habit.type
             self.goal = habit.goal
             self.selectedDays = habit.activeDays
-            self.reminder = habit.reminders.first ?? Reminder()
+            self.reminder = habit.reminders.first(where: { $0.isEnabled }) ?? Reminder()
             self.startDate = habit.startDate
             self.repeatType = habit.activeDays.count == 7 ? .daily : .weekly
         }

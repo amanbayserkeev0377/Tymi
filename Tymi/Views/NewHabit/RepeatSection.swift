@@ -60,15 +60,21 @@ struct RepeatSection: View {
         case .daily:
             return "Every day"
         case .weekly:
-            let days = selectedDays.sorted().map { dayNumberToString($0) }
-            return days.isEmpty ? "Select days" : days.joined(separator: ", ")
+            let calendar = Calendar.current
+            let firstWeekday = calendar.firstWeekday
+            
+            return selectedDays.sorted { day1, day2 in
+                let adjustedDay1 = ((day1 - firstWeekday + 7) % 7)
+                let adjustedDay2 = ((day2 - firstWeekday + 7) % 7)
+                return adjustedDay1 < adjustedDay2
+            }.map { dayNumberToString($0) }.joined(separator: ", ")
         }
     }
     
     private func dayNumberToString(_ day: Int) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US")
-        return formatter.shortWeekdaySymbols[day == 1 ? 6 : day - 2]
+        return formatter.shortWeekdaySymbols[day - 1]
     }
 }
 
@@ -76,15 +82,18 @@ struct WeekdaySelectionView: View {
     @Binding var selectedDays: Set<Int>
     @Environment(\.dismiss) private var dismiss
     
-    private let weekdays = [
-        (2, "Monday"),
-        (3, "Tuesday"),
-        (4, "Wednesday"),
-        (5, "Thursday"),
-        (6, "Friday"),
-        (7, "Saturday"),
-        (1, "Sunday")
-    ]
+    private var weekdays: [(Int, String)] {
+        let calendar = Calendar.current
+        let firstWeekday = calendar.firstWeekday // 1 = Sunday, 2 = Monday, etc.
+        
+        return (0...6).map { offset in
+            let day = ((firstWeekday - 1 + offset) % 7) + 1
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US")
+            let name = formatter.weekdaySymbols[day - 1]
+            return (day, name)
+        }
+    }
     
     var body: some View {
         Form {
@@ -116,10 +125,20 @@ struct WeekdaySelectionView: View {
     }
     
     private var selectedDaysDescription: String {
-        weekdays
-            .filter { selectedDays.contains($0.0) }
-            .map { $0.1 }
-            .joined(separator: ", ")
+        let calendar = Calendar.current
+        let firstWeekday = calendar.firstWeekday
+        
+        return selectedDays.sorted { day1, day2 in
+            let adjustedDay1 = ((day1 - firstWeekday + 7) % 7)
+            let adjustedDay2 = ((day2 - firstWeekday + 7) % 7)
+            return adjustedDay1 < adjustedDay2
+        }.map { dayNumberToString($0) }.joined(separator: ", ")
+    }
+    
+    private func dayNumberToString(_ day: Int) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.shortWeekdaySymbols[day - 1]
     }
     
     private func toggleDay(_ day: Int) {

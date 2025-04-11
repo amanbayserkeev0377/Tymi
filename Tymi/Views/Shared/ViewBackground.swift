@@ -15,7 +15,7 @@ struct ViewBackground: View {
             )
             .ignoresSafeArea()
         } else {
-            Color(red: 0.96, green: 0.96, blue: 0.98) // Нежный серо-фиолетовый как в Craft
+            Color(red: 0.96, green: 0.96, blue: 0.98)
                 .ignoresSafeArea()
         }
     }
