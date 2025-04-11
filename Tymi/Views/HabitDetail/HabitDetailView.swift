@@ -83,29 +83,98 @@ struct HabitDetailView: View {
                     )
                     .padding(.top, 20)
                     
-                    if viewModel.habit.type == .count {
-                        Stepper("Count", value: $viewModel.currentValue, in: 0...Double.infinity, step: 1)
-                    } else {
-                        HStack {
-                            Text("Timer")
-                            Spacer()
-                            Button {
-                                viewModel.toggleTimer()
-                            } label: {
-                                Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-                                    .foregroundStyle(viewModel.isPlaying ? .red : .green)
-                            }
+                    HStack(spacing: 16) {
+                        Button {
+                            viewModel.undo()
+                        } label: {
+                            Image(systemName: "arrow.uturn.backward")
+                                .font(.system(size: 20, weight: .medium))
                         }
+                        .buttonStyle(GlassButtonStyle())
+                        .disabled(!viewModel.canUndo)
+                        
+                        Button {
+                            viewModel.decrement()
+                        } label: {
+                            Image(systemName: "minus")
+                                .font(.system(size: 20, weight: .medium))
+                        }
+                        .buttonStyle(GlassButtonStyle())
+                        
+                        Button {
+                            viewModel.increment()
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .medium))
+                        }
+                        .buttonStyle(GlassButtonStyle())
+                        
+                        Button {
+                            withAnimation {
+                                viewModel.isExpanded.toggle()
+                            }
+                        } label: {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 20, weight: .medium))
+                                .rotationEffect(.degrees(viewModel.isExpanded ? 90 : 0))
+                        }
+                        .buttonStyle(GlassButtonStyle())
                     }
+                    .padding(.horizontal)
+                    
+                    if viewModel.isExpanded {
+                        VStack(spacing: 16) {
+                            if viewModel.habit.type == .time {
+                                HStack {
+                                    Text("Timer")
+                                    Spacer()
+                                    Button {
+                                        viewModel.toggleTimer()
+                                    } label: {
+                                        Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
+                                            .foregroundStyle(viewModel.isPlaying ? .red : .green)
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                            
+                            ExpandedControls(
+                                onDecrementLarge: { viewModel.decrement(by: 30) },
+                                onDecrementSmall: { viewModel.decrement(by: 10) },
+                                onIncrementSmall: { viewModel.increment(by: 10) },
+                                onIncrementLarge: { viewModel.increment(by: 30) },
+                                onManualInput: { viewModel.showManualInputPanel(isAdd: true) }
+                            )
+                        }
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
+                    }
+                    
+                    Button {
+                        viewModel.setValue(viewModel.habit.goal)
+                    } label: {
+                        Text("Complete")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(
+                                Color(.label)
+                                    .clipShape(RoundedRectangle(cornerRadius: 28))
+                            )
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 8)
                 }
-                .padding()
             }
             .navigationTitle(viewModel.habit.name)
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HabitOptionsMenu(
-                        onChangeValue: { viewModel.showManualInputPanel() },
+                        onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
                         onEdit: { onEdit(viewModel.habit) },
                         onDelete: { onDelete(viewModel.habit) },
                         onReset: { viewModel.reset() }
@@ -116,7 +185,7 @@ struct HabitDetailView: View {
                 ManualInputPanelView(
                     type: viewModel.habit.type,
                     isPresented: $viewModel.showManualInput,
-                    initialValue: viewModel.currentValue,
+                    initialValue: nil,
                     isAddMode: viewModel.isAddMode,
                     onSubmit: { value in
                         viewModel.setValue(value)
