@@ -208,7 +208,7 @@ class HabitDetailViewModel: ObservableObject {
         }
         
         let oldValue = currentValue
-        let increment = amount
+        let increment = habit.type == .time ? amount * 60 : amount
         
         let newDoubleValue = currentValue.doubleValue + increment
         guard !newDoubleValue.isInfinite && !newDoubleValue.isNaN else { return }

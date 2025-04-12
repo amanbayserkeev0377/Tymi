@@ -48,6 +48,7 @@ struct HabitDetailView: View {
     @State private var isTimerPressed: Bool = false
     @State private var isIncrementPressed: Bool = false
     @State private var dynamicButtonPressed: [String: Bool] = [:]
+    @State private var showingDeleteAlert: Bool = false
     
     let onEdit: (Habit) -> Void
     let onDelete: (Habit) -> Void
@@ -96,13 +97,13 @@ struct HabitDetailView: View {
             }
         } else {
             if goalValue >= 600 { // 10 минут
-                buttons.append(.init(label: "+5m", amount: 5 * 60))
+                buttons.append(.init(label: "+5m", amount: 5))
             }
             if goalValue >= 3600 { // 1 час
-                buttons.append(.init(label: "+30m", amount: 30 * 60))
+                buttons.append(.init(label: "+30m", amount: 30))
             }
             if goalValue >= 7200 { // 2 часа
-                buttons.append(.init(label: "+60m", amount: 60 * 60))
+                buttons.append(.init(label: "+60m", amount: 60))
             }
         }
         return buttons
@@ -237,10 +238,19 @@ struct HabitDetailView: View {
                     HabitOptionsMenu(
                         onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
                         onEdit: { onEdit(viewModel.habit) },
-                        onDelete: { onDelete(viewModel.habit) },
+                        onDelete: { showingDeleteAlert = true },
                         onReset: { viewModel.reset() }
                     )
                 }
+            }
+            .alert("Delete Habit", isPresented: $showingDeleteAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    onDelete(viewModel.habit)
+                    dismiss()
+                }
+            } message: {
+                Text("All data will be permanently deleted. This action cannot be undone.")
             }
         }
         .background(backgroundColor)
