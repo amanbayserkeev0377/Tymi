@@ -118,17 +118,53 @@ struct HabitDetailView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Progress Circle
-                    ProgressCircleView(
-                        progress: viewModel.progress,
-                        goal: viewModel.habit.goal,
-                        type: viewModel.habit.type,
-                        isCompleted: viewModel.isCompleted,
-                        currentValue: viewModel.currentValue
-                    )
-                    .frame(height: 200)
+                    // Progress Circle with side buttons
+                    HStack(spacing: 16) {
+                        // Minus button
+                        Button {
+                            viewModel.decrement()
+                        } label: {
+                            Image(systemName: "minus")
+                                .font(.system(size: 20, weight: .medium))
+                        }
+                        .buttonStyle(GlassButtonStyle())
+                        .scaleEffect(isDecrementPressed ? 0.95 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: isDecrementPressed)
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { _ in isDecrementPressed = true }
+                                .onEnded { _ in isDecrementPressed = false }
+                        )
+                        
+                        // Progress Circle
+                        ProgressCircleView(
+                            progress: viewModel.progress,
+                            goal: viewModel.habit.goal,
+                            type: viewModel.habit.type,
+                            isCompleted: viewModel.isCompleted,
+                            currentValue: viewModel.currentValue
+                        )
+                        .frame(height: 200)
+                        
+                        // Plus button
+                        Button {
+                            viewModel.increment()
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .medium))
+                        }
+                        .buttonStyle(GlassButtonStyle())
+                        .scaleEffect(isIncrementPressed ? 0.95 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: isIncrementPressed)
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { _ in isIncrementPressed = true }
+                                .onEnded { _ in isIncrementPressed = false }
+                        )
+                    }
+                    .padding(.horizontal)
                     
-                    // Controls
+                    // Main Controls
                     HStack(spacing: 16) {
                         Button {
                             viewModel.undo()
@@ -146,20 +182,14 @@ struct HabitDetailView: View {
                                 .onEnded { _ in isUndoPressed = false }
                         )
                         
+                        // Manual Input Button
                         Button {
-                            viewModel.decrement()
+                            viewModel.showManualInputPanel()
                         } label: {
-                            Image(systemName: "minus")
+                            Image(systemName: "arrow.up")
                                 .font(.system(size: 20, weight: .medium))
                         }
                         .buttonStyle(GlassButtonStyle())
-                        .scaleEffect(isDecrementPressed ? 0.95 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isDecrementPressed)
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { _ in isDecrementPressed = true }
-                                .onEnded { _ in isDecrementPressed = false }
-                        )
                         
                         if viewModel.habit.type == .time {
                             Button {
@@ -178,57 +208,51 @@ struct HabitDetailView: View {
                                     .onEnded { _ in isTimerPressed = false }
                             )
                         }
-                        
-                        Button {
-                            viewModel.increment()
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .medium))
-                        }
-                        .buttonStyle(GlassButtonStyle())
-                        .scaleEffect(isIncrementPressed ? 0.95 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isIncrementPressed)
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { _ in isIncrementPressed = true }
-                                .onEnded { _ in isIncrementPressed = false }
-                        )
-                        
-                        ForEach(availableButtons, id: \.label) { button in
-                            Button {
-                                viewModel.increment(by: button.amount)
-                            } label: {
-                                Text(button.label)
-                                    .font(.system(size: 16, weight: .medium))
-                            }
-                            .buttonStyle(GlassButtonStyle())
-                            .scaleEffect(dynamicButtonPressed[button.label] ?? false ? 0.95 : 1.0)
-                            .animation(.easeInOut(duration: 0.2), value: dynamicButtonPressed[button.label])
-                            .simultaneousGesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { _ in dynamicButtonPressed[button.label] = true }
-                                    .onEnded { _ in dynamicButtonPressed[button.label] = false }
-                            )
-                        }
                     }
                     .padding(.horizontal)
                     
-                    // Manual Input Button
-                    Button {
-                        viewModel.showManualInputPanel()
-                    } label: {
-                        Text("Manual Input")
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(colorScheme == .light ? .white : .black)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                (colorScheme == .light ? Color.black : Color.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 18))
-                            )
+                    // Quick Access Buttons
+                    if !availableButtons.isEmpty {
+                        HStack(spacing: 16) {
+                            ForEach(availableButtons, id: \.label) { button in
+                                Button {
+                                    viewModel.increment(by: button.amount)
+                                } label: {
+                                    Text(button.label)
+                                        .font(.system(size: 16, weight: .medium))
+                                }
+                                .buttonStyle(GlassButtonStyle())
+                                .scaleEffect(dynamicButtonPressed[button.label] ?? false ? 0.95 : 1.0)
+                                .animation(.easeInOut(duration: 0.2), value: dynamicButtonPressed[button.label])
+                                .simultaneousGesture(
+                                    DragGesture(minimumDistance: 0)
+                                        .onChanged { _ in dynamicButtonPressed[button.label] = true }
+                                        .onEnded { _ in dynamicButtonPressed[button.label] = false }
+                                )
+                            }
+                        }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 8)
+                    
+                    // Complete Button
+                    if !viewModel.isCompleted {
+                        Button {
+                            // Устанавливаем значение равным цели для завершения привычки
+                            viewModel.setValue(viewModel.habit.goal.doubleValue)
+                        } label: {
+                            Text("Complete")
+                                .font(.body.weight(.medium))
+                                .foregroundStyle(colorScheme == .light ? .white : .black)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(
+                                    (colorScheme == .light ? Color.black : Color.white)
+                                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                                )
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 16)
+                    }
                 }
             }
             .navigationTitle(viewModel.habit.name)
