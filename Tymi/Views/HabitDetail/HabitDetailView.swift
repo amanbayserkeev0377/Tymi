@@ -257,6 +257,7 @@ struct HabitDetailView: View {
             }
             .navigationTitle(viewModel.habit.name)
             .navigationBarTitleDisplayMode(.large)
+            .withBackground()
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HabitOptionsMenu(

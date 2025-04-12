@@ -9,7 +9,7 @@ struct HabitRowView: View {
     }
     
     private var strokeColor: Color {
-        colorScheme == .dark ? Color(.systemGray4) : Color(.systemGray5)
+        colorScheme == .dark ? Color(.systemGray4) : Color(.systemGray4)
     }
     
     private var goalText: String {

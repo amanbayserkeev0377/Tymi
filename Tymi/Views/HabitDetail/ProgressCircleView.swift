@@ -145,9 +145,7 @@ struct ProgressCircleView: View {
 
 #Preview {
     ZStack {
-        Color.white
-            .opacity(0.01)
-            .background(.ultraThinMaterial)
+            ViewBackground()
             .ignoresSafeArea()
         
         ProgressCircleView(
