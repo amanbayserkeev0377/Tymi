@@ -347,10 +347,10 @@ class HabitDetailViewModel: ObservableObject {
             totalAddedAmount = 0
             undoneAmount = 0
         } else {
-            amountToSubtract = actionAmount
+            amountToSubtract = min(actionAmount, currentValue.doubleValue)
             undoneAmount += 1
             
-            if undoneAmount >= 4 || currentValue.doubleValue <= amountToSubtract {
+            if currentValue.doubleValue <= amountToSubtract {
                 canUndo = false
                 lastAction = nil
                 originalAction = nil
