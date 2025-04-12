@@ -32,6 +32,9 @@ class HabitDetailViewModel: ObservableObject {
     @Published var canUndo: Bool = false
     @Published var showOptions: Bool = false
     @Published var isAddMode: Bool = false
+    @Published private var originalAction: ProgressAction? = nil
+    @Published private var totalAddedAmount: Double = 0
+    @Published private var undoneAmount: Double = 0
     
     var onUpdate: ((Double) -> Void)?
     var onComplete: (() -> Void)?
@@ -75,8 +78,13 @@ class HabitDetailViewModel: ObservableObject {
         let isPlaying: Bool
         let startTime: Date?
         let habitType: HabitType
+        let lastActionTimestamp: Date?
+        let lastActionType: String?
+        let lastActionAmount: Double?
+        let totalAddedAmount: Double
+        let undoneAmount: Double
         
-        init(habitId: UUID, currentValue: ValueType, isCompleted: Bool, lastUpdate: Date, isPlaying: Bool, startTime: Date?, habitType: HabitType) {
+        init(habitId: UUID, currentValue: ValueType, isCompleted: Bool, lastUpdate: Date, isPlaying: Bool, startTime: Date?, habitType: HabitType, lastActionTimestamp: Date? = nil, lastActionType: String? = nil, lastActionAmount: Double? = nil, totalAddedAmount: Double = 0, undoneAmount: Double = 0) {
             self.habitId = habitId
             self.currentValue = currentValue
             self.isCompleted = isCompleted
@@ -84,11 +92,17 @@ class HabitDetailViewModel: ObservableObject {
             self.isPlaying = isPlaying
             self.startTime = startTime
             self.habitType = habitType
+            self.lastActionTimestamp = lastActionTimestamp
+            self.lastActionType = lastActionType
+            self.lastActionAmount = lastActionAmount
+            self.totalAddedAmount = totalAddedAmount
+            self.undoneAmount = undoneAmount
         }
         
         enum CodingKeys: String, CodingKey {
             case habitId, currentValue, isCompleted, lastUpdate, isPlaying, startTime, habitType
             case countValue, timeValue, type
+            case lastActionTimestamp, lastActionType, lastActionAmount, totalAddedAmount, undoneAmount
         }
         
         init(from decoder: Decoder) throws {
@@ -100,7 +114,12 @@ class HabitDetailViewModel: ObservableObject {
             startTime = try container.decodeIfPresent(Date.self, forKey: .startTime)
             habitType = try container.decode(HabitType.self, forKey: .habitType)
             
-            // Проверяем, есть ли старый формат (Double)
+            lastActionTimestamp = try container.decodeIfPresent(Date.self, forKey: .lastActionTimestamp)
+            lastActionType = try container.decodeIfPresent(String.self, forKey: .lastActionType)
+            lastActionAmount = try container.decodeIfPresent(Double.self, forKey: .lastActionAmount)
+            totalAddedAmount = try container.decode(Double.self, forKey: .totalAddedAmount)
+            undoneAmount = try container.decode(Double.self, forKey: .undoneAmount)
+            
             if let doubleValue = try? container.decode(Double.self, forKey: .currentValue) {
                 currentValue = ValueType.fromDouble(doubleValue, type: habitType)
             } else {
@@ -126,6 +145,12 @@ class HabitDetailViewModel: ObservableObject {
             try container.encode(isPlaying, forKey: .isPlaying)
             try container.encodeIfPresent(startTime, forKey: .startTime)
             try container.encode(habitType, forKey: .habitType)
+            
+            try container.encodeIfPresent(lastActionTimestamp, forKey: .lastActionTimestamp)
+            try container.encodeIfPresent(lastActionType, forKey: .lastActionType)
+            try container.encodeIfPresent(lastActionAmount, forKey: .lastActionAmount)
+            try container.encode(totalAddedAmount, forKey: .totalAddedAmount)
+            try container.encode(undoneAmount, forKey: .undoneAmount)
             
             switch currentValue {
             case .count(let value):
@@ -158,7 +183,6 @@ class HabitDetailViewModel: ObservableObject {
         feedbackGenerator.prepare()
         notificationGenerator.prepare()
         
-        // Наблюдаем за жизненным циклом приложения
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleAppDidEnterBackground),
@@ -184,9 +208,8 @@ class HabitDetailViewModel: ObservableObject {
         }
         
         let oldValue = currentValue
-        let increment = habit.type == .time ? amount * 60 : amount
+        let increment = amount
         
-        // Защита от переполнения
         let newDoubleValue = currentValue.doubleValue + increment
         guard !newDoubleValue.isInfinite && !newDoubleValue.isNaN else { return }
         
@@ -302,28 +325,48 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     func undo() {
-        guard let action = lastAction,
-              Date().timeIntervalSince(action.timestamp) <= maxUndoTimeInterval
+        print("Отладка undo - originalAction: \(originalAction != nil), totalAddedAmount: \(totalAddedAmount), undoneAmount: \(undoneAmount)")
+        
+        guard let action = originalAction,
+              Date().timeIntervalSince(action.timestamp) <= maxUndoTimeInterval,
+              let actionAmount = action.addedAmount,
+              actionAmount > 0,
+              currentValue.doubleValue > 0
         else {
             canUndo = false
             return
         }
         
-        switch action.type {
-        case .increment, .manualInput:
-            if let amount = action.addedAmount {
-                let newDoubleValue = max(0, currentValue.doubleValue - amount)
-                currentValue = ValueType.fromDouble(newDoubleValue, type: habit.type)
-                lastAction = nil
-                canUndo = false
-                
-                feedbackGenerator.impactOccurred()
-                updateProgress()
-                saveState()
-            }
-        case .reset:
+        let amountToSubtract: Double
+        
+        if case .increment(let incAmount) = action.type, incAmount == 1, totalAddedAmount > 1 {
+            amountToSubtract = totalAddedAmount
             canUndo = false
+            lastAction = nil
+            originalAction = nil
+            totalAddedAmount = 0
+            undoneAmount = 0
+        } else {
+            amountToSubtract = actionAmount
+            undoneAmount += 1
+            
+            if undoneAmount >= 4 || currentValue.doubleValue <= amountToSubtract {
+                canUndo = false
+                lastAction = nil
+                originalAction = nil
+                totalAddedAmount = 0
+                undoneAmount = 0
+            }
         }
+        
+        let newDoubleValue = max(0, currentValue.doubleValue - amountToSubtract)
+        currentValue = ValueType.fromDouble(newDoubleValue, type: habit.type)
+        
+        print("Отладка undo - amountToSubtract: \(amountToSubtract), currentValue: \(currentValue.doubleValue)")
+        
+        feedbackGenerator.impactOccurred()
+        updateProgress()
+        saveState()
     }
     
     func showManualInputPanel(isAdd: Bool = false) {
@@ -349,10 +392,9 @@ class HabitDetailViewModel: ObservableObject {
                 isPlaying = state.isPlaying
                 startTime = state.startTime
                 
-                // Если таймер был запущен, учитываем прошедшее время
                 if isPlaying {
                     let elapsed = Date().timeIntervalSince(state.lastUpdate)
-                    if elapsed > 0 && elapsed < 3600 { // Ограничиваем максимум 1 часом
+                    if elapsed > 0 && elapsed < 3600 {
                         switch currentValue {
                         case .time(let value):
                             let newValue = value + elapsed
@@ -385,9 +427,8 @@ class HabitDetailViewModel: ObservableObject {
             isPlaying = true
             startTime = Date()
             
-            // Учитываем прошедшее время
             let elapsed = Date().timeIntervalSince(savedState.lastUpdate)
-            if elapsed > 0 && elapsed < 3600 { // Ограничиваем максимум 1 часом
+            if elapsed > 0 && elapsed < 3600 {
                 switch currentValue {
                 case .time(let value):
                     let newValue = value + elapsed
@@ -433,18 +474,15 @@ class HabitDetailViewModel: ObservableObject {
                 return
             }
             
-            // Проверяем, не прошло ли слишком много времени
             let timeDiff = now.timeIntervalSince(last)
             if timeDiff > 60 {
                 self.lastTimerUpdate = now
                 return
             }
             
-            // Ограничиваем максимальный интервал
             let cappedTimeDiff = min(timeDiff, 1.0)
             let newValue = self.currentValue.doubleValue + cappedTimeDiff
             
-            // Защита от переполнения
             guard newValue.isFinite && !newValue.isNaN else {
                 self.pauseTimer()
                 return
@@ -454,7 +492,6 @@ class HabitDetailViewModel: ObservableObject {
             self.currentValue = ValueType.fromDouble(newValue, type: self.habit.type)
             self.lastTimerUpdate = now
             
-            // Обновляем только при реальных изменениях
             if oldValue.doubleValue != newValue {
                 self.updateProgress()
             }
@@ -476,10 +513,8 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     private func startBackgroundTask() {
-        // Завершаем предыдущую задачу, если она есть
         endBackgroundTask()
         
-        // Создаем новую фоновую задачу
         backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "TimerTask") { [weak self] in
             self?.endBackgroundTask()
         }
@@ -494,6 +529,16 @@ class HabitDetailViewModel: ObservableObject {
     
     private func saveAction(_ action: ProgressAction) {
         lastAction = action
+        originalAction = action
+        
+        if let amount = action.addedAmount, amount > 0 {
+            if case .increment(let incAmount) = action.type, incAmount == 1 {
+                totalAddedAmount += amount
+            } else {
+                totalAddedAmount = amount
+            }
+            undoneAmount = 0
+        }
         canUndo = true
     }
     
@@ -529,10 +574,44 @@ class HabitDetailViewModel: ObservableObject {
         isPlaying = state.isPlaying
         startTime = state.startTime
         
+        totalAddedAmount = state.totalAddedAmount
+        undoneAmount = state.undoneAmount
+        
+        if let timestamp = state.lastActionTimestamp, 
+           let actionType = state.lastActionType,
+           let amount = state.lastActionAmount {
+            
+            let type: ProgressAction.ActionType
+            switch actionType {
+            case "increment": type = .increment(amount: amount)
+            case "manualInput": type = .manualInput
+            case "reset": type = .reset
+            default: type = .reset
+            }
+            
+            originalAction = ProgressAction(
+                oldValue: currentValue,
+                newValue: currentValue,
+                type: type,
+                timestamp: timestamp,
+                addedAmount: amount
+            )
+            
+            canUndo = totalAddedAmount > undoneAmount
+        }
+        
         updateProgress()
     }
     
     private func saveState() {
+        let actionType: String?
+        switch originalAction?.type {
+        case .increment: actionType = "increment"
+        case .manualInput: actionType = "manualInput" 
+        case .reset: actionType = "reset"
+        case .none: actionType = nil
+        }
+
         let state = HabitState(
             habitId: habit.id,
             currentValue: currentValue,
@@ -540,7 +619,12 @@ class HabitDetailViewModel: ObservableObject {
             lastUpdate: Date(),
             isPlaying: isPlaying,
             startTime: startTime,
-            habitType: habit.type
+            habitType: habit.type,
+            lastActionTimestamp: originalAction?.timestamp,
+            lastActionType: actionType,
+            lastActionAmount: originalAction?.addedAmount,
+            totalAddedAmount: totalAddedAmount,
+            undoneAmount: undoneAmount
         )
         
         if let data = try? JSONEncoder().encode(state) {
@@ -556,7 +640,19 @@ class HabitDetailViewModel: ObservableObject {
             lastUpdate: Date(),
             isPlaying: isPlaying,
             startTime: startTime,
-            habitType: habit.type
+            habitType: habit.type,
+            lastActionTimestamp: originalAction?.timestamp,
+            lastActionType: {
+                switch originalAction?.type {
+                case .increment: return "increment"
+                case .manualInput: return "manualInput" 
+                case .reset: return "reset"
+                case .none: return nil
+                }
+            }(),
+            lastActionAmount: originalAction?.addedAmount,
+            totalAddedAmount: totalAddedAmount,
+            undoneAmount: undoneAmount
         )
         
         if let data = try? JSONEncoder().encode(state) {
