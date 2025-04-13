@@ -101,7 +101,7 @@ enum HabitType: String, Codable, CaseIterable {
 
 class HabitStoreManager: ObservableObject {
     @Published private(set) var habits: [Habit] = []
-    private let userDefaultsService = UserDefaultsService()
+    private let userDefaultsService = UserDefaultsService.shared
     private let notificationService = NotificationService.shared
     
     init() {

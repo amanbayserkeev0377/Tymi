@@ -7,6 +7,7 @@ struct TodayView: View {
     @State private var showingCalendar = false
     @State private var editingHabit: Habit?
     @State private var selectedDate: Date = Date()
+    @State private var selectedHabit: Habit?
     
     // Haptic feedback
     private let feedback = UIImpactFeedbackGenerator(style: .light)

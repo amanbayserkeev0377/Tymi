@@ -11,6 +11,10 @@ import SwiftUI
 struct TymiApp: App {
     @StateObject private var habitStore = HabitStoreManager()
     
+    init() {
+        UINavigationBar.appearance().tintColor = .label
+    }
+    
     var body: some Scene {
         WindowGroup {
             TodayView()

@@ -2,6 +2,8 @@ import SwiftUI
 
 // MARK: - HabitOptionsMenu
 struct HabitOptionsMenu: View {
+    @Environment(\.colorScheme) private var colorScheme
+    
     let onChangeValue: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
@@ -28,13 +30,17 @@ struct HabitOptionsMenu: View {
             }
         } label: {
             Image(systemName: "ellipsis")
-                .font(.body.weight(.medium))
-                .frame(width: 40, height: 40)
-                .contentShape(Rectangle())
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(colorScheme == .dark ? .white : .black)
+                .frame(width: 23, height: 23)
+                .overlay(
+                    Circle()
+                        .stroke(colorScheme == .dark ? .white : .black, lineWidth: 1)
+                )
+                .contentShape(Circle())
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
-        .buttonStyle(GlassButtonStyle())
     }
 }
 
@@ -97,13 +103,13 @@ struct HabitDetailView: View {
             }
         } else {
             if goalValue >= 600 { // 10 минут
-                buttons.append(.init(label: "+5m", amount: 5))
+                buttons.append(.init(label: "+5", amount: 5))
             }
             if goalValue >= 3600 { // 1 час
-                buttons.append(.init(label: "+30m", amount: 30))
+                buttons.append(.init(label: "+30", amount: 30))
             }
             if goalValue >= 7200 { // 2 часа
-                buttons.append(.init(label: "+60m", amount: 60))
+                buttons.append(.init(label: "+60", amount: 60))
             }
         }
         return buttons
@@ -115,214 +121,212 @@ struct HabitDetailView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Progress Circle with side buttons
-                    HStack(spacing: 16) {
-                        // Minus button
+        ScrollView {
+            VStack(spacing: 24) {
+                // Progress Circle with side buttons
+                HStack(spacing: 16) {
+                    // Minus button
+                    Button {
+                        viewModel.decrement()
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .buttonStyle(GlassButtonStyle())
+                    .scaleEffect(isDecrementPressed ? 0.95 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: isDecrementPressed)
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in isDecrementPressed = true }
+                            .onEnded { _ in isDecrementPressed = false }
+                    )
+                    
+                    // Progress Circle
+                    ProgressCircleView(
+                        progress: viewModel.progress,
+                        goal: viewModel.habit.goal,
+                        type: viewModel.habit.type,
+                        isCompleted: viewModel.isCompleted,
+                        currentValue: viewModel.currentValue
+                    )
+                    .frame(height: 200)
+                    
+                    // Plus button
+                    Button {
+                        viewModel.increment()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .buttonStyle(GlassButtonStyle())
+                    .scaleEffect(isIncrementPressed ? 0.95 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: isIncrementPressed)
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in isIncrementPressed = true }
+                            .onEnded { _ in isIncrementPressed = false }
+                    )
+                }
+                .padding(.horizontal)
+                
+                // Statistics
+                HStack(spacing: 20) {
+                    // Current Streak
+                    VStack(spacing: 4) {
+                        HStack(spacing: 4) {
+                            Text("🔥")
+                                .font(.system(size: 16))
+                            Text("Streak:")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        Text("\(viewModel.currentStreak)")
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    // Best Streak
+                    VStack(spacing: 4) {
+                        HStack(spacing: 4) {
+                            Text("🏆")
+                                .font(.system(size: 16))
+                            Text("Best:")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        Text("\(viewModel.bestStreak)")
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    // Completed Count
+                    VStack(spacing: 4) {
+                        HStack(spacing: 4) {
+                            Text("✔")
+                                .font(.system(size: 16))
+                            Text("Completed:")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        Text("\(viewModel.completedCount)")
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal)
+                
+                // Main Controls
+                HStack(spacing: 16) {
+                    Button {
+                        viewModel.undo()
+                    } label: {
+                        Image(systemName: "arrow.uturn.backward")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .buttonStyle(GlassButtonStyle())
+                    .disabled(!viewModel.canUndo)
+                    .scaleEffect(isUndoPressed ? 0.95 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: isUndoPressed)
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in isUndoPressed = true }
+                            .onEnded { _ in isUndoPressed = false }
+                    )
+                    
+                    // Manual Input Button
+                    Button {
+                        viewModel.showManualInputPanel()
+                    } label: {
+                        Image(systemName: "arrow.up")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .buttonStyle(GlassButtonStyle())
+                    
+                    if viewModel.habit.type == .time {
                         Button {
-                            viewModel.decrement()
+                            viewModel.toggleTimer()
                         } label: {
-                            Image(systemName: "minus")
+                            Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
                                 .font(.system(size: 20, weight: .medium))
+                                .foregroundStyle(viewModel.isPlaying ? .red : .green)
                         }
                         .buttonStyle(GlassButtonStyle())
-                        .scaleEffect(isDecrementPressed ? 0.95 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isDecrementPressed)
+                        .scaleEffect(isTimerPressed ? 0.95 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: isTimerPressed)
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 0)
-                                .onChanged { _ in isDecrementPressed = true }
-                                .onEnded { _ in isDecrementPressed = false }
-                        )
-                        
-                        // Progress Circle
-                        ProgressCircleView(
-                            progress: viewModel.progress,
-                            goal: viewModel.habit.goal,
-                            type: viewModel.habit.type,
-                            isCompleted: viewModel.isCompleted,
-                            currentValue: viewModel.currentValue
-                        )
-                        .frame(height: 200)
-                        
-                        // Plus button
-                        Button {
-                            viewModel.increment()
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .medium))
-                        }
-                        .buttonStyle(GlassButtonStyle())
-                        .scaleEffect(isIncrementPressed ? 0.95 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isIncrementPressed)
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { _ in isIncrementPressed = true }
-                                .onEnded { _ in isIncrementPressed = false }
+                                .onChanged { _ in isTimerPressed = true }
+                                .onEnded { _ in isTimerPressed = false }
                         )
                     }
-                    .padding(.horizontal)
-                    
-                    // Statistics
-                    HStack(spacing: 20) {
-                        // Current Streak
-                        VStack(spacing: 4) {
-                            HStack(spacing: 4) {
-                                Text("🔥")
-                                    .font(.system(size: 16))
-                                Text("Streak:")
-                                    .font(.system(size: 14, weight: .medium))
-                            }
-                            Text("\(viewModel.currentStreak)")
-                                .font(.system(size: 18, weight: .bold))
-                        }
-                        .frame(maxWidth: .infinity)
-                        
-                        // Best Streak
-                        VStack(spacing: 4) {
-                            HStack(spacing: 4) {
-                                Text("🏆")
-                                    .font(.system(size: 16))
-                                Text("Best:")
-                                    .font(.system(size: 14, weight: .medium))
-                            }
-                            Text("\(viewModel.bestStreak)")
-                                .font(.system(size: 18, weight: .bold))
-                        }
-                        .frame(maxWidth: .infinity)
-                        
-                        // Completed Count
-                        VStack(spacing: 4) {
-                            HStack(spacing: 4) {
-                                Text("✔")
-                                    .font(.system(size: 16))
-                                Text("Completed:")
-                                    .font(.system(size: 14, weight: .medium))
-                            }
-                            Text("\(viewModel.completedCount)")
-                                .font(.system(size: 18, weight: .bold))
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .padding(.horizontal)
-                    
-                    // Main Controls
+                }
+                .padding(.horizontal)
+                
+                // Quick Access Buttons
+                if !availableButtons.isEmpty {
                     HStack(spacing: 16) {
-                        Button {
-                            viewModel.undo()
-                        } label: {
-                            Image(systemName: "arrow.uturn.backward")
-                                .font(.system(size: 20, weight: .medium))
-                        }
-                        .buttonStyle(GlassButtonStyle())
-                        .disabled(!viewModel.canUndo)
-                        .scaleEffect(isUndoPressed ? 0.95 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isUndoPressed)
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { _ in isUndoPressed = true }
-                                .onEnded { _ in isUndoPressed = false }
-                        )
-                        
-                        // Manual Input Button
-                        Button {
-                            viewModel.showManualInputPanel()
-                        } label: {
-                            Image(systemName: "arrow.up")
-                                .font(.system(size: 20, weight: .medium))
-                        }
-                        .buttonStyle(GlassButtonStyle())
-                        
-                        if viewModel.habit.type == .time {
+                        ForEach(availableButtons, id: \.label) { button in
                             Button {
-                                viewModel.toggleTimer()
+                                viewModel.increment(by: button.amount)
                             } label: {
-                                Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundStyle(viewModel.isPlaying ? .red : .green)
+                                Text(button.label)
+                                    .font(.system(size: 16, weight: .medium))
                             }
                             .buttonStyle(GlassButtonStyle())
-                            .scaleEffect(isTimerPressed ? 0.95 : 1.0)
-                            .animation(.easeInOut(duration: 0.2), value: isTimerPressed)
+                            .scaleEffect(dynamicButtonPressed[button.label] ?? false ? 0.95 : 1.0)
+                            .animation(.easeInOut(duration: 0.2), value: dynamicButtonPressed[button.label])
                             .simultaneousGesture(
                                 DragGesture(minimumDistance: 0)
-                                    .onChanged { _ in isTimerPressed = true }
-                                    .onEnded { _ in isTimerPressed = false }
+                                    .onChanged { _ in dynamicButtonPressed[button.label] = true }
+                                    .onEnded { _ in dynamicButtonPressed[button.label] = false }
                             )
                         }
                     }
                     .padding(.horizontal)
-                    
-                    // Quick Access Buttons
-                    if !availableButtons.isEmpty {
-                        HStack(spacing: 16) {
-                            ForEach(availableButtons, id: \.label) { button in
-                                Button {
-                                    viewModel.increment(by: button.amount)
-                                } label: {
-                                    Text(button.label)
-                                        .font(.system(size: 16, weight: .medium))
-                                }
-                                .buttonStyle(GlassButtonStyle())
-                                .scaleEffect(dynamicButtonPressed[button.label] ?? false ? 0.95 : 1.0)
-                                .animation(.easeInOut(duration: 0.2), value: dynamicButtonPressed[button.label])
-                                .simultaneousGesture(
-                                    DragGesture(minimumDistance: 0)
-                                        .onChanged { _ in dynamicButtonPressed[button.label] = true }
-                                        .onEnded { _ in dynamicButtonPressed[button.label] = false }
-                                )
-                            }
-                        }
-                        .padding(.horizontal)
+                }
+                
+                Spacer(minLength: 24)
+                
+                // Complete Button
+                if !viewModel.isCompleted {
+                    Button {
+                        // Устанавливаем значение равным цели для завершения привычки
+                        viewModel.setValue(viewModel.habit.goal.doubleValue)
+                    } label: {
+                        Text("Complete")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(colorScheme == .light ? .white : .black)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(
+                                (colorScheme == .light ? Color.black : Color.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                            )
                     }
-                    
-                    Spacer(minLength: 24)
-                    
-                    // Complete Button
-                    if !viewModel.isCompleted {
-                        Button {
-                            // Устанавливаем значение равным цели для завершения привычки
-                            viewModel.setValue(viewModel.habit.goal.doubleValue)
-                        } label: {
-                            Text("Complete")
-                                .font(.body.weight(.medium))
-                                .foregroundStyle(colorScheme == .light ? .white : .black)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(
-                                    (colorScheme == .light ? Color.black : Color.white)
-                                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                                )
-                        }
-                        .padding(.horizontal)
-                        .padding(.bottom, 16)
-                    }
-                }
-                .frame(minHeight: UIScreen.main.bounds.height - 200)
-            }
-            .navigationTitle(viewModel.habit.name)
-            .navigationBarTitleDisplayMode(.large)
-            .withBackground()
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HabitOptionsMenu(
-                        onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
-                        onEdit: { onEdit(viewModel.habit) },
-                        onDelete: { showingDeleteAlert = true },
-                        onReset: { viewModel.reset() }
-                    )
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
                 }
             }
-            .alert("Delete Habit", isPresented: $showingDeleteAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
-                    onDelete(viewModel.habit)
-                    dismiss()
-                }
-            } message: {
-                Text("All data will be permanently deleted. This action cannot be undone.")
+            .frame(minHeight: UIScreen.main.bounds.height - 200)
+        }
+        .navigationTitle(viewModel.habit.name)
+        .navigationBarTitleDisplayMode(.large)
+        .withBackground()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                HabitOptionsMenu(
+                    onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
+                    onEdit: { onEdit(viewModel.habit) },
+                    onDelete: { showingDeleteAlert = true },
+                    onReset: { viewModel.reset() }
+                )
             }
+        }
+        .alert("Delete Habit", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                onDelete(viewModel.habit)
+                dismiss()
+            }
+        } message: {
+            Text("All data will be permanently deleted. This action cannot be undone.")
         }
         .background(backgroundColor)
         .onAppear {
@@ -349,10 +353,12 @@ struct HabitDetailView: View {
 }
 
 #Preview {
-    HabitDetailView(
-        habit: Habit(name: "Getting Started"),
-        habitStore: HabitStoreManager(),
-        onEdit: { _ in },
-        onDelete: { _ in }
-    )
+    NavigationStack {
+        HabitDetailView(
+            habit: Habit(name: "Getting Started"),
+            habitStore: HabitStoreManager(),
+            onEdit: { _ in },
+            onDelete: { _ in }
+        )
+    }
 }

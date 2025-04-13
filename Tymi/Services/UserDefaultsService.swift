@@ -1,101 +1,105 @@
 import Foundation
 
-class UserDefaultsService {
-    private static let habitsKey = "savedHabits"
-    private static let progressKey = "habit_progress_"
-    private static let versionKey = "habitStoreVersion"
-    private static let currentVersion = 1
+class UserDefaultsService: HabitDataStore {
+    static let shared = UserDefaultsService()
+    private let userDefaults = UserDefaults.standard
     
-    private let defaults = UserDefaults.standard
+    private let habitsKey = "habits"
+    private let progressKey = "habit_progress"
+    private let lastCleanupKey = "last_cleanup_date"
+    private let dataVersionKey = "data_version"
     
-    init() {
+    private init() {
         migrateIfNeeded()
     }
     
-    func saveHabits(_ habits: [Habit]) {
-        do {
-            let data = try JSONEncoder().encode(habits)
-            defaults.set(data, forKey: Self.habitsKey)
-        } catch {
-            print("Error saving habits: \(error)")
-        }
-    }
-    
-    func loadHabits() -> [Habit] {
-        guard let data = defaults.data(forKey: Self.habitsKey) else {
-            return []
-        }
-        
-        do {
-            return try JSONDecoder().decode([Habit].self, from: data)
-        } catch {
-            print("Error loading habits: \(error)")
-            return []
-        }
-    }
+    // MARK: - HabitDataStore Protocol Implementation
     
     func saveProgress(_ progress: HabitProgress) {
-        let key = Self.progressKey + progress.habitId.uuidString + "_" + formatDate(progress.date)
-        do {
-            let data = try JSONEncoder().encode(progress)
-            defaults.set(data, forKey: key)
-        } catch {
-            print("Error saving progress: \(error)")
+        var allProgress = getAllProgress(for: progress.habitId)
+        allProgress.append(progress)
+        
+        if let data = try? JSONEncoder().encode(allProgress) {
+            userDefaults.set(data, forKey: "\(progressKey)_\(progress.habitId.uuidString)")
         }
     }
     
     func getProgress(for habitId: UUID, on date: Date) -> HabitProgress? {
-        let key = Self.progressKey + habitId.uuidString + "_" + formatDate(date)
-        guard let data = defaults.data(forKey: key) else { return nil }
-        
-        do {
-            return try JSONDecoder().decode(HabitProgress.self, from: data)
-        } catch {
-            print("Error loading progress: \(error)")
-            return nil
+        let allProgress = getAllProgress(for: habitId)
+        let calendar = Calendar.current
+        return allProgress.first { progress in
+            calendar.isDate(progress.date, inSameDayAs: date)
         }
     }
     
     func getAllProgress(for habitId: UUID) -> [HabitProgress] {
-        let prefix = Self.progressKey + habitId.uuidString + "_"
-        let keys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix(prefix) }
-        
-        return keys.compactMap { key in
-            guard let data = defaults.data(forKey: key) else { return nil }
-            
-            do {
-                return try JSONDecoder().decode(HabitProgress.self, from: data)
-            } catch {
-                print("Error loading progress for key \(key): \(error)")
-                return nil
-            }
+        guard let data = userDefaults.data(forKey: "\(progressKey)_\(habitId.uuidString)"),
+              let progress = try? JSONDecoder().decode([HabitProgress].self, from: data)
+        else {
+            return []
         }
+        return progress.sorted { $0.date < $1.date }
+    }
+    
+    func deleteAllProgress(for habitId: UUID) {
+        userDefaults.removeObject(forKey: "\(progressKey)_\(habitId.uuidString)")
     }
     
     func cleanOldProgress(olderThan date: Date) {
-        let keys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix(Self.progressKey) }
+        let lastCleanup = userDefaults.object(forKey: lastCleanupKey) as? Date ?? Date.distantPast
+        guard date > lastCleanup else { return }
         
-        for key in keys {
-            guard let data = defaults.data(forKey: key),
-                  let progress = try? JSONDecoder().decode(HabitProgress.self, from: data)
-            else { continue }
-            
-            if progress.date < date {
-                defaults.removeObject(forKey: key)
+        // Получаем все ключи прогресса
+        let allKeys = userDefaults.dictionaryRepresentation().keys
+        let progressKeys = allKeys.filter { $0.hasPrefix(progressKey) }
+        
+        for key in progressKeys {
+            if let data = userDefaults.data(forKey: key),
+               var progress = try? JSONDecoder().decode([HabitProgress].self, from: data) {
+                // Фильтруем прогресс, оставляя только записи новее указанной даты
+                progress.removeAll { $0.date < date }
+                
+                if let newData = try? JSONEncoder().encode(progress) {
+                    userDefaults.set(newData, forKey: key)
+                }
             }
         }
+        
+        userDefaults.set(date, forKey: lastCleanupKey)
     }
     
-    private func migrateIfNeeded() {
-        let version = defaults.integer(forKey: Self.versionKey)
-        if version == 0 || version < Self.currentVersion {
-            defaults.set(Self.currentVersion, forKey: Self.versionKey)
+    func saveHabits(_ habits: [Habit]) {
+        if let data = try? JSONEncoder().encode(habits) {
+            userDefaults.set(data, forKey: habitsKey)
         }
     }
     
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+    func loadHabits() -> [Habit] {
+        guard let data = userDefaults.data(forKey: habitsKey),
+              let habits = try? JSONDecoder().decode([Habit].self, from: data)
+        else {
+            return []
+        }
+        return habits
+    }
+    
+    // MARK: - Migration
+    
+    private func migrateIfNeeded() {
+        let currentVersion = 1
+        let savedVersion = userDefaults.integer(forKey: dataVersionKey)
+        
+        guard savedVersion < currentVersion else { return }
+        
+        // Миграция с версии 0 на 1
+        if savedVersion == 0 {
+            migrateFromVersion0()
+        }
+        
+        userDefaults.set(currentVersion, forKey: dataVersionKey)
+    }
+    
+    private func migrateFromVersion0() {
+        // Здесь можно добавить логику миграции данных, если она потребуется
     }
 } 
