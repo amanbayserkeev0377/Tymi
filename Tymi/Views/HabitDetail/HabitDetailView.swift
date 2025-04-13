@@ -63,13 +63,12 @@ struct HabitDetailView: View {
     
     init(
         habit: Habit,
-        habitStore: HabitStoreManager,
         onEdit: @escaping (Habit) -> Void,
         onDelete: @escaping (Habit) -> Void,
         onUpdate: ((Habit, Double) -> Void)? = nil,
         onComplete: ((Habit) -> Void)? = nil
     ) {
-        _viewModel = StateObject(wrappedValue: HabitDetailViewModel(habit: habit, habitStore: habitStore))
+        _viewModel = StateObject(wrappedValue: HabitDetailViewModel(habit: habit))
         self.onEdit = onEdit
         self.onDelete = onDelete
         self.onUpdate = onUpdate
@@ -248,71 +247,52 @@ struct HabitDetailView: View {
                                 .foregroundStyle(viewModel.isPlaying ? .red : .green)
                         }
                         .buttonStyle(GlassButtonStyle())
-                        .scaleEffect(isTimerPressed ? 0.95 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isTimerPressed)
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { _ in isTimerPressed = true }
-                                .onEnded { _ in isTimerPressed = false }
-                        )
                     }
                 }
                 .padding(.horizontal)
                 
-                // Quick Access Buttons
+                // Dynamic Buttons
                 if !availableButtons.isEmpty {
-                    HStack(spacing: 16) {
-                        ForEach(availableButtons, id: \.label) { button in
-                            Button {
-                                viewModel.increment(by: button.amount)
-                            } label: {
-                                Text(button.label)
-                                    .font(.system(size: 16, weight: .medium))
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(availableButtons, id: \.label) { button in
+                                Button {
+                                    viewModel.increment(by: button.amount)
+                                } label: {
+                                    Text(button.label)
+                                        .font(.system(size: 16, weight: .medium))
+                                }
+                                .buttonStyle(GlassButtonStyle())
+                                .scaleEffect(dynamicButtonPressed[button.label] == true ? 0.95 : 1.0)
+                                .animation(.easeInOut(duration: 0.2), value: dynamicButtonPressed[button.label])
+                                .simultaneousGesture(
+                                    DragGesture(minimumDistance: 0)
+                                        .onChanged { _ in
+                                            dynamicButtonPressed[button.label] = true
+                                        }
+                                        .onEnded { _ in
+                                            dynamicButtonPressed[button.label] = false
+                                        }
+                                )
                             }
-                            .buttonStyle(GlassButtonStyle())
-                            .scaleEffect(dynamicButtonPressed[button.label] ?? false ? 0.95 : 1.0)
-                            .animation(.easeInOut(duration: 0.2), value: dynamicButtonPressed[button.label])
-                            .simultaneousGesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { _ in dynamicButtonPressed[button.label] = true }
-                                    .onEnded { _ in dynamicButtonPressed[button.label] = false }
-                            )
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
-                }
-                
-                Spacer(minLength: 24)
-                
-                // Complete Button
-                if !viewModel.isCompleted {
-                    Button {
-                        // Устанавливаем значение равным цели для завершения привычки
-                        viewModel.setValue(viewModel.habit.goal.doubleValue)
-                    } label: {
-                        Text("Complete")
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(colorScheme == .light ? .white : .black)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                (colorScheme == .light ? Color.black : Color.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 18))
-                            )
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom, 16)
                 }
             }
-            .frame(minHeight: UIScreen.main.bounds.height - 200)
+            .padding(.vertical)
         }
-        .navigationTitle(viewModel.habit.name)
-        .navigationBarTitleDisplayMode(.large)
-        .withBackground()
+        .background(backgroundColor)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .principal) {
+                Text(viewModel.habit.name)
+                    .font(.system(size: 17, weight: .semibold))
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
                 HabitOptionsMenu(
-                    onChangeValue: { viewModel.showManualInputPanel(isAdd: false) },
+                    onChangeValue: { viewModel.showManualInputPanel() },
                     onEdit: { onEdit(viewModel.habit) },
                     onDelete: { showingDeleteAlert = true },
                     onReset: { viewModel.reset() }
@@ -326,17 +306,7 @@ struct HabitDetailView: View {
                 dismiss()
             }
         } message: {
-            Text("All data will be permanently deleted. This action cannot be undone.")
-        }
-        .background(backgroundColor)
-        .onAppear {
-            viewModel.onUpdate = { value in
-                onUpdate?(viewModel.habit, value)
-            }
-            
-            viewModel.onComplete = {
-                onComplete?(viewModel.habit)
-            }
+            Text("Are you sure you want to delete this habit? This action cannot be undone.")
         }
         .sheet(isPresented: $viewModel.showManualInput) {
             ManualInputPanelView(
@@ -346,8 +316,20 @@ struct HabitDetailView: View {
                 isAddMode: viewModel.isAddMode,
                 onSubmit: { value in
                     viewModel.setValue(value)
+                    viewModel.showManualInput = false
                 }
             )
+        }
+        .onChange(of: viewModel.isCompleted) { isCompleted in
+            if isCompleted {
+                onComplete?(viewModel.habit)
+            }
+        }
+        .onAppear {
+            viewModel.onAppear()
+        }
+        .onDisappear {
+            viewModel.onDisappear()
         }
     }
 }
@@ -356,7 +338,6 @@ struct HabitDetailView: View {
     NavigationStack {
         HabitDetailView(
             habit: Habit(name: "Getting Started"),
-            habitStore: HabitStoreManager(),
             onEdit: { _ in },
             onDelete: { _ in }
         )

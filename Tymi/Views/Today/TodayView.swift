@@ -49,28 +49,7 @@ struct TodayView: View {
                 } else {
                     VStack(alignment: .leading, spacing: 16) {
                         ForEach(habitsForSelectedDate) { habit in
-                            NavigationLink {
-                                HabitDetailView(
-                                    habit: habit,
-                                    habitStore: habitStore,
-                                    onEdit: { habit in
-                                        editingHabit = habit
-                                        showingNewHabit = true
-                                    },
-                                    onDelete: { habit in
-                                        habitStore.deleteHabit(habit)
-                                    },
-                                    onUpdate: { habit, value in
-                                        // TODO: Implement progress update
-                                    },
-                                    onComplete: { habit in
-                                        // TODO: Implement completion
-                                    }
-                                )
-                            } label: {
-                                HabitRowView(habit: habit)
-                            }
-                            .buttonStyle(.plain)
+                            habitRow(for: habit)
                         }
                     }
                     .padding(.horizontal)
@@ -132,6 +111,30 @@ struct TodayView: View {
             }
             .withBackground()
         }
+    }
+    
+    private func habitRow(for habit: Habit) -> some View {
+        NavigationLink {
+            HabitDetailView(
+                habit: habit,
+                onEdit: { habit in
+                    editingHabit = habit
+                    showingNewHabit = true
+                },
+                onDelete: { habit in
+                    habitStore.deleteHabit(habit)
+                },
+                onUpdate: { habit, value in
+                    // TODO: Implement progress update
+                },
+                onComplete: { habit in
+                    // TODO: Implement completion
+                }
+            )
+        } label: {
+            HabitRowView(habit: habit)
+        }
+        .buttonStyle(.plain)
     }
 }
 

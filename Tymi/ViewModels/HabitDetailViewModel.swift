@@ -3,7 +3,7 @@ import Combine
 import UIKit
 
 final class HabitDetailViewModel: ObservableObject {
-    private let habit: Habit
+    let habit: Habit
     private let dataStore: HabitDataStore
     private var timerManager: HabitTimerManaging
     private var actionManager: HabitActionManaging
@@ -28,6 +28,13 @@ final class HabitDetailViewModel: ObservableObject {
     private var statisticsCalculator: HabitStatisticsCalculating
     
     var onUpdate: ((Double) -> Void)?
+    
+    var progress: ValueType {
+        ValueType.fromDouble(
+            min(currentValue.doubleValue, habit.goal.doubleValue),
+            type: habit.type
+        )
+    }
     
     init(habit: Habit, dataStore: HabitDataStore = UserDefaultsService.shared) {
         self.habit = habit
