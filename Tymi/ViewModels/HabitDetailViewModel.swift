@@ -23,6 +23,7 @@ enum ValueType {
 class HabitDetailViewModel: ObservableObject {
     let habit: Habit
     private let habitStore: HabitStoreManager
+    private let statistics = HabitStatistics()
     
     @Published var progress: ValueType
     @Published var currentValue: ValueType
@@ -35,6 +36,11 @@ class HabitDetailViewModel: ObservableObject {
     @Published private var originalAction: ProgressAction? = nil
     @Published private var totalAddedAmount: Double = 0
     @Published private var undoneAmount: Double = 0
+    
+    // Статистика привычки
+    @Published var currentStreak: Int = 0
+    @Published var bestStreak: Int = 0
+    @Published var completedCount: Int = 0
     
     var onUpdate: ((Double) -> Void)?
     var onComplete: (() -> Void)?
@@ -412,6 +418,7 @@ class HabitDetailViewModel: ObservableObject {
     
     func onAppear() {
         resumeTimerIfNeeded()
+        loadStatistics()
     }
     
     func onDisappear() {
@@ -669,6 +676,108 @@ class HabitDetailViewModel: ObservableObject {
         }
         
         return state
+    }
+    
+    // MARK: - Statistics Methods
+    
+    func loadStatistics() {
+        let allProgress = statistics.getAllProgress(for: habit.id)
+        let completedProgress = allProgress.filter { $0.isCompleted }
+        
+        // Подсчет общего количества выполнений
+        completedCount = completedProgress.count
+        
+        // Подсчет текущего streak
+        currentStreak = calculateCurrentStreak(from: allProgress)
+        
+        // Подсчет лучшего streak
+        bestStreak = calculateBestStreak(from: allProgress)
+    }
+    
+    private func calculateCurrentStreak(from progress: [HabitProgress]) -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // Сортируем прогресс по дате (от новых к старым)
+        let sortedProgress = progress.sorted { $0.date > $1.date }
+        
+        // Если нет прогресса, streak = 0
+        guard !sortedProgress.isEmpty else { return 0 }
+        
+        // Проверяем, была ли привычка выполнена сегодня
+        let todayProgress = sortedProgress.first { calendar.isDate($0.date, inSameDayAs: today) }
+        if let todayProgress = todayProgress, todayProgress.isCompleted {
+            // Если привычка выполнена сегодня, начинаем подсчет с сегодняшнего дня
+            return calculateStreak(startingFrom: today, progress: sortedProgress)
+        } else {
+            // Если привычка не выполнена сегодня, проверяем вчерашний день
+            let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+            let yesterdayProgress = sortedProgress.first { calendar.isDate($0.date, inSameDayAs: yesterday) }
+            
+            if let yesterdayProgress = yesterdayProgress, yesterdayProgress.isCompleted {
+                // Если привычка выполнена вчера, начинаем подсчет со вчерашнего дня
+                return calculateStreak(startingFrom: yesterday, progress: sortedProgress)
+            } else {
+                // Если привычка не выполнена ни сегодня, ни вчера, streak = 0
+                return 0
+            }
+        }
+    }
+    
+    private func calculateBestStreak(from progress: [HabitProgress]) -> Int {
+        let calendar = Calendar.current
+        
+        // Сортируем прогресс по дате (от старых к новым)
+        let sortedProgress = progress.sorted { $0.date < $1.date }
+        
+        // Если нет прогресса, лучший streak = 0
+        guard !sortedProgress.isEmpty else { return 0 }
+        
+        var bestStreak = 0
+        var currentStreak = 0
+        var currentDate: Date? = nil
+        
+        // Проходим по всем записям прогресса
+        for progress in sortedProgress {
+            let progressDate = calendar.startOfDay(for: progress.date)
+            
+            // Если это первая запись или запись на следующий день
+            if currentDate == nil || calendar.isDate(progressDate, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: currentDate!)!) {
+                if progress.isCompleted {
+                    currentStreak += 1
+                    bestStreak = max(bestStreak, currentStreak)
+                } else {
+                    currentStreak = 0
+                }
+                currentDate = progressDate
+            }
+        }
+        
+        return bestStreak
+    }
+    
+    private func calculateStreak(startingFrom date: Date, progress: [HabitProgress]) -> Int {
+        let calendar = Calendar.current
+        var currentDate = date
+        var streak = 0
+        
+        // Проходим по дням, начиная с указанной даты
+        while true {
+            // Ищем прогресс для текущего дня
+            let dayProgress = progress.first { calendar.isDate($0.date, inSameDayAs: currentDate) }
+            
+            // Если прогресс найден и привычка выполнена, увеличиваем streak
+            if let dayProgress = dayProgress, dayProgress.isCompleted {
+                streak += 1
+                // Переходим к предыдущему дню
+                currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate)!
+            } else {
+                // Если прогресс не найден или привычка не выполнена, прерываем streak
+                break
+            }
+        }
+        
+        return streak
     }
     
     deinit {

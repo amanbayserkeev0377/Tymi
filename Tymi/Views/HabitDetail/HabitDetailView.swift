@@ -164,6 +164,49 @@ struct HabitDetailView: View {
                     }
                     .padding(.horizontal)
                     
+                    // Statistics
+                    HStack(spacing: 20) {
+                        // Current Streak
+                        VStack(spacing: 4) {
+                            HStack(spacing: 4) {
+                                Text("🔥")
+                                    .font(.system(size: 16))
+                                Text("Streak:")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            Text("\(viewModel.currentStreak)")
+                                .font(.system(size: 18, weight: .bold))
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        // Best Streak
+                        VStack(spacing: 4) {
+                            HStack(spacing: 4) {
+                                Text("🏆")
+                                    .font(.system(size: 16))
+                                Text("Best:")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            Text("\(viewModel.bestStreak)")
+                                .font(.system(size: 18, weight: .bold))
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        // Completed Count
+                        VStack(spacing: 4) {
+                            HStack(spacing: 4) {
+                                Text("✔")
+                                    .font(.system(size: 16))
+                                Text("Completed:")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            Text("\(viewModel.completedCount)")
+                                .font(.system(size: 18, weight: .bold))
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding(.horizontal)
+                    
                     // Main Controls
                     HStack(spacing: 16) {
                         Button {
@@ -234,6 +277,8 @@ struct HabitDetailView: View {
                         .padding(.horizontal)
                     }
                     
+                    Spacer(minLength: 24)
+                    
                     // Complete Button
                     if !viewModel.isCompleted {
                         Button {
@@ -251,9 +296,10 @@ struct HabitDetailView: View {
                                 )
                         }
                         .padding(.horizontal)
-                        .padding(.top, 16)
+                        .padding(.bottom, 16)
                     }
                 }
+                .frame(minHeight: UIScreen.main.bounds.height - 200)
             }
             .navigationTitle(viewModel.habit.name)
             .navigationBarTitleDisplayMode(.large)
