@@ -46,15 +46,37 @@ final class HabitDetailViewModel: ObservableObject {
         self.statisticsCalculator = HabitStatisticsCalculator(habit: habit, dataStore: dataStore)
         
         setupTimerManager()
+        setupActionManager()
         setupNotifications()
         loadStatistics()
     }
     
     private func setupTimerManager() {
         timerManager.onValueUpdate = { [weak self] newValue in
-            self?.currentValue = newValue
-            self?.updateProgress()
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.currentValue = newValue
+                self.isPlaying = self.timerManager.isPlaying
+                self.updateProgress()
+            }
         }
+    }
+    
+    private func setupActionManager() {
+        actionManager.onValueUpdate = { [weak self] newValue in
+            guard let self = self else { return }
+            self.currentValue = newValue
+            self.updateProgress()
+        }
+        
+        actionManager.onCompletion = { [weak self] in
+            guard let self = self else { return }
+            self.isCompleted = true
+            self.updateProgress()
+        }
+        
+        self.currentValue = actionManager.currentValue
+        self.canUndo = actionManager.canUndo
     }
     
     private func setupNotifications() {
@@ -75,23 +97,35 @@ final class HabitDetailViewModel: ObservableObject {
     
     func increment(by amount: Double = 1) {
         actionManager.increment(by: amount)
+        canUndo = actionManager.canUndo
     }
     
     func decrement(by amount: Double = 1) {
         actionManager.decrement(by: amount)
+        canUndo = actionManager.canUndo
     }
     
     func setValue(_ value: Double) {
         actionManager.setValue(value, isAddMode: isAddMode)
+        canUndo = actionManager.canUndo
     }
     
     func reset() {
         actionManager.reset()
+        canUndo = actionManager.canUndo
     }
     
     func toggleTimer() {
         if isCompleted {
             timerManager.pause()
+            isPlaying = false
+            return
+        }
+        
+        if currentValue.doubleValue >= habit.goal.doubleValue {
+            isCompleted = true
+            timerManager.pause()
+            isPlaying = false
             return
         }
         
@@ -100,10 +134,14 @@ final class HabitDetailViewModel: ObservableObject {
         } else {
             timerManager.start()
         }
+        
+        isPlaying = timerManager.isPlaying
+        updateProgress()
     }
     
     func undo() {
         actionManager.undo()
+        canUndo = actionManager.canUndo
     }
     
     func showManualInputPanel(isAdd: Bool = false) {
@@ -149,6 +187,12 @@ final class HabitDetailViewModel: ObservableObject {
     
     func onAppear() {
         loadStatistics()
+        
+        isPlaying = timerManager.isPlaying
+        currentValue = actionManager.currentValue
+        canUndo = actionManager.canUndo
+        
+        updateProgress()
     }
     
     func onDisappear() {

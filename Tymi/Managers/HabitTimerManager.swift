@@ -9,6 +9,7 @@ final class HabitTimerManager: HabitTimerManaging {
     private var accumulatedTime: TimeInterval = 0
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     private var wasRunningBeforeBackground = false
+    private var lastUpdateTime: Date?
     
     var onValueUpdate: ((ValueType) -> Void)?
     private(set) var isPlaying: Bool = false
@@ -42,6 +43,7 @@ final class HabitTimerManager: HabitTimerManaging {
         
         isPlaying = true
         startTime = Date()
+        lastUpdateTime = startTime
         
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.updateValue()
@@ -49,6 +51,8 @@ final class HabitTimerManager: HabitTimerManaging {
         
         RunLoop.main.add(timer!, forMode: .common)
         startBackgroundTask()
+        
+        updateValue()
     }
     
     func pause() {
@@ -58,8 +62,11 @@ final class HabitTimerManager: HabitTimerManaging {
         timer?.invalidate()
         timer = nil
         startTime = nil
+        lastUpdateTime = nil
         accumulatedTime = 0
         endBackgroundTask()
+        
+        onValueUpdate?(ValueType.time(accumulatedTime))
     }
     
     func resumeIfNeeded() {
@@ -92,13 +99,19 @@ final class HabitTimerManager: HabitTimerManaging {
     }
     
     private func updateValue() {
-        guard let startTime = startTime else { return }
+        guard let startTime = startTime,
+              let lastUpdate = lastUpdateTime else { return }
         
-        let elapsedTime = Date().timeIntervalSince(startTime) + accumulatedTime
-        accumulatedTime = elapsedTime
+        let currentTime = Date()
+        let elapsedSinceLastUpdate = currentTime.timeIntervalSince(lastUpdate)
+        lastUpdateTime = currentTime
         
-        let newValue = ValueType.time(elapsedTime)
+        accumulatedTime += elapsedSinceLastUpdate
+        
+        let newValue = ValueType.time(accumulatedTime)
         onValueUpdate?(newValue)
+        
+        print("Timer updated, elapsedTime: \(accumulatedTime)")
     }
     
     private func startBackgroundTask() {

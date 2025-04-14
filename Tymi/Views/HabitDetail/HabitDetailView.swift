@@ -221,6 +221,7 @@ struct HabitDetailView: View {
                     }
                     .buttonStyle(GlassButtonStyle())
                     .disabled(!viewModel.canUndo)
+                    .opacity(viewModel.canUndo ? 1.0 : 0.5)
                     .scaleEffect(isUndoPressed ? 0.95 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: isUndoPressed)
                     .simultaneousGesture(
@@ -247,6 +248,14 @@ struct HabitDetailView: View {
                                 .foregroundStyle(viewModel.isPlaying ? .red : .green)
                         }
                         .buttonStyle(GlassButtonStyle())
+                        .scaleEffect(isTimerPressed ? 0.95 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: isTimerPressed)
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { _ in isTimerPressed = true }
+                                .onEnded { _ in isTimerPressed = false }
+                        )
+                        .id(viewModel.isPlaying)
                     }
                 }
                 .padding(.horizontal)
@@ -278,6 +287,22 @@ struct HabitDetailView: View {
                         }
                         .padding(.horizontal)
                     }
+                }
+                
+                // Complete Button
+                if !viewModel.isCompleted {
+                    Button {
+                        viewModel.setValue(viewModel.habit.goal.doubleValue)
+                    } label: {
+                        Text("Complete")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.green)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .padding(.horizontal)
                 }
             }
             .padding(.vertical)
@@ -320,10 +345,13 @@ struct HabitDetailView: View {
                 }
             )
         }
-        .onChange(of: viewModel.isCompleted) { isCompleted in
+        .onChange(of: viewModel.isCompleted) { _, isCompleted in
             if isCompleted {
                 onComplete?(viewModel.habit)
             }
+        }
+        .onChange(of: viewModel.isPlaying) { _, newValue in
+            print("isPlaying changed to: \(newValue)")
         }
         .onAppear {
             viewModel.onAppear()
