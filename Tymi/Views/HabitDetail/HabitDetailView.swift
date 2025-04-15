@@ -122,51 +122,25 @@ struct HabitDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Progress Circle with side buttons
-                HStack(spacing: 16) {
-                    // Minus button
-                    Button {
-                        viewModel.decrement()
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 20, weight: .medium))
+                // Selected Date Header
+                if viewModel.isHistoricalView {
+                    HStack {
+                        Text(viewModel.formattedSelectedDate)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        
+                        Spacer()
+                        
+                        Button {
+                            viewModel.returnToToday()
+                        } label: {
+                            Text("Вернуться к сегодня")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.blue)
+                        }
                     }
-                    .buttonStyle(GlassButtonStyle())
-                    .scaleEffect(isDecrementPressed ? 0.95 : 1.0)
-                    .animation(.easeInOut(duration: 0.2), value: isDecrementPressed)
-                    .simultaneousGesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { _ in isDecrementPressed = true }
-                            .onEnded { _ in isDecrementPressed = false }
-                    )
-                    
-                    // Progress Circle
-                    ProgressCircleView(
-                        progress: viewModel.progress,
-                        goal: viewModel.habit.goal,
-                        type: viewModel.habit.type,
-                        isCompleted: viewModel.isCompleted,
-                        currentValue: viewModel.currentValue
-                    )
-                    .frame(height: 200)
-                    
-                    // Plus button
-                    Button {
-                        viewModel.increment()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 20, weight: .medium))
-                    }
-                    .buttonStyle(GlassButtonStyle())
-                    .scaleEffect(isIncrementPressed ? 0.95 : 1.0)
-                    .animation(.easeInOut(duration: 0.2), value: isIncrementPressed)
-                    .simultaneousGesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { _ in isIncrementPressed = true }
-                            .onEnded { _ in isIncrementPressed = false }
-                    )
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
                 
                 // Statistics
                 HStack(spacing: 20) {
@@ -211,6 +185,55 @@ struct HabitDetailView: View {
                 }
                 .padding(.horizontal)
                 
+                // Progress Circle with side buttons
+                HStack(spacing: 16) {
+                    // Minus button
+                    Button {
+                        viewModel.decrement()
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .buttonStyle(GlassButtonStyle())
+                    .scaleEffect(isDecrementPressed ? 0.95 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: isDecrementPressed)
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in isDecrementPressed = true }
+                            .onEnded { _ in isDecrementPressed = false }
+                    )
+                    .disabled(viewModel.isHistoricalView)
+                    
+                    // Progress Circle
+                    ProgressCircleView(
+                        progress: viewModel.progress,
+                        goal: viewModel.habit.goal,
+                        type: viewModel.habit.type,
+                        isCompleted: viewModel.isCompleted,
+                        currentValue: viewModel.currentValue
+                    )
+                    .frame(height: 200)
+                    .opacity(viewModel.isHistoricalView ? 0.7 : 1.0)
+                    
+                    // Plus button
+                    Button {
+                        viewModel.increment()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .buttonStyle(GlassButtonStyle())
+                    .scaleEffect(isIncrementPressed ? 0.95 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: isIncrementPressed)
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in isIncrementPressed = true }
+                            .onEnded { _ in isIncrementPressed = false }
+                    )
+                    .disabled(viewModel.isHistoricalView)
+                }
+                .padding(.horizontal)
+                
                 // Main Controls
                 HStack(spacing: 16) {
                     Button {
@@ -220,8 +243,8 @@ struct HabitDetailView: View {
                             .font(.system(size: 20, weight: .medium))
                     }
                     .buttonStyle(GlassButtonStyle())
-                    .disabled(!viewModel.canUndo)
-                    .opacity(viewModel.canUndo ? 1.0 : 0.5)
+                    .disabled(!viewModel.canUndo || viewModel.isHistoricalView)
+                    .opacity(viewModel.canUndo && !viewModel.isHistoricalView ? 1.0 : 0.5)
                     .scaleEffect(isUndoPressed ? 0.95 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: isUndoPressed)
                     .simultaneousGesture(
@@ -238,6 +261,7 @@ struct HabitDetailView: View {
                             .font(.system(size: 20, weight: .medium))
                     }
                     .buttonStyle(GlassButtonStyle())
+                    .disabled(viewModel.isHistoricalView)
                     
                     if viewModel.habit.type == .time {
                         Button {
@@ -256,12 +280,13 @@ struct HabitDetailView: View {
                                 .onEnded { _ in isTimerPressed = false }
                         )
                         .id(viewModel.isPlaying)
+                        .disabled(viewModel.isHistoricalView)
                     }
                 }
                 .padding(.horizontal)
                 
                 // Dynamic Buttons
-                if !availableButtons.isEmpty {
+                if !availableButtons.isEmpty && !viewModel.isHistoricalView {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(availableButtons, id: \.label) { button in
@@ -290,16 +315,16 @@ struct HabitDetailView: View {
                 }
                 
                 // Complete Button
-                if !viewModel.isCompleted {
+                if !viewModel.isCompleted && !viewModel.isHistoricalView {
                     Button {
                         viewModel.setValue(viewModel.habit.goal.doubleValue)
                     } label: {
                         Text("Complete")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(colorScheme == .dark ? .black : .white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color.green)
+                            .background(colorScheme == .dark ? .white : .black)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .padding(.horizontal)
@@ -316,12 +341,21 @@ struct HabitDetailView: View {
             }
             
             ToolbarItem(placement: .topBarTrailing) {
-                HabitOptionsMenu(
-                    onChangeValue: { viewModel.showManualInputPanel() },
-                    onEdit: { onEdit(viewModel.habit) },
-                    onDelete: { showingDeleteAlert = true },
-                    onReset: { viewModel.reset() }
-                )
+                HStack(spacing: 16) {
+                    Button {
+                        viewModel.showingCalendar = true
+                    } label: {
+                        Image(systemName: "calendar")
+                            .foregroundStyle(colorScheme == .dark ? .white : .black)
+                    }
+                    
+                    HabitOptionsMenu(
+                        onChangeValue: { viewModel.showManualInputPanel() },
+                        onEdit: { onEdit(viewModel.habit) },
+                        onDelete: { showingDeleteAlert = true },
+                        onReset: { viewModel.reset() }
+                    )
+                }
             }
         }
         .alert("Delete Habit", isPresented: $showingDeleteAlert) {
@@ -344,6 +378,12 @@ struct HabitDetailView: View {
                     viewModel.showManualInput = false
                 }
             )
+        }
+        .sheet(isPresented: $viewModel.showingCalendar) {
+            CalendarPickerView(selectedDate: $viewModel.selectedDate)
+                .onChange(of: viewModel.selectedDate) { _, newDate in
+                    viewModel.loadProgressForDate(newDate)
+                }
         }
         .onChange(of: viewModel.isCompleted) { _, isCompleted in
             if isCompleted {

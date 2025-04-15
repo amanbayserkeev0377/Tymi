@@ -18,9 +18,9 @@ struct ViewBackground: View {
         } else {
             LinearGradient(
                 colors: [
-                    Color(red: 0.97, green: 0.95, blue: 0.96),
-                    Color(red: 0.98, green: 0.96, blue: 0.97),
-                    Color(red: 0.96, green: 0.94, blue: 0.94)
+                    Color(red: 0.95, green: 0.95, blue: 0.96),
+                    Color(red: 0.94, green: 0.96, blue: 0.97),
+                    Color(red: 0.94, green: 0.94, blue: 0.94)
                     
                 ],
                 startPoint: .topLeading,

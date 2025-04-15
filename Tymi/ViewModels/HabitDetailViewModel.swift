@@ -18,6 +18,9 @@ final class HabitDetailViewModel: ObservableObject {
     @Published var showManualInput: Bool = false
     @Published var isAddMode: Bool = false
     @Published var canUndo: Bool = false
+    @Published var selectedDate: Date = Date()
+    @Published var showingCalendar: Bool = false
+    @Published var isHistoricalView: Bool = false
     
     private var wasRunningBeforeBackground = false
     private var startTime: Date?
@@ -34,6 +37,24 @@ final class HabitDetailViewModel: ObservableObject {
             min(currentValue.doubleValue, habit.goal.doubleValue),
             type: habit.type
         )
+    }
+    
+    var formattedSelectedDate: String {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        let selectedDay = calendar.startOfDay(for: selectedDate)
+        
+        if calendar.isDate(selectedDay, inSameDayAs: today) {
+            return "Сегодня"
+        } else if calendar.isDate(selectedDay, inSameDayAs: yesterday) {
+            return "Вчера"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "d MMMM"
+            formatter.locale = Locale(identifier: "ru_RU")
+            return formatter.string(from: selectedDate)
+        }
     }
     
     init(habit: Habit, dataStore: HabitDataStore = UserDefaultsService.shared) {
@@ -56,7 +77,6 @@ final class HabitDetailViewModel: ObservableObject {
             guard let self = self else { return }
             DispatchQueue.main.async {
                 self.currentValue = newValue
-                self.isPlaying = self.timerManager.isPlaying
                 self.updateProgress()
             }
         }
@@ -131,11 +151,12 @@ final class HabitDetailViewModel: ObservableObject {
         
         if isPlaying {
             timerManager.pause()
+            isPlaying = false
         } else {
             timerManager.start()
+            isPlaying = true
         }
         
-        isPlaying = timerManager.isPlaying
         updateProgress()
     }
     
@@ -147,6 +168,29 @@ final class HabitDetailViewModel: ObservableObject {
     func showManualInputPanel(isAdd: Bool = false) {
         isAddMode = isAdd
         showManualInput = true
+    }
+    
+    func loadProgressForDate(_ date: Date) {
+        selectedDate = date
+        isHistoricalView = !Calendar.current.isDateInToday(date)
+        
+        // Загружаем прогресс за выбранную дату
+        if let progress = dataStore.getProgress(for: habit.id, on: date) {
+            currentValue = ValueType.fromDouble(progress.value, type: habit.type)
+            isCompleted = progress.value >= habit.goal.doubleValue
+            canUndo = false // В историческом просмотре отключим отмену действий
+        } else {
+            // Если прогресса нет, сбрасываем значения
+            currentValue = habit.type == .count ? .count(0) : .time(0)
+            isCompleted = false
+            canUndo = false
+        }
+        
+        updateProgress()
+    }
+    
+    func returnToToday() {
+        loadProgressForDate(Date())
     }
     
     // MARK: - App Lifecycle
@@ -188,7 +232,6 @@ final class HabitDetailViewModel: ObservableObject {
     func onAppear() {
         loadStatistics()
         
-        isPlaying = timerManager.isPlaying
         currentValue = actionManager.currentValue
         canUndo = actionManager.canUndo
         

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TodayView: View {
     @EnvironmentObject private var habitStore: HabitStoreManager
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showingNewHabit = false
     @State private var showingSettings = false
     @State private var showingCalendar = false
@@ -64,6 +65,7 @@ struct TodayView: View {
                         showingSettings = true
                     } label: {
                         Image(systemName: "gearshape")
+                            .foregroundStyle(colorScheme == .dark ? .white : .black)
                     }
                 }
                 
@@ -73,12 +75,14 @@ struct TodayView: View {
                             showingCalendar = true
                         } label: {
                             Image(systemName: "calendar")
+                                .foregroundStyle(colorScheme == .dark ? .white : .black)
                         }
                         
                         Button {
                             showingNewHabit = true
                         } label: {
                             Image(systemName: "plus")
+                                .foregroundStyle(colorScheme == .dark ? .white : .black)
                         }
                     }
                 }
@@ -107,7 +111,6 @@ struct TodayView: View {
             }
             .sheet(isPresented: $showingCalendar) {
                 CalendarPickerView(selectedDate: $selectedDate)
-                    .presentationDetents([.medium])
             }
             .withBackground()
         }

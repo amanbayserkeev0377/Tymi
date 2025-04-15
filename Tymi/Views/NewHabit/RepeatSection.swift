@@ -17,7 +17,7 @@ struct RepeatSection: View {
                         Spacer()
                         if repeatType == .daily {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -30,7 +30,7 @@ struct RepeatSection: View {
                         Spacer()
                         if repeatType == .weekly {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
