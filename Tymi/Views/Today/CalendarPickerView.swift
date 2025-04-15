@@ -17,7 +17,8 @@ struct CalendarPickerView: View {
     }
     
     private var backgroundColor: Color {
-        colorScheme == .dark ? .black : .white
+        colorScheme == .dark ? Color(.secondarySystemGroupedBackground) : Color(.systemBackground)
+
     }
     
     var body: some View {
