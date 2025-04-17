@@ -29,11 +29,6 @@
 			path = Tymi;
 			sourceTree = "<group>";
 		};
-		07A95F6F2D984B3600044A7A /* Tests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Tests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,7 +45,6 @@
 		07A95EF12D9849F300044A7A = {
 			isa = PBXGroup;
 			children = (
-				07A95F6F2D984B3600044A7A /* Tests */,
 				07A95EFC2D9849F300044A7A /* Tymi */,
 				07A95EFB2D9849F300044A7A /* Products */,
 			);
@@ -81,7 +75,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				07A95EFC2D9849F300044A7A /* Tymi */,
-				07A95F6F2D984B3600044A7A /* Tests */,
 			);
 			name = Tymi;
 			packageProductDependencies = (
@@ -275,7 +268,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Tymi/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = Tymi/Resources;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Tymi/Info.plist;
@@ -304,7 +297,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Tymi/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = Tymi/Resources;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Tymi/Info.plist;

@@ -1,177 +1,132 @@
 import Foundation
+import SwiftData
 
-enum GoalValue: Codable {
-    case count(Int32)
-    case time(Double)
-    
-    // Реализация Codable
-    enum CodingKeys: String, CodingKey {
-        case type, countValue, timeValue
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(String.self, forKey: .type)
-        switch type {
-        case "count":
-            let value = try container.decode(Int32.self, forKey: .countValue)
-            self = .count(value)
-        case "time":
-            let value = try container.decode(Double.self, forKey: .timeValue)
-            self = .time(value)
-        default:
-            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid goal type")
-        }
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .count(let value):
-            try container.encode("count", forKey: .type)
-            try container.encode(value, forKey: .countValue)
-        case .time(let value):
-            try container.encode("time", forKey: .type)
-            try container.encode(value, forKey: .timeValue)
-        }
-    }
-    
-    // Геттер для получения значения как Double (для совместимости)
-    var doubleValue: Double {
-        switch self {
-        case .count(let value): return Double(value)
-        case .time(let value): return value
-        }
-    }
-}
-
-struct Habit: Identifiable, Codable, Hashable {
-    let id: UUID
-    var name: String
+@Model
+final class Habit {
+    // Basic properties
+    var title: String
     var type: HabitType
-    var goal: GoalValue
-    var startDate: Date
-    var activeDays: Set<Int> // 1 = Sunday, 2 = Monday, ..., 7 = Saturday (Calendar.current.firstWeekday)
-    var reminders: [Reminder]
+    var goal: Int // Target value (count or seconds for time)
+    
+    // System properties
+    var createdAt: Date
     var isArchived: Bool
     
+    // Relationship with completions (one-to-many)
+    @Relationship(deleteRule: .cascade, inverse: \HabitCompletion.habit)
+    var completions: [HabitCompletion]
+    
+    // Settings for days and reminders
+    var activeDays: [Bool]
+    var reminderTime: Date?
+    var startDate: Date
+    
+    // Helper to create active days array
+    static func createDefaultActiveDays() -> [Bool] {
+        return Array(repeating: true, count: 7)
+    }
+    
+    // Initializer with default values
     init(
-        id: UUID = UUID(),
-        name: String = "",
+        title: String,
         type: HabitType = .count,
-        goal: GoalValue? = nil,
-        startDate: Date = Date(),
-        activeDays: Set<Int> = Set(1...7),
-        reminders: [Reminder] = [],
-        isArchived: Bool = false
+        goal: Int = 1,
+        createdAt: Date = .now,
+        isArchived: Bool = false,
+        activeDays: [Bool]? = nil,
+        reminderTime: Date? = nil,
+        startDate: Date = .now
     ) {
-        self.id = id
-        self.name = name
+        self.title = title
         self.type = type
-        self.goal = goal ?? (type == .count ? .count(1) : .time(1))
-        self.startDate = startDate
-        self.activeDays = activeDays
-        self.reminders = reminders
+        self.goal = goal
+        self.createdAt = createdAt
         self.isArchived = isArchived
+        self.completions = []
+        self.activeDays = activeDays ?? Habit.createDefaultActiveDays()
+        self.reminderTime = reminderTime
+        self.startDate = startDate
     }
     
-    // Реализация Hashable
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+    // Get progress for specific date
+    func progressForDate(_ date: Date) -> Int {
+        let calendar = Calendar.current
+        
+        return completions
+            .filter { calendar.isDate($0.date, inSameDayAs: date) }
+            .reduce(0) { $0 + $1.value }
     }
     
-    static func == (lhs: Habit, rhs: Habit) -> Bool {
-        lhs.id == rhs.id
-    }
-}
-
-enum HabitType: String, Codable, CaseIterable {
-    case count
-    case time
-    
-    var title: String {
-        switch self {
+    // Format progress based on habit type
+    func formattedProgress(for date: Date) -> String {
+        let progress = progressForDate(date)
+        
+        switch type {
         case .count:
-            return "Count"
+            return "\(progress)/\(goal)"
         case .time:
-            return "Timer"
-        }
-    }
-}
-
-class HabitStoreManager: ObservableObject {
-    @Published private(set) var habits: [Habit] = []
-    private let userDefaultsService = UserDefaultsService.shared
-    private let notificationService = NotificationService.shared
-    
-    init() {
-        loadHabits()
-    }
-    
-    func addHabit(_ habit: Habit) {
-        habits.append(habit)
-        saveHabits()
-        if habit.reminders.contains(where: { $0.isEnabled }) {
-            notificationService.scheduleNotifications(for: habit)
-        }
-    }
-    
-    func updateHabit(_ habit: Habit) {
-        if let index = habits.firstIndex(where: { $0.id == habit.id }) {
-            let oldHabit = habits[index]
-            habits[index] = habit
-            saveHabits()
+            if progress == 0 {
+                return "0:00:00"
+            }
             
-            // Обновляем уведомления, если изменилось время напоминания
-            if oldHabit.reminders.contains(where: { $0.isEnabled }) != habit.reminders.contains(where: { $0.isEnabled }) {
-                if habit.reminders.contains(where: { $0.isEnabled }) {
-                    notificationService.scheduleNotifications(for: habit)
-                } else {
-                    notificationService.cancelNotifications(for: habit)
-                }
+            let hours = progress / 3600
+            let minutes = (progress % 3600) / 60
+            let seconds = progress % 60
+            
+            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        }
+    }
+    
+    // Format goal based on habit type
+    var formattedGoal: String {
+        switch type {
+        case .count:
+            return "\(goal) times"
+        case .time:
+            let hours = goal / 3600
+            let minutes = (goal % 3600) / 60
+            
+            if hours > 0 {
+                return "\(hours) hr \(minutes) min"
+            } else {
+                return "\(minutes) min"
             }
         }
     }
     
-    func deleteHabit(_ habit: Habit) {
-        habits.removeAll { $0.id == habit.id }
-        saveHabits()
-        notificationService.cancelNotifications(for: habit)
+    // Check if habit is active on specific day of week
+    func isActiveOnDate(_ date: Date) -> Bool {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        
+        // Get first day of week from user's calendar settings
+        let firstWeekday = calendar.firstWeekday
+        
+        // Calculate index in activeDays array based on system first day of week
+        let dayIndex = (weekday + 7 - firstWeekday) % 7
+        return activeDays[dayIndex]
     }
     
-    func saveProgress(for habit: Habit, value: Double, isCompleted: Bool, date: Date = Date()) {
-        let progress = HabitProgress(
-            habitId: habit.id,
-            date: date,
-            value: value,
-            isCompleted: isCompleted
-        )
-        userDefaultsService.saveProgress(progress)
+    // Check if habit is completed for the day
+    func isCompletedForDate(_ date: Date) -> Bool {
+        return progressForDate(date) >= goal
     }
     
-    func getProgress(for habit: Habit, on date: Date = Date()) -> HabitProgress? {
-        userDefaultsService.getProgress(for: habit.id, on: date)
+    // Calculate completion percentage for the day
+    func completionPercentageForDate(_ date: Date) -> Double {
+        let progress = progressForDate(date)
+        
+        if goal <= 0 {
+            return progress > 0 ? 1.0 : 0.0
+        }
+        
+        let percentage = Double(progress) / Double(goal)
+        return min(percentage, 1.0) // Cap at 100%
     }
     
-    func getAllProgress(for habit: Habit) -> [HabitProgress] {
-        userDefaultsService.getAllProgress(for: habit.id)
-    }
-    
-    func cleanOldData(before date: Date) {
-        userDefaultsService.cleanOldProgress(olderThan: date)
-    }
-    
-    private func loadHabits() {
-        habits = userDefaultsService.loadHabits()
-    }
-    
-    private func saveHabits() {
-        userDefaultsService.saveHabits(habits)
-    }
-}
-
-private extension Calendar {
-    func date(byAddingDays days: Int, to date: Date) -> Date? {
-        return self.date(byAdding: .day, value: days, to: date)
+    // Add progress value
+    func addProgress(_ value: Int, for date: Date = .now) {
+        let completion = HabitCompletion(date: date, value: value, habit: self)
+        completions.append(completion)
     }
 }
