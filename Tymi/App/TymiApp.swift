@@ -7,7 +7,7 @@ struct TymiApp: App {
     
     init() {
         do {
-            container = try ModelContainer(for: Habit.self)
+            container = try ModelContainer(for: Habit.self, HabitCompletion.self)
         } catch {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
