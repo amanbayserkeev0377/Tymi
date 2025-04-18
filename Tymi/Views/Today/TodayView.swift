@@ -71,8 +71,9 @@ struct TodayView: View {
             }
         }
         .sheet(isPresented: $isShowingNewHabitSheet) {
-            Text("NewHabitView placeholder")
-                .presentationDetents([.medium, .large])
+            NewHabitView()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
     }
     
