@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ActiveDaysSection: View {
     @Binding var activeDays: [Bool]
+    @Environment(\.colorScheme) private var colorScheme
     
     // Calendar for day names
     private let calendar = Calendar.current
@@ -17,78 +18,78 @@ struct ActiveDaysSection: View {
         return before + after
     }
     
+    // Full day names for accessibility
+    private var fullDayNames: [String] {
+        var names = calendar.weekdaySymbols
+        
+        // Rearrange names based on first day of week
+        let firstWeekday = calendar.firstWeekday - 1
+        let before = Array(names[firstWeekday...])
+        let after = Array(names[..<firstWeekday])
+        return before + after
+    }
+    
+    private var activeColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
+    
+    private var inactiveColor: Color {
+        colorScheme == .dark ? Color.gray.opacity(0.3) : Color.gray.opacity(0.2)
+    }
+    
+    private var activeTextColor: Color {
+        colorScheme == .dark ? .black : .white
+    }
+    
+    private var inactiveTextColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
+    
+    // Minimum tap size (44x44 for accessibility)
+    private let minTapSize: CGFloat = 44
+    
     var body: some View {
         Section {
-            VStack(alignment: .leading, spacing: 10) {
-                // Quick selection buttons
-                HStack {
-                    Button("All") {
-                        activeDays = Array(repeating: true, count: 7)
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Button("Weekdays") {
-                        // Set weekdays based on locale and calendar settings
-                        var weekdaysDays = Array(repeating: false, count: 7)
-                        for i in 0..<7 {
-                            let adjustedIndex = (i + calendar.firstWeekday - 1) % 7
-                            // In Gregorian calendar, 2-6 are weekdays
-                            weekdaysDays[i] = (adjustedIndex + 1) >= 2 && (adjustedIndex + 1) <= 6
-                        }
-                        activeDays = weekdaysDays
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Button("Weekends") {
-                        // Set weekends based on locale and calendar settings
-                        var weekendDays = Array(repeating: false, count: 7)
-                        for i in 0..<7 {
-                            let adjustedIndex = (i + calendar.firstWeekday - 1) % 7
-                            // In Gregorian calendar, 1 and 7 are weekend
-                            weekendDays[i] = (adjustedIndex + 1) == 1 || (adjustedIndex + 1) == 7
-                        }
-                        activeDays = weekendDays
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Button("None") {
-                        activeDays = Array(repeating: false, count: 7)
-                    }
-                    .buttonStyle(.bordered)
-                }
-                .padding(.vertical, 4)
+            // Using GeometryReader to make sure we adapt to different screen sizes
+            GeometryReader { geometry in
+                let availableWidth = geometry.size.width
+                let itemSize = min(max(36, availableWidth / 9), 44) // Ensure minimum size but adapt to screen
                 
-                // Day selection circles
+                // Day selection circles in compact layout
                 HStack {
+                    Spacer()
                     ForEach(0..<7) { index in
-                        VStack {
-                            Text(daySymbols[index].prefix(1))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        ZStack {
+                            Circle()
+                                .fill(activeDays[index] ? activeColor : inactiveColor)
+                                .frame(width: itemSize, height: itemSize)
                             
-                            ZStack {
-                                Circle()
-                                    .fill(activeDays[index] ? Color.blue : Color.gray.opacity(0.2))
-                                    .frame(width: 36, height: 36)
-                                
-                                if !activeDays[index] {
-                                    Circle()
-                                        .strokeBorder(Color.gray.opacity(0.5), lineWidth: 1)
-                                        .frame(width: 36, height: 36)
-                                }
-                            }
-                            .onTapGesture {
+                            Text(daySymbols[index].prefix(1))
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
+                        }
+                        .frame(width: minTapSize, height: minTapSize) // Ensure minimum tap area
+                        .contentShape(Rectangle()) // Make entire area tappable
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.2)) {
                                 activeDays[index].toggle()
                             }
                         }
+                        .accessibilityLabel("\(fullDayNames[index])")
+                        .accessibilityValue(activeDays[index] ? "Active" : "Inactive")
+                        .accessibilityHint("Double tap to toggle \(fullDayNames[index])")
                         
                         if index < 6 {
                             Spacer()
                         }
                     }
+                    Spacer()
                 }
-                .padding(.vertical, 8)
+                .frame(height: max(itemSize, minTapSize))
             }
+            .frame(height: 44)
+            .padding(.vertical, 8)
         } header: {
             Text("Active Days")
         }
@@ -96,9 +97,28 @@ struct ActiveDaysSection: View {
 }
 
 #Preview {
-    @State var activeDays = Array(repeating: true, count: 7)
+    @State var activeDays = [true, false, true, false, true, false, true]
     
-    return Form {
-        ActiveDaysSection(activeDays: $activeDays)
+    return Group {
+        // iPhone SE size
+        Form {
+            ActiveDaysSection(activeDays: $activeDays)
+        }
+        .previewDevice("iPhone SE (3rd generation)")
+        .previewDisplayName("iPhone SE")
+        
+        // Regular iPhone
+        Form {
+            ActiveDaysSection(activeDays: $activeDays)
+        }
+        .previewDevice("iPhone 14")
+        .previewDisplayName("iPhone 14")
+        
+        // iPad
+        Form {
+            ActiveDaysSection(activeDays: $activeDays)
+        }
+        .previewDevice("iPad Pro (11-inch) (4th generation)")
+        .previewDisplayName("iPad Pro 11")
     }
 }
