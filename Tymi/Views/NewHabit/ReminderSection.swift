@@ -26,8 +26,8 @@ struct ReminderSection: View {
 }
 
 #Preview {
-    @State var isReminderEnabled = true
-    @State var reminderTime = Date()
+    @Previewable @State var isReminderEnabled = true
+    @Previewable @State var reminderTime = Date()
     
     return Form {
         ReminderSection(

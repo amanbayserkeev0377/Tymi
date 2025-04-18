@@ -11,70 +11,57 @@ struct GoalSection: View {
     var body: some View {
         Section {
             HStack {
-                Image(systemName: "trophy")
-                    .foregroundStyle(Color.primary)
-                    .font(.headline)
-                
-                if selectedType == .count {
-                    HStack {
-                        Text("Daily goal")
-                        Spacer()
-                        TextField("count", value: $countGoal, format: .number)
+                ZStack {
+                    if selectedType == .count {
+                        // Count input field
+                        TextField("Count", value: $countGoal, format: .number)
                             .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 60)
-                        Text("times")
-                            .foregroundStyle(.secondary)
-                    }
-                } else {
-                    HStack {
-                        Text("Daily goal")
-                        Spacer()
+                            .transition(.asymmetric(
+                                insertion: .opacity.combined(with: .move(edge: .leading)),
+                                removal: .opacity.combined(with: .move(edge: .trailing))
+                            ))
+                            .id("countField")
+                    } else {
+                        // Time picker
                         DatePicker("", selection: $timeDate, displayedComponents: [.hourAndMinute])
                             .datePickerStyle(.compact)
                             .labelsHidden()
                             .onChange(of: timeDate) { _, newValue in
                                 updateHoursAndMinutesFromTimeDate()
                             }
+                            .transition(.asymmetric(
+                                insertion: .opacity.combined(with: .move(edge: .trailing)),
+                                removal: .opacity.combined(with: .move(edge: .leading))
+                            ))
+                            .id("timeField")
                     }
                 }
+                .animation(.easeInOut(duration: 0.3), value: selectedType)
                 
                 Spacer()
                 
-                // Type toggle buttons
-                HStack(spacing: 2) {
-                    Image(systemName: "numbers")
-                        .padding(8)
-                        .background(selectedType == .count ? Color.primary.opacity(0.1) : Color.clear)
-                        .foregroundStyle(selectedType == .count ? .primary : .secondary)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if selectedType != .count {
-                                selectedType = .count
-                                countGoal = 1
-                            }
-                        }
-                    
-                    Image(systemName: "clock")
-                        .padding(8)
-                        .background(selectedType == .time ? Color.primary.opacity(0.1) : Color.clear)
-                        .foregroundStyle(selectedType == .time ? .primary : .secondary)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if selectedType != .time {
-                                selectedType = .time
-                                hours = 1
-                                minutes = 0
-                                updateTimeDateFromHoursAndMinutes()
-                            }
-                        }
+                // Right side - type selector
+                Picker("", selection: $selectedType) {
+                    Text("count").tag(HabitType.count)
+                    Text("time").tag(HabitType.time)
                 }
-                .font(.subheadline)
+                .pickerStyle(.menu)
+                .onChange(of: selectedType) { oldValue, newValue in
+                    if newValue == .count {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            countGoal = 1
+                        }
+                    } else {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            hours = 1
+                            minutes = 0
+                            updateTimeDateFromHoursAndMinutes()
+                        }
+                    }
+                }
             }
         } header: {
-            Text("Goal")
+            Text("Daily Goal")
         }
         .onAppear {
             updateTimeDateFromHoursAndMinutes()
@@ -96,8 +83,8 @@ struct GoalSection: View {
 #Preview {
     @State var selectedType: HabitType = .count
     @State var countGoal: Int = 1
-    @State var hours: Int = 0
-    @State var minutes: Int = 15
+    @State var hours: Int = 1
+    @State var minutes: Int = 0
     
     return Form {
         GoalSection(

@@ -9,7 +9,7 @@ struct ActiveDaysSection: View {
     
     // Day symbols
     private var daySymbols: [String] {
-        var symbols = calendar.shortWeekdaySymbols
+        let symbols = calendar.shortWeekdaySymbols
         
         // Rearrange symbols based on first day of week
         let firstWeekday = calendar.firstWeekday - 1
@@ -20,7 +20,7 @@ struct ActiveDaysSection: View {
     
     // Full day names for accessibility
     private var fullDayNames: [String] {
-        var names = calendar.weekdaySymbols
+        let names = calendar.weekdaySymbols
         
         // Rearrange names based on first day of week
         let firstWeekday = calendar.firstWeekday - 1
@@ -53,11 +53,10 @@ struct ActiveDaysSection: View {
             // Using GeometryReader to make sure we adapt to different screen sizes
             GeometryReader { geometry in
                 let availableWidth = geometry.size.width
-                let itemSize = min(max(36, availableWidth / 9), 44) // Ensure minimum size but adapt to screen
+                let itemSize = min(max(30, availableWidth / 10), 40) // Smaller sizes for small screens
                 
                 // Day selection circles in compact layout
-                HStack {
-                    Spacer()
+                HStack(spacing: 0) {
                     ForEach(0..<7) { index in
                         ZStack {
                             Circle()
@@ -69,7 +68,8 @@ struct ActiveDaysSection: View {
                                 .fontWeight(.medium)
                                 .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
                         }
-                        .frame(width: minTapSize, height: minTapSize) // Ensure minimum tap area
+                        .frame(maxWidth: .infinity)
+                        .frame(height: minTapSize) // Ensure minimum tap area
                         .contentShape(Rectangle()) // Make entire area tappable
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -79,12 +79,7 @@ struct ActiveDaysSection: View {
                         .accessibilityLabel("\(fullDayNames[index])")
                         .accessibilityValue(activeDays[index] ? "Active" : "Inactive")
                         .accessibilityHint("Double tap to toggle \(fullDayNames[index])")
-                        
-                        if index < 6 {
-                            Spacer()
-                        }
                     }
-                    Spacer()
                 }
                 .frame(height: max(itemSize, minTapSize))
             }
@@ -97,28 +92,8 @@ struct ActiveDaysSection: View {
 }
 
 #Preview {
-    @State var activeDays = [true, false, true, false, true, false, true]
-    
-    return Group {
-        // iPhone SE size
+    @Previewable @State var activeDays = [true, false, true, false, true, false, true]
         Form {
             ActiveDaysSection(activeDays: $activeDays)
         }
-        .previewDevice("iPhone SE (3rd generation)")
-        .previewDisplayName("iPhone SE")
-        
-        // Regular iPhone
-        Form {
-            ActiveDaysSection(activeDays: $activeDays)
-        }
-        .previewDevice("iPhone 14")
-        .previewDisplayName("iPhone 14")
-        
-        // iPad
-        Form {
-            ActiveDaysSection(activeDays: $activeDays)
-        }
-        .previewDevice("iPad Pro (11-inch) (4th generation)")
-        .previewDisplayName("iPad Pro 11")
-    }
 }

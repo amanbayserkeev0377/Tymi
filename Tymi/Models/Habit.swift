@@ -17,13 +17,31 @@ final class Habit {
     var completions: [HabitCompletion]
     
     // Settings for days and reminders
-    var activeDays: [Bool]
+    var activeDaysBitmask: Int
     var reminderTime: Date?
     var startDate: Date
     
-    // Helper to create active days array
-    static func createDefaultActiveDays() -> [Bool] {
-        return Array(repeating: true, count: 7)
+    // Computed property for compatibility with existing UI
+    var activeDays: [Bool] {
+        get {
+            let orderedWeekdays = Weekday.orderedByUserPreference
+            return orderedWeekdays.map { isActive(on: $0) }
+        }
+        set {
+            let orderedWeekdays = Weekday.orderedByUserPreference
+            activeDaysBitmask = 0
+            for (index, isActive) in newValue.enumerated() where index < 7 {
+                if isActive {
+                    let weekday = orderedWeekdays[index]
+                    setActive(true, for: weekday)
+                }
+            }
+        }
+    }
+    
+    // Helper to create active days bitmask
+    static func createDefaultActiveDaysBitMask() -> Int {
+        return 0b1111111 // All days active
     }
     
     // Initializer with default values
@@ -43,15 +61,48 @@ final class Habit {
         self.createdAt = createdAt
         self.isArchived = isArchived
         self.completions = []
-        self.activeDays = activeDays ?? Habit.createDefaultActiveDays()
+        
+        if let days = activeDays {
+            let orderedWeekdays = Weekday.orderedByUserPreference
+            var bitmask = 0
+            for (index, isActive) in days.enumerated() where index < 7 {
+                if isActive {
+                    let weekday = orderedWeekdays[index]
+                    bitmask |= (1 << weekday.rawValue)
+                }
+            }
+            self.activeDaysBitmask = bitmask
+        } else {
+            self.activeDaysBitmask = Habit.createDefaultActiveDaysBitMask()
+        }
+        
         self.reminderTime = reminderTime
         self.startDate = startDate
+    }
+    
+    // Check if habit is active on specific day
+    func isActive(on weekday: Weekday) -> Bool {
+        return (activeDaysBitmask & (1 << weekday.rawValue)) != 0
+    }
+    
+    // Set activity for specific day
+    func setActive(_ isActive: Bool, for weekday: Weekday) {
+        if isActive {
+            activeDaysBitmask |= (1 << weekday.rawValue)
+        } else {
+            activeDaysBitmask &= ~(1 << weekday.rawValue)
+        }
+    }
+    
+    // Check if habit is active on specific date
+    func isActiveOnDate(_ date: Date) -> Bool {
+        let weekday = Weekday.from(date: date)
+        return isActive(on: weekday)
     }
     
     // Get progress for specific date
     func progressForDate(_ date: Date) -> Int {
         let calendar = Calendar.current
-        
         return completions
             .filter { calendar.isDate($0.date, inSameDayAs: date) }
             .reduce(0) { $0 + $1.value }
@@ -92,19 +143,6 @@ final class Habit {
                 return "\(minutes) min"
             }
         }
-    }
-    
-    // Check if habit is active on specific day of week
-    func isActiveOnDate(_ date: Date) -> Bool {
-        let calendar = Calendar.current
-        let weekday = calendar.component(.weekday, from: date)
-        
-        // Get first day of week from user's calendar settings
-        let firstWeekday = calendar.firstWeekday
-        
-        // Calculate index in activeDays array based on system first day of week
-        let dayIndex = (weekday + 7 - firstWeekday) % 7
-        return activeDays[dayIndex]
     }
     
     // Check if habit is completed for the day

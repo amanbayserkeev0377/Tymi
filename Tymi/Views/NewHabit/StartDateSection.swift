@@ -19,7 +19,7 @@ struct StartDateSection: View {
 }
 
 #Preview {
-    @State var startDate = Date()
+    @Previewable @State var startDate = Date()
     
     return Form {
         StartDateSection(startDate: $startDate)
