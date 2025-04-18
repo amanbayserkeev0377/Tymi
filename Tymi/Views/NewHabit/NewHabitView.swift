@@ -51,6 +51,8 @@ struct NewHabitView: View {
             Form {
                 NameFieldSection(title: $title)
                 
+                StartDateSection(startDate: $startDate)
+                
                 GoalSection(
                     selectedType: $selectedType,
                     countGoal: $countGoal,
@@ -58,14 +60,12 @@ struct NewHabitView: View {
                     minutes: $minutes
                 )
                 
-                ActiveDaysSection(activeDays: $activeDays)
-                
                 ReminderSection(
                     isReminderEnabled: $isReminderEnabled,
                     reminderTime: $reminderTime
                 )
                 
-                StartDateSection(startDate: $startDate)
+                ActiveDaysSection(activeDays: $activeDays)
             }
             .navigationTitle("New Habit")
             .navigationBarTitleDisplayMode(.inline)
@@ -74,12 +74,14 @@ struct NewHabitView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .tint(.primary)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button("Add") {
                         saveHabit()
                     }
+                    .tint(.primary)
                     .disabled(!isFormValid)
                 }
             }

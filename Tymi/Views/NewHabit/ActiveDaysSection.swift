@@ -84,7 +84,6 @@ struct ActiveDaysSection: View {
                 .frame(height: max(itemSize, minTapSize))
             }
             .frame(height: 44)
-            .padding(.vertical, 8)
         } header: {
             Text("Active Days")
         }

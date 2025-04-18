@@ -6,20 +6,22 @@ struct ReminderSection: View {
     
     var body: some View {
         Section {
-            Toggle("Enable Reminder", isOn: $isReminderEnabled)
-            
-            if isReminderEnabled {
-                DatePicker("Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
-                    .datePickerStyle(.compact)
-                    .padding(.vertical, 4)
-            }
-        } header: {
-            Text("Reminder")
-        } footer: {
-            if isReminderEnabled {
-                Text("You'll receive a notification at the selected time on active days")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            HStack(alignment: .center, spacing: 12) {
+                Text("Reminder")
+                
+                Spacer()
+                
+                if isReminderEnabled {
+                    DatePicker("", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
+                        .frame(width: 80)
+                        .transition(.opacity.combined(with: .move(edge: .trailing)))
+                }
+                
+                Toggle("", isOn: $isReminderEnabled)
+                    .labelsHidden()
+                    .tint(.primary)
             }
         }
     }

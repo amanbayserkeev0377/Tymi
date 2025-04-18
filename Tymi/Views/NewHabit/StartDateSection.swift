@@ -5,15 +5,9 @@ struct StartDateSection: View {
     
     var body: some View {
         Section {
-            DatePicker("Start tracking from", selection: $startDate, displayedComponents: .date)
+            DatePicker("Start date", selection: $startDate, displayedComponents: .date)
                 .datePickerStyle(.compact)
-                .padding(.vertical, 4)
-        } header: {
-            Text("Start Date")
-        } footer: {
-            Text("Your habit tracking will begin on this date")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .tint(.primary)
         }
     }
 }

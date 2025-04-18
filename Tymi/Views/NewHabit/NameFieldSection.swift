@@ -5,7 +5,7 @@ struct NameFieldSection: View {
     
     var body: some View {
         Section(header: Text("Name")) {
-            TextField("Habit name", text: $title)
+            TextField("Reading", text: $title)
                 .autocorrectionDisabled()
         }
     }

@@ -11,52 +11,31 @@ struct GoalSection: View {
     var body: some View {
         Section {
             HStack {
-                ZStack {
-                    if selectedType == .count {
-                        // Count input field
-                        TextField("Count", value: $countGoal, format: .number)
-                            .keyboardType(.numberPad)
-                            .transition(.asymmetric(
-                                insertion: .opacity.combined(with: .move(edge: .leading)),
-                                removal: .opacity.combined(with: .move(edge: .trailing))
-                            ))
-                            .id("countField")
-                    } else {
-                        // Time picker
-                        DatePicker("", selection: $timeDate, displayedComponents: [.hourAndMinute])
-                            .datePickerStyle(.compact)
-                            .labelsHidden()
-                            .onChange(of: timeDate) { _, newValue in
-                                updateHoursAndMinutesFromTimeDate()
-                            }
-                            .transition(.asymmetric(
-                                insertion: .opacity.combined(with: .move(edge: .trailing)),
-                                removal: .opacity.combined(with: .move(edge: .leading))
-                            ))
-                            .id("timeField")
-                    }
+                if selectedType == .count {
+                    TextField("Count", value: $countGoal, format: .number)
+                        .keyboardType(.numberPad)
+                } else {
+                    DatePicker("", selection: $timeDate, displayedComponents: [.hourAndMinute])
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
+                        .onChange(of: timeDate) { _, newValue in
+                            updateHoursAndMinutesFromTimeDate()
+                        }
                 }
-                .animation(.easeInOut(duration: 0.3), value: selectedType)
                 
-                Spacer()
-                
-                // Right side - type selector
                 Picker("", selection: $selectedType) {
-                    Text("count").tag(HabitType.count)
-                    Text("time").tag(HabitType.time)
+                    Text("Count").tag(HabitType.count)
+                    Text("Time").tag(HabitType.time)
                 }
                 .pickerStyle(.menu)
+                .tint(.secondary)
                 .onChange(of: selectedType) { oldValue, newValue in
                     if newValue == .count {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            countGoal = 1
-                        }
+                        countGoal = 1
                     } else {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            hours = 1
-                            minutes = 0
-                            updateTimeDateFromHoursAndMinutes()
-                        }
+                        hours = 1
+                        minutes = 0
+                        updateTimeDateFromHoursAndMinutes()
                     }
                 }
             }
