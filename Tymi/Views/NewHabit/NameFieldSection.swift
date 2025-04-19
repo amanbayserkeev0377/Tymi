@@ -13,6 +13,7 @@ struct NameFieldSection: View {
                 TextField("Habit Name", text: $title)
                     .autocorrectionDisabled()
                     .focused($isFocused)
+                    .tint(.primary)
             }
             .frame(height: 44)
         }

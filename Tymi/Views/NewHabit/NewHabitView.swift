@@ -28,6 +28,10 @@ struct NewHabitView: View {
     // Start date
     @State private var startDate = Date()
     
+    // Focus states
+    @FocusState private var isNameFieldFocused: Bool
+    @FocusState private var isCountFieldFocused: Bool
+    
     // MARK: - Computed Properties
     
     private var isFormValid: Bool {
@@ -50,6 +54,7 @@ struct NewHabitView: View {
         NavigationStack {
             Form {
                 NameFieldSection(title: $title)
+                    .focused($isNameFieldFocused)
                 
                 GoalSection(
                     selectedType: $selectedType,
@@ -57,6 +62,7 @@ struct NewHabitView: View {
                     hours: $hours,
                     minutes: $minutes
                 )
+                .focused($isCountFieldFocused)
                 
                 StartDateSection(startDate: $startDate)
                 
@@ -83,6 +89,17 @@ struct NewHabitView: View {
                     }
                     .tint(.primary)
                     .disabled(!isFormValid)
+                }
+                
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button(action: {
+                        isNameFieldFocused = false
+                        isCountFieldFocused = false
+                    }) {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                    }
+                    .tint(.primary)
                 }
             }
         }

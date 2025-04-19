@@ -7,6 +7,7 @@ struct GoalSection: View {
     @Binding var minutes: Int
     
     @State private var timeDate: Date = Calendar.current.date(bySettingHour: 1, minute: 0, second: 0, of: Date()) ?? Date()
+    @FocusState private var isFocused: Bool
     
     var body: some View {
         Section {
@@ -17,6 +18,8 @@ struct GoalSection: View {
                 if selectedType == .count {
                     TextField("Count", value: $countGoal, format: .number)
                         .keyboardType(.numberPad)
+                        .tint(.primary)
+                        .focused($isFocused)
                 } else {
                     DatePicker("", selection: $timeDate, displayedComponents: [.hourAndMinute])
                         .datePickerStyle(.compact)

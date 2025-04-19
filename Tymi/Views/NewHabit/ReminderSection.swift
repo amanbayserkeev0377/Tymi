@@ -3,6 +3,7 @@ import SwiftUI
 struct ReminderSection: View {
     @Binding var isReminderEnabled: Bool
     @Binding var reminderTime: Date
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         Section {
@@ -22,7 +23,7 @@ struct ReminderSection: View {
                 
                 Toggle("", isOn: $isReminderEnabled)
                     .labelsHidden()
-                    .tint(.primary)
+                    .tint(colorScheme == .dark ? Color.white.opacity(0.7) : .black)
             }
             .frame(height: 44)
         }
