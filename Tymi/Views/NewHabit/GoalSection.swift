@@ -23,7 +23,7 @@ struct GoalSection: View {
                         .keyboardType(.numberPad)
                         .tint(.primary)
                         .focused($isFocused)
-                        .frame(minWidth: 195)
+                        .frame(minWidth: 190)
                         .onChange(of: countText) { _, newValue in
                             if let number = Int(newValue) {
                                 countGoal = number

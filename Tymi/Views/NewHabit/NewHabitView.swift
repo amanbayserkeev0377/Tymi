@@ -77,7 +77,7 @@ struct NewHabitView: View {
                     Button(action: {
                         saveHabit()
                     }) {
-                        Text("Add habit")
+                        Text("Save")
                             .font(.headline)
                             .foregroundStyle(
                                 colorScheme == .dark ? .black : .white
@@ -92,7 +92,7 @@ struct NewHabitView: View {
                     .listRowBackground(Color.clear)
                 }
             }
-            .navigationTitle("New habit")
+            .navigationTitle("Create habit")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -104,13 +104,13 @@ struct NewHabitView: View {
                                 .fill(
                                     colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.05)
                                 )
-                                .frame(width: 24, height: 24)
+                                .frame(width: 26, height: 26)
                             Image(systemName: "xmark")
                                 .foregroundStyle(
                                     colorScheme == .dark ? Color.white.opacity(0.5) : Color.gray.opacity(0.8)
                                 )
                                 .font(.caption2)
-                                .fontWeight(.bold)
+                                .fontWeight(.black)
                         }
                     }
                 }
