@@ -11,7 +11,7 @@ final class HabitCompletion {
     
     // MARK: - Initializers
     
-    init(date: Date = .now, value: Int = 1, habit: Habit? = nil) {
+    init(date: Date = .now, value: Int = 0, habit: Habit? = nil) {
         self.date = date
         self.value = value
         self.habit = habit

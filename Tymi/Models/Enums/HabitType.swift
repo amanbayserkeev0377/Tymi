@@ -16,7 +16,7 @@ enum HabitType: Int, Codable, CaseIterable {
     var defaultGoal: Int {
         switch self {
         case .count:
-            return 1 // defaults is 1 time
+            return 0 // defaults is 0 time
         case .time:
             return 60 // default is 60 minutes
         }

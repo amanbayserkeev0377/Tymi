@@ -7,6 +7,7 @@ struct GoalSection: View {
     @Binding var minutes: Int
     
     @State private var timeDate: Date = Calendar.current.date(bySettingHour: 1, minute: 0, second: 0, of: Date()) ?? Date()
+    @State private var countText: String = ""
     @FocusState private var isFocused: Bool
     
     var body: some View {
@@ -15,11 +16,20 @@ struct GoalSection: View {
                 Image(systemName: "trophy")
                     .foregroundStyle(.primary)
                 
+                Spacer()
+                
                 if selectedType == .count {
-                    TextField("Count", value: $countGoal, format: .number)
+                    TextField("Set your daily goal", text: $countText)
                         .keyboardType(.numberPad)
                         .tint(.primary)
                         .focused($isFocused)
+                        .onChange(of: countText) { _, newValue in
+                            if let number = Int(newValue) {
+                                countGoal = number
+                            } else {
+                                countGoal = 0
+                            }
+                        }
                 } else {
                     DatePicker("", selection: $timeDate, displayedComponents: [.hourAndMinute])
                         .datePickerStyle(.compact)
@@ -37,7 +47,8 @@ struct GoalSection: View {
                 .tint(.secondary)
                 .onChange(of: selectedType) { oldValue, newValue in
                     if newValue == .count {
-                        countGoal = 1
+                        countText = ""
+                        countGoal = 0
                     } else {
                         hours = 1
                         minutes = 0
@@ -45,10 +56,14 @@ struct GoalSection: View {
                     }
                 }
             }
-            .frame(height: 44)
+            .frame(height: 37)
         }
         .onAppear {
             updateTimeDateFromHoursAndMinutes()
+            if selectedType == .count {
+                countText = ""
+                countGoal = 0
+            }
         }
     }
     
@@ -65,10 +80,10 @@ struct GoalSection: View {
 }
 
 #Preview {
-    @State var selectedType: HabitType = .count
-    @State var countGoal: Int = 1
-    @State var hours: Int = 1
-    @State var minutes: Int = 0
+    @Previewable @State var selectedType: HabitType = .count
+    @Previewable @State var countGoal: Int = 0
+    @Previewable @State var hours: Int = 1
+    @Previewable @State var minutes: Int = 0
     
     return Form {
         GoalSection(

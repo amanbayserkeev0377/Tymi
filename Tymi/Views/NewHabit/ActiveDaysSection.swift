@@ -7,9 +7,9 @@ struct ActiveDaysSection: View {
     // Calendar for day names
     private let calendar = Calendar.current
     
-    // Day symbols
+    // Day symbols (short names like "Mon", "Tue")
     private var daySymbols: [String] {
-        let symbols = calendar.shortWeekdaySymbols
+        let symbols = calendar.shortWeekdaySymbols // e.g., ["Mon", "Tue", ...]
         
         // Rearrange symbols based on first day of week
         let firstWeekday = calendar.firstWeekday - 1
@@ -30,7 +30,7 @@ struct ActiveDaysSection: View {
     }
     
     private var activeColor: Color {
-        colorScheme == .dark ? .white : .black
+        colorScheme == .dark ? Color.white.opacity(0.7) : .black
     }
     
     private var inactiveColor: Color {
@@ -45,45 +45,36 @@ struct ActiveDaysSection: View {
         colorScheme == .dark ? .white : .black
     }
     
-    // Minimum tap size (44x44 for accessibility)
     private let minTapSize: CGFloat = 44
     
     var body: some View {
         Section {
-            // Using GeometryReader to make sure we adapt to different screen sizes
-            GeometryReader { geometry in
-                let availableWidth = geometry.size.width
-                let itemSize = min(max(30, availableWidth / 10), 40) // Smaller sizes for small screens
-                
-                // Day selection circles in compact layout
-                HStack(spacing: 0) {
-                    ForEach(0..<7) { index in
-                        ZStack {
-                            Circle()
-                                .fill(activeDays[index] ? activeColor : inactiveColor)
-                                .frame(width: itemSize, height: itemSize)
-                            
-                            Text(daySymbols[index].prefix(1))
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
+            // Days Grid
+            HStack(spacing: 8) { // Consistent spacing between buttons
+                ForEach(0..<7) { index in
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            activeDays[index].toggle()
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: minTapSize) // Ensure minimum tap area
-                        .contentShape(Rectangle()) // Make entire area tappable
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                activeDays[index].toggle()
-                            }
-                        }
-                        .accessibilityLabel("\(fullDayNames[index])")
-                        .accessibilityValue(activeDays[index] ? "Active" : "Inactive")
-                        .accessibilityHint("Double tap to toggle \(fullDayNames[index])")
+                    } label: {
+                        Text(daySymbols[index]) // Use full short names like "Mon"
+                            .font(.body)
+                            .frame(width: 44, height: 44)
+                            .background(activeDays[index] ? activeColor : inactiveColor)
+                            .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            )
                     }
+                    .buttonStyle(.plain) // Prevents default button styling
+                    .accessibilityLabel("\(fullDayNames[index])")
+                    .accessibilityValue(activeDays[index] ? "Active" : "Inactive")
+                    .accessibilityHint("Double tap to toggle \(fullDayNames[index])")
                 }
-                .frame(height: max(itemSize, minTapSize))
             }
-            .frame(height: 44)
+            .padding(.horizontal)
         } header: {
             Text("Active Days")
         }

@@ -48,7 +48,7 @@ final class Habit {
     init(
         title: String,
         type: HabitType = .count,
-        goal: Int = 1,
+        goal: Int = 0,
         createdAt: Date = .now,
         isArchived: Bool = false,
         activeDays: [Bool]? = nil,

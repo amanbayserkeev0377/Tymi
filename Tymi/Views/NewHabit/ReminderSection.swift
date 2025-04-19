@@ -25,7 +25,7 @@ struct ReminderSection: View {
                     .labelsHidden()
                     .tint(colorScheme == .dark ? Color.white.opacity(0.7) : .black)
             }
-            .frame(height: 44)
+            .frame(height: 37)
         }
     }
 }

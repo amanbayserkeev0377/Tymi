@@ -8,12 +8,14 @@ struct StartDateSection: View {
             HStack {
                 Image(systemName: "calendar")
                     .foregroundStyle(.primary)
+                    
+                Spacer()
                 
-                DatePicker("Start date", selection: $startDate, displayedComponents: .date)
+                DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
                     .datePickerStyle(.compact)
                     .tint(.primary)
             }
-            .frame(height: 44)
+            .frame(height: 37)
         }
     }
 }

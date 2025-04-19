@@ -15,7 +15,7 @@ struct NameFieldSection: View {
                     .focused($isFocused)
                     .tint(.primary)
             }
-            .frame(height: 44)
+            .frame(height: 37)
         }
         .onAppear {
             isFocused = true
