@@ -19,6 +19,7 @@ struct ReminderSection: View {
                     DatePicker("", selection: $reminderTime, displayedComponents: .hourAndMinute)
                         .datePickerStyle(.compact)
                         .labelsHidden()
+                        .tint(.primary)
                 }
                 
                 Toggle("", isOn: $isReminderEnabled)

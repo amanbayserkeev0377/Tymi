@@ -72,8 +72,6 @@ struct TodayView: View {
         }
         .sheet(isPresented: $isShowingNewHabitSheet) {
             NewHabitView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
         }
     }
     

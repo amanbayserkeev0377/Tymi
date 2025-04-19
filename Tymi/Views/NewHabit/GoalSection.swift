@@ -23,6 +23,7 @@ struct GoalSection: View {
                         .keyboardType(.numberPad)
                         .tint(.primary)
                         .focused($isFocused)
+                        .frame(minWidth: 195)
                         .onChange(of: countText) { _, newValue in
                             if let number = Int(newValue) {
                                 countGoal = number
@@ -34,6 +35,7 @@ struct GoalSection: View {
                     DatePicker("", selection: $timeDate, displayedComponents: [.hourAndMinute])
                         .datePickerStyle(.compact)
                         .labelsHidden()
+                        .tint(.primary)
                         .onChange(of: timeDate) { _, newValue in
                             updateHoursAndMinutesFromTimeDate()
                         }

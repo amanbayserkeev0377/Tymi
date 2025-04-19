@@ -45,45 +45,36 @@ struct ActiveDaysSection: View {
         colorScheme == .dark ? .white : .black
     }
     
-    private let minTapSize: CGFloat = 44
-    
     var body: some View {
-        Section {
-            // Days Grid
-            HStack(spacing: 8) { // Consistent spacing between buttons
-                ForEach(0..<7) { index in
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            activeDays[index].toggle()
-                        }
-                    } label: {
-                        Text(daySymbols[index]) // Use full short names like "Mon"
-                            .font(.body)
-                            .frame(width: 44, height: 44)
-                            .background(activeDays[index] ? activeColor : inactiveColor)
-                            .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                            )
+        // Days Grid without Section wrapper
+        HStack(spacing: 8) { // Consistent spacing between buttons
+            ForEach(0..<7) { index in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        activeDays[index].toggle()
                     }
-                    .buttonStyle(.plain) // Prevents default button styling
-                    .accessibilityLabel("\(fullDayNames[index])")
-                    .accessibilityValue(activeDays[index] ? "Active" : "Inactive")
-                    .accessibilityHint("Double tap to toggle \(fullDayNames[index])")
+                } label: {
+                    Text(daySymbols[index]) // Use full short names like "Mon"
+                        .font(.body)
+                        .frame(width: 40, height: 40)
+                        .background(activeDays[index] ? activeColor : inactiveColor)
+                        .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
+                        )
                 }
+                .buttonStyle(.plain) // Prevents default button styling
             }
-            .padding(.horizontal)
-        } header: {
-            Text("Active Days")
         }
     }
 }
 
 #Preview {
     @Previewable @State var activeDays = [true, false, true, false, true, false, true]
-        Form {
-            ActiveDaysSection(activeDays: $activeDays)
-        }
+    VStack {
+        ActiveDaysSection(activeDays: $activeDays)
+    }
+    .padding()
 }
