@@ -2,11 +2,22 @@ import SwiftUI
 
 struct NameFieldSection: View {
     @Binding var title: String
+    @FocusState private var isFocused: Bool
     
     var body: some View {
-        Section(header: Text("Name")) {
-            TextField("Reading", text: $title)
-                .autocorrectionDisabled()
+        Section {
+            HStack {
+                Image(systemName: "pencil")
+                    .foregroundStyle(.primary)
+                
+                TextField("Habit Name", text: $title)
+                    .autocorrectionDisabled()
+                    .focused($isFocused)
+            }
+            .frame(height: 44)
+        }
+        .onAppear {
+            isFocused = true
         }
     }
 }

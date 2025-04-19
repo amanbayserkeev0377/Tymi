@@ -7,6 +7,9 @@ struct ReminderSection: View {
     var body: some View {
         Section {
             HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "bell.badge")
+                    .foregroundStyle(.primary)
+                
                 Text("Reminder")
                 
                 Spacer()
@@ -15,14 +18,13 @@ struct ReminderSection: View {
                     DatePicker("", selection: $reminderTime, displayedComponents: .hourAndMinute)
                         .datePickerStyle(.compact)
                         .labelsHidden()
-                        .frame(width: 80)
-                        .transition(.opacity.combined(with: .move(edge: .trailing)))
                 }
                 
                 Toggle("", isOn: $isReminderEnabled)
                     .labelsHidden()
                     .tint(.primary)
             }
+            .frame(height: 44)
         }
     }
 }

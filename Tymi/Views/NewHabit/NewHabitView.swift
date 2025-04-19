@@ -51,14 +51,14 @@ struct NewHabitView: View {
             Form {
                 NameFieldSection(title: $title)
                 
-                StartDateSection(startDate: $startDate)
-                
                 GoalSection(
                     selectedType: $selectedType,
                     countGoal: $countGoal,
                     hours: $hours,
                     minutes: $minutes
                 )
+                
+                StartDateSection(startDate: $startDate)
                 
                 ReminderSection(
                     isReminderEnabled: $isReminderEnabled,

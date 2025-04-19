@@ -5,9 +5,15 @@ struct StartDateSection: View {
     
     var body: some View {
         Section {
-            DatePicker("Start date", selection: $startDate, displayedComponents: .date)
-                .datePickerStyle(.compact)
-                .tint(.primary)
+            HStack {
+                Image(systemName: "calendar")
+                    .foregroundStyle(.primary)
+                
+                DatePicker("Start date", selection: $startDate, displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .tint(.primary)
+            }
+            .frame(height: 44)
         }
     }
 }

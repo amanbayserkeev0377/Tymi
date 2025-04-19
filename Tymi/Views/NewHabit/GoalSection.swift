@@ -11,6 +11,9 @@ struct GoalSection: View {
     var body: some View {
         Section {
             HStack {
+                Image(systemName: "trophy")
+                    .foregroundStyle(.primary)
+                
                 if selectedType == .count {
                     TextField("Count", value: $countGoal, format: .number)
                         .keyboardType(.numberPad)
@@ -39,8 +42,7 @@ struct GoalSection: View {
                     }
                 }
             }
-        } header: {
-            Text("Daily Goal")
+            .frame(height: 44)
         }
         .onAppear {
             updateTimeDateFromHoursAndMinutes()
