@@ -56,10 +56,10 @@ struct ActiveDaysSection: View {
                 } label: {
                     Text(daySymbols[index]) // Use full short names like "Mon"
                         .font(.body)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
                         .background(activeDays[index] ? activeColor : inactiveColor)
                         .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.primary.opacity(0.2), lineWidth: 1)

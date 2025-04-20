@@ -40,11 +40,11 @@ struct NewHabitView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 24) { // Увеличиваем spacing между секциями
                     // Name Field Section
                     NameFieldSection(title: $title)
                         .focused($isNameFieldFocused)
-                        .padding(.horizontal)
+                        .padding(8)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
@@ -60,7 +60,7 @@ struct NewHabitView: View {
                         minutes: $minutes
                     )
                     .focused($isCountFieldFocused)
-                    .padding(.horizontal)
+                    .padding(8)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
@@ -70,7 +70,7 @@ struct NewHabitView: View {
                     
                     // Start Date Section
                     StartDateSection(startDate: $startDate)
-                        .padding(.horizontal)
+                        .padding(8)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
@@ -83,7 +83,7 @@ struct NewHabitView: View {
                         isReminderEnabled: $isReminderEnabled,
                         reminderTime: $reminderTime
                     )
-                    .padding(.horizontal)
+                    .padding(8)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
@@ -94,11 +94,10 @@ struct NewHabitView: View {
                     // Active Days Section
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Active days")
-                            .font(.headline)
                             .foregroundStyle(.primary)
                         ActiveDaysSection(activeDays: $activeDays)
                     }
-                    .padding(.horizontal)
+                    .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
