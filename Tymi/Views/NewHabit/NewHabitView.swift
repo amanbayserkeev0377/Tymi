@@ -40,17 +40,11 @@ struct NewHabitView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) { // Увеличиваем spacing между секциями
+                VStack(spacing: 24) {
                     // Name Field Section
                     NameFieldSection(title: $title)
                         .focused($isNameFieldFocused)
-                        .padding(8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
-                                .shadow(radius: 2)
-                        )
-                        .padding(.horizontal)
+                        .sectionCard()
                     
                     // Goal Section
                     GoalSection(
@@ -60,50 +54,22 @@ struct NewHabitView: View {
                         minutes: $minutes
                     )
                     .focused($isCountFieldFocused)
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
-                            .shadow(radius: 2)
-                    )
-                    .padding(.horizontal)
+                    .sectionCard()
                     
                     // Start Date Section
                     StartDateSection(startDate: $startDate)
-                        .padding(8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
-                                .shadow(radius: 2)
-                        )
-                        .padding(.horizontal)
+                        .sectionCard()
                     
                     // Reminder Section
                     ReminderSection(
                         isReminderEnabled: $isReminderEnabled,
                         reminderTime: $reminderTime
                     )
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
-                            .shadow(radius: 2)
-                    )
-                    .padding(.horizontal)
+                    .sectionCard()
                     
                     // Active Days Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Active days")
-                            .foregroundStyle(.primary)
-                        ActiveDaysSection(activeDays: $activeDays)
-                    }
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
-                            .shadow(radius: 2)
-                    )
-                    .padding(.horizontal)
+                    ActiveDaysSection(activeDays: $activeDays)
+                        .sectionCard()
                     
                     // Save Button
                     Button(action: {

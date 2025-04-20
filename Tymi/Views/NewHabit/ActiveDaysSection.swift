@@ -46,26 +46,44 @@ struct ActiveDaysSection: View {
     }
     
     var body: some View {
-        // Days Grid without Section wrapper
-        HStack(spacing: 8) { // Consistent spacing between buttons
-            ForEach(0..<7) { index in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        activeDays[index].toggle()
-                    }
-                } label: {
-                    Text(daySymbols[index]) // Use full short names like "Mon"
-                        .font(.body)
-                        .frame(width: 44, height: 44)
-                        .background(activeDays[index] ? activeColor : inactiveColor)
-                        .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                        )
+        Section {
+            VStack(spacing: 12) {
+                HStack {
+                    Image(systemName: "cloud.sun")
+                        .foregroundStyle(.primary)
+                    
+                    Text("Active Days")
+                        .foregroundStyle(.primary)
+                    
+                    Spacer()
                 }
-                .buttonStyle(.plain) // Prevents default button styling
+                .frame(height: 37)
+                
+                Divider()
+                
+                // Days Grid
+                HStack(spacing: 8) { // Consistent spacing between buttons
+                    ForEach(0..<7) { index in
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                activeDays[index].toggle()
+                            }
+                        } label: {
+                            Text(daySymbols[index]) // Use full short names like "Mon"
+                                .font(.body)
+                                .frame(width: 44, height: 44)
+                                .background(activeDays[index] ? activeColor : inactiveColor)
+                                .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.primary.opacity(0.2), lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(.plain) // Prevents default button styling
+                    }
+                }
+                .padding(.bottom, 8)
             }
         }
     }
@@ -75,6 +93,16 @@ struct ActiveDaysSection: View {
     @Previewable @State var activeDays = [true, false, true, false, true, false, true]
     VStack {
         ActiveDaysSection(activeDays: $activeDays)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+            .preferredColorScheme(.light)
+        
+        ActiveDaysSection(activeDays: $activeDays)
+            .padding()
+            .background(Color.black)
+            .cornerRadius(12)
+            .preferredColorScheme(.dark)
     }
     .padding()
 }

@@ -2,13 +2,13 @@ import SwiftUI
 
 struct StartDateSection: View {
     @Binding var startDate: Date
-    
+
     var body: some View {
         Section {
             HStack {
                 Image(systemName: "calendar")
                     .foregroundStyle(.primary)
-                    
+                
                 Spacer()
                 
                 DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
@@ -19,6 +19,8 @@ struct StartDateSection: View {
         }
     }
 }
+
+
 
 #Preview {
     @Previewable @State var startDate = Date()

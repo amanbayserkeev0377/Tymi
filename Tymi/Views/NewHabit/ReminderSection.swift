@@ -10,6 +10,8 @@ struct ReminderSection: View {
             HStack(alignment: .center, spacing: 12) {
                 Image(systemName: "bell.badge")
                     .foregroundStyle(.primary)
+                    .scaleEffect(isReminderEnabled ? 1.2 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isReminderEnabled)
                 
                 Text("Reminder")
                 
@@ -20,9 +22,13 @@ struct ReminderSection: View {
                         .datePickerStyle(.compact)
                         .labelsHidden()
                         .tint(.primary)
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .move(edge: .trailing)),
+                            removal: .opacity.combined(with: .move(edge: .trailing))
+                        ))
                 }
                 
-                Toggle("", isOn: $isReminderEnabled)
+                Toggle("", isOn: $isReminderEnabled.animation(.easeInOut(duration: 0.3)))
                     .labelsHidden()
                     .tint(colorScheme == .dark ? Color.white.opacity(0.7) : .black)
             }

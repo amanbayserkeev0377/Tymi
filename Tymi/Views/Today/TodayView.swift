@@ -5,6 +5,7 @@ struct TodayView: View {
     //MARK: - Properties
     
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
     
     @Query(filter: #Predicate<Habit> { !$0.isArchived },
            sort: \Habit.createdAt)
@@ -61,22 +62,24 @@ struct TodayView: View {
             }
             .sheet(isPresented: $isShowingNewHabitSheet) {
                 NewHabitView()
-                    .presentationBackground(.ultraThinMaterial)
+                    .presentationBackground {
+                        (colorScheme == .dark ? Color.clear : Color.white.opacity(0.7))
+                                .background(.ultraThinMaterial)
+                    }
             }
             .sheet(item: $selectedHabit) { habit in
                 HabitDetailView(habit: habit, date: selectedDate)
                     .presentationDetents([.fraction(0.7)])
                     .presentationDragIndicator(.visible)
-                    .presentationCornerRadius(40)
+                    .presentationCornerRadius(45)
                     .presentationBackground {
-                                RoundedRectangle(cornerRadius: 40)
-                                    .fill(.ultraThinMaterial)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 40)
-                                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                                    )
-                                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                            }
+                        RoundedRectangle(cornerRadius: 45)
+                            .fill(.ultraThinMaterial)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 45)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                    }
             }
         }
     }
