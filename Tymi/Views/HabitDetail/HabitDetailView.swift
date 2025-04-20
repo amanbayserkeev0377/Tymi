@@ -5,14 +5,21 @@ struct HabitDetailView: View {
     // MARK: - Properties
     let habit: Habit
     @State private var selectedDate: Date = .now
-    @State private var isShowingActionSheet = false
-    @State private var isShowingManualInput = false
     @State private var isTimerRunning = false
     @State private var timerStartTime: Date?
     
-    // Состояние для ввода значения
-    @State private var inputValue: String = ""
-    @State private var isInputFocused: Bool = false
+    // Состояние для отображения диалогов ввода
+    @State private var isTimePickerSheetPresented = false
+    @State private var isCountAlertPresented = false
+    @State private var countInputText = ""
+    
+    // Состояние для TimePicker
+    @State private var selectedHours = 0
+    @State private var selectedMinutes = 0
+    @State private var selectedSeconds = 0
+    @State private var isTimePickerPopoverPresented = false
+    @State private var hourglassRotation: Double = 0
+    @State private var timePickerDate = Date()
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -39,10 +46,10 @@ struct HabitDetailView: View {
         return min(Double(currentProgress) / Double(habit.goal), 1.0)
     }
     
-    // Форматированный текущий прогресс
+    // Формат текущего прогресса с учетом типа привычки
     private var formattedProgress: String {
         if habit.type == .count {
-            return "\(currentProgress)"
+            return "\(currentProgress)/\(habit.goal)"
         } else {
             // Форматирование для времени (часы:минуты:секунды)
             let hours = currentProgress / 3600
@@ -55,17 +62,11 @@ struct HabitDetailView: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ZStack {
+            ScrollView {
                 VStack(spacing: 24) {
-                    // Заголовок привычки
-                    Text(habit.title)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .padding(.top)
-                    
                     Text("Goal: \(habit.formattedGoal)")
                         .font(.subheadline)
-                        .tint(.primary)
+                        .padding(.top)
                     
                     Spacer(minLength: 20)
                     
@@ -76,7 +77,7 @@ struct HabitDetailView: View {
                             decrementProgress()
                         }) {
                             Image(systemName: "minus")
-                                .font(.system(size: 34))
+                                .font(.system(size: 32))
                                 .tint(.primary)
                         }
                         
@@ -91,7 +92,7 @@ struct HabitDetailView: View {
                             incrementProgress()
                         }) {
                             Image(systemName: "plus")
-                                .font(.system(size: 34))
+                                .font(.system(size: 32))
                                 .tint(.primary)
                         }
                     }
@@ -105,7 +106,7 @@ struct HabitDetailView: View {
                         Button(action: {
                             resetProgress()
                         }) {
-                            Image(systemName: "arrow.counterclockwise")
+                            Image(systemName: "hourglass.bottomhalf.filled")
                                 .font(.system(size: 24))
                                 .tint(.primary)
                         }
@@ -115,7 +116,7 @@ struct HabitDetailView: View {
                             if habit.type == .time {
                                 toggleTimer()
                             } else {
-                                isInputFocused = true
+                                isCountAlertPresented = true
                             }
                         }) {
                             if habit.type == .time {
@@ -123,7 +124,7 @@ struct HabitDetailView: View {
                                     .font(.system(size: 44))
                                     .tint(.primary)
                             } else {
-                                Image(systemName: "arrow.up")
+                                Image(systemName: "plus.arrow.trianglehead.clockwise")
                                     .font(.system(size: 24))
                                     .tint(.primary)
                             }
@@ -132,11 +133,31 @@ struct HabitDetailView: View {
                         // Ручной ввод для привычек типа Time
                         if habit.type == .time {
                             Button(action: {
-                                isInputFocused = true
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    hourglassRotation += 360
+                                    isTimePickerPopoverPresented = true
+                                }
                             }) {
-                                Image(systemName: "arrow.up")
+                                Image(systemName: "hourglass.tophalf.filled")
                                     .font(.system(size: 24))
                                     .tint(.primary)
+                                    .rotationEffect(.degrees(hourglassRotation))
+                            }
+                            .sheet(isPresented: $isTimePickerPopoverPresented) {
+                                WheelPickerPopoverView(
+                                    hours: $selectedHours,
+                                    minutes: $selectedMinutes,
+                                    isPresented: $isTimePickerPopoverPresented
+                                ) { totalSeconds in
+                                    currentProgress += totalSeconds
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        hourglassRotation += 360
+                                    }
+                                }
+                                .presentationDetents([.height(200)])
+                                .presentationBackground(.ultraThinMaterial)
+                                .presentationCornerRadius(100)
+                                .presentationDragIndicator(.visible)
                             }
                         }
                     }
@@ -144,14 +165,16 @@ struct HabitDetailView: View {
                     
                     Spacer()
                     
-                    // Кнопка Complete
+                    // Кнопка завершения
                     Button(action: {
-                        // TODO: Implement completion action
+                        saveProgress()
                         dismiss()
                     }) {
                         Text("Complete")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundStyle(
+                                colorScheme == .dark ? .black : .white
+                            )
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.primary)
@@ -162,19 +185,24 @@ struct HabitDetailView: View {
                 }
                 .padding()
             }
-            .animation(.default, value: isInputFocused)
-        }
-        .overlay {
-            if isInputFocused {
-                InputOverlay(
-                    habitType: habit.type,
-                    isInputFocused: $isInputFocused,
-                    inputValue: $inputValue
-                ) { value in
-                    currentProgress += value
+            .navigationTitle(habit.title)
+            .navigationBarTitleDisplayMode(.inline)
+            
+            // Alert для привычки типа Count
+            .alert("Enter value", isPresented: $isCountAlertPresented) {
+                TextField("Value", text: $countInputText)
+                    .keyboardType(.numberPad)
+                Button("Cancel", role: .cancel) {
+                    countInputText = ""
                 }
-                .animation(.easeInOut, value: isInputFocused)
+                Button("Add") {
+                    if let value = Int(countInputText), value > 0 {
+                        currentProgress += value
+                    }
+                    countInputText = ""
+                }
             }
+            .tint(.primary)
         }
         .onReceive(timer) { _ in
             updateTimerIfRunning()
@@ -182,8 +210,6 @@ struct HabitDetailView: View {
         .onDisappear {
             saveProgress()
         }
-        .presentationDetents([.fraction(0.7)])
-        .presentationDragIndicator(.visible)
     }
     
     // MARK: - Methods
@@ -249,10 +275,63 @@ struct HabitDetailView: View {
     private func updateTimerIfRunning() {
         guard isTimerRunning, let startTime = timerStartTime, habit.type == .time else { return }
         
-        // Обновляем отображаемое значение, но не сохраняем в currentProgress
+        // Обновляем отображаемое значение в реальном времени
         let elapsedTime = Int(Date().timeIntervalSince(startTime))
-        // Это только для отображения, не изменяет реальное значение currentProgress
+        // Используем временное значение только для отображения
         _ = currentProgress + elapsedTime
+    }
+}
+
+// MARK: - WheelPickerPopoverView
+struct WheelPickerPopoverView: View {
+    @Binding var hours: Int
+    @Binding var minutes: Int
+    @Binding var isPresented: Bool
+    let onSubmit: (Int) -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Picker("", selection: $hours) {
+                    ForEach(0...23, id: \.self) { hour in
+                        Text("\(hour)").tag(hour)
+                    }
+                }
+                .pickerStyle(.wheel)
+                .frame(width: 64)
+                .clipped()
+                .labelsHidden()
+                
+                Text(":")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 2)
+                
+                Picker("", selection: $minutes) {
+                    ForEach(0...59, id: \.self) { minute in
+                        Text(String(format: "%02d", minute)).tag(minute)
+                    }
+                }
+                .pickerStyle(.wheel)
+                .frame(width: 64)
+                .clipped()
+                .labelsHidden()
+            }
+            
+            Button("Done") {
+                submitValue()
+                isPresented = false
+            }
+            .tint(.primary)
+            .padding(.top, 16)
+        }
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity)
+    }
+    
+    private func submitValue() {
+        let totalSeconds = hours * 3600 + minutes * 60
+        onSubmit(totalSeconds)
     }
 }
 

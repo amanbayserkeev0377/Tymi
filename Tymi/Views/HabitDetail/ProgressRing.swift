@@ -29,8 +29,9 @@ struct ProgressRing: View {
                 )
                 .frame(width: 180, height: 180)
                 .rotationEffect(.degrees(-90))
+                .animation(.easeInOut, value: progress)
             
-            // centered currentvalue
+            // Current value text
             Text(currentValue)
                 .font(.system(size: 32, weight: .bold))
                 .multilineTextAlignment(.center)

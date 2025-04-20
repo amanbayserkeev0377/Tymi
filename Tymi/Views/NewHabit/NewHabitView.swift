@@ -8,26 +8,16 @@ struct NewHabitView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     // MARK: - State Properties
-    // Basic properties
     @State private var title = ""
     @State private var selectedType: HabitType = .count
     @State private var countGoal: Int = 1
-    
-    // Time picker state (for time habits)
     @State private var hours: Int = 1
     @State private var minutes: Int = 0
-    
-    // Active days
     @State private var activeDays: [Bool] = Array(repeating: true, count: 7)
-    
-    // Reminder
     @State private var isReminderEnabled = false
     @State private var reminderTime = Date()
-    
-    // Start date
     @State private var startDate = Date()
     
-    // Focus states
     @FocusState private var isNameFieldFocused: Bool
     @FocusState private var isCountFieldFocused: Bool
     
@@ -49,31 +39,74 @@ struct NewHabitView: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            Form {
-                NameFieldSection(title: $title)
-                    .focused($isNameFieldFocused)
-                
-                GoalSection(
-                    selectedType: $selectedType,
-                    countGoal: $countGoal,
-                    hours: $hours,
-                    minutes: $minutes
-                )
-                .focused($isCountFieldFocused)
-                
-                StartDateSection(startDate: $startDate)
-                
-                ReminderSection(
-                    isReminderEnabled: $isReminderEnabled,
-                    reminderTime: $reminderTime
-                )
-                
-                Section(header: Text("Active days")) {
-                    ActiveDaysSection(activeDays: $activeDays)
-                }
-                
-                // "Add Habit" button in Form
-                Section {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Name Field Section
+                    NameFieldSection(title: $title)
+                        .focused($isNameFieldFocused)
+                        .padding(.horizontal)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
+                                .shadow(radius: 2)
+                        )
+                        .padding(.horizontal)
+                    
+                    // Goal Section
+                    GoalSection(
+                        selectedType: $selectedType,
+                        countGoal: $countGoal,
+                        hours: $hours,
+                        minutes: $minutes
+                    )
+                    .focused($isCountFieldFocused)
+                    .padding(.horizontal)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
+                            .shadow(radius: 2)
+                    )
+                    .padding(.horizontal)
+                    
+                    // Start Date Section
+                    StartDateSection(startDate: $startDate)
+                        .padding(.horizontal)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
+                                .shadow(radius: 2)
+                        )
+                        .padding(.horizontal)
+                    
+                    // Reminder Section
+                    ReminderSection(
+                        isReminderEnabled: $isReminderEnabled,
+                        reminderTime: $reminderTime
+                    )
+                    .padding(.horizontal)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
+                            .shadow(radius: 2)
+                    )
+                    .padding(.horizontal)
+                    
+                    // Active Days Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Active days")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        ActiveDaysSection(activeDays: $activeDays)
+                    }
+                    .padding(.horizontal)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.8))
+                            .shadow(radius: 2)
+                    )
+                    .padding(.horizontal)
+                    
+                    // Save Button
                     Button(action: {
                         saveHabit()
                     }) {
@@ -88,9 +121,10 @@ struct NewHabitView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .disabled(!isFormValid)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
+                    .padding(.horizontal)
+                    .padding(.bottom)
                 }
+                .padding(.top)
             }
             .navigationTitle("Create habit")
             .navigationBarTitleDisplayMode(.inline)
@@ -127,8 +161,6 @@ struct NewHabitView: View {
                 }
             }
         }
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
     }
     
     // MARK: - Actions
@@ -146,7 +178,6 @@ struct NewHabitView: View {
         
         modelContext.insert(newHabit)
         
-        // Schedule notification if reminder is enabled
         if isReminderEnabled {
             print("Would schedule notification for \(title) at \(reminderTime)")
         }
