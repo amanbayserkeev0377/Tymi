@@ -12,6 +12,7 @@ struct TodayView: View {
     
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
+    @State private var selectedHabit: Habit? = nil
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -23,15 +24,7 @@ struct TodayView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                VStack {
-                    Text(dateFormatter.string(from: selectedDate))
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    Spacer()
-                }
-                .padding()
-                
+            VStack(spacing: 0) {
                 if habits.isEmpty {
                     EmptyStateView(
                         icon: "star.circle",
@@ -42,36 +35,36 @@ struct TodayView: View {
                     habitsList
                 }
             }
-            
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    AddFloatingButton(action: { isShowingNewHabitSheet = true })
-                }
-                .padding()
+            .overlay(alignment: .bottomTrailing) {
+                AddFloatingButton(action: { isShowingNewHabitSheet = true })
+                    .padding()
             }
-        }
-        .navigationTitle(isToday(selectedDate) ? "Today" : dateFormatter.string(from: selectedDate))
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button(action: {
-                    // Open settings
-                }) {
-                    Image(systemName: "gearshape")
+            .navigationTitle(formattedNavigationTitle(for: selectedDate))
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: {
+                        // Open settings
+                    }) {
+                        Image(systemName: "gearshape")
+                    }
+                    .tint(.primary)
                 }
-            }
-            
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: {
-                    // Open calendar
-                }) {
-                    Image(systemName: "calendar")
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        // Open calendar
+                    }) {
+                        Image(systemName: "calendar")
+                    }
+                    .tint(.primary)
                 }
             }
-        }
-        .sheet(isPresented: $isShowingNewHabitSheet) {
-            NewHabitView()
+            .sheet(isPresented: $isShowingNewHabitSheet) {
+                NewHabitView()
+            }
+            .sheet(item: $selectedHabit) { habit in
+                HabitDetailView(habit: habit, date: selectedDate)
+            }
         }
     }
     
@@ -83,7 +76,7 @@ struct TodayView: View {
                 if habit.isActiveOnDate(selectedDate) {
                     HabitRowView(habit: habit, date: selectedDate)
                         .onTapGesture {
-                            // Navigate to habit detail
+                            selectedHabit = habit
                         }
                 }
             }
@@ -95,6 +88,20 @@ struct TodayView: View {
     
     private func isToday(_ date: Date) -> Bool {
         return Calendar.current.isDateInToday(date)
+    }
+    
+    private func isYesterday(_ date: Date) -> Bool {
+        return Calendar.current.isDateInYesterday(date)
+    }
+    
+    private func formattedNavigationTitle(for date: Date) -> String {
+        if isToday(date) {
+            return "Today"
+        } else if isYesterday(date) {
+            return "Yesterday"
+        } else {
+            return dateFormatter.string(from: date)
+        }
     }
 }
 
