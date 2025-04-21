@@ -81,29 +81,20 @@ struct TodayView: View {
                     .presentationBackground {
                         let cornerRadius: CGFloat = 40
                         ZStack {
-                            // Основной фон с размытием
                             RoundedRectangle(cornerRadius: cornerRadius)
                                 .fill(.ultraThinMaterial)
                             
-                            if colorScheme == .dark {
+                            if colorScheme != .dark {
                                 RoundedRectangle(cornerRadius: cornerRadius)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1.5)
-                                    .blur(radius: 0.5)
-                                
-                                RoundedRectangle(cornerRadius: cornerRadius - 1)
-                                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
-                            } else {
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .fill(Color.white.opacity(0.4))
-                                    .stroke(Color.white.opacity(0.7), lineWidth: 1)
-                                    .blur(radius: 0.5)
-                                    .offset(y: -0.5)
-                                
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .stroke(Color.black.opacity(0.08), lineWidth: 2)
-                                    .blur(radius: 1)
-                                    .offset(y: 1)
+                                    .fill(Color.white.opacity(0.5))
                             }
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .stroke(
+                                    colorScheme == .dark
+                                        ? Color.white.opacity(0.1)
+                                        : Color.black.opacity(0.15),
+                                    lineWidth: 1.5
+                                )
                         }
                     }
             }
