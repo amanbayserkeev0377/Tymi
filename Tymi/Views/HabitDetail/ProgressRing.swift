@@ -3,6 +3,18 @@ import SwiftUI
 struct ProgressRing: View {
     let progress: Double
     let currentValue: String
+    var size: CGFloat = 180
+    var lineWidth: CGFloat = 12
+    var useGradient: Bool = true
+    
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var progressColor: Color {
+        if !useGradient {
+            return colorScheme == .dark ? .white : .black
+        }
+        return .clear
+    }
     
     private var progressGradient: AngularGradient {
         AngularGradient(
@@ -17,31 +29,36 @@ struct ProgressRing: View {
         ZStack {
             // background circle
             Circle()
-                .stroke(Color.secondary.opacity(0.2), lineWidth: 12)
-                .frame(width: 180, height: 180)
+                .stroke(Color.secondary.opacity(0.2), lineWidth: lineWidth)
+                .frame(width: size, height: size)
             
-            // Progress Circle
-            Circle()
-                .trim(from: 0, to: progress)
-                .stroke(
-                    progressGradient,
-                    style: StrokeStyle(lineWidth: 12, lineCap: .round)
-                )
-                .frame(width: 180, height: 180)
-                .rotationEffect(.degrees(-90))
-                .animation(.easeInOut, value: progress)
+            // Progress
+            if useGradient {
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(
+                        progressGradient,
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                    )
+                    .frame(width: size, height: size)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut, value: progress)
+            } else {
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(
+                        progressColor,
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                    )
+                    .frame(width: size, height: size)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut, value: progress)
+            }
             
-            // Current value text
+            // Current value
             Text(currentValue)
-                .font(.system(size: 32, weight: .bold))
+                .font(.system(size: size * 0.18, weight: .bold))
                 .multilineTextAlignment(.center)
         }
     }
 }
-
-#Preview {
-    VStack {
-        ProgressRing(progress: 0.7, currentValue: "7/10")
-        ProgressRing(progress: 0.3, currentValue: "00:30:00")
-    }
-} 

@@ -18,14 +18,10 @@ final class HabitCompletion {
     }
     
     // MARK: - Time Habit Helpers
-    
+
     // Get formatted time string (HH:MM:SS)
     var formattedTime: String {
-        let hours = value / 3600
-        let minutes = (value % 3600) / 60
-        let seconds = value % 60
-        
-        return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        return value.formattedAsTime()
     }
     
     // Add minutes to current value

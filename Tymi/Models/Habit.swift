@@ -108,40 +108,25 @@ final class Habit {
             .reduce(0) { $0 + $1.value }
     }
     
-    // Format progress based on habit type
+    // FormattedProgress
     func formattedProgress(for date: Date) -> String {
         let progress = progressForDate(date)
         
         switch type {
         case .count:
-            return "\(progress)/\(goal)"
+            return progress.formattedAsProgress(total: goal)
         case .time:
-            if progress == 0 {
-                return "0:00:00"
-            }
-            
-            let hours = progress / 3600
-            let minutes = (progress % 3600) / 60
-            let seconds = progress % 60
-            
-            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+            return progress.formattedAsTime()
         }
     }
-    
-    // Format goal based on habit type
+
+    // FormattedGoal
     var formattedGoal: String {
         switch type {
         case .count:
             return "\(goal) times"
         case .time:
-            let hours = goal / 3600
-            let minutes = (goal % 3600) / 60
-            
-            if hours > 0 {
-                return "\(hours) hr \(minutes) min"
-            } else {
-                return "\(minutes) min"
-            }
+            return goal.formattedAsDuration()
         }
     }
     

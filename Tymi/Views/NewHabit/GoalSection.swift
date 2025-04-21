@@ -42,7 +42,7 @@ struct GoalSection: View {
                     HStack(spacing: 0) {
                         // Count Button
                         Button {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.55)) {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
                                 selectedType = .count
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                     countText = ""
