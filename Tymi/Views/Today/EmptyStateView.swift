@@ -1,27 +1,34 @@
 import SwiftUI
 
 struct EmptyStateView: View {
-    let icon: String
-    let title: String
-    let message: String
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 24) {
             Spacer()
             
-            Image(systemName: icon)
-                .font(.system(size: 70))
-                .foregroundStyle(.gray.opacity(0.6))
+            // App Icon
+            Image("Tymi_blank")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120, height: 120)
             
-            Text(title)
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            Text(message)
-                .foregroundStyle(.secondary)
+            Text("Your future self will thank you! Tap '+' to start tracking.")
+                .font(.headline)
+                .fontWeight(.medium)
+                .foregroundStyle(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
             
             Spacer()
         }
-        .padding()
+        .frame(maxWidth: .infinity)
+    }
+}
+
+#Preview {
+    ZStack {
+        TodayViewBackground()
+        EmptyStateView()
     }
 }

@@ -25,20 +25,21 @@ struct TodayView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                if habits.isEmpty {
-                    EmptyStateView(
-                        icon: "star.circle",
-                        title: "No Habits Yet",
-                        message: "Tap the + button to add your first habit"
-                    )
-                } else {
-                    habitsList
+            ZStack {
+                TodayViewBackground()
+                
+                VStack(spacing: 0) {
+                    if habits.isEmpty {
+                        EmptyStateView()
+                    } else {
+                        habitsList
+                    }
                 }
             }
+            
+            // AddFloatingButton
             .overlay(alignment: .bottomTrailing) {
                 AddFloatingButton(action: { isShowingNewHabitSheet = true })
-                    .padding()
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
             .toolbar {
@@ -63,41 +64,74 @@ struct TodayView: View {
             .sheet(isPresented: $isShowingNewHabitSheet) {
                 NewHabitView()
                     .presentationBackground {
-                        (colorScheme == .dark ? Color.clear : Color.white.opacity(0.7))
-                                .background(.ultraThinMaterial)
+                        ZStack {
+                            Rectangle().fill(.ultraThinMaterial)
+                            if colorScheme != .dark {
+                                Color.white.opacity(0.7)
+                            }
+                        }
                     }
             }
+            
             .sheet(item: $selectedHabit) { habit in
                 HabitDetailView(habit: habit, date: selectedDate)
                     .presentationDetents([.fraction(0.7)])
                     .presentationDragIndicator(.visible)
                     .presentationCornerRadius(40)
                     .presentationBackground {
-                        RoundedRectangle(cornerRadius: 40)
-                            .fill(.ultraThinMaterial)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 40)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
+                        let cornerRadius: CGFloat = 40
+                        ZStack {
+                            // Основной фон с размытием
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .fill(.ultraThinMaterial)
+                            
+                            if colorScheme == .dark {
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 1.5)
+                                    .blur(radius: 0.5)
+                                
+                                RoundedRectangle(cornerRadius: cornerRadius - 1)
+                                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+                            } else {
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .fill(Color.white.opacity(0.4))
+                                    .stroke(Color.white.opacity(0.7), lineWidth: 1)
+                                    .blur(radius: 0.5)
+                                    .offset(y: -0.5)
+                                
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .stroke(Color.black.opacity(0.08), lineWidth: 2)
+                                    .blur(radius: 1)
+                                    .offset(y: 1)
+                            }
+                        }
                     }
             }
+            
         }
     }
     
     // MARK: - Subviews
     
     private var habitsList: some View {
-        List {
-            ForEach(habits) { habit in
-                if habit.isActiveOnDate(selectedDate) {
-                    HabitRowView(habit: habit, date: selectedDate)
-                        .onTapGesture {
-                            selectedHabit = habit
-                        }
+        ScrollView {
+            VStack(spacing: 12) {
+                ForEach(habits) { habit in
+                    if habit.isActiveOnDate(selectedDate) {
+                        HabitRowView(
+                            habit: habit,
+                            date: selectedDate,
+                            onTap: {
+                                selectedHabit = habit
+                            }
+                        )
+                    }
                 }
+                
+                Spacer(minLength: 80)
             }
+            .padding(.top, 12)
         }
-        .listStyle(.plain)
     }
     
     // MARK: - Helper Methods
