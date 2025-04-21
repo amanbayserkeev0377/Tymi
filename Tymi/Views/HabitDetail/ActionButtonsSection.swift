@@ -3,23 +3,33 @@ import SwiftUI
 struct ActionButtonsSection: View {
     let habit: Habit
     let isTimerRunning: Bool
-    let hourglassRotation: Double
     
     var onReset: () -> Void
     var onTimerToggle: () -> Void
     var onManualEntry: () -> Void
     
+    @State private var resetPressed = false
+    @State private var togglePressed = false
+    @State private var manualEntryPressed = false
+    
     var body: some View {
         HStack(spacing: 32) {
-            // Reset value
-            Button(action: onReset) {
-                Image(systemName: "hourglass.bottomhalf.filled")
+            // Reset button
+            Button(action: {
+                resetPressed.toggle()
+                onReset()
+            }) {
+                Image(systemName: "minus.arrow.trianglehead.counterclockwise")
                     .font(.system(size: 24))
                     .tint(.primary)
             }
+            .sensoryFeedback(.impact(weight: .medium), trigger: resetPressed)
             
-            // Timer or manual entry button
-            Button(action: onTimerToggle) {
+            // Timer/Toggle button
+            Button(action: {
+                togglePressed.toggle()
+                onTimerToggle()
+            }) {
                 if habit.type == .time {
                     Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")
                         .font(.system(size: 44))
@@ -30,15 +40,19 @@ struct ActionButtonsSection: View {
                         .tint(.primary)
                 }
             }
+            .sensoryFeedback(.impact(weight: .medium), trigger: togglePressed)
             
-            // Manual entry for Time type habits
+            // Manual entry button (only for Time habits)
             if habit.type == .time {
-                Button(action: onManualEntry) {
-                    Image(systemName: "hourglass.tophalf.filled")
+                Button(action: {
+                    manualEntryPressed.toggle()
+                    onManualEntry()
+                }) {
+                    Image(systemName: "plus.arrow.trianglehead.clockwise")
                         .font(.system(size: 24))
                         .tint(.primary)
-                        .rotationEffect(.degrees(hourglassRotation))
                 }
+                .sensoryFeedback(.impact(weight: .medium), trigger: manualEntryPressed)
             }
         }
         .padding(.bottom, 40)
@@ -49,9 +63,8 @@ struct ActionButtonsSection: View {
     HStack {
         // For Count habit
         ActionButtonsSection(
-            habit: Habit(title: "Отжимания", type: .count, goal: 20),
+            habit: Habit(title: "Push-ups", type: .count, goal: 20),
             isTimerRunning: false,
-            hourglassRotation: 0,
             onReset: {},
             onTimerToggle: {},
             onManualEntry: {}
@@ -59,9 +72,8 @@ struct ActionButtonsSection: View {
         
         // For Time habit
         ActionButtonsSection(
-            habit: Habit(title: "Медитация", type: .time, goal: 3600),
+            habit: Habit(title: "Meditation", type: .time, goal: 3600),
             isTimerRunning: false,
-            hourglassRotation: 0,
             onReset: {},
             onTimerToggle: {},
             onManualEntry: {}

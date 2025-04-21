@@ -7,16 +7,20 @@ struct HabitDetailView: View {
     let date: Date
     
     @StateObject private var timerManager: HabitTimerManager
-    @State private var hourglassRotation: Double = 0
     
-    // State for input dialogs
+    // State for alerts
+    @State private var isResetAlertPresented = false
     @State private var isCountAlertPresented = false
-    @State private var countInputText = ""
+    @State private var isTimeAlertPresented = false
     
-    // State for TimePicker
-    @State private var selectedHours = 0
-    @State private var selectedMinutes = 0
-    @State private var isTimePickerPresented = false
+    // Input text state
+    @State private var countInputText = ""
+    @State private var hoursInputText = ""
+    @State private var minutesInputText = ""
+    
+    // State for sensory feedback
+    @State private var successFeedbackTrigger = false
+    @State private var errorFeedbackTrigger = false
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -45,97 +49,116 @@ struct HabitDetailView: View {
     
     // MARK: - Body
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    goalHeader
-                    
-                    Spacer(minLength: 20)
-                    
-                    // Progress controls
-                    ProgressControlSection(
-                        habit: habit,
-                        currentProgress: $timerManager.currentProgress,
-                        completionPercentage: completionPercentage,
-                        formattedProgress: formattedProgress,
-                        onIncrement: incrementProgress,
-                        onDecrement: decrementProgress
-                    )
-                    
-                    Spacer(minLength: 20)
-                    
-                    // Action buttons
-                    ActionButtonsSection(
-                        habit: habit,
-                        isTimerRunning: timerManager.isRunning,
-                        hourglassRotation: hourglassRotation,
-                        onReset: resetProgress,
-                        onTimerToggle: {
-                            if habit.type == .time {
-                                toggleTimer()
-                            } else {
-                                isCountAlertPresented = true
-                            }
-                        },
-                        onManualEntry: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                hourglassRotation += 360
-                                isTimePickerPresented = true
-                            }
-                        }
-                    )
-                    
-                    Spacer()
-                    
-                    completeButton
-                }
-                .padding()
+        VStack(spacing: 20) {
+            // Header with habit title
+            HStack {
+                Spacer()
+                
+                Text(habit.title)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                Spacer()
             }
-            .navigationTitle(habit.title)
-            .navigationBarTitleDisplayMode(.inline)
+            .padding(.top)
             
-            // Alert for Count type
-            .alert("Enter value", isPresented: $isCountAlertPresented) {
-                TextField("Value", text: $countInputText)
-                    .keyboardType(.numberPad)
-                Button("Cancel", role: .cancel) {
-                    countInputText = ""
-                }
-                Button("Add") {
-                    if let value = Int(countInputText), value > 0 {
-                        timerManager.addProgress(value)
+            // Goal header
+            goalHeader
+                .padding(.bottom, 5)
+            
+            // Progress controls
+            ProgressControlSection(
+                habit: habit,
+                currentProgress: $timerManager.currentProgress,
+                completionPercentage: completionPercentage,
+                formattedProgress: formattedProgress,
+                onIncrement: incrementProgress,
+                onDecrement: decrementProgress
+            )
+            
+            // Action buttons
+            ActionButtonsSection(
+                habit: habit,
+                isTimerRunning: timerManager.isRunning,
+                onReset: { isResetAlertPresented = true },
+                onTimerToggle: {
+                    if habit.type == .time {
+                        toggleTimer()
+                    } else {
+                        isCountAlertPresented = true
                     }
-                    countInputText = ""
+                },
+                onManualEntry: {
+                    isTimeAlertPresented = true
                 }
+            )
+            
+            Spacer()
+            
+            // Complete button at the bottom
+            completeButton
+                .padding(.bottom)
+        }
+        .padding(.horizontal)
+        .navigationBarHidden(true)
+        .sensoryFeedback(.success, trigger: successFeedbackTrigger)
+        .sensoryFeedback(.error, trigger: errorFeedbackTrigger)
+        
+        // Reset confirmation alert
+        .alert("Reset Progress", isPresented: $isResetAlertPresented) {
+            Button("Cancel", role: .cancel) { }
+            Button("Reset", role: .destructive) {
+                errorFeedbackTrigger.toggle()
+                resetProgress()
             }
-            .tint(.primary)
-            
-            // Overlay for Time Picker with Blur
-            .overlay {
-                if isTimePickerPresented {                    
-                    WheelPickerView(
-                        hours: $selectedHours,
-                        minutes: $selectedMinutes,
-                        isPresented: $isTimePickerPresented
-                    ) { totalSeconds in
-                        timerManager.addProgress(totalSeconds)
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            hourglassRotation += 360
-                        }
-                    }
-                    .frame(width: 280, height: 200)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color(.systemBackground))
-                            .shadow(radius: 10)
-                    )
-                    .scaleEffect(isTimePickerPresented ? 1 : 0.8)
-                    .opacity(isTimePickerPresented ? 1 : 0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isTimePickerPresented)
-                    .padding(.bottom, 20)
+        } message: {
+            Text("Do you want to reset your progress for today?")
+        }
+        
+        // Alert for Count type
+        .alert("Add count", isPresented: $isCountAlertPresented) {
+            TextField("", text: $countInputText)
+                .keyboardType(.numberPad)
+            Button("Cancel", role: .cancel) {
+                countInputText = ""
+            }
+            Button("Add") {
+                if let value = Int(countInputText), value > 0 {
+                    timerManager.addProgress(value)
+                    successFeedbackTrigger.toggle()
                 }
+                countInputText = ""
             }
         }
+        .tint(.primary)
+        
+        // Alert for Time type
+        .alert("Add time", isPresented: $isTimeAlertPresented) {
+            TextField("minutes", text: $minutesInputText)
+                .keyboardType(.numberPad)
+            TextField("hours", text: $hoursInputText)
+                .keyboardType(.numberPad)
+            Button("Cancel", role: .cancel) {
+                hoursInputText = ""
+                minutesInputText = ""
+            }
+            Button("Add") {
+                let minutes = Int(minutesInputText) ?? 0
+                let hours = Int(hoursInputText) ?? 0
+                
+                // Convert to seconds and add to progress
+                let totalSeconds = (hours * 3600) + (minutes * 60)
+                if totalSeconds > 0 {
+                    timerManager.addProgress(totalSeconds)
+                    successFeedbackTrigger.toggle()
+                }
+                
+                // Clear input fields
+                minutesInputText = ""
+                hoursInputText = ""
+            }
+        }
+        .tint(.primary)
         .onDisappear {
             saveProgress()
         }
@@ -146,12 +169,12 @@ struct HabitDetailView: View {
     private var goalHeader: some View {
         Text("Goal: \(habit.formattedGoal)")
             .font(.subheadline)
-            .padding(.top)
     }
     
     private var completeButton: some View {
         Button(action: {
             saveProgress()
+            successFeedbackTrigger.toggle()
             dismiss()
         }) {
             Text("Complete")
@@ -165,7 +188,6 @@ struct HabitDetailView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .padding(.horizontal)
-        .padding(.bottom, 16)
     }
     
     // MARK: - Methods
@@ -210,4 +232,28 @@ struct HabitDetailView: View {
             timerManager.startTimer()
         }
     }
+}
+
+#Preview {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
+    
+    // Create test Count habit
+    let countHabit = Habit(title: "Push-ups", type: .count, goal: 50)
+    
+    // Create test Time habit
+    let timeHabit = Habit(title: "Meditation", type: .time, goal: 3600) // 1 hour
+    
+    return TabView {
+        HabitDetailView(habit: countHabit)
+            .tabItem {
+                Label("Count", systemImage: "number")
+            }
+        
+        HabitDetailView(habit: timeHabit)
+            .tabItem {
+                Label("Time", systemImage: "timer")
+            }
+    }
+    .modelContainer(container)
 }

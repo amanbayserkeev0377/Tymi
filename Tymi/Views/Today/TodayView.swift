@@ -71,12 +71,12 @@ struct TodayView: View {
                 HabitDetailView(habit: habit, date: selectedDate)
                     .presentationDetents([.fraction(0.7)])
                     .presentationDragIndicator(.visible)
-                    .presentationCornerRadius(45)
+                    .presentationCornerRadius(40)
                     .presentationBackground {
-                        RoundedRectangle(cornerRadius: 45)
+                        RoundedRectangle(cornerRadius: 40)
                             .fill(.ultraThinMaterial)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 45)
+                                RoundedRectangle(cornerRadius: 40)
                                     .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                             )
                     }
