@@ -7,6 +7,9 @@ struct NewHabitView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     
+    // MARK: - Properties
+    private let habit: Habit?
+    
     // MARK: - State Properties
     @State private var title = ""
     @State private var selectedType: HabitType = .count
@@ -20,6 +23,22 @@ struct NewHabitView: View {
     
     @FocusState private var isNameFieldFocused: Bool
     @FocusState private var isCountFieldFocused: Bool
+    
+    // MARK: - Initialization
+    init(habit: Habit? = nil) {
+        self.habit = habit
+        if let habit = habit {
+            _title = State(initialValue: habit.title)
+            _selectedType = State(initialValue: habit.type)
+            _countGoal = State(initialValue: habit.type == .count ? habit.goal : 1)
+            _hours = State(initialValue: habit.type == .time ? habit.goal / 3600 : 1)
+            _minutes = State(initialValue: habit.type == .time ? (habit.goal % 3600) / 60 : 0)
+            _activeDays = State(initialValue: habit.activeDays)
+            _isReminderEnabled = State(initialValue: habit.reminderTime != nil)
+            _reminderTime = State(initialValue: habit.reminderTime ?? Date())
+            _startDate = State(initialValue: habit.startDate)
+        }
+    }
     
     // MARK: - Computed Properties
     private var isFormValid: Bool {
@@ -91,7 +110,7 @@ struct NewHabitView: View {
                 }
                 .padding(.top)
             }
-            .navigationTitle("Create habit")
+            .navigationTitle(title.isEmpty ? "Create habit" : "Edit habit")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -130,18 +149,30 @@ struct NewHabitView: View {
     
     // MARK: - Actions
     private func saveHabit() {
-        let newHabit = Habit(
-            title: title,
-            type: selectedType,
-            goal: effectiveGoal,
-            createdAt: Date(),
-            isArchived: false,
-            activeDays: activeDays,
-            reminderTime: isReminderEnabled ? reminderTime : nil,
-            startDate: startDate
-        )
-        
-        modelContext.insert(newHabit)
+        if let existingHabit = habit {
+            // Update existing habit
+            existingHabit.update(
+                title: title,
+                type: selectedType,
+                goal: effectiveGoal,
+                activeDays: activeDays,
+                reminderTime: isReminderEnabled ? reminderTime : nil,
+                startDate: startDate
+            )
+        } else {
+            // Create new habit
+            let newHabit = Habit(
+                title: title,
+                type: selectedType,
+                goal: effectiveGoal,
+                createdAt: Date(),
+                isArchived: false,
+                activeDays: activeDays,
+                reminderTime: isReminderEnabled ? reminderTime : nil,
+                startDate: startDate
+            )
+            modelContext.insert(newHabit)
+        }
         
         if isReminderEnabled {
             print("Would schedule notification for \(title) at \(reminderTime)")

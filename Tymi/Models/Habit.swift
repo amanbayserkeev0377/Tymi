@@ -152,4 +152,21 @@ final class Habit {
         let completion = HabitCompletion(date: date, value: value, habit: self)
         completions.append(completion)
     }
+
+    // MARK: - Methods
+    func update(
+        title: String,
+        type: HabitType,
+        goal: Int,
+        activeDays: [Bool],
+        reminderTime: Date?,
+        startDate: Date
+    ) {
+        self.title = title
+        self.type = type
+        self.goal = goal
+        self.activeDays = activeDays
+        self.reminderTime = reminderTime
+        self.startDate = startDate
+    }
 }

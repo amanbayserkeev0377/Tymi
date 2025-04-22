@@ -7,6 +7,7 @@ struct HabitDetailView: View {
     let date: Date
     
     @StateObject private var timerManager: HabitTimerManager
+    @State private var isShowingEditSheet = false
     
     // State for alerts
     @State private var isResetAlertPresented = false
@@ -63,7 +64,7 @@ struct HabitDetailView: View {
                 
                 Menu {
                     Button(action: {
-                        print("Edit habit")
+                        isShowingEditSheet = true
                     }) {
                         Label("Edit", systemImage: "pencil")
                     }
@@ -125,6 +126,9 @@ struct HabitDetailView: View {
         .navigationBarHidden(true)
         .sensoryFeedback(.success, trigger: successFeedbackTrigger)
         .sensoryFeedback(.error, trigger: errorFeedbackTrigger)
+        .sheet(isPresented: $isShowingEditSheet) {
+            NewHabitView(habit: habit)
+        }
         
         // Reset confirmation alert
         .alert("Reset Progress", isPresented: $isResetAlertPresented) {
@@ -138,7 +142,7 @@ struct HabitDetailView: View {
         }
         
         // Delete confirmation alert
-        .alert("Delete this habit? This can’t be undone.", isPresented: $isDeleteAlertPresented) {
+        .alert("Delete this habit? This can't be undone.", isPresented: $isDeleteAlertPresented) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
                 deleteHabit()
