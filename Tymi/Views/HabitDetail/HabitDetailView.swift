@@ -12,6 +12,7 @@ struct HabitDetailView: View {
     @State private var isResetAlertPresented = false
     @State private var isCountAlertPresented = false
     @State private var isTimeAlertPresented = false
+    @State private var isDeleteAlertPresented = false
     
     // Input text state
     @State private var countInputText = ""
@@ -59,6 +60,27 @@ struct HabitDetailView: View {
                     .fontWeight(.bold)
                 
                 Spacer()
+                
+                Menu {
+                    Button(action: {
+                        print("Edit habit")
+                    }) {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    Button(role: .destructive, action: {
+                        isDeleteAlertPresented = true
+                    }) {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete")
+                        }
+                        .tint(.red)
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title3)
+                        .foregroundStyle(.primary)
+                }
             }
             .padding(.top)
             
@@ -113,6 +135,14 @@ struct HabitDetailView: View {
             }
         } message: {
             Text("Do you want to reset your progress for today?")
+        }
+        
+        // Delete confirmation alert
+        .alert("Delete this habit? This can’t be undone.", isPresented: $isDeleteAlertPresented) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                deleteHabit()
+            }
         }
         
         // Alert for Count type
@@ -231,6 +261,13 @@ struct HabitDetailView: View {
         } else {
             timerManager.startTimer()
         }
+    }
+    
+    private func deleteHabit() {
+        modelContext.delete(habit)
+        
+        errorFeedbackTrigger.toggle()
+        dismiss()
     }
 }
 
