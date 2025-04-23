@@ -3,6 +3,7 @@ import SwiftUI
 struct ProgressRing: View {
     let progress: Double
     let currentValue: String
+    let isCompleted: Bool
     var size: CGFloat = 180
     var lineWidth: CGFloat = 24
     var useGradient: Bool = true
@@ -17,18 +18,31 @@ struct ProgressRing: View {
     }
     
     private var progressGradient: AngularGradient {
-        AngularGradient(
-            gradient: Gradient(colors: [
-                Color(hex: "ffaf7b"),
-                Color(hex: "b06ab3"),
-                Color(hex: "d76d77"),
-                Color(hex: "ffaf7b")
-                
-            ]),
-            center: .center,
-            startAngle: .degrees(-90),
-            endAngle: .degrees(270)
-        )
+        if isCompleted {
+            return AngularGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "28B463"),
+                    Color(hex: "D1FFD5"),
+                    Color(hex: "3EB489"),
+                    Color(hex: "28B463")
+                ]),
+                center: .center,
+                startAngle: .degrees(-90),
+                endAngle: .degrees(270)
+            )
+        } else {
+            return AngularGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "ffaf7b"),
+                    Color(hex: "b06ab3"),
+                    Color(hex: "d76d77"),
+                    Color(hex: "ffaf7b")
+                ]),
+                center: .center,
+                startAngle: .degrees(-90),
+                endAngle: .degrees(270)
+            )
+        }
     }
     
     var body: some View {
@@ -61,21 +75,40 @@ struct ProgressRing: View {
                     .animation(.easeInOut, value: progress)
             }
             
-            // Current value
-            Text(currentValue)
-                .font(.system(size: size * 0.18, weight: .bold))
-                .multilineTextAlignment(.center)
+            // Current value or Done text
+            if isCompleted {
+                Text("Done🎉")
+                    .font(.system(size: size * 0.18, weight: .bold))
+                    .multilineTextAlignment(.center)
+            } else {
+                Text(currentValue)
+                    .font(.system(size: size * 0.18, weight: .bold))
+                    .multilineTextAlignment(.center)
+            }
         }
     }
 }
 
 #Preview {
-    ProgressRing(
-        progress: 0.99,
-        currentValue: "100%",
-        size: 180,
-        lineWidth: 24,
-        useGradient: true
-    )
-    .padding()
+    VStack(spacing: 20) {
+        ProgressRing(
+            progress: 0.99,
+            currentValue: "100%",
+            isCompleted: true,
+            size: 180,
+            lineWidth: 24,
+            useGradient: true
+        )
+        .padding()
+        
+        ProgressRing(
+            progress: 0.9,
+            currentValue: "Sada loh",
+            isCompleted: false,
+            size: 180,
+            lineWidth: 24,
+            useGradient: true
+        )
+        .padding()
+    }
 }

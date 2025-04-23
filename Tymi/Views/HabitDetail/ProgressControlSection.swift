@@ -11,6 +11,10 @@ struct ProgressControlSection: View {
     
     @State private var progressValue: Int = 0
     
+    private var isCompleted: Bool {
+        completionPercentage >= 1.0
+    }
+    
     var body: some View {
         HStack(spacing: 40) {
             // minus
@@ -27,7 +31,8 @@ struct ProgressControlSection: View {
             // Progress Ring
             ProgressRing(
                 progress: completionPercentage,
-                currentValue: formattedProgress
+                currentValue: formattedProgress,
+                isCompleted: isCompleted
             )
             
             // plus
