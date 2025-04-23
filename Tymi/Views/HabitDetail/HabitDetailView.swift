@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct HabitDetailView: View {
     // MARK: - Properties
@@ -71,12 +72,9 @@ struct HabitDetailView: View {
                     Button(role: .destructive, action: {
                         isDeleteAlertPresented = true
                     }) {
-                        HStack {
-                            Image(systemName: "trash")
-                            Text("Delete")
-                        }
-                        .tint(.red)
+                        Label("Delete", systemImage: "trash")
                     }
+                    .tint(.red)
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .font(.title3)
@@ -129,70 +127,22 @@ struct HabitDetailView: View {
         .sheet(isPresented: $isShowingEditSheet) {
             NewHabitView(habit: habit)
         }
-        
-        // Reset confirmation alert
-        .alert("Reset Progress", isPresented: $isResetAlertPresented) {
-            Button("Cancel", role: .cancel) { }
-            Button("Reset", role: .destructive) {
-                errorFeedbackTrigger.toggle()
-                resetProgress()
-            }
-        } message: {
-            Text("Do you want to reset your progress for today?")
-        }
-        
-        // Delete confirmation alert
-        .alert("Delete this habit? This can't be undone.", isPresented: $isDeleteAlertPresented) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
-                deleteHabit()
-            }
-        }
-        
-        // Alert for Count type
-        .alert("Add count", isPresented: $isCountAlertPresented) {
-            TextField("", text: $countInputText)
-                .keyboardType(.numberPad)
-            Button("Cancel", role: .cancel) {
-                countInputText = ""
-            }
-            Button("Add") {
-                if let value = Int(countInputText), value > 0 {
-                    timerManager.addProgress(value)
-                    successFeedbackTrigger.toggle()
-                }
-                countInputText = ""
-            }
-        }
-        .tint(.primary)
-        
-        // Alert for Time type
-        .alert("Add time", isPresented: $isTimeAlertPresented) {
-            TextField("minutes", text: $minutesInputText)
-                .keyboardType(.numberPad)
-            TextField("hours", text: $hoursInputText)
-                .keyboardType(.numberPad)
-            Button("Cancel", role: .cancel) {
-                hoursInputText = ""
-                minutesInputText = ""
-            }
-            Button("Add") {
-                let minutes = Int(minutesInputText) ?? 0
-                let hours = Int(hoursInputText) ?? 0
-                
-                // Convert to seconds and add to progress
-                let totalSeconds = (hours * 3600) + (minutes * 60)
-                if totalSeconds > 0 {
-                    timerManager.addProgress(totalSeconds)
-                    successFeedbackTrigger.toggle()
-                }
-                
-                // Clear input fields
-                minutesInputText = ""
-                hoursInputText = ""
-            }
-        }
-        .tint(.primary)
+        .modifier(HabitDetailAlerts(
+            habit: habit,
+            date: date,
+            timerManager: timerManager,
+            isResetAlertPresented: $isResetAlertPresented,
+            isCountAlertPresented: $isCountAlertPresented,
+            isTimeAlertPresented: $isTimeAlertPresented,
+            isDeleteAlertPresented: $isDeleteAlertPresented,
+            countInputText: $countInputText,
+            hoursInputText: $hoursInputText,
+            minutesInputText: $minutesInputText,
+            successFeedbackTrigger: $successFeedbackTrigger,
+            errorFeedbackTrigger: $errorFeedbackTrigger,
+            onReset: resetProgress,
+            onDelete: deleteHabit
+        ))
         .onDisappear {
             saveProgress()
         }
