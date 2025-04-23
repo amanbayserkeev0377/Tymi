@@ -4,7 +4,7 @@ struct ProgressRing: View {
     let progress: Double
     let currentValue: String
     var size: CGFloat = 180
-    var lineWidth: CGFloat = 12
+    var lineWidth: CGFloat = 24
     var useGradient: Bool = true
     
     @Environment(\.colorScheme) private var colorScheme
@@ -18,10 +18,16 @@ struct ProgressRing: View {
     
     private var progressGradient: AngularGradient {
         AngularGradient(
-            gradient: Gradient(colors: [.blue, .purple, .blue]),
+            gradient: Gradient(colors: [
+                Color(hex: "ffaf7b"),
+                Color(hex: "b06ab3"),
+                Color(hex: "d76d77"),
+                Color(hex: "ffaf7b")
+                
+            ]),
             center: .center,
-            startAngle: .degrees(0),
-            endAngle: .degrees(360)
+            startAngle: .degrees(-90),
+            endAngle: .degrees(270)
         )
     }
     
@@ -61,4 +67,15 @@ struct ProgressRing: View {
                 .multilineTextAlignment(.center)
         }
     }
+}
+
+#Preview {
+    ProgressRing(
+        progress: 0.99,
+        currentValue: "100%",
+        size: 180,
+        lineWidth: 24,
+        useGradient: true
+    )
+    .padding()
 }
