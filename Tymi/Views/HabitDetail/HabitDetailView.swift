@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import UIKit
 
 struct HabitDetailView: View {
     // MARK: - Properties
@@ -39,14 +38,14 @@ struct HabitDetailView: View {
     // MARK: - Computed Properties
     private var completionPercentage: Double {
         guard habit.goal > 0 else { return 0 }
-        return min(Double(timerManager.currentProgress) / Double(habit.goal), 1.0)
+        return min(Double(timerManager.totalProgress) / Double(habit.goal), 1.0)
     }
     
     private var formattedProgress: String {
         if habit.type == .count {
-            return timerManager.currentProgress.formattedAsProgress(total: habit.goal)
+            return timerManager.totalProgress.formattedAsProgress(total: habit.goal)
         } else {
-            return timerManager.currentProgress.formattedAsTime()
+            return timerManager.totalProgress.formattedAsTime()
         }
     }
     

@@ -5,12 +5,14 @@ class HabitTimerManager: ObservableObject {
     @Published var isRunning = false
     @Published var currentProgress: Int = 0
     @Published var elapsedTime: Int = 0 // Current timer time
+    @Published var totalProgress: Int = 0 // Total progress (current + elapsed)
     
     private var startTime: Date?
     private var timer: AnyCancellable?
     
     init(initialProgress: Int = 0) {
         self.currentProgress = initialProgress
+        self.totalProgress = initialProgress
     }
     
     func startTimer() {
@@ -32,25 +34,32 @@ class HabitTimerManager: ObservableObject {
         isRunning = false
         let elapsedTime = Int(Date().timeIntervalSince(start))
         currentProgress += elapsedTime
+        totalProgress = currentProgress
         self.elapsedTime = 0
         startTime = nil
         timer?.cancel()
     }
     
     func resetTimer() {
-        isRunning = false
+        stopTimer() // Сначала останавливаем таймер, если он запущен
         currentProgress = 0
+        totalProgress = 0
         elapsedTime = 0
-        startTime = nil
-        timer?.cancel()
     }
     
     func addProgress(_ value: Int) {
+        // Останавливаем таймер перед изменением прогресса
+        if isRunning {
+            stopTimer()
+        }
+        
         let newValue = currentProgress + value
         if newValue >= 0 {
             currentProgress = newValue
+            totalProgress = newValue
         } else {
             currentProgress = 0
+            totalProgress = 0
         }
     }
     
@@ -59,11 +68,7 @@ class HabitTimerManager: ObservableObject {
         
         // Update displayed time without changing currentProgress
         elapsedTime = Int(Date().timeIntervalSince(start))
-    }
-    
-    // Get total progress (current + running timer)
-    var totalProgress: Int {
-        return currentProgress + (isRunning ? elapsedTime : 0)
+        totalProgress = currentProgress + elapsedTime
     }
     
     deinit {
