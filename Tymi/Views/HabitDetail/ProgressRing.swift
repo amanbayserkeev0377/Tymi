@@ -4,6 +4,7 @@ struct ProgressRing: View {
     let progress: Double
     let currentValue: String
     let isCompleted: Bool
+    let isExceeded: Bool
     var size: CGFloat = 180
     var lineWidth: CGFloat = 24
     var useGradient: Bool = true
@@ -18,9 +19,35 @@ struct ProgressRing: View {
     }
     
     private var progressGradient: AngularGradient {
-        if isCompleted {
+        let isDark = colorScheme == .dark
+        
+        if isExceeded {
             return AngularGradient(
-                gradient: Gradient(colors: [
+                gradient: Gradient(colors: isDark ? [
+                    Color(hex: "5E81AC"),
+                    Color(hex: "88C0D0"),
+                    Color(hex: "88C0D0"),
+                    Color(hex: "D8DEE9"),
+                    Color(hex: "5E81AC")
+                ] : [
+                    Color(hex: "98FB98"),
+                    Color(hex: "D1FFD5"),
+                    Color(hex: "1a945e"),
+                    Color(hex: "98FB98")
+                ]),
+                center: .center,
+                startAngle: .degrees(-90),
+                endAngle: .degrees(270)
+            )
+        } else if isCompleted {
+            return AngularGradient(
+                gradient: Gradient(colors: isDark ? [
+                    Color(hex: "28B463"),
+                    Color(hex: "3EB489"),
+                    Color(hex: "3EB489"),
+                    Color(hex: "D1FFD5"),
+                    Color(hex: "28B463")
+                ] : [
                     Color(hex: "28B463"),
                     Color(hex: "D1FFD5"),
                     Color(hex: "3EB489"),
@@ -32,9 +59,15 @@ struct ProgressRing: View {
             )
         } else {
             return AngularGradient(
-                gradient: Gradient(colors: [
+                gradient: Gradient(colors: isDark ? [
                     Color(hex: "ffaf7b"),
-                    Color(hex: "b06ab3"),
+                    Color(hex: "d76d77"),
+                    Color(hex: "d76d77"),
+                    Color(hex: "f4e2d8"),
+                    Color(hex: "ffaf7b")
+                ] : [
+                    Color(hex: "ffaf7b"),
+                    Color(hex: "FFF5EE"),
                     Color(hex: "d76d77"),
                     Color(hex: "ffaf7b")
                 ]),
@@ -55,7 +88,7 @@ struct ProgressRing: View {
             // Progress
             if useGradient {
                 Circle()
-                    .trim(from: 0, to: progress)
+                    .trim(from: 0, to: min(progress, 1.0))
                     .stroke(
                         progressGradient,
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
@@ -65,7 +98,7 @@ struct ProgressRing: View {
                     .animation(.easeInOut, value: progress)
             } else {
                 Circle()
-                    .trim(from: 0, to: progress)
+                    .trim(from: 0, to: min(progress, 1.0))
                     .stroke(
                         progressColor,
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
@@ -76,14 +109,16 @@ struct ProgressRing: View {
             }
             
             // Current value or Done text
-            if isCompleted {
-                Text("Done🎉")
-                    .font(.system(size: size * 0.18, weight: .bold))
+            if isCompleted && !isExceeded {
+                Text("🏆")
+                    .font(.system(size: size * 0.38, weight: .bold))
                     .multilineTextAlignment(.center)
+                    .foregroundStyle(Color(hex: "28B463"))
             } else {
                 Text(currentValue)
                     .font(.system(size: size * 0.18, weight: .bold))
                     .multilineTextAlignment(.center)
+                    .foregroundStyle(isExceeded ? Color(hex: "28B463") : .primary)
             }
         }
     }
@@ -92,9 +127,10 @@ struct ProgressRing: View {
 #Preview {
     VStack(spacing: 20) {
         ProgressRing(
-            progress: 0.99,
+            progress: 1.0,
             currentValue: "100%",
             isCompleted: true,
+            isExceeded: false,
             size: 180,
             lineWidth: 24,
             useGradient: true
@@ -102,9 +138,21 @@ struct ProgressRing: View {
         .padding()
         
         ProgressRing(
-            progress: 0.9,
-            currentValue: "Sada loh",
+            progress: 1.1,
+            currentValue: "110%",
+            isCompleted: true,
+            isExceeded: true,
+            size: 180,
+            lineWidth: 24,
+            useGradient: true
+        )
+        .padding()
+        
+        ProgressRing(
+            progress: 0.98,
+            currentValue: "98%",
             isCompleted: false,
+            isExceeded: false,
             size: 180,
             lineWidth: 24,
             useGradient: true

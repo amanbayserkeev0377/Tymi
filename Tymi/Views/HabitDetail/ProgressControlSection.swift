@@ -15,6 +15,10 @@ struct ProgressControlSection: View {
         completionPercentage >= 1.0
     }
     
+    private var isExceeded: Bool {
+        Double(currentProgress) > Double(habit.goal)
+    }
+    
     var body: some View {
         HStack(spacing: 40) {
             // minus
@@ -32,7 +36,8 @@ struct ProgressControlSection: View {
             ProgressRing(
                 progress: completionPercentage,
                 currentValue: formattedProgress,
-                isCompleted: isCompleted
+                isCompleted: isCompleted,
+                isExceeded: isExceeded
             )
             
             // plus
@@ -64,6 +69,16 @@ struct ProgressControlSection: View {
             currentProgress: .constant(10),
             completionPercentage: 0.5,
             formattedProgress: "10/20",
+            onIncrement: {},
+            onDecrement: {}
+        )
+        
+        // Exceeded goal
+        ProgressControlSection(
+            habit: Habit(title: "Push-ups", type: .count, goal: 20),
+            currentProgress: .constant(25),
+            completionPercentage: 1.25,
+            formattedProgress: "25/20",
             onIncrement: {},
             onDecrement: {}
         )

@@ -38,7 +38,7 @@ struct HabitDetailView: View {
     // MARK: - Computed Properties
     private var completionPercentage: Double {
         guard habit.goal > 0 else { return 0 }
-        return min(Double(timerManager.totalProgress) / Double(habit.goal), 1.0)
+        return Double(timerManager.totalProgress) / Double(habit.goal)
     }
     
     private var formattedProgress: String {
