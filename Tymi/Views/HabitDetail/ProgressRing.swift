@@ -6,23 +6,74 @@ struct ProgressRing: View {
     let isCompleted: Bool
     let isExceeded: Bool
     var size: CGFloat = 180
-    var lineWidth: CGFloat = 24
+    var lineWidth: CGFloat = 22
+    @Environment(\.colorScheme) var colorScheme
     
-    // Цвета для градиента
     private var ringColors: [Color] {
-        if isCompleted || isExceeded {
-            return [
-                Color(hex: "28B463"), // Темно-зеленый
-                Color(hex: "D1FFD5"), // Светло-зеленый
-                Color(hex: "28B463")  // Снова темно-зеленый для конца
+        if isExceeded {
+            return colorScheme == .dark ? [
+                Color(#colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1)),
+                Color(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)),
+                Color(#colorLiteral(red: 1, green: 0.7019607843, blue: 0.2, alpha: 1)),
+                Color(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)),
+                Color(#colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1))
+            ] : [
+                Color(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)),
+                Color(#colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1)),
+                Color(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)),
+                Color(#colorLiteral(red: 1, green: 0.7019607843, blue: 0.2, alpha: 1)),
+                Color(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1))
+            ]
+        } else if isCompleted {
+            return colorScheme == .dark ? [
+                Color(#colorLiteral(red: 0.007843137255, green: 0.1882352941, blue: 0.1254901961, alpha: 1)),
+                Color(#colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)),
+                Color(#colorLiteral(red: 0.8196078431, green: 1, blue: 0.8352941176, alpha: 1)),
+                Color(#colorLiteral(red: 0, green: 0.459711194, blue: 0.3089413643, alpha: 1)),
+                Color(#colorLiteral(red: 0.007843137255, green: 0.1882352941, blue: 0.1254901961, alpha: 1))
+            ] : [
+                Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1)),
+                Color(#colorLiteral(red: 0.1803921569, green: 0.5450980392, blue: 0.3411764706, alpha: 1)),
+                Color(#colorLiteral(red: 0.7885711789, green: 0.9630113244, blue: 0.8068896532, alpha: 1)),
+                Color(#colorLiteral(red: 0.5960784314, green: 0.9843137255, blue: 0.5960784314, alpha: 1)),
+                Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
             ]
         } else {
-            return [
-                Color(hex: "ffaf7b"), // Оранжевый
-                Color(hex: "FFF5EE"), // Светлый
-                Color(hex: "ffaf7b")  // Снова оранжевый для конца
+            return colorScheme == .dark ? [
+                Color(#colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1)),
+                Color(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)),
+                Color(#colorLiteral(red: 1, green: 0.7019607843, blue: 0.2, alpha: 1)),
+                Color(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)),
+                Color(#colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1))
+            ] : [
+                Color(#colorLiteral(red: 0.9803921569, green: 0.6745098039, blue: 0.6588235294, alpha: 1)),
+                Color(#colorLiteral(red: 0.9411764741, green: 0.4980392158, blue: 0.3529411852, alpha: 1)),
+                Color(#colorLiteral(red: 0.9098039216, green: 0.9176470588, blue: 0.9058823529, alpha: 1)),
+                Color(#colorLiteral(red: 0.9411764741, green: 0.4980392158, blue: 0.3529411852, alpha: 1)),
+                Color(#colorLiteral(red: 0.9803921569, green: 0.6745098039, blue: 0.6588235294, alpha: 1))
             ]
         }
+    }
+    
+    private var textColor: Color {
+        if isExceeded {
+            return colorScheme == .dark ?
+                Color(#colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1)) :
+                Color(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1))
+        } else if isCompleted {
+            return colorScheme == .dark ? 
+                Color(#colorLiteral(red: 0.8196078431, green: 1, blue: 0.8352941176, alpha: 1)) :
+                Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
+        } else {
+            return .primary
+        }
+    }
+    
+    private var rotationAngle: Double {
+        if isExceeded {
+            return (progress - 1.0) * 360
+        }
+        return 0
     }
     
     var body: some View {
@@ -30,68 +81,39 @@ struct ProgressRing: View {
             // Фоновый круг
             Circle()
                 .stroke(Color.secondary.opacity(0.2), lineWidth: lineWidth)
-                .frame(width: size, height: size)
             
-            ZStack {
-                if progress < 0.98 {
-                    // Обычный прогресс
-                    Circle()
-                        .trim(from: 0, to: progress)
-                        .stroke(
-                            AngularGradient(
-                                gradient: Gradient(colors: ringColors),
-                                center: .center,
-                                startAngle: .degrees(0),
-                                endAngle: .degrees(360)
-                            ),
-                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                        )
-                        .frame(width: size, height: size)
-                        .rotationEffect(.degrees(-90))
-                    
-                    // Фиксируем начало градиента
-                    Circle()
-                        .frame(width: lineWidth, height: lineWidth)
-                        .foregroundColor(ringColors[0])
-                        .offset(y: -size/2)
-                        
-                } else {
-                    // Полное заполнение или перевыполнение
-                    Circle()
-                        .stroke(
-                            AngularGradient(
-                                gradient: Gradient(colors: ringColors),
-                                center: .center,
-                                startAngle: .degrees(0),
-                                endAngle: .degrees(360)
-                            ),
-                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                        )
-                        .frame(width: size, height: size)
-                        .rotationEffect(.degrees((360 * progress) - 90))
-                    
-                    // Кончик для перевыполнения
-                    Circle()
-                        .frame(width: lineWidth, height: lineWidth)
-                        .foregroundColor(ringColors[2])
-                        .offset(y: -size/2)
-                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: lineWidth/4, y: 0)
-                        .rotationEffect(.degrees(360 * progress))
-                }
-            }
-            .animation(.easeInOut(duration: 0.5), value: progress)
+            // Кольцо прогресса
+            Circle()
+                .trim(from: 0, to: isExceeded ? 1 : progress)
+                .stroke(
+                    AngularGradient(
+                        colors: ringColors,
+                        center: .center,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(360)
+                    ),
+                    style: StrokeStyle(
+                        lineWidth: lineWidth,
+                        lineCap: .round
+                    )
+                )
+                .rotationEffect(.degrees(-90))
+                .rotationEffect(.degrees(rotationAngle))
             
+            // Текст в центре
             if isCompleted && !isExceeded {
                 Image(systemName: "checkmark")
                     .font(.system(size: size * 0.25, weight: .bold))
-                    .foregroundStyle(ringColors[0])
+                    .foregroundStyle(textColor)
             } else {
                 Text(currentValue)
                     .font(.system(size: size * 0.18, weight: .bold))
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(isExceeded ? ringColors[0] : .primary)
+                    .foregroundStyle(textColor)
             }
         }
+        .frame(width: size, height: size)
+        .animation(.easeInOut(duration: 0.3), value: progress)
     }
 }
 
@@ -101,39 +123,24 @@ struct ProgressRing: View {
         
         VStack(spacing: 40) {
             ProgressRing(
-                progress: 0.75,
-                currentValue: "15",
-                isCompleted: false,
-                isExceeded: false,
-                size: 180,
-                lineWidth: 24
-            )
-            
-            ProgressRing(
                 progress: 1.0,
                 currentValue: "20",
                 isCompleted: true,
-                isExceeded: false,
-                size: 180,
-                lineWidth: 24
+                isExceeded: false
             )
             
             ProgressRing(
                 progress: 0.99,
-                currentValue: "25",
+                currentValue: "18",
                 isCompleted: false,
-                isExceeded: false,
-                size: 180,
-                lineWidth: 24
+                isExceeded: false
             )
             
             ProgressRing(
-                progress: 2.75,
-                currentValue: "55",
+                progress: 1.2,
+                currentValue: "40",
                 isCompleted: true,
-                isExceeded: true,
-                size: 180,
-                lineWidth: 24
+                isExceeded: true
             )
         }
     }
