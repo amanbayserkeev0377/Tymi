@@ -21,9 +21,13 @@ struct HabitRowView: View {
             
             Spacer()
             
-            ProgressCircle(
+            ProgressRing(
                 progress: habit.completionPercentageForDate(date),
-                isCompleted: habit.isCompletedForDate(date)
+                currentValue: habit.formattedProgressValue(for: date),
+                isCompleted: habit.isCompletedForDate(date),
+                isExceeded: habit.isExceededForDate(date),
+                size: 46,
+                lineWidth: 6
             )
         }
         .padding()

@@ -135,6 +135,23 @@ final class Habit {
         return progressForDate(date) >= goal
     }
     
+    // Check if habit is exceeded for the day
+    func isExceededForDate(_ date: Date) -> Bool {
+        return progressForDate(date) > goal
+    }
+    
+    // Get formatted progress value for specific date
+    func formattedProgressValue(for date: Date) -> String {
+        let progress = progressForDate(date)
+        
+        switch type {
+        case .count:
+            return "\(progress)/\(goal)"
+        case .time:
+            return progress.formattedAsTime()
+        }
+    }
+    
     // Calculate completion percentage for the day
     func completionPercentageForDate(_ date: Date) -> Double {
         let progress = progressForDate(date)

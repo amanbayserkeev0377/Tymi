@@ -86,7 +86,7 @@ struct TodayView: View {
                             
                             if colorScheme != .dark {
                                 RoundedRectangle(cornerRadius: cornerRadius)
-                                    .fill(Color.white.opacity(0.5))
+                                    .fill(Color.white.opacity(0.7))
                             }
                             RoundedRectangle(cornerRadius: cornerRadius)
                                 .stroke(
