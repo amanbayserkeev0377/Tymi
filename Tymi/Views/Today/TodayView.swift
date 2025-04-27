@@ -14,6 +14,7 @@ struct TodayView: View {
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
     @State private var selectedHabit: Habit? = nil
+    @State private var isShowingCalendarSheet = false
     @StateObject private var habitsUpdateService = HabitsUpdateService()
     
     private let dateFormatter: DateFormatter = {
@@ -58,7 +59,7 @@ struct TodayView: View {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
-                        // Open calendar
+                        isShowingCalendarSheet = true
                     }) {
                         Image(systemName: "calendar")
                     }
@@ -71,6 +72,27 @@ struct TodayView: View {
                         Rectangle().fill(
                             colorScheme == .dark ? .ultraThinMaterial : .thinMaterial
                         )
+                    }
+            }
+            
+            .sheet(isPresented: $isShowingCalendarSheet) {
+                CalendarView(selectedDate: $selectedDate)
+                    .presentationDetents([.fraction(0.6)])
+                    .presentationDragIndicator(.visible)
+                    .presentationCornerRadius(40)
+                    .presentationBackground {
+                        let cornerRadius: CGFloat = 40
+                        ZStack {
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .fill(.ultraThinMaterial)
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .stroke(
+                                    colorScheme == .dark
+                                    ? Color.white.opacity(0.1)
+                                    : Color.black.opacity(0.15),
+                                    lineWidth: 1.5
+                                )
+                        }
                     }
             }
             
