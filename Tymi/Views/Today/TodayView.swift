@@ -32,6 +32,8 @@ struct TodayView: View {
                     if habits.isEmpty {
                         EmptyStateView()
                     } else {
+                        DailyProgressRing(date: selectedDate)
+                        
                         habitsList
                     }
                 }

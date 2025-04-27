@@ -12,15 +12,13 @@ struct ProgressRing: View {
     private var ringColors: [Color] {
         if isExceeded {
             return colorScheme == .dark ? [
-                Color(#colorLiteral(red: 0.4823529412, green: 0.262745098, blue: 0.5921568627, alpha: 1)),
-                Color(#colorLiteral(red: 1, green: 0.3725490196, blue: 0.4274509804, alpha: 1)),
-                Color(#colorLiteral(red: 1, green: 0.9294117647, blue: 0.737254902, alpha: 1)),
-                Color(#colorLiteral(red: 0.4823529412, green: 0.262745098, blue: 0.5921568627, alpha: 1))
+                Color(#colorLiteral(red: 0.2588235294, green: 0.3921568627, blue: 1, alpha: 1)),
+                Color(#colorLiteral(red: 0.9222695707, green: 0.1548486791, blue: 0.2049736653, alpha: 1)),
+                Color(#colorLiteral(red: 0.2588235294, green: 0.3921568627, blue: 1, alpha: 1))
             ] : [
-                Color(#colorLiteral(red: 0.3249471814, green: 0.1565204025, blue: 0.6371133207, alpha: 1)),
-                Color(#colorLiteral(red: 0.8431372549, green: 0.4274509804, blue: 0.4666666667, alpha: 1)),
-                Color(#colorLiteral(red: 1, green: 0.6862745098, blue: 0.4823529412, alpha: 1)),
-                Color(#colorLiteral(red: 0.3249471814, green: 0.1565204025, blue: 0.6371133207, alpha: 1))
+                Color(#colorLiteral(red: 0.4408588113, green: 0.3927473914, blue: 1, alpha: 1)),
+                Color(#colorLiteral(red: 0.9222695707, green: 0.1548486791, blue: 0.2049736653, alpha: 1)),
+                Color(#colorLiteral(red: 0.4408588113, green: 0.3927473914, blue: 1, alpha: 1))
             ]
         } else if isCompleted {
             return colorScheme == .dark ? [

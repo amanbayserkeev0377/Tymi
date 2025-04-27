@@ -29,6 +29,7 @@ struct ProgressControlSection: View {
                 Image(systemName: "minus")
                     .font(.system(size: 30))
                     .tint(.primary)
+                    .frame(width: 44, height: 44)
             }
             .sensoryFeedback(.decrease, trigger: progressValue)
             
@@ -48,6 +49,7 @@ struct ProgressControlSection: View {
                 Image(systemName: "plus")
                     .font(.system(size: 30))
                     .tint(.primary)
+                    .frame(width: 48, height: 48)
             }
             .sensoryFeedback(.increase, trigger: progressValue)
         }

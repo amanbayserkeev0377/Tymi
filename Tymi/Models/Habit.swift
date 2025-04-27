@@ -146,9 +146,9 @@ final class Habit {
         
         switch type {
         case .count:
-            return "\(progress)/\(goal)"
+            return progress.formattedAsProgressForRing()
         case .time:
-            return progress.formattedAsTime()
+            return progress.formattedAsTimeForRing()
         }
     }
     
