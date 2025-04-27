@@ -3,7 +3,7 @@ import SwiftUI
 struct HabitDetailAlerts: ViewModifier {
     let habit: Habit
     let date: Date
-    let timerManager: HabitTimerManager
+    let timerService: HabitTimerService
     
     @Binding var isResetAlertPresented: Bool
     @Binding var isCountAlertPresented: Bool
@@ -17,8 +17,8 @@ struct HabitDetailAlerts: ViewModifier {
     @Binding var successFeedbackTrigger: Bool
     @Binding var errorFeedbackTrigger: Bool
     
-    var onReset: () -> Void
-    var onDelete: () -> Void
+    let onReset: () -> Void
+    let onDelete: () -> Void
     
     func body(content: Content) -> some View {
         content
@@ -52,7 +52,7 @@ struct HabitDetailAlerts: ViewModifier {
                 }
                 Button("Add") {
                     if let value = Int(countInputText), value > 0 {
-                        timerManager.addProgress(value)
+                        timerService.addProgress(value, for: habit.id)
                         successFeedbackTrigger.toggle()
                     }
                     countInputText = ""
@@ -62,9 +62,9 @@ struct HabitDetailAlerts: ViewModifier {
             
             // Alert for Time type
             .alert("Enter time", isPresented: $isTimeAlertPresented) {
-                TextField("minutes", text: $minutesInputText)
-                    .keyboardType(.numberPad)
                 TextField("hours", text: $hoursInputText)
+                    .keyboardType(.numberPad)
+                TextField("minutes", text: $minutesInputText)
                     .keyboardType(.numberPad)
                 Button("Cancel", role: .cancel) {
                     hoursInputText = ""
@@ -77,7 +77,7 @@ struct HabitDetailAlerts: ViewModifier {
                     // Convert to seconds and add to progress
                     let totalSeconds = (hours * 3600) + (minutes * 60)
                     if totalSeconds > 0 {
-                        timerManager.addProgress(totalSeconds)
+                        timerService.addProgress(totalSeconds, for: habit.id)
                         successFeedbackTrigger.toggle()
                     }
                     

@@ -6,7 +6,7 @@ struct HabitDetailView: View {
     let habit: Habit
     let date: Date
     
-    @StateObject private var timerManager: HabitTimerManager
+    @StateObject private var timerService = HabitTimerService.shared
     @State private var isShowingEditSheet = false
     
     // State for alerts
@@ -33,20 +33,19 @@ struct HabitDetailView: View {
     init(habit: Habit, date: Date = .now) {
         self.habit = habit
         self.date = date
-        self._timerManager = StateObject(wrappedValue: HabitTimerManager(initialProgress: habit.progressForDate(date)))
     }
     
     // MARK: - Computed Properties
     private var completionPercentage: Double {
         guard habit.goal > 0 else { return 0 }
-        return Double(timerManager.totalProgress) / Double(habit.goal)
+        return Double(timerService.getTotalProgress(for: habit.id)) / Double(habit.goal)
     }
     
     private var formattedProgress: String {
         if habit.type == .count {
-            return timerManager.totalProgress.formattedAsProgress(total: habit.goal)
+            return timerService.getTotalProgress(for: habit.id).formattedAsProgress(total: habit.goal)
         } else {
-            return timerManager.totalProgress.formattedAsTime()
+            return timerService.getTotalProgress(for: habit.id).formattedAsTime()
         }
     }
     
@@ -90,7 +89,7 @@ struct HabitDetailView: View {
             // Progress controls
             ProgressControlSection(
                 habit: habit,
-                currentProgress: $timerManager.currentProgress,
+                currentProgress: .constant(timerService.getCurrentProgress(for: habit.id)),
                 completionPercentage: completionPercentage,
                 formattedProgress: formattedProgress,
                 onIncrement: incrementProgress,
@@ -100,7 +99,7 @@ struct HabitDetailView: View {
             // Action buttons
             ActionButtonsSection(
                 habit: habit,
-                isTimerRunning: timerManager.isRunning,
+                isTimerRunning: timerService.isTimerRunning(for: habit.id),
                 onReset: { isResetAlertPresented = true },
                 onTimerToggle: {
                     if habit.type == .time {
@@ -130,7 +129,7 @@ struct HabitDetailView: View {
         .modifier(HabitDetailAlerts(
             habit: habit,
             date: date,
-            timerManager: timerManager,
+            timerService: timerService,
             isResetAlertPresented: $isResetAlertPresented,
             isCountAlertPresented: $isCountAlertPresented,
             isTimeAlertPresented: $isTimeAlertPresented,
@@ -143,6 +142,11 @@ struct HabitDetailView: View {
             onReset: resetProgress,
             onDelete: deleteHabit
         ))
+        .onAppear {
+            if habit.type == .time {
+                timerService.restoreTimerState(for: habit.id)
+            }
+        }
         .onDisappear {
             saveProgress()
         }
@@ -176,57 +180,71 @@ struct HabitDetailView: View {
     // MARK: - Methods
     
     private var isAlreadyCompleted: Bool {
-        return timerManager.currentProgress >= habit.goal
+        return timerService.getCurrentProgress(for: habit.id) >= habit.goal
     }
     
     private func completeHabit() {
         withAnimation(.easeInOut(duration: 0.3)) {
-            timerManager.currentProgress = habit.goal
-            timerManager.totalProgress = habit.goal
+            timerService.addProgress(habit.goal - timerService.getCurrentProgress(for: habit.id), for: habit.id)
         }
 
         saveProgress()
+        habitsUpdateService.triggerUpdate()
         successFeedbackTrigger.toggle()
     }
     
     private func saveProgress() {
         let existingProgress = habit.progressForDate(date)
-        if timerManager.currentProgress != existingProgress {
-            habit.addProgress(timerManager.currentProgress - existingProgress, for: date)
+        let currentProgress = timerService.getCurrentProgress(for: habit.id)
+        if currentProgress != existingProgress {
+            habit.addProgress(currentProgress - existingProgress, for: date)
+            habitsUpdateService.triggerUpdate()
         }
     }
     
     private func incrementProgress() {
         if habit.type == .count {
-            timerManager.addProgress(1)
+            timerService.addProgress(1, for: habit.id)
         } else {
-            timerManager.addProgress(60)
+            if timerService.isTimerRunning(for: habit.id) {
+                timerService.stopTimer(for: habit.id)
+            }
+            timerService.addProgress(60, for: habit.id)
         }
+        habitsUpdateService.triggerUpdate()
     }
     
     private func decrementProgress() {
         if habit.type == .count {
-            if timerManager.currentProgress > 0 {
-                timerManager.addProgress(-1)
+            let currentProgress = timerService.getCurrentProgress(for: habit.id)
+            if currentProgress > 0 {
+                timerService.addProgress(-1, for: habit.id)
             }
         } else {
-            if timerManager.currentProgress >= 60 {
-                timerManager.addProgress(-60)
-            } else {
-                timerManager.resetTimer()
+            if timerService.isTimerRunning(for: habit.id) {
+                timerService.stopTimer(for: habit.id)
+            }
+            
+            let currentProgress = timerService.getCurrentProgress(for: habit.id)
+            if currentProgress >= 60 {
+                timerService.addProgress(-60, for: habit.id)
+            } else if currentProgress > 0 {
+                timerService.resetTimer(for: habit.id)
             }
         }
+        habitsUpdateService.triggerUpdate()
     }
     
     private func resetProgress() {
-        timerManager.resetTimer()
+        timerService.resetTimer(for: habit.id)
+        habitsUpdateService.triggerUpdate()
     }
     
     private func toggleTimer() {
-        if timerManager.isRunning {
-            timerManager.stopTimer()
+        if timerService.isTimerRunning(for: habit.id) {
+            timerService.stopTimer(for: habit.id)
         } else {
-            timerManager.startTimer()
+            timerService.startTimer(for: habit.id, initialProgress: timerService.getCurrentProgress(for: habit.id))
         }
     }
     

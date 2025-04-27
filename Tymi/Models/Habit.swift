@@ -44,6 +44,11 @@ final class Habit {
         return 0b1111111 // All days active
     }
     
+    // Computed property for string ID
+    var id: String {
+        return String(describing: persistentModelID)
+    }
+    
     // Initializer with default values
     init(
         title: String,
