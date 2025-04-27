@@ -14,8 +14,8 @@ struct SectionCardModifier: ViewModifier {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(colorScheme == .dark
                                     ? Color.gray.opacity(0.1)
-                                    : Color.black.opacity(0.05),
-                                    lineWidth: 0.5)
+                                    : Color.gray.opacity(0.05),
+                                    lineWidth: 1)
                                    )
                     .shadow(radius: 0.5)
             )

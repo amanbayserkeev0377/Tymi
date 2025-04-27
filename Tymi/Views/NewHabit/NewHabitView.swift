@@ -61,8 +61,7 @@ struct NewHabitView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     // Name Field Section
-                    NameFieldSection(title: $title)
-                        .focused($isNameFieldFocused)
+                    NameFieldSection(title: $title, isFocused: $isNameFieldFocused)
                         .sectionCard()
                     
                     // Goal Section
@@ -120,12 +119,12 @@ struct NewHabitView: View {
                         ZStack {
                             Circle()
                                 .fill(
-                                    colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.05)
+                                    colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.3)
                                 )
                                 .frame(width: 26, height: 26)
                             Image(systemName: "xmark")
                                 .foregroundStyle(
-                                    colorScheme == .dark ? Color.white.opacity(0.5) : Color.gray.opacity(0.8)
+                                    colorScheme == .dark ? Color.white.opacity(0.4) : Color.black.opacity(0.4)
                                 )
                                 .font(.caption2)
                                 .fontWeight(.black)

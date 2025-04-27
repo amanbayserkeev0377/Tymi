@@ -2,7 +2,7 @@ import SwiftUI
 
 struct NameFieldSection: View {
     @Binding var title: String
-    @FocusState private var isFocused: Bool
+    @FocusState.Binding var isFocused: Bool
     
     var body: some View {
         Section {
@@ -20,13 +20,5 @@ struct NameFieldSection: View {
         .onAppear {
             isFocused = true
         }
-    }
-}
-
-#Preview {
-    @Previewable @State var title = ""
-    
-    return Form {
-        NameFieldSection(title: $title)
     }
 }

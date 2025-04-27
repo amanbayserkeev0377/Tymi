@@ -68,12 +68,9 @@ struct TodayView: View {
             .sheet(isPresented: $isShowingNewHabitSheet) {
                 NewHabitView()
                     .presentationBackground {
-                        ZStack {
-                            Rectangle().fill(.ultraThinMaterial)
-                            if colorScheme != .dark {
-                                Color.white.opacity(0.7)
-                            }
-                        }
+                        Rectangle().fill(
+                            colorScheme == .dark ? .ultraThinMaterial : .thinMaterial
+                        )
                     }
             }
             
@@ -88,16 +85,11 @@ struct TodayView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: cornerRadius)
                                 .fill(.ultraThinMaterial)
-                            
-                            if colorScheme != .dark {
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .fill(Color.white.opacity(0.7))
-                            }
                             RoundedRectangle(cornerRadius: cornerRadius)
                                 .stroke(
                                     colorScheme == .dark
-                                        ? Color.white.opacity(0.1)
-                                        : Color.black.opacity(0.15),
+                                    ? Color.white.opacity(0.1)
+                                    : Color.black.opacity(0.15),
                                     lineWidth: 1.5
                                 )
                         }

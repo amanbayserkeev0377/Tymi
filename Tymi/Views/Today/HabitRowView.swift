@@ -33,9 +33,18 @@ struct HabitRowView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(colorScheme == .dark ? Color.black.opacity(0.25) : Color.white.opacity(0.7))
-                .shadow(color: colorScheme == .dark ? Color.black.opacity(0.2) : Color.black.opacity(0.05),
+                .fill(colorScheme == .dark ? Color.black.opacity(0.25) : Color.white.opacity(0.9))
+                .shadow(color: colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.1),
                         radius: isPressed ? 2 : 4, x: 0, y: isPressed ? 1 : 2)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            colorScheme == .dark
+                            ? Color.gray.opacity(0.05)
+                            : Color.gray.opacity(0.1),
+                            lineWidth: 1
+                        )
+                )
         )
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
