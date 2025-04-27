@@ -14,6 +14,7 @@ struct TodayView: View {
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
     @State private var selectedHabit: Habit? = nil
+    @StateObject private var habitsUpdateService = HabitsUpdateService()
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -33,6 +34,7 @@ struct TodayView: View {
                         EmptyStateView()
                     } else {
                         DailyProgressRing(date: selectedDate)
+                            .environmentObject(habitsUpdateService)
                         
                         habitsList
                     }
@@ -77,6 +79,7 @@ struct TodayView: View {
             
             .sheet(item: $selectedHabit) { habit in
                 HabitDetailView(habit: habit, date: selectedDate)
+                    .environmentObject(habitsUpdateService)
                     .presentationDetents([.fraction(0.7)])
                     .presentationDragIndicator(.visible)
                     .presentationCornerRadius(40)

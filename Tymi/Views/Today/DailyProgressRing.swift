@@ -3,11 +3,16 @@ import SwiftData
 
 struct DailyProgressRing: View {
     // MARK: - Properties
-    let date: Date
-    @Query private var habits: [Habit]
+    
+    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
     @Environment(\.colorScheme) private var colorScheme
     
+    let date: Date
+    @Query private var habits: [Habit]
+    
     // MARK: - Computed Properties
+    
     private var activeHabits: [Habit] {
         habits.filter { !$0.isArchived && $0.isActiveOnDate(date) }
     }
@@ -94,46 +99,47 @@ struct DailyProgressRing: View {
     }
     
     // MARK: - Body
+    
     var body: some View {
-                ZStack {
-                    // Фоновый круг
-                    Circle()
-                        .stroke(Color.secondary.opacity(0.1), lineWidth: 22)
-                    
-                    // Кольцо прогресса
-                    Circle()
-                        .trim(from: 0, to: isExceeded ? 1 : completionPercentage)
-                        .stroke(
-                            AngularGradient(
-                                colors: ringColors,
-                                center: .center,
-                                startAngle: .degrees(0),
-                                endAngle: .degrees(360)
-                            ),
-                            style: StrokeStyle(
-                                lineWidth: 22,
-                                lineCap: .round
-                            )
-                        )
-                        .rotationEffect(.degrees(-90))
-                        .rotationEffect(.degrees(rotationAngle))
-                    
-                    // Текст в центре
-                    if isCompleted && !isExceeded {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 44, weight: .bold))
-                            .foregroundStyle(textColor)
-                    } else {
-                        Text("\(Int(completionPercentage * 100))%")
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundStyle(textColor)
-                    }
-                }
-                .frame(width: 180, height: 180)
-                .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+        ZStack {
+            // Фоновый круг
+            Circle()
+                .stroke(Color.secondary.opacity(0.1), lineWidth: 22)
+            
+            // Кольцо прогресса
+            Circle()
+                .trim(from: 0, to: isExceeded ? 1 : completionPercentage)
+                .stroke(
+                    AngularGradient(
+                        colors: ringColors,
+                        center: .center,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(360)
+                    ),
+                    style: StrokeStyle(
+                        lineWidth: 22,
+                        lineCap: .round
+                    )
+                )
+                .rotationEffect(.degrees(-90))
+                .rotationEffect(.degrees(rotationAngle))
+            
+            // Текст в центре
+            if isCompleted && !isExceeded {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 44, weight: .bold))
+                    .foregroundStyle(textColor)
+            } else {
+                Text("\(Int(completionPercentage * 100))%")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundStyle(textColor)
             }
         }
-        .padding(.vertical, 20)
+        .frame(width: 180, height: 180)
+        .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+        .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
+            // Обновление не требуется, так как @Query автоматически обновит данные
+        }
     }
 }
 
@@ -147,4 +153,6 @@ struct DailyProgressRing: View {
     }
     .padding()
     .background(TodayViewBackground())
+    .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
+    .environmentObject(HabitsUpdateService())
 } 

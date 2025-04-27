@@ -27,6 +27,7 @@ struct HabitDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
     
     // MARK: - Initialization
     init(habit: Habit, date: Date = .now) {
@@ -149,31 +150,44 @@ struct HabitDetailView: View {
     
     // MARK: - Subviews
     
-    private var goalHeader: some View {
-        Text("Goal: \(habit.formattedGoal)")
-            .font(.subheadline)
-    }
-    
     private var completeButton: some View {
         Button(action: {
-            saveProgress()
-            successFeedbackTrigger.toggle()
-            dismiss()
+            completeHabit()
         }) {
-            Text("Complete")
+            Text(isAlreadyCompleted ? "Completed" : "Complete")
                 .font(.headline)
                 .foregroundStyle(
                     colorScheme == .dark ? .black : .white
                 )
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.primary)
+                .background(isAlreadyCompleted ? Color.gray.opacity(0.2) : Color.primary)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
         }
+        .disabled(isAlreadyCompleted)
         .padding(.horizontal)
     }
     
+    private var goalHeader: some View {
+        Text("Goal: \(habit.formattedGoal)")
+            .font(.subheadline)
+    }
+    
     // MARK: - Methods
+    
+    private var isAlreadyCompleted: Bool {
+        return timerManager.currentProgress >= habit.goal
+    }
+    
+    private func completeHabit() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            timerManager.currentProgress = habit.goal
+            timerManager.totalProgress = habit.goal
+        }
+
+        saveProgress()
+        successFeedbackTrigger.toggle()
+    }
     
     private func saveProgress() {
         let existingProgress = habit.progressForDate(date)
