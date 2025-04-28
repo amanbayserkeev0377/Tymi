@@ -10,12 +10,16 @@ enum Weekday: Int, CaseIterable {
     }
     
     static var orderedByUserPreference: [Weekday] {
-        let calendar = Calendar.current
-        let firstWeekday = calendar.firstWeekday - 1
+        let userDefaults = UserDefaults.standard
+        let firstWeekday = userDefaults.integer(forKey: "firstDayOfWeek")
+        
+        let effectiveFirstWeekday = firstWeekday > 0 ? firstWeekday : Calendar.current.firstWeekday
+        
+        let firstWeekdayIndex = effectiveFirstWeekday - 1
         
         let weekdays = Weekday.allCases
-        let before = Array(weekdays[firstWeekday...])
-        let after = Array(weekdays[..<firstWeekday])
+        let before = Array(weekdays[firstWeekdayIndex...])
+        let after = Array(weekdays[..<firstWeekdayIndex])
         
         return before + after
     }

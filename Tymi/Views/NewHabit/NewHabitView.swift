@@ -119,7 +119,7 @@ struct NewHabitView: View {
                         ZStack {
                             Circle()
                                 .fill(
-                                    colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.3)
+                                    colorScheme == .dark ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1)
                                 )
                                 .frame(width: 26, height: 26)
                             Image(systemName: "xmark")
