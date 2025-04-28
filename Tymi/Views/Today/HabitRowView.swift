@@ -33,7 +33,7 @@ struct HabitRowView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(colorScheme == .dark ? Color.black.opacity(0.25) : Color.white.opacity(0.9))
+                .fill(colorScheme == .dark ? Color.black.opacity(0.25) : Color.white.opacity(0.8))
                 .shadow(color: colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.1),
                         radius: isPressed ? 2 : 4, x: 0, y: isPressed ? 1 : 2)
                 .overlay(
