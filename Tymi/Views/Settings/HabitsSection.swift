@@ -3,6 +3,7 @@ import SwiftData
 
 struct HabitsSection: View {
     @Query private var habits: [Habit]
+    @State private var showingHabitsSettings = false
     
     init() {
         // Инициализируем запрос для всех привычек
@@ -19,12 +20,13 @@ struct HabitsSection: View {
     }
     
     var body: some View {
-        NavigationLink {
-            HabitsSettingsView()
+        Button {
+            showingHabitsSettings = true
         } label: {
             HStack {
                 Image(systemName: "list.bullet")
-                    .settingsIcon()
+                    .foregroundStyle(.primary)
+                    .frame(width: 24, height: 24)
                 
                 Text("Habits")
                     .foregroundStyle(.primary)
@@ -38,17 +40,31 @@ struct HabitsSection: View {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
-                    .padding(.leading, 4)
             }
-            .frame(height: 37)
         }
         .tint(.primary)
+        .sheet(isPresented: $showingHabitsSettings) {
+            HabitsSettingsView()
+                .presentationDetents([.fraction(0.8)])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(40)
+                .presentationBackground {
+                    let cornerRadius: CGFloat = 40
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(.ultraThinMaterial)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(Color.primary.opacity(0.1), lineWidth: 1.5)
+                    }
+                }
+        }
     }
 }
 
 struct HabitsSettingsView: View {
-    @Query private var habits: [Habit]
     @Environment(\.dismiss) private var dismiss
+    @Query private var habits: [Habit]
+    @Environment(\.colorScheme) private var colorScheme
     
     init() {
         let descriptor = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.createdAt)])
@@ -56,23 +72,63 @@ struct HabitsSettingsView: View {
     }
     
     var body: some View {
-        List {
-            Section("Active Habits (\(activeHabits.count))") {
-                ForEach(activeHabits) { habit in
-                    HabitSettingsRow(habit: habit)
-                }
-            }
-            
-            if !freezedHabits.isEmpty {
-                Section("Freezed Habits (\(freezedHabits.count))") {
-                    ForEach(freezedHabits) { habit in
-                        HabitSettingsRow(habit: habit)
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    // Активные привычки
+                    if !activeHabits.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Active Habits (\(activeHabits.count))")
+                                .font(.headline)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 8)
+                            
+                            ForEach(activeHabits) { habit in
+                                HabitSettingsRow(habit: habit)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        colorScheme == .dark ?
+                                        Color.black.opacity(0.2) :
+                                        Color.white.opacity(0.8)
+                                    )
+                                    .cornerRadius(10)
+                                    .padding(.horizontal, 16)
+                            }
+                        }
+                        .padding(.bottom, 16)
                     }
+                    
+                    // Замороженные привычки
+                    if !freezedHabits.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Freezed Habits (\(freezedHabits.count))")
+                                .font(.headline)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 8)
+                            
+                            ForEach(freezedHabits) { habit in
+                                HabitSettingsRow(habit: habit)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        colorScheme == .dark ?
+                                        Color.black.opacity(0.2) :
+                                        Color.white.opacity(0.8)
+                                    )
+                                    .cornerRadius(10)
+                                    .padding(.horizontal, 16)
+                            }
+                        }
+                    }
+                    
+                    Spacer(minLength: 40)
                 }
+                .padding(.top, 8)
             }
+            .navigationTitle("Habits")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationTitle("Habits")
-        .navigationBarTitleDisplayMode(.inline)
     }
     
     private var activeHabits: [Habit] {
@@ -124,4 +180,4 @@ struct HabitSettingsRow: View {
         HabitsSettingsView()
     }
     .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
-} 
+}

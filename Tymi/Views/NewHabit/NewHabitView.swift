@@ -129,6 +129,7 @@ struct NewHabitView: View {
                                 .font(.caption2)
                                 .fontWeight(.black)
                         }
+                        .padding(.trailing, 8)
                     }
                 }
                 

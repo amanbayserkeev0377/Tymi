@@ -30,7 +30,7 @@ struct ReminderSection: View {
                 
                 Toggle("", isOn: $isReminderEnabled.animation(.easeInOut(duration: 0.3)))
                     .labelsHidden()
-                    .tint(colorScheme == .dark ? Color.white.opacity(0.7) : .black)
+                    .tint(colorScheme == .dark ? Color.gray : .black)
             }
             .frame(height: 37)
         }

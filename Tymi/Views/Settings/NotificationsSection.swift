@@ -7,7 +7,8 @@ struct NotificationsSection: View {
     var body: some View {
         HStack {
             Image(systemName: "bell.badge")
-                .settingsIcon()
+                .foregroundStyle(.primary)
+                .frame(width: 24, height: 24)
             
             Text("Notifications")
                 .foregroundStyle(.primary)
@@ -16,10 +17,8 @@ struct NotificationsSection: View {
             
             Toggle("", isOn: $notificationsEnabled)
                 .labelsHidden()
-                .tint(colorScheme == .dark ? Color.white.opacity(0.7) : .black)
-                .padding(.trailing)
+                .tint(colorScheme == .dark ? Color.gray : .black)
         }
-        .frame(height: 37)
     }
 }
 

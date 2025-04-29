@@ -9,28 +9,77 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Секция внешнего вида
-                    AppearanceSection()
-                        .settingsCard()
+                    // ГРУППА 1: Основные настройки (в одной карточке)
+                    VStack(spacing: 0) {
+                        // Секция внешнего вида
+                        AppearanceSection()
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                        
+                        Divider()
+                            .padding(.leading, 48)
+                        
+                        // Секция языка
+                        LanguageSection()
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                        
+                        Divider()
+                            .padding(.leading, 48)
+                        
+                        // Секция привычек
+                        HabitsSection()
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                        
+                        Divider()
+                            .padding(.leading, 48)
+                        
+                        // Секция уведомлений
+                        NotificationsSection()
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                    }
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(colorScheme == .dark
+                                            ? Color.white.opacity(0.1)
+                                            : Color.black.opacity(0.1),
+                                            lineWidth: 0.5)
+                            )
+                            .shadow(radius: 0.5)
+                    )
+                    .padding(.horizontal)
                     
-                    // Секция языка
-                    LanguageSection()
-                        .settingsCard()
-                    
-                    // Секция привычек
-                    HabitsSection()
-                        .settingsCard()
-                    
-                    // Секция уведомлений
-                    NotificationsSection()
-                        .settingsCard()
+                    // ГРУППА 2: О приложении (отдельная карточка)
+                    VStack(spacing: 0) {
+                        AboutSection()
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                    }
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(colorScheme == .dark
+                                            ? Color.white.opacity(0.1)
+                                            : Color.black.opacity(0.1),
+                                            lineWidth: 0.5)
+                            )
+                            .shadow(radius: 0.5)
+                    )
+                    .padding(.horizontal)
                     
                     Spacer(minLength: 40)
                 }
                 .padding(.top, 16)
             }
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
         }
         // Применяем выбранную тему
         .preferredColorScheme(getPreferredColorScheme())

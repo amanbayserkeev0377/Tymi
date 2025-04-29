@@ -120,6 +120,7 @@ struct TodayView: View {
                 .sheet(isPresented: $isShowingSettingsSheet) {
                     SettingsView()
                         .presentationDetents([.fraction(0.8)])
+                        .presentationDragIndicator(.visible)
                         .presentationCornerRadius(40)
                         .presentationBackground {
                             let cornerRadius: CGFloat = 40
