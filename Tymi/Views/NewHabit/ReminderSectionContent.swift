@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ReminderSection: View {
+struct ReminderSectionContent: View {
     @Binding var isReminderEnabled: Bool
     @Binding var reminderTime: Date
     @Environment(\.colorScheme) private var colorScheme
@@ -10,6 +10,7 @@ struct ReminderSection: View {
             HStack(alignment: .center, spacing: 12) {
                 Image(systemName: "bell")
                     .foregroundStyle(.primary)
+                    .frame(width: 24, height: 24)
                     .scaleEffect(isReminderEnabled ? 1.2 : 1.0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isReminderEnabled)
                 
@@ -42,7 +43,7 @@ struct ReminderSection: View {
     @Previewable @State var reminderTime = Date()
     
     return Form {
-        ReminderSection(
+        ReminderSectionContent(
             isReminderEnabled: $isReminderEnabled,
             reminderTime: $reminderTime
         )

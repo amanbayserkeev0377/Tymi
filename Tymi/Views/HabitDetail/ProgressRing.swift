@@ -37,11 +37,9 @@ struct ProgressRing: View {
     
     private var textColor: Color {
         if isExceeded {
-            return
-            Color(#colorLiteral(red: 1, green: 0.3806057187, blue: 0.1013509959, alpha: 1))
+            return Color(#colorLiteral(red: 1, green: 0.3806057187, blue: 0.1013509959, alpha: 1))
         } else if isCompleted {
-            return
-            Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
+            return Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
         } else {
             return .primary
         }

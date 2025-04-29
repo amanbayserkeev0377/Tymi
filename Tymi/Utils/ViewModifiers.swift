@@ -1,41 +1,11 @@
 import SwiftUI
 
-// MARK: - SectionCardModifier for NewHabitView
+// MARK: - SectionCardModifier
 struct SectionCardModifier: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
     
     func body(content: Content) -> some View {
         content
-            .padding(8)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(colorScheme == .dark
-                                    ? Color.gray.opacity(0.1)
-                                    : Color.gray.opacity(0.1),
-                                    lineWidth: 1)
-                                   )
-                    .shadow(radius: 0.5)
-            )
-            .padding(.horizontal)
-    }
-}
-
-extension View {
-    func sectionCard() -> some View {
-        self.modifier(SectionCardModifier())
-    }
-}
-
-// MARK: - SettingsSections
-struct SettingsSectionCard: ViewModifier {
-    @Environment(\.colorScheme) private var colorScheme
-    
-    func body(content: Content) -> some View {
-        content
-            .padding(8)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
@@ -46,30 +16,15 @@ struct SettingsSectionCard: ViewModifier {
                                     : Color.black.opacity(0.1),
                                     lineWidth: 0.5)
                     )
-                    .shadow(radius: 0.3)
+                    .shadow(radius: 0.5)
             )
             .padding(.horizontal)
     }
 }
 
 extension View {
-    func settingsCard() -> some View {
-        self.modifier(SettingsSectionCard())
-    }
-}
-
-struct SettingsIconStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .font(.system(size: 18))
-            .frame(width: 24, height: 24)
-            .foregroundStyle(.primary)
-    }
-}
-
-extension View {
-    func settingsIcon() -> some View {
-        self.modifier(SettingsIconStyle())
+    func sectionCard() -> some View {
+        self.modifier(SectionCardModifier())
     }
 }
 

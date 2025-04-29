@@ -43,9 +43,3 @@ struct AppearanceSection: View {
         }
     }
 }
-
-#Preview {
-    AppearanceSection()
-        .padding()
-        .previewLayout(.sizeThatFits)
-}

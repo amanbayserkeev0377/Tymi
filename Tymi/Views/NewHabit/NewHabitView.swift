@@ -61,11 +61,11 @@ struct NewHabitView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     // Name Field Section
-                    NameFieldSection(title: $title, isFocused: $isNameFieldFocused)
+                    NameFieldSectionContent(title: $title, isFocused: $isNameFieldFocused)
                         .sectionCard()
                     
                     // Goal Section
-                    GoalSection(
+                    GoalSectionContent(
                         selectedType: $selectedType,
                         countGoal: $countGoal,
                         hours: $hours,
@@ -75,18 +75,18 @@ struct NewHabitView: View {
                     .sectionCard()
                     
                     // Start Date Section
-                    StartDateSection(startDate: $startDate)
+                    StartDateSectionContent(startDate: $startDate)
                         .sectionCard()
                     
                     // Reminder Section
-                    ReminderSection(
+                    ReminderSectionContent(
                         isReminderEnabled: $isReminderEnabled,
                         reminderTime: $reminderTime
                     )
                     .sectionCard()
                     
                     // Active Days Section
-                    ActiveDaysSection(activeDays: $activeDays)
+                    ActiveDaysSectionContent(activeDays: $activeDays)
                         .sectionCard()
                     
                     // Save Button
@@ -99,15 +99,15 @@ struct NewHabitView: View {
                                 colorScheme == .dark ? .black : .white
                             )
                             .frame(maxWidth: .infinity)
-                            .padding()
+                            .padding(.vertical, 16)
                             .background(isFormValid ? Color.primary : Color.gray)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .disabled(!isFormValid)
                     .padding(.horizontal)
-                    .padding(.bottom)
+                    .padding(.bottom, 20)
                 }
-                .padding(.top)
+                .padding(.top, 16)
             }
             .navigationTitle(title.isEmpty ? "Create habit" : "Edit habit")
             .navigationBarTitleDisplayMode(.inline)
@@ -144,6 +144,9 @@ struct NewHabitView: View {
                     }
                 }
             }
+        }
+        .onTapGesture {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         }
     }
     

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct StartDateSection: View {
+struct StartDateSectionContent: View {
     @Binding var startDate: Date
 
     var body: some View {
@@ -8,12 +8,17 @@ struct StartDateSection: View {
             HStack {
                 Image(systemName: "calendar")
                     .foregroundStyle(.primary)
+                    .frame(width: 24, height: 24)
+                
+                Text("Start Date")
+                    .foregroundStyle(.primary)
                 
                 Spacer()
                 
-                DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+                DatePicker("", selection: $startDate, displayedComponents: .date)
                     .datePickerStyle(.compact)
                     .tint(.primary)
+                    .labelsHidden()
             }
             .frame(height: 37)
         }
@@ -26,6 +31,6 @@ struct StartDateSection: View {
     @Previewable @State var startDate = Date()
     
     return Form {
-        StartDateSection(startDate: $startDate)
+        StartDateSectionContent(startDate: $startDate)
     }
 }

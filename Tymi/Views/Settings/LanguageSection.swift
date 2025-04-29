@@ -25,9 +25,3 @@ struct LanguageSection: View {
         .tint(.primary)
     }
 }
-
-#Preview {
-    LanguageSection()
-        .padding()
-        .previewLayout(.sizeThatFits)
-} 

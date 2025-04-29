@@ -21,9 +21,3 @@ struct NotificationsSection: View {
         }
     }
 }
-
-#Preview {
-    NotificationsSection()
-        .padding()
-        .previewLayout(.sizeThatFits)
-}

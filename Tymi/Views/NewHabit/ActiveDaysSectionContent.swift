@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ActiveDaysSection: View {
+struct ActiveDaysSectionContent: View {
     @Binding var activeDays: [Bool]
     @Environment(\.colorScheme) private var colorScheme
     
@@ -51,6 +51,7 @@ struct ActiveDaysSection: View {
                 HStack {
                     Image(systemName: "cloud.sun")
                         .foregroundStyle(.primary)
+                        .frame(width: 24, height: 24)
                     
                     Text("Active Days")
                         .foregroundStyle(.primary)
@@ -60,16 +61,17 @@ struct ActiveDaysSection: View {
                 .frame(height: 37)
                 
                 Divider()
+                .padding(.leading, 24)
                 
                 // Days Grid
-                HStack(spacing: 8) { // Consistent spacing between buttons
+                HStack(spacing: 8) {
                     ForEach(0..<7) { index in
                         Button {
                             withAnimation(.easeInOut(duration: 0.4)) {
                                 activeDays[index].toggle()
                             }
                         } label: {
-                            Text(daySymbols[index]) // Use full short names like "Mon"
+                            Text(daySymbols[index])
                                 .font(.body)
                                 .frame(width: 44, height: 44)
                                 .background(activeDays[index] ? activeColor : inactiveColor)
@@ -80,7 +82,7 @@ struct ActiveDaysSection: View {
                                         .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                                 )
                         }
-                        .buttonStyle(.plain) // Prevents default button styling
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.bottom, 8)
@@ -92,13 +94,13 @@ struct ActiveDaysSection: View {
 #Preview {
     @Previewable @State var activeDays = [true, false, true, false, true, false, true]
     VStack {
-        ActiveDaysSection(activeDays: $activeDays)
+        ActiveDaysSectionContent(activeDays: $activeDays)
             .padding()
             .background(Color.white)
             .cornerRadius(12)
             .preferredColorScheme(.light)
         
-        ActiveDaysSection(activeDays: $activeDays)
+        ActiveDaysSectionContent(activeDays: $activeDays)
             .padding()
             .background(Color.black)
             .cornerRadius(12)

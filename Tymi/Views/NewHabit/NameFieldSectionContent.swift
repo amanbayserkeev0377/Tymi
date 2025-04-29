@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct NameFieldSection: View {
+struct NameFieldSectionContent: View {
     @Binding var title: String
     @FocusState.Binding var isFocused: Bool
     
@@ -9,6 +9,7 @@ struct NameFieldSection: View {
             HStack {
                 Image(systemName: "pencil")
                     .foregroundStyle(.primary)
+                    .frame(width: 24, height: 24)
                 
                 TextField("Habit Name", text: $title)
                     .autocorrectionDisabled()

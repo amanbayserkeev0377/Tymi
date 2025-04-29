@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct GoalSection: View {
+struct GoalSectionContent: View {
     @Binding var selectedType: HabitType
     @Binding var countGoal: Int
     @Binding var hours: Int
@@ -32,6 +32,7 @@ struct GoalSection: View {
                 HStack {
                     Image(systemName: "trophy")
                         .foregroundStyle(.primary)
+                        .frame(width: 24, height: 24)
                     
                     Text("Daily Goal")
                         .foregroundStyle(.primary)
@@ -42,92 +43,68 @@ struct GoalSection: View {
                     HStack(spacing: 0) {
                         // Count Button
                         Button {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 selectedType = .count
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    countText = ""
-                                    countGoal = 0
+                                    if countGoal > 0 {
+                                        countText = String(countGoal)
+                                    } else {
+                                        countText = ""
+                                        countGoal = 0
+                                    }
                                 }
                             }
                         } label: {
-                            // Two separate Text views - one for each state
-                            ZStack {
-                                // Bold text for selected state
-                                HStack(spacing: 4) {
+                            HStack(spacing: 4) {
                                     Image(systemName: "number")
-                                        .font(.system(size: 12, weight: .bold))
+                                        .font(.system(size: 12, weight: selectedType == .count ? .bold : .regular))
                                     Text("Count")
-                                        .font(.system(size: 12, weight: .bold))
+                                        .font(.system(size: 12, weight: selectedType == .count ? .bold : .regular))
                                 }
-                                .foregroundStyle(primaryColor)
-                                .opacity(selectedType == .count ? 1 : 0)
-                                
-                                // Regular text for unselected state
-                                HStack(spacing: 4) {
-                                    Image(systemName: "number")
-                                        .font(.system(size: 12, weight: .regular))
-                                    Text("Count")
-                                        .font(.system(size: 12, weight: .regular))
-                                }
-                                .foregroundStyle(secondaryColor)
-                                .opacity(selectedType == .count ? 0 : 1)
-                            }
-                            .frame(height: 28)
-                            .padding(.horizontal, 8)
-                            .background {
-                                if selectedType == .count {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .fill(backgroundColor)
-                                        .matchedGeometryEffect(id: "TypeBackground", in: animation)
+                                .foregroundStyle(selectedType == .count ? primaryColor : secondaryColor)
+                                .frame(height: 28)
+                                .padding(.horizontal, 8)
+                                .background {
+                                    if selectedType == .count {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(backgroundColor)
+                                            .matchedGeometryEffect(id: "TypeBackground", in: animation)
+                                    }
                                 }
                             }
-                        }
-                        .contentShape(Rectangle())
+                            .contentShape(Rectangle())
                         
                         // Time Button
                         Button {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.55)) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 selectedType = .time
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    hours = 1
-                                    minutes = 0
+                                    if hours == 0 && minutes == 0 {
+                                        hours = 1
+                                        minutes = 0
+                                    }
                                     updateTimeDateFromHoursAndMinutes()
                                 }
                             }
                         } label: {
-                            // Two separate Text views - one for each state
-                            ZStack {
-                                // Bold text for selected state
-                                HStack(spacing: 4) {
+                            HStack(spacing: 4) {
                                     Image(systemName: "clock")
-                                        .font(.system(size: 12, weight: .bold))
+                                        .font(.system(size: 12, weight: selectedType == .time ? .bold : .regular))
                                     Text("Time")
-                                        .font(.system(size: 12, weight: .bold))
+                                        .font(.system(size: 12, weight: selectedType == .time ? .bold : .regular))
                                 }
-                                .foregroundStyle(primaryColor)
-                                .opacity(selectedType == .time ? 1 : 0)
-                                
-                                // Regular text for unselected state
-                                HStack(spacing: 4) {
-                                    Image(systemName: "clock")
-                                        .font(.system(size: 12, weight: .regular))
-                                    Text("Time")
-                                        .font(.system(size: 12, weight: .regular))
-                                }
-                                .foregroundStyle(secondaryColor)
-                                .opacity(selectedType == .time ? 0 : 1)
-                            }
-                            .frame(height: 28)
-                            .padding(.horizontal, 8)
-                            .background {
-                                if selectedType == .time {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .fill(backgroundColor)
-                                        .matchedGeometryEffect(id: "TypeBackground", in: animation)
+                                .foregroundStyle(selectedType == .time ? primaryColor : secondaryColor)
+                                .frame(height: 28)
+                                .padding(.horizontal, 8)
+                                .background {
+                                    if selectedType == .time {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(backgroundColor)
+                                            .matchedGeometryEffect(id: "TypeBackground", in: animation)
+                                    }
                                 }
                             }
-                        }
-                        .contentShape(Rectangle())
+                            .contentShape(Rectangle())
                     }
                     .background(
                         RoundedRectangle(cornerRadius: 6)
@@ -138,6 +115,7 @@ struct GoalSection: View {
                 .frame(height: 37)
                 
                 Divider()
+                .padding(.leading, 24)
                 
                 HStack {
                     if selectedType == .count {
@@ -190,7 +168,7 @@ struct GoalSection: View {
 
 #Preview {
     VStack(spacing: 40) {
-        GoalSection(
+        GoalSectionContent(
             selectedType: .constant(.count),
             countGoal: .constant(5),
             hours: .constant(1),
@@ -201,7 +179,7 @@ struct GoalSection: View {
         .cornerRadius(12)
         .preferredColorScheme(.light)
         
-        GoalSection(
+        GoalSectionContent(
             selectedType: .constant(.time),
             countGoal: .constant(5),
             hours: .constant(1),
