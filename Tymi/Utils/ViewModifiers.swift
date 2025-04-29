@@ -37,7 +37,7 @@ struct SettingsSectionCard: ViewModifier {
         content
             .padding(8)
             .background(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 10)
                     .fill(colorScheme == .dark ? Color.black.opacity(0.15) : Color.white.opacity(0.9))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)

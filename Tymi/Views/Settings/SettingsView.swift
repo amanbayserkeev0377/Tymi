@@ -13,6 +13,10 @@ struct SettingsView: View {
                     AppearanceSection()
                         .settingsCard()
                     
+                    // Секция языка
+                    LanguageSection()
+                        .settingsCard()
+                    
                     // Секция уведомлений
                     NotificationsSection()
                         .settingsCard()
