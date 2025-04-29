@@ -27,16 +27,3 @@ extension View {
         self.modifier(SectionCardModifier())
     }
 }
-
-// Вспомогательная структура для работы с темами приложения
-struct ThemeHelper {
-    // Преобразование индекса темы в ColorScheme
-    static func colorSchemeFromThemeMode(_ themeMode: Int) -> ColorScheme? {
-        switch themeMode {
-        case 0: return nil        // System
-        case 1: return .light     // Light
-        case 2: return .dark      // Dark
-        default: return nil
-        }
-    }
-}

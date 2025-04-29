@@ -9,9 +9,8 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // ГРУППА 1: Основные настройки (в одной карточке)
                     VStack(spacing: 0) {
-                        // Секция внешнего вида
+                        // Appearance
                         AppearanceSection()
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
@@ -19,7 +18,7 @@ struct SettingsView: View {
                         Divider()
                             .padding(.leading, 48)
                         
-                        // Секция языка
+                        // Language
                         LanguageSection()
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
@@ -27,7 +26,7 @@ struct SettingsView: View {
                         Divider()
                             .padding(.leading, 48)
                         
-                        // Секция привычек
+                        // Habits
                         HabitsSection()
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
@@ -35,7 +34,7 @@ struct SettingsView: View {
                         Divider()
                             .padding(.leading, 48)
                         
-                        // Секция уведомлений
+                        // Notifications
                         NotificationsSection()
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
@@ -54,7 +53,6 @@ struct SettingsView: View {
                     )
                     .padding(.horizontal)
                     
-                    // ГРУППА 2: О приложении (отдельная карточка)
                     VStack(spacing: 0) {
                         AboutSection()
                             .padding(.vertical, 12)

@@ -6,7 +6,6 @@ struct HabitsSection: View {
     @State private var showingHabitsSettings = false
     
     init() {
-        // Инициализируем запрос для всех привычек
         let descriptor = FetchDescriptor<Habit>()
         _habits = Query(descriptor)
     }
@@ -32,11 +31,7 @@ struct HabitsSection: View {
                     .foregroundStyle(.primary)
                 
                 Spacer()
-                
-                Text("\(activeHabits) Active • \(freezedHabits) Freezed")
-                    .foregroundStyle(.secondary)
-                    .font(.footnote)
-                
+                                
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
@@ -54,7 +49,7 @@ struct HabitsSection: View {
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .fill(.ultraThinMaterial)
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.primary.opacity(0.1), lineWidth: 1.5)
+                            .stroke(Color.primary.opacity(0.2), lineWidth: 1.5)
                     }
                 }
         }
@@ -75,7 +70,7 @@ struct HabitsSettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Активные привычки
+                    // Active habits
                     if !activeHabits.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Active Habits (\(activeHabits.count))")
@@ -99,7 +94,7 @@ struct HabitsSettingsView: View {
                         .padding(.bottom, 16)
                     }
                     
-                    // Замороженные привычки
+                    // Freezed habits
                     if !freezedHabits.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Freezed Habits (\(freezedHabits.count))")

@@ -2,11 +2,13 @@ import SwiftUI
 
 
 struct AboutSection: View {
-    @State private var showingAboutSettings = false
-    
     var body: some View {
-        Button {
-            showingAboutSettings = true
+        NavigationLink {
+            AboutSettingsView()
+                .navigationTitle("About")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
         } label: {
             HStack {
                 Image(systemName: "info.circle")
@@ -24,21 +26,6 @@ struct AboutSection: View {
             }
         }
         .tint(.primary)
-        .sheet(isPresented: $showingAboutSettings) {
-            AboutSettingsView()
-                .presentationDetents([.fraction(0.8)])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(40)
-                .presentationBackground {
-                    let cornerRadius: CGFloat = 40
-                    ZStack {
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .fill(.ultraThinMaterial)
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.primary.opacity(0.1), lineWidth: 1.5)
-                    }
-                }
-        }
     }
 }
 
@@ -48,7 +35,18 @@ struct AboutSettingsView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        NavigationStack {
+        ZStack {
+            RoundedRectangle(cornerRadius: 40)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 40)
+                        .stroke(
+                            colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.15),
+                            lineWidth: 1.5
+                        )
+                )
+                .ignoresSafeArea()
+            
             ScrollView {
                 VStack(spacing: 0) {
                     // Контейнер для всех пунктов (как единый список)
@@ -65,7 +63,7 @@ struct AboutSettingsView: View {
                         }
                         
                         Divider()
-                            .padding(.leading, 48) // Отступ для выравнивания с текстом
+                            .padding(.leading, 48)
                         
                         // Share App
                         AboutRow(
@@ -166,8 +164,6 @@ struct AboutSettingsView: View {
                 
                 Spacer(minLength: 40)
             }
-            .navigationTitle("About")
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
