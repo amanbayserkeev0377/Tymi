@@ -7,7 +7,7 @@ struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     
-    @Query(filter: #Predicate<Habit> { !$0.isArchived },
+    @Query(filter: #Predicate<Habit> { !$0.isFreezed },
            sort: \Habit.createdAt)
     private var habits: [Habit]
     

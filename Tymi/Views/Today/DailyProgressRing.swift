@@ -13,26 +13,26 @@ struct DailyProgressRing: View {
     
     // MARK: - Computed Properties
     
-    private var activeHabits: [Habit] {
-        habits.filter { !$0.isArchived && $0.isActiveOnDate(date) }
+    private var activeHabitsForDate: [Habit] {
+        habits.filter { !$0.isFreezed && $0.isActiveOnDate(date) }
     }
     
     private var completionPercentage: Double {
-        guard !activeHabits.isEmpty else { return 0 }
+        guard !activeHabitsForDate.isEmpty else { return 0 }
         
-        let totalPercentage = activeHabits.reduce(0.0) { sum, habit in
+        let totalPercentage = activeHabitsForDate.reduce(0.0) { sum, habit in
             sum + habit.completionPercentageForDate(date)
         }
         
-        return totalPercentage / Double(activeHabits.count)
+        return totalPercentage / Double(activeHabitsForDate.count)
     }
     
     private var isCompleted: Bool {
-        activeHabits.allSatisfy { $0.isCompletedForDate(date) }
+        activeHabitsForDate.allSatisfy { $0.isCompletedForDate(date) }
     }
     
     private var isExceeded: Bool {
-        activeHabits.allSatisfy { $0.isExceededForDate(date) }
+        activeHabitsForDate.allSatisfy { $0.isExceededForDate(date) }
     }
     
     private var ringColors: [Color] {

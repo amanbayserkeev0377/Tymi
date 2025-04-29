@@ -17,6 +17,10 @@ struct SettingsView: View {
                     LanguageSection()
                         .settingsCard()
                     
+                    // Секция привычек
+                    HabitsSection()
+                        .settingsCard()
+                    
                     // Секция уведомлений
                     NotificationsSection()
                         .settingsCard()

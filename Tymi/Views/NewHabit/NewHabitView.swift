@@ -165,7 +165,7 @@ struct NewHabitView: View {
                 type: selectedType,
                 goal: effectiveGoal,
                 createdAt: Date(),
-                isArchived: false,
+                isFreezed: false,
                 activeDays: activeDays,
                 reminderTime: isReminderEnabled ? reminderTime : nil,
                 startDate: startDate

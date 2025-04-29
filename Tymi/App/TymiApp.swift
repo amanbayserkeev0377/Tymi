@@ -7,23 +7,23 @@ struct TymiApp: App {
     
     init() {
         do {
-            
             let schema = Schema([
                 Habit.self,
                 HabitCompletion.self
             ])
             
-            
-            let config = ModelConfiguration(
+            let modelConfiguration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
                 allowsSave: true
             )
             
-            
-            container = try ModelContainer(for: schema, configurations: [config])
+            container = try ModelContainer(
+                for: schema,
+                configurations: [modelConfiguration]
+            )
         } catch {
-            print("Failed to create ModelContainer: \(error)")
+            print("Unresolved error loading container \(error)")
             fatalError("Could not initialize ModelContainer: \(error)")
         }
     }

@@ -51,32 +51,41 @@ struct HabitDetailView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 20) {
-            // Header with habit title
+        VStack(spacing: 24) {
+            // Header with close and menu buttons
             HStack {
-                Spacer()
-                
-                Text(habit.title)
-                    .font(.title2)
-                    .fontWeight(.bold)
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.primary)
+                }
                 
                 Spacer()
                 
                 Menu {
-                    Button(action: {
-                        isShowingEditSheet = true
-                    }) {
+                    Button(action: { isShowingEditSheet = true }) {
                         Label("Edit", systemImage: "pencil")
                     }
-                    Button(role: .destructive, action: {
-                        isDeleteAlertPresented = true
-                    }) {
+                    
+                    if habit.isFreezed {
+                        Button(action: { habit.isFreezed = false }) {
+                            Label("Unfreeze", systemImage: "flame")
+                        }
+                        .tint(.orange)
+                    } else {
+                        Button(action: { habit.isFreezed = true }) {
+                            Label("Freeze", systemImage: "snowflake")
+                        }
+                        .tint(.blue)
+                    }
+                    
+                    Button(role: .destructive, action: { isDeleteAlertPresented = true }) {
                         Label("Delete", systemImage: "trash")
                     }
                     .tint(.red)
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .font(.title3)
+                        .font(.system(size: 20))
                         .foregroundStyle(.primary)
                 }
             }

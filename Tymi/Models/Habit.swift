@@ -10,7 +10,7 @@ final class Habit {
     
     // System properties
     var createdAt: Date
-    var isArchived: Bool
+    var isFreezed: Bool
     
     // Relationship with completions (one-to-many)
     @Relationship(deleteRule: .cascade, inverse: \HabitCompletion.habit)
@@ -55,7 +55,7 @@ final class Habit {
         type: HabitType = .count,
         goal: Int = 0,
         createdAt: Date = .now,
-        isArchived: Bool = false,
+        isFreezed: Bool = false,
         activeDays: [Bool]? = nil,
         reminderTime: Date? = nil,
         startDate: Date = .now
@@ -64,7 +64,7 @@ final class Habit {
         self.type = type
         self.goal = goal
         self.createdAt = createdAt
-        self.isArchived = isArchived
+        self.isFreezed = isFreezed
         self.completions = []
         
         if let days = activeDays {
