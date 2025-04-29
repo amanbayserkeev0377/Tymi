@@ -76,7 +76,7 @@ struct ActiveDaysSectionContent: View {
                                 .frame(width: 44, height: 44)
                                 .background(activeDays[index] ? activeColor : inactiveColor)
                                 .foregroundStyle(activeDays[index] ? activeTextColor : inactiveTextColor)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
                                         .stroke(Color.primary.opacity(0.2), lineWidth: 1)

@@ -56,134 +56,184 @@ struct NewHabitView: View {
     }
     
     // MARK: - Body
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Name Field Section
-                    NameFieldSectionContent(title: $title, isFocused: $isNameFieldFocused)
-                        .sectionCard()
-                    
-                    // Goal Section
-                    GoalSectionContent(
-                        selectedType: $selectedType,
-                        countGoal: $countGoal,
-                        hours: $hours,
-                        minutes: $minutes
-                    )
-                    .focused($isCountFieldFocused)
-                    .sectionCard()
-                    
-                    // Start Date Section
-                    StartDateSectionContent(startDate: $startDate)
-                        .sectionCard()
-                    
-                    // Reminder Section
-                    ReminderSectionContent(
-                        isReminderEnabled: $isReminderEnabled,
-                        reminderTime: $reminderTime
-                    )
-                    .sectionCard()
-                    
-                    // Active Days Section
-                    ActiveDaysSectionContent(activeDays: $activeDays)
-                        .sectionCard()
-                    
-                    // Save Button
-                    Button(action: {
-                        saveHabit()
-                    }) {
-                        Text("Save")
-                            .font(.headline)
-                            .foregroundStyle(
-                                colorScheme == .dark ? .black : .white
-                            )
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(isFormValid ? Color.primary : Color.gray)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                    .disabled(!isFormValid)
-                    .padding(.horizontal)
-                    .padding(.bottom, 20)
-                }
-                .padding(.top, 16)
-            }
-            .navigationTitle(title.isEmpty ? "Create habit" : "Edit habit")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(
-                                    colorScheme == .dark ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1)
-                                )
-                                .frame(width: 26, height: 26)
-                            Image(systemName: "xmark")
-                                .foregroundStyle(
-                                    colorScheme == .dark ? Color.white.opacity(0.4) : Color.black.opacity(0.4)
-                                )
-                                .font(.caption2)
-                                .fontWeight(.black)
+        var body: some View {
+            NavigationStack {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // Name
+                        VStack {
+                            NameFieldSectionContent(title: $title, isFocused: $isNameFieldFocused)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
                         }
-                        .padding(.trailing, 8)
+                        .background(sectionBackground)
+                        .padding(.horizontal)
+                        
+                        // Goal
+                        VStack {
+                            GoalSectionContent(
+                                selectedType: $selectedType,
+                                countGoal: $countGoal,
+                                hours: $hours,
+                                minutes: $minutes
+                            )
+                            .focused($isCountFieldFocused)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                        }
+                        .background(sectionBackground)
+                        .padding(.horizontal)
+                        
+                        VStack(spacing: 0) {
+                            // StartDate
+                            StartDateSectionContent(startDate: $startDate)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                            
+                            Divider()
+                                .padding(.leading, 48)
+                            
+                            // Reminder
+                            ReminderSectionContent(
+                                isReminderEnabled: $isReminderEnabled,
+                                reminderTime: $reminderTime
+                            )
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                        }
+                        .background(sectionBackground)
+                        .padding(.horizontal)
+                        
+                        // ActiveDays
+                        VStack {
+                            ActiveDaysSectionContent(activeDays: $activeDays)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                        }
+                        .background(sectionBackground)
+                        .padding(.horizontal)
+                        
+                        // Save Button
+                        Button(action: {
+                            saveHabit()
+                        }) {
+                            Text("Save")
+                                .font(.headline)
+                                .foregroundStyle(
+                                    colorScheme == .dark ? .black : .white
+                                )
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(isFormValid ? Color.primary : Color.gray)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .disabled(!isFormValid)
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
+                    }
+                    .padding(.top, 16)
+                }
+                .navigationTitle(title.isEmpty ? "Create habit" : "Edit habit")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(
+                                        colorScheme == .dark ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1)
+                                    )
+                                    .frame(width: 26, height: 26)
+                                Image(systemName: "xmark")
+                                    .foregroundStyle(
+                                        colorScheme == .dark ? Color.white.opacity(0.4) : Color.black.opacity(0.4)
+                                    )
+                                    .font(.caption2)
+                                    .fontWeight(.black)
+                            }
+                            .padding(.trailing, 8)
+                        }
+                    }
+                    
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button(action: {
+                            isNameFieldFocused = false
+                            isCountFieldFocused = false
+                        }) {
+                            Image(systemName: "keyboard.chevron.compact.down")
+                                .tint(.primary)
+                        }
                     }
                 }
-                
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button(action: {
-                        isNameFieldFocused = false
-                        isCountFieldFocused = false
-                    }) {
-                        Image(systemName: "keyboard.chevron.compact.down")
-                            .tint(.primary)
-                    }
-                }
+                .background(
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            hideKeyboard()
+                        }
+                )
             }
         }
-        .onTapGesture {
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        }
-    }
-    
-    // MARK: - Actions
-    private func saveHabit() {
-        if let existingHabit = habit {
-            // Update existing habit
-            existingHabit.update(
-                title: title,
-                type: selectedType,
-                goal: effectiveGoal,
-                activeDays: activeDays,
-                reminderTime: isReminderEnabled ? reminderTime : nil,
-                startDate: startDate
-            )
-        } else {
-            // Create new habit
-            let newHabit = Habit(
-                title: title,
-                type: selectedType,
-                goal: effectiveGoal,
-                createdAt: Date(),
-                isFreezed: false,
-                activeDays: activeDays,
-                reminderTime: isReminderEnabled ? reminderTime : nil,
-                startDate: startDate
-            )
-            modelContext.insert(newHabit)
+        
+        
+        private var sectionBackground: some View {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(colorScheme == .dark
+                                ? Color.white.opacity(0.1)
+                                : Color.black.opacity(0.1),
+                                lineWidth: 0.5)
+                )
+                .shadow(radius: 0.5)
         }
         
-        if isReminderEnabled {
-            print("Would schedule notification for \(title) at \(reminderTime)")
+        private func hideKeyboard() {
+            isNameFieldFocused = false
+            isCountFieldFocused = false
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                          to: nil, from: nil, for: nil)
         }
         
-        dismiss()
+        // MARK: - Actions
+        private func saveHabit() {
+            if let existingHabit = habit {
+                // Update existing habit
+                existingHabit.update(
+                    title: title,
+                    type: selectedType,
+                    goal: effectiveGoal,
+                    activeDays: activeDays,
+                    reminderTime: isReminderEnabled ? reminderTime : nil,
+                    startDate: startDate
+                )
+            } else {
+                // Create new habit
+                let newHabit = Habit(
+                    title: title,
+                    type: selectedType,
+                    goal: effectiveGoal,
+                    createdAt: Date(),
+                    isFreezed: false,
+                    activeDays: activeDays,
+                    reminderTime: isReminderEnabled ? reminderTime : nil,
+                    startDate: startDate
+                )
+                modelContext.insert(newHabit)
+            }
+            
+            if isReminderEnabled {
+                print("Would schedule notification for \(title) at \(reminderTime)")
+            }
+            
+            dismiss()
+        }
     }
-}
 
 #Preview {
     NewHabitView()
