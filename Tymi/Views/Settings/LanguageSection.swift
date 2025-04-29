@@ -9,7 +9,7 @@ struct LanguageSection: View {
         }) {
             HStack {
                 Image(systemName: "translate")
-                    .foregroundStyle(.primary)
+                    .settingsIcon()
                 
                 Text("Language")
                     .foregroundStyle(.primary)
@@ -18,11 +18,12 @@ struct LanguageSection: View {
                 
                 Image(systemName: "arrow.up.right")
                     .font(.system(size: 14))
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.secondary)
+                    .padding(.trailing)
             }
-            .frame(height: 37)
         }
         .tint(.primary)
+        .frame(height: 37)
     }
 }
 

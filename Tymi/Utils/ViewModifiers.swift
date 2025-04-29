@@ -29,7 +29,7 @@ extension View {
     }
 }
 
-// MARK: - SettingsSectionCardModifier for SettingsView
+// MARK: - SettingsSections
 struct SettingsSectionCard: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
     
@@ -58,7 +58,20 @@ extension View {
     }
 }
 
-import SwiftUI
+struct SettingsIconStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.system(size: 18))
+            .frame(width: 24, height: 24)
+            .foregroundStyle(.primary)
+    }
+}
+
+extension View {
+    func settingsIcon() -> some View {
+        self.modifier(SettingsIconStyle())
+    }
+}
 
 // Вспомогательная структура для работы с темами приложения
 struct ThemeHelper {

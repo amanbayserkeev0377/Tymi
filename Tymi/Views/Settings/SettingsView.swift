@@ -8,7 +8,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 16) {
                     // Секция внешнего вида
                     AppearanceSection()
                         .settingsCard()
@@ -23,44 +23,16 @@ struct SettingsView: View {
                     
                     Spacer(minLength: 40)
                 }
-                .padding(.top)
+                .padding(.top, 16)
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    closeButton
-                }
-            }
         }
         // Применяем выбранную тему
         .preferredColorScheme(getPreferredColorScheme())
     }
-    
-    // MARK: - UI Components
-    
-    private var closeButton: some View {
-        Button(action: {
-            dismiss()
-        }) {
-            ZStack {
-                Circle()
-                    .fill(
-                        colorScheme == .dark ? Color.gray.opacity(0.2) : Color.white.opacity(0.3)
-                    )
-                    .frame(width: 26, height: 26)
-                Image(systemName: "xmark")
-                    .foregroundStyle(
-                        colorScheme == .dark ? Color.white.opacity(0.4) : Color.black.opacity(0.4)
-                    )
-                    .font(.caption2)
-                    .fontWeight(.black)
-            }
-        }
-    }
-    
+        
     // MARK: - Helpers
-    
     // Метод для определения цветовой схемы на основе выбранной темы
     private func getPreferredColorScheme() -> ColorScheme? {
         return ThemeHelper.colorSchemeFromThemeMode(themeMode)

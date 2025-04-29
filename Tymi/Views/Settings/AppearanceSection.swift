@@ -20,7 +20,7 @@ struct AppearanceSection: View {
     var body: some View {
         HStack {
             Image(systemName: "swirl.circle.righthalf.filled.inverse")
-                .foregroundStyle(.primary)
+                .settingsIcon()
             
             Text("Appearance")
                 .foregroundStyle(.primary)
