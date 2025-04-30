@@ -196,11 +196,12 @@ class HabitDetailViewModel: ObservableObject {
     func saveProgress() {
         let existingProgress = habit.progressForDate(date)
         let currentProgress = timerService.getCurrentProgress(for: habit.id)
-        if currentProgress != existingProgress {
-            habit.addProgress(currentProgress - existingProgress, for: date)
-            habitsUpdateService.triggerUpdate()
-            updateHabit()
-        }
+        
+        // Используем новый метод для сохранения
+        timerService.persistCompletions(for: habit.id, in: modelContext, date: date)
+        
+        // Обновляем UI
+        habitsUpdateService.triggerUpdate()
     }
     
     // MARK: - Input Handling
