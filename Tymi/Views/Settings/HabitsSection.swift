@@ -4,6 +4,7 @@ import SwiftData
 struct HabitsSection: View {
     @Query private var habits: [Habit]
     @State private var showingHabitsSettings = false
+    @StateObject private var habitsUpdateService = HabitsUpdateService()
     
     init() {
         let descriptor = FetchDescriptor<Habit>()
@@ -40,6 +41,7 @@ struct HabitsSection: View {
         .tint(.primary)
         .sheet(isPresented: $showingHabitsSettings) {
             HabitsSettingsView()
+                .environmentObject(habitsUpdateService)
                 .presentationDetents([.fraction(0.8)])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(40)
@@ -61,6 +63,7 @@ struct HabitsSettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
     @State private var activeHabitsOrder: [Habit] = []
     @State private var editMode: EditMode = .inactive
     @State private var selectedTab: HabitsTab = .active
@@ -199,6 +202,7 @@ struct HabitSettingsRow: View {
     let habit: Habit
     @Environment(\.editMode) private var editMode
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
     @State private var isShowingEditSheet = false
     @State private var isDeleteAlertPresented = false
     
@@ -221,12 +225,18 @@ struct HabitSettingsRow: View {
                     }
                     
                     if habit.isFreezed {
-                        Button(action: { habit.isFreezed = false }) {
+                        Button(action: { 
+                            habit.isFreezed = false
+                            habitsUpdateService.triggerUpdate()
+                        }) {
                             Label("Unfreeze", systemImage: "flame")
                         }
                         .tint(.orange)
                     } else {
-                        Button(action: { habit.isFreezed = true }) {
+                        Button(action: { 
+                            habit.isFreezed = true
+                            habitsUpdateService.triggerUpdate()
+                        }) {
                             Label("Freeze", systemImage: "snowflake")
                         }
                         .tint(.blue)
