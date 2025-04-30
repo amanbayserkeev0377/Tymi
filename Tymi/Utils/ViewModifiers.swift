@@ -22,8 +22,30 @@ struct SectionCardModifier: ViewModifier {
     }
 }
 
+// MARK: - DeleteHabitAlertModifier
+struct DeleteHabitAlertModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    let onDelete: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .alert("This will permanently delete all data for this habit.", isPresented: $isPresented) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    onDelete()
+                }
+            } message: {
+                Text("Freeze it instead to keep your progress.")
+            }
+    }
+}
+
 extension View {
     func sectionCard() -> some View {
         self.modifier(SectionCardModifier())
+    }
+    
+    func deleteHabitAlert(isPresented: Binding<Bool>, onDelete: @escaping () -> Void) -> some View {
+        self.modifier(DeleteHabitAlertModifier(isPresented: isPresented, onDelete: onDelete))
     }
 }

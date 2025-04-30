@@ -31,7 +31,7 @@ struct HabitsSection: View {
                     .foregroundStyle(.primary)
                 
                 Spacer()
-                                
+                
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
@@ -58,8 +58,17 @@ struct HabitsSection: View {
 
 struct HabitsSettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
     @Environment(\.colorScheme) private var colorScheme
+    @State private var activeHabitsOrder: [Habit] = []
+    @State private var editMode: EditMode = .inactive
+    @State private var selectedTab: HabitsTab = .active
+    
+    enum HabitsTab {
+        case active
+        case freezed
+    }
     
     init() {
         let descriptor = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.createdAt)])
@@ -68,62 +77,105 @@ struct HabitsSettingsView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // Active habits
-                    if !activeHabits.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Active Habits (\(activeHabits.count))")
-                                .font(.headline)
-                                .padding(.horizontal, 16)
-                                .padding(.top, 8)
-                            
-                            ForEach(activeHabits) { habit in
-                                HabitSettingsRow(habit: habit)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        colorScheme == .dark ?
-                                        Color.black.opacity(0.2) :
-                                        Color.white.opacity(0.8)
-                                    )
-                                    .cornerRadius(10)
-                                    .padding(.horizontal, 16)
-                            }
-                        }
-                        .padding(.bottom, 16)
-                    }
-                    
-                    // Freezed habits
-                    if !freezedHabits.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Freezed Habits (\(freezedHabits.count))")
-                                .font(.headline)
-                                .padding(.horizontal, 16)
-                                .padding(.top, 8)
-                            
-                            ForEach(freezedHabits) { habit in
-                                HabitSettingsRow(habit: habit)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        colorScheme == .dark ?
-                                        Color.black.opacity(0.2) :
-                                        Color.white.opacity(0.8)
-                                    )
-                                    .cornerRadius(10)
-                                    .padding(.horizontal, 16)
-                            }
-                        }
-                    }
-                    
-                    Spacer(minLength: 40)
+            VStack(spacing: 0) {
+                // Сегментированный выбор
+                Picker("", selection: $selectedTab) {
+                    Text("Active (\(activeHabits.count))")
+                        .tag(HabitsTab.active)
+                    Text("Freezed (\(freezedHabits.count))")
+                        .tag(HabitsTab.freezed)
                 }
-                .padding(.top, 8)
+                .pickerStyle(.segmented)
+                .padding()
+                
+                // Контент в зависимости от выбранной вкладки
+                if selectedTab == .active {
+                    activeHabitsView
+                } else {
+                    freezedHabitsView
+                }
             }
             .navigationTitle("Habits")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if selectedTab == .active {
+                        Button {
+                            editMode = editMode.isEditing ? .inactive : .active
+                        } label: {
+                            Text(editMode.isEditing ? "Done" : "Edit")
+                        }
+                    }
+                }
+            }
+            .environment(\.editMode, $editMode)
+            .onChange(of: editMode) { oldValue, newValue in
+                if oldValue == .active && newValue == .inactive {
+                    updateHabitsOrder()
+                }
+            }
+            .onAppear {
+                activeHabitsOrder = activeHabits
+            }
         }
+        .tint(.primary)
+    }
+    
+    private var activeHabitsView: some View {
+        VStack(spacing: 16) {
+            if !activeHabitsOrder.isEmpty {
+                List {
+                    ForEach(activeHabitsOrder) { habit in
+                        HabitSettingsRow(habit: habit)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowSeparator(.visible)
+                            .listRowBackground(
+                                colorScheme == .dark ? Color.black.opacity(0.2) : Color.white.opacity(0.9)
+                            )
+                    }
+                    .onMove { from, to in
+                        activeHabitsOrder.move(fromOffsets: from, toOffset: to)
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+            } else {
+                Text("No active habits")
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 40)
+            }
+            
+            Spacer(minLength: 40)
+        }
+        .padding(.top, 8)
+    }
+    
+    private var freezedHabitsView: some View {
+        VStack(spacing: 16) {
+            if !freezedHabits.isEmpty {
+                List {
+                    ForEach(freezedHabits) { habit in
+                        HabitSettingsRow(habit: habit)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowSeparator(.visible)
+                            .listRowBackground(
+                                colorScheme == .dark ? Color.black.opacity(0.2) : Color.white.opacity(0.9)
+                            )
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+            } else {
+                Text("No freezed habits")
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 40)
+            }
+            
+            Spacer(minLength: 40)
+        }
+        .padding(.top, 8)
     }
     
     private var activeHabits: [Habit] {
@@ -133,10 +185,22 @@ struct HabitsSettingsView: View {
     private var freezedHabits: [Habit] {
         habits.filter { $0.isFreezed }
     }
+    
+    private func updateHabitsOrder() {
+        for (index, habit) in activeHabitsOrder.enumerated() {
+            let newDate = Calendar.current.date(byAdding: .second, value: index, to: Date()) ?? Date()
+            habit.createdAt = newDate
+        }
+        try? modelContext.save()
+    }
 }
 
 struct HabitSettingsRow: View {
     let habit: Habit
+    @Environment(\.editMode) private var editMode
+    @Environment(\.modelContext) private var modelContext
+    @State private var isShowingEditSheet = false
+    @State private var isDeleteAlertPresented = false
     
     var body: some View {
         HStack {
@@ -150,22 +214,38 @@ struct HabitSettingsRow: View {
             
             Spacer()
             
-            Menu {
-                if habit.isFreezed {
-                    Button(action: { habit.isFreezed = false }) {
-                        Label("Unfreeze", systemImage: "flame")
+            if editMode?.wrappedValue == .inactive {
+                Menu {
+                    Button(action: { isShowingEditSheet = true }) {
+                        Label("Edit", systemImage: "pencil")
                     }
-                    .tint(.orange)
-                } else {
-                    Button(action: { habit.isFreezed = true }) {
-                        Label("Freeze", systemImage: "snowflake")
+                    
+                    if habit.isFreezed {
+                        Button(action: { habit.isFreezed = false }) {
+                            Label("Unfreeze", systemImage: "flame")
+                        }
+                        .tint(.orange)
+                    } else {
+                        Button(action: { habit.isFreezed = true }) {
+                            Label("Freeze", systemImage: "snowflake")
+                        }
+                        .tint(.blue)
                     }
-                    .tint(.blue)
+                    
+                    Button(role: .destructive, action: { isDeleteAlertPresented = true }) {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .tint(.red)
+                } label: {
+                    Image(systemName: "ellipsis")
                 }
-            } label: {
-                Image(systemName: "ellipsis")
-                    .foregroundStyle(.primary)
             }
+        }
+        .sheet(isPresented: $isShowingEditSheet) {
+            NewHabitView(habit: habit)
+        }
+        .deleteHabitAlert(isPresented: $isDeleteAlertPresented) {
+            modelContext.delete(habit)
         }
     }
 }
@@ -176,3 +256,4 @@ struct HabitSettingsRow: View {
     }
     .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
 }
+

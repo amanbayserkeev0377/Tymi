@@ -2,13 +2,11 @@ import SwiftUI
 
 
 struct AboutSection: View {
+    @State private var showingAboutSettings = false
+    
     var body: some View {
-        NavigationLink {
-            AboutSettingsView()
-                .navigationTitle("About")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
+        Button {
+            showingAboutSettings = true
         } label: {
             HStack {
                 Image(systemName: "info.circle")
@@ -26,6 +24,21 @@ struct AboutSection: View {
             }
         }
         .tint(.primary)
+        .sheet(isPresented: $showingAboutSettings) {
+            AboutSettingsView()
+                .presentationDetents([.fraction(0.8)])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(40)
+                .presentationBackground {
+                    let cornerRadius: CGFloat = 40
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(.ultraThinMaterial)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(Color.primary.opacity(0.2), lineWidth: 1.5)
+                    }
+                }
+        }
     }
 }
 
@@ -35,21 +48,9 @@ struct AboutSettingsView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 40)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 40)
-                        .stroke(
-                            colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.15),
-                            lineWidth: 1.5
-                        )
-                )
-                .ignoresSafeArea()
-            
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    // Контейнер для всех пунктов (как единый список)
                     VStack(spacing: 0) {
                         // Rate App
                         AboutRow(
@@ -164,6 +165,8 @@ struct AboutSettingsView: View {
                 
                 Spacer(minLength: 40)
             }
+            .navigationTitle("About")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

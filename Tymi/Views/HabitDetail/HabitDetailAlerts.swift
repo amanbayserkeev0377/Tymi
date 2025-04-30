@@ -34,14 +34,7 @@ struct HabitDetailAlerts: ViewModifier {
             }
             
             // Delete confirmation alert
-            .alert("Confirmation", isPresented: $isDeleteAlertPresented) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
-                    onDelete()
-                }
-            } message: {
-                Text("Do you want to delete this habit?")
-            }
+            .deleteHabitAlert(isPresented: $isDeleteAlertPresented, onDelete: onDelete)
             
             // Alert for Count type
             .alert("Enter count", isPresented: $isCountAlertPresented) {
