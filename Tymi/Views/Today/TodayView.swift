@@ -100,6 +100,7 @@ struct TodayView: View {
                 .sheet(isPresented: $isShowingCalendarSheet) {
                     CalendarView(selectedDate: $selectedDate)
                         .presentationDetents([.fraction(0.7)])
+                        .presentationDragIndicator(.visible)
                         .presentationCornerRadius(40)
                         .presentationBackground {
                             let cornerRadius: CGFloat = 40

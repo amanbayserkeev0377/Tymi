@@ -30,7 +30,7 @@ struct ActiveDaysSectionContent: View {
     }
     
     private var activeColor: Color {
-        colorScheme == .dark ? Color.white.opacity(0.7) : .black
+        colorScheme == .dark ? Color.white.opacity(0.7) : Color.black.opacity(0.7)
     }
     
     private var inactiveColor: Color {

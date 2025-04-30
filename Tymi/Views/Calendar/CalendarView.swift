@@ -1,114 +1,50 @@
 import SwiftUI
 
 struct CalendarView: View {
-    @Environment(\.dismiss) private var dismiss
     @Binding var selectedDate: Date
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private let maxPastMonths = 12
+    private let maxFutureDay = 0
+    
+    private var minDate: Date {
+        Calendar.current.date(byAdding: .month, value: -maxPastMonths, to: Date()) ?? Date()
+    }
+    
+    private var maxDate: Date {
+        Calendar.current.date(byAdding: .day, value: maxFutureDay, to: Date()) ?? Date()
+    }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                // Временный заголовок месяца
-                Text(formattedMonth())
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                // Простая сетка для дней (заглушка)
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
-                    // Заголовки дней недели
-                    ForEach(daysOfWeek(), id: \.self) { day in
-                        Text(day)
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    // Дни месяца (заглушка)
-                    ForEach(1..<31) { day in
-                        Button {
-                            // Создаем дату из текущего дня
-                            if let newDate = createDate(day: day) {
-                                selectedDate = newDate
-                                // Закрываем календарь после выбора даты
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    dismiss()
-                                }
-                            }
-                        } label: {
-                            Text("\(day)")
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 8)
-                                .background(
-                                    isCurrentDay(day: day)
-                                    ? Circle().fill(Color.green)
-                                    : Circle().fill(Color.clear)
-                                )
-                                .foregroundStyle(
-                                    isCurrentDay(day: day) ? .white : .primary
-                                )
-                        }
-                    }
-                }
-                .padding()
-                
-                Spacer()
-                
-                // Кнопка "Сегодня"
-                Button {
-                    selectedDate = Date()
-                    dismiss()
-                } label: {
-                    Text("Сегодня")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
+        VStack(spacing: 16) {
+            DatePicker(
+                "",
+                selection: $selectedDate,
+                in: minDate...maxDate,
+                displayedComponents: .date
+            )
+            .datePickerStyle(.graphical)
+            .tint(.primary)
+            .padding(.horizontal)
+            .padding(.top, 20)
+            
+            Button(action: {
+                selectedDate = Date()
+            }) {
+                Text("Today")
+                    .font(.headline)
+                    .foregroundStyle(colorScheme == .dark ? .black : .white)
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity)
+                    .background(colorScheme == .dark ? Color.white.opacity(0.7) : Color.black.opacity(0.7))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
             }
-            .navigationTitle("Календарь")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Закрыть") {
-                        dismiss()
-                    }
-                }
-            }
+            .padding(.horizontal)
+            .buttonStyle(.plain)
+            
+            Spacer()
         }
-    }
-    
-    // Вспомогательные функции
-    
-    // Возвращает отформатированное название месяца
-    private func formattedMonth() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: selectedDate)
-    }
-    
-    // Возвращает дни недели
-    private func daysOfWeek() -> [String] {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        return formatter.shortWeekdaySymbols
-    }
-    
-    // Проверяет, соответствует ли день текущей выбранной дате
-    private func isCurrentDay(day: Int) -> Bool {
-        let calendar = Calendar.current
-        return calendar.component(.day, from: selectedDate) == day
-    }
-    
-    // Создает новую дату на основе дня и текущего месяца/года
-    private func createDate(day: Int) -> Date? {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month], from: selectedDate)
-        var newComponents = DateComponents()
-        newComponents.year = components.year
-        newComponents.month = components.month
-        newComponents.day = day
-        return calendar.date(from: newComponents)
+        .padding(.bottom, 16)
     }
 }
 
