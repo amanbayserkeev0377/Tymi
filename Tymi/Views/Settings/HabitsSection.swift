@@ -117,8 +117,11 @@ struct HabitsSettingsView: View {
                     updateHabitsOrder()
                 }
             }
+            .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
+                updateActiveHabitsOrder()
+            }
             .onAppear {
-                activeHabitsOrder = activeHabits
+                updateActiveHabitsOrder()
             }
         }
         .tint(.primary)
@@ -195,6 +198,10 @@ struct HabitsSettingsView: View {
             habit.createdAt = newDate
         }
         try? modelContext.save()
+    }
+    
+    private func updateActiveHabitsOrder() {
+        activeHabitsOrder = activeHabits
     }
 }
 
