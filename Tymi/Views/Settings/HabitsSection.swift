@@ -238,7 +238,6 @@ struct HabitSettingsRow: View {
                         }) {
                             Label("Unfreeze", systemImage: "flame")
                         }
-                        .tint(.orange)
                     } else {
                         Button(action: { 
                             habit.isFreezed = true
@@ -246,7 +245,6 @@ struct HabitSettingsRow: View {
                         }) {
                             Label("Freeze", systemImage: "snowflake")
                         }
-                        .tint(.blue)
                     }
                     
                     Button(role: .destructive, action: { isDeleteAlertPresented = true }) {

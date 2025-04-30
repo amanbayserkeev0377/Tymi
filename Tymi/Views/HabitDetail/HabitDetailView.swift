@@ -6,24 +6,8 @@ struct HabitDetailView: View {
     let habit: Habit
     let date: Date
     
-    @StateObject private var timerService = HabitTimerService.shared
+    @StateObject private var viewModel: HabitDetailViewModel
     @State private var isShowingEditSheet = false
-    @State private var isFreezeAlertPresented = false
-    
-    // State for alerts
-    @State private var isResetAlertPresented = false
-    @State private var isCountAlertPresented = false
-    @State private var isTimeAlertPresented = false
-    @State private var isDeleteAlertPresented = false
-    
-    // Input text state
-    @State private var countInputText = ""
-    @State private var hoursInputText = ""
-    @State private var minutesInputText = ""
-    
-    // State for sensory feedback
-    @State private var successFeedbackTrigger = false
-    @State private var errorFeedbackTrigger = false
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -34,241 +18,165 @@ struct HabitDetailView: View {
     init(habit: Habit, date: Date = .now) {
         self.habit = habit
         self.date = date
-    }
-    
-    // MARK: - Computed Properties
-    private var completionPercentage: Double {
-        guard habit.goal > 0 else { return 0 }
-        return Double(timerService.getTotalProgress(for: habit.id)) / Double(habit.goal)
-    }
-    
-    private var formattedProgress: String {
-        if habit.type == .count {
-            return timerService.getTotalProgress(for: habit.id).formattedAsProgress(total: habit.goal)
-        } else {
-            return timerService.getTotalProgress(for: habit.id).formattedAsTime()
-        }
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
+        _viewModel = StateObject(wrappedValue: HabitDetailViewModel(
+            habit: habit,
+            date: date,
+            modelContext: ModelContext(container),
+            habitsUpdateService: HabitsUpdateService()
+        ))
     }
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 24) {
-            // Header with close and menu buttons
-            HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.primary)
+        let _ = {
+            viewModel.modelContext = modelContext
+            viewModel.habitsUpdateService = habitsUpdateService
+        }()
+        ScrollView {
+            VStack(spacing: 20) {
+                // Header with close and menu buttons
+                HStack {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.primary)
+                    }
+                    
+                    Spacer()
+                    
+                    Menu {
+                        Button {
+                            viewModel.isEditSheetPresented = true
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        
+                        Button {
+                            viewModel.toggleFreeze()
+                        } label: {
+                            Label(habit.isFreezed ? "Unfreeze" : "Freeze", systemImage: habit.isFreezed ? "flame" : "snowflake")
+                        }
+                        
+                        Button(role: .destructive) {
+                            viewModel.isDeleteAlertPresented = true
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        .tint(.red)
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
                 }
+                .padding(.top)
+                
+                // Goal header
+                Text("Goal: \(viewModel.formattedGoal)")
+                    .font(.subheadline)
+                    .padding(.bottom, 5)
+                
+                // Progress controls
+                ProgressControlSection(
+                    habit: habit,
+                    currentProgress: .constant(viewModel.currentProgress),
+                    completionPercentage: viewModel.completionPercentage,
+                    formattedProgress: viewModel.formattedProgress,
+                    onIncrement: viewModel.incrementProgress,
+                    onDecrement: viewModel.decrementProgress
+                )
+                
+                // Action buttons
+                ActionButtonsSection(
+                    habit: habit,
+                    isTimerRunning: viewModel.isTimerRunning,
+                    onReset: { viewModel.isResetAlertPresented = true },
+                    onTimerToggle: {
+                        if habit.type == .time {
+                            viewModel.toggleTimer()
+                        } else {
+                            viewModel.isCountAlertPresented = true
+                        }
+                    },
+                    onManualEntry: {
+                        viewModel.isTimeAlertPresented = true
+                    }
+                )
                 
                 Spacer()
                 
+                // Complete button at the bottom
+                Button(action: {
+                    viewModel.completeHabit()
+                }) {
+                    Text(viewModel.isAlreadyCompleted ? "Completed" : "Complete")
+                        .font(.headline)
+                        .foregroundStyle(
+                            colorScheme == .dark ? .black : .white
+                        )
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(viewModel.isAlreadyCompleted ? Color.gray.opacity(0.2) : Color.primary)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+                .disabled(viewModel.isAlreadyCompleted)
+                .padding(.horizontal)
+                .padding(.bottom)
+            }
+            .padding()
+        }
+        .navigationTitle(habit.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
-                    Button(action: { isShowingEditSheet = true }) {
+                    Button {
+                        viewModel.isEditSheetPresented = true
+                    } label: {
                         Label("Edit", systemImage: "pencil")
                     }
                     
-                    if habit.isFreezed {
-                        Button(action: { habit.isFreezed = false }) {
-                            Label("Unfreeze", systemImage: "flame")
-                        }
-                        .tint(.orange)
-                    } else {
-                        Button(action: { 
-                            habit.isFreezed = true
-                            isFreezeAlertPresented = true
-                        }) {
-                            Label("Freeze", systemImage: "snowflake")
-                        }
-                        .tint(.blue)
+                    Button {
+                        viewModel.toggleFreeze()
+                    } label: {
+                        Label(habit.isFreezed ? "Unfreeze" : "Freeze", systemImage: habit.isFreezed ? "snowflake" : "snowflake.slash")
                     }
                     
-                    Button(role: .destructive, action: { isDeleteAlertPresented = true }) {
+                    Button(role: .destructive) {
+                        viewModel.isDeleteAlertPresented = true
+                    } label: {
                         Label("Delete", systemImage: "trash")
                     }
-                    .tint(.red)
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.primary)
                 }
             }
-            .padding(.top)
-            
-            // Goal header
-            goalHeader
-                .padding(.bottom, 5)
-            
-            // Progress controls
-            ProgressControlSection(
-                habit: habit,
-                currentProgress: .constant(timerService.getCurrentProgress(for: habit.id)),
-                completionPercentage: completionPercentage,
-                formattedProgress: formattedProgress,
-                onIncrement: incrementProgress,
-                onDecrement: decrementProgress
-            )
-            
-            // Action buttons
-            ActionButtonsSection(
-                habit: habit,
-                isTimerRunning: timerService.isTimerRunning(for: habit.id),
-                onReset: { isResetAlertPresented = true },
-                onTimerToggle: {
-                    if habit.type == .time {
-                        toggleTimer()
-                    } else {
-                        isCountAlertPresented = true
-                    }
-                },
-                onManualEntry: {
-                    isTimeAlertPresented = true
-                }
-            )
-            
-            Spacer()
-            
-            // Complete button at the bottom
-            completeButton
-                .padding(.bottom)
         }
-        .padding(.horizontal)
-        .navigationBarHidden(true)
-        .sensoryFeedback(.success, trigger: successFeedbackTrigger)
-        .sensoryFeedback(.error, trigger: errorFeedbackTrigger)
-        .sheet(isPresented: $isShowingEditSheet) {
+        .sheet(isPresented: $viewModel.isEditSheetPresented) {
             NewHabitView(habit: habit)
         }
-        .modifier(HabitDetailAlerts(
+        .habitDetailAlerts(
             habit: habit,
             date: date,
-            timerService: timerService,
-            isResetAlertPresented: $isResetAlertPresented,
-            isCountAlertPresented: $isCountAlertPresented,
-            isTimeAlertPresented: $isTimeAlertPresented,
-            isDeleteAlertPresented: $isDeleteAlertPresented,
-            countInputText: $countInputText,
-            hoursInputText: $hoursInputText,
-            minutesInputText: $minutesInputText,
-            successFeedbackTrigger: $successFeedbackTrigger,
-            errorFeedbackTrigger: $errorFeedbackTrigger,
-            onReset: resetProgress,
-            onDelete: deleteHabit
-        ))
-        .freezeHabitAlert(isPresented: $isFreezeAlertPresented) {
-            dismiss()
-        }
-        .onAppear {
-            if habit.type == .time {
-                timerService.restoreTimerState(for: habit.id)
-            }
+            timerService: viewModel.timerService,
+            isResetAlertPresented: $viewModel.isResetAlertPresented,
+            isCountAlertPresented: $viewModel.isCountAlertPresented,
+            isTimeAlertPresented: $viewModel.isTimeAlertPresented,
+            isDeleteAlertPresented: $viewModel.isDeleteAlertPresented,
+            countInputText: $viewModel.countInputText,
+            hoursInputText: $viewModel.hoursInputText,
+            minutesInputText: $viewModel.minutesInputText,
+            successFeedbackTrigger: $viewModel.successFeedbackTrigger,
+            errorFeedbackTrigger: $viewModel.errorFeedbackTrigger,
+            onReset: viewModel.resetProgress,
+            onDelete: viewModel.deleteHabit
+        )
+        .freezeHabitAlert(isPresented: $viewModel.isFreezeAlertPresented) {
+            viewModel.isEditSheetPresented = false
         }
         .onDisappear {
-            saveProgress()
+            viewModel.saveProgress()
         }
-    }
-    
-    // MARK: - Subviews
-    
-    private var completeButton: some View {
-        Button(action: {
-            completeHabit()
-        }) {
-            Text(isAlreadyCompleted ? "Completed" : "Complete")
-                .font(.headline)
-                .foregroundStyle(
-                    colorScheme == .dark ? .black : .white
-                )
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(isAlreadyCompleted ? Color.gray.opacity(0.2) : Color.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-        .disabled(isAlreadyCompleted)
-        .padding(.horizontal)
-    }
-    
-    private var goalHeader: some View {
-        Text("Goal: \(habit.formattedGoal)")
-            .font(.subheadline)
-    }
-    
-    // MARK: - Methods
-    
-    private var isAlreadyCompleted: Bool {
-        return timerService.getCurrentProgress(for: habit.id) >= habit.goal
-    }
-    
-    private func completeHabit() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            timerService.addProgress(habit.goal - timerService.getCurrentProgress(for: habit.id), for: habit.id)
-        }
-
-        saveProgress()
-        habitsUpdateService.triggerUpdate()
-        successFeedbackTrigger.toggle()
-    }
-    
-    private func saveProgress() {
-        let existingProgress = habit.progressForDate(date)
-        let currentProgress = timerService.getCurrentProgress(for: habit.id)
-        if currentProgress != existingProgress {
-            habit.addProgress(currentProgress - existingProgress, for: date)
-            habitsUpdateService.triggerUpdate()
-        }
-    }
-    
-    private func incrementProgress() {
-        if habit.type == .count {
-            timerService.addProgress(1, for: habit.id)
-        } else {
-            if timerService.isTimerRunning(for: habit.id) {
-                timerService.stopTimer(for: habit.id)
-            }
-            timerService.addProgress(60, for: habit.id)
-        }
-        habitsUpdateService.triggerUpdate()
-    }
-    
-    private func decrementProgress() {
-        if habit.type == .count {
-            let currentProgress = timerService.getCurrentProgress(for: habit.id)
-            if currentProgress > 0 {
-                timerService.addProgress(-1, for: habit.id)
-            }
-        } else {
-            if timerService.isTimerRunning(for: habit.id) {
-                timerService.stopTimer(for: habit.id)
-            }
-            
-            let currentProgress = timerService.getCurrentProgress(for: habit.id)
-            if currentProgress >= 60 {
-                timerService.addProgress(-60, for: habit.id)
-            } else if currentProgress > 0 {
-                timerService.resetTimer(for: habit.id)
-            }
-        }
-        habitsUpdateService.triggerUpdate()
-    }
-    
-    private func resetProgress() {
-        timerService.resetTimer(for: habit.id)
-        habitsUpdateService.triggerUpdate()
-    }
-    
-    private func toggleTimer() {
-        if timerService.isTimerRunning(for: habit.id) {
-            timerService.stopTimer(for: habit.id)
-        } else {
-            timerService.startTimer(for: habit.id, initialProgress: timerService.getCurrentProgress(for: habit.id))
-        }
-    }
-    
-    private func deleteHabit() {
-        modelContext.delete(habit)
-        
-        errorFeedbackTrigger.toggle()
-        dismiss()
     }
 }
 

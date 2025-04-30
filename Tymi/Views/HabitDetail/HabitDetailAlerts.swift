@@ -22,63 +22,91 @@ struct HabitDetailAlerts: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            // Reset confirmation alert
-            .alert("Reset Progress", isPresented: $isResetAlertPresented) {
+            .alert("Are you sure you want to reset your progress for today?", isPresented: $isResetAlertPresented) {
                 Button("Cancel", role: .cancel) { }
                 Button("Reset", role: .destructive) {
-                    errorFeedbackTrigger.toggle()
                     onReset()
                 }
-            } message: {
-                Text("Do you want to reset your progress for today?")
             }
             
-            // Delete confirmation alert
-            .deleteHabitAlert(isPresented: $isDeleteAlertPresented, onDelete: onDelete)
-            
-            // Alert for Count type
-            .alert("Enter count", isPresented: $isCountAlertPresented) {
-                TextField("", text: $countInputText)
+            .alert("Add Count", isPresented: $isCountAlertPresented) {
+                TextField("Count", text: $countInputText)
                     .keyboardType(.numberPad)
-                Button("Cancel", role: .cancel) {
-                    countInputText = ""
-                }
+                Button("Cancel", role: .cancel) { }
                 Button("Add") {
-                    if let value = Int(countInputText), value > 0 {
-                        timerService.addProgress(value, for: habit.id)
+                    if let count = Int(countInputText) {
+                        timerService.addProgress(count, for: habit.id)
                         successFeedbackTrigger.toggle()
+                    } else {
+                        errorFeedbackTrigger.toggle()
                     }
                     countInputText = ""
                 }
+            } message: {
+                Text("Enter the number of times you completed this habit")
             }
-            .tint(.primary)
             
-            // Alert for Time type
-            .alert("Enter time", isPresented: $isTimeAlertPresented) {
-                TextField("hours", text: $hoursInputText)
+            .alert("Add Time", isPresented: $isTimeAlertPresented) {
+                TextField("Hours", text: $hoursInputText)
                     .keyboardType(.numberPad)
-                TextField("minutes", text: $minutesInputText)
+                TextField("Minutes", text: $minutesInputText)
                     .keyboardType(.numberPad)
-                Button("Cancel", role: .cancel) {
-                    hoursInputText = ""
-                    minutesInputText = ""
-                }
+                Button("Cancel", role: .cancel) { }
                 Button("Add") {
-                    let minutes = Int(minutesInputText) ?? 0
                     let hours = Int(hoursInputText) ?? 0
-                    
-                    // Convert to seconds and add to progress
-                    let totalSeconds = (hours * 3600) + (minutes * 60)
+                    let minutes = Int(minutesInputText) ?? 0
+                    let totalSeconds = hours * 3600 + minutes * 60
                     if totalSeconds > 0 {
                         timerService.addProgress(totalSeconds, for: habit.id)
                         successFeedbackTrigger.toggle()
+                    } else {
+                        errorFeedbackTrigger.toggle()
                     }
-                    
-                    // Clear input fields
-                    minutesInputText = ""
                     hoursInputText = ""
+                    minutesInputText = ""
                 }
+            } message: {
+                Text("Enter the time you spent on this habit")
             }
-            .tint(.primary)
+            
+            .deleteHabitAlert(isPresented: $isDeleteAlertPresented) {
+                onDelete()
+            }
+    }
+}
+
+extension View {
+    func habitDetailAlerts(
+        habit: Habit,
+        date: Date,
+        timerService: HabitTimerService,
+        isResetAlertPresented: Binding<Bool>,
+        isCountAlertPresented: Binding<Bool>,
+        isTimeAlertPresented: Binding<Bool>,
+        isDeleteAlertPresented: Binding<Bool>,
+        countInputText: Binding<String>,
+        hoursInputText: Binding<String>,
+        minutesInputText: Binding<String>,
+        successFeedbackTrigger: Binding<Bool>,
+        errorFeedbackTrigger: Binding<Bool>,
+        onReset: @escaping () -> Void,
+        onDelete: @escaping () -> Void
+    ) -> some View {
+        modifier(HabitDetailAlerts(
+            habit: habit,
+            date: date,
+            timerService: timerService,
+            isResetAlertPresented: isResetAlertPresented,
+            isCountAlertPresented: isCountAlertPresented,
+            isTimeAlertPresented: isTimeAlertPresented,
+            isDeleteAlertPresented: isDeleteAlertPresented,
+            countInputText: countInputText,
+            hoursInputText: hoursInputText,
+            minutesInputText: minutesInputText,
+            successFeedbackTrigger: successFeedbackTrigger,
+            errorFeedbackTrigger: errorFeedbackTrigger,
+            onReset: onReset,
+            onDelete: onDelete
+        ))
     }
 } 
