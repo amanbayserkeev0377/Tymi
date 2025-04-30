@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct NotificationsSection: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.modelContext) private var modelContext
     @State private var isNotificationPermissionAlertPresented = false
     
     var body: some View {
@@ -24,14 +26,14 @@ struct NotificationsSection: View {
                         Task {
                             do {
                                 try await NotificationManager.shared.requestAuthorization()
-                                NotificationManager.shared.updateAllNotifications()
+                                NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
                             } catch {
                                 notificationsEnabled = false
                                 isNotificationPermissionAlertPresented = true
                             }
                         }
                     } else {
-                        NotificationManager.shared.updateAllNotifications()
+                        NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
                     }
                 }
         }

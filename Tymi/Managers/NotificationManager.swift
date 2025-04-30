@@ -3,8 +3,7 @@ import UserNotifications
 import SwiftUI
 import SwiftData
 
-@ObservableObject
-class NotificationManager {
+class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
     
     @Published var permissionStatus: Bool = false

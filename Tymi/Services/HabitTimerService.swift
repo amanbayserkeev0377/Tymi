@@ -312,13 +312,15 @@ class HabitTimerService: ObservableObject {
     }
     
     private func fetchHabit(with id: String, in context: ModelContext) -> Habit? {
-        let descriptor = FetchDescriptor<Habit>(
-            predicate: #Predicate<Habit> { 
-                String(describing: $0.persistentModelID) == id 
-            }
-        )
+        let descriptor = FetchDescriptor<Habit>()
         
-        return try? context.fetch(descriptor).first
+        do {
+            let habits = try context.fetch(descriptor)
+            return habits.first { String(describing: $0.persistentModelID) == id }
+        } catch {
+            logger.error("Ошибка при поиске привычки: \(error.localizedDescription)")
+            return nil
+        }
     }
     
     deinit {
