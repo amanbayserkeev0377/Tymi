@@ -1,55 +1,118 @@
 import Foundation
 import Combine
+import UIKit
 
 class HabitTimerService: ObservableObject {
     static let shared = HabitTimerService()
     
-    @Published private var timers: [String: Timer] = [:]
-    @Published private var progress: [String: Int] = [:]
-    @Published private var wasRunning: [String: Bool] = [:]
+    private var timers: [String: Timer] = [:]
+    private var progress: [String: Int] = [:]
+    private var startTimes: [String: Date] = [:]
+    private var backgroundTaskIdentifiers: [String: UIBackgroundTaskIdentifier] = [:]
     
-    private init() {}
+    @Published private(set) var progressUpdates: [String: Int] = [:]
+    
+    private init() {
+        setupNotifications()
+    }
+    
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func handleAppDidEnterBackground() {
+        for (habitId, _) in timers {
+            if let startTime = startTimes[habitId] {
+                let elapsedTime = Int(Date().timeIntervalSince(startTime))
+                let newProgress = (progress[habitId] ?? 0) + elapsedTime
+                progress[habitId] = newProgress
+                progressUpdates[habitId] = newProgress
+                
+                let backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+                    self?.stopTimer(for: habitId)
+                }
+                backgroundTaskIdentifiers[habitId] = backgroundTask
+            }
+        }
+    }
+    
+    @objc private func handleAppWillEnterForeground() {
+        for (habitId, _) in timers {
+            if let backgroundTask = backgroundTaskIdentifiers[habitId] {
+                UIApplication.shared.endBackgroundTask(backgroundTask)
+                backgroundTaskIdentifiers[habitId] = nil
+            }
+            
+            if let startTime = startTimes[habitId] {
+                let elapsedTime = Int(Date().timeIntervalSince(startTime))
+                let newProgress = (progress[habitId] ?? 0) + elapsedTime
+                progress[habitId] = newProgress
+                progressUpdates[habitId] = newProgress
+                startTimes[habitId] = Date()
+            }
+        }
+    }
     
     func startTimer(for habitId: String, initialProgress: Int = 0) {
-        // Останавливаем существующий таймер, если он есть
         stopTimer(for: habitId)
         
-        // Устанавливаем начальный прогресс
         progress[habitId] = initialProgress
+        progressUpdates[habitId] = initialProgress
+        startTimes[habitId] = Date()
         
-        // Создаем новый таймер
-        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.progress[habitId] = (self?.progress[habitId] ?? 0) + 1
+        let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self,
+                  let startTime = self.startTimes[habitId] else { return }
+            
+            let elapsedTime = Int(Date().timeIntervalSince(startTime))
+            let newProgress = initialProgress + elapsedTime
+            
+            self.progress[habitId] = newProgress
+            self.progressUpdates[habitId] = newProgress
         }
+        
+        RunLoop.main.add(timer, forMode: .common)
         timers[habitId] = timer
-        wasRunning[habitId] = true
     }
     
     func stopTimer(for habitId: String) {
         timers[habitId]?.invalidate()
         timers[habitId] = nil
-        wasRunning[habitId] = false
+        
+        startTimes[habitId] = nil
+        
+        if let backgroundTask = backgroundTaskIdentifiers[habitId] {
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+            backgroundTaskIdentifiers[habitId] = nil
+        }
     }
     
     func resetTimer(for habitId: String) {
-        // Останавливаем таймер перед сбросом прогресса
         stopTimer(for: habitId)
         progress[habitId] = 0
-        wasRunning[habitId] = false
+        progressUpdates[habitId] = 0
     }
     
     func addProgress(_ value: Int, for habitId: String) {
-        // Останавливаем таймер перед изменением прогресса
         stopTimer(for: habitId)
-        progress[habitId] = (progress[habitId] ?? 0) + value
-        wasRunning[habitId] = false
+        let newProgress = (progress[habitId] ?? 0) + value
+        progress[habitId] = newProgress
+        progressUpdates[habitId] = newProgress
     }
     
     func getCurrentProgress(for habitId: String) -> Int {
-        return progress[habitId] ?? 0
-    }
-    
-    func getTotalProgress(for habitId: String) -> Int {
         return progress[habitId] ?? 0
     }
     
@@ -58,12 +121,16 @@ class HabitTimerService: ObservableObject {
     }
     
     func wasTimerRunning(for habitId: String) -> Bool {
-        return wasRunning[habitId] ?? false
+        return startTimes[habitId] != nil
     }
     
     func restoreTimerState(for habitId: String) {
-        if wasRunning[habitId] ?? false {
+        if startTimes[habitId] != nil {
             startTimer(for: habitId, initialProgress: progress[habitId] ?? 0)
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 } 

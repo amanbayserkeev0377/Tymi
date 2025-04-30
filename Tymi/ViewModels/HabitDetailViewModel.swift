@@ -34,6 +34,9 @@ class HabitDetailViewModel: ObservableObject {
     @Published var successFeedbackTrigger = false
     @Published var errorFeedbackTrigger = false
     
+    // MARK: - Cancellables
+    private var cancellables = Set<AnyCancellable>()
+    
     // MARK: - Computed Properties
     var isAlreadyCompleted: Bool {
         currentProgress >= habit.goal
@@ -58,6 +61,7 @@ class HabitDetailViewModel: ObservableObject {
         self.habitsUpdateService = habitsUpdateService
         
         setupInitialState()
+        setupSubscriptions()
     }
     
     // MARK: - Setup
@@ -68,6 +72,28 @@ class HabitDetailViewModel: ObservableObject {
         if habit.type == .time {
             timerService.restoreTimerState(for: habit.id)
         }
+    }
+    
+    private func setupSubscriptions() {
+        // Подписываемся на изменения прогресса
+        timerService.$progressUpdates
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] updates in
+                guard let self = self,
+                      let progress = updates[self.habit.id] else { return }
+                self.currentProgress = progress
+                self.updateProgressMetrics()
+            }
+            .store(in: &cancellables)
+        
+        // Подписываемся на изменения состояния таймера
+        timerService.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.isTimerRunning = self.timerService.isTimerRunning(for: self.habit.id)
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Progress Management
