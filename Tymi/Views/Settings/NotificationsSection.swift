@@ -3,6 +3,7 @@ import SwiftUI
 struct NotificationsSection: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
     @Environment(\.colorScheme) private var colorScheme
+    @State private var isNotificationPermissionAlertPresented = false
     
     var body: some View {
         HStack {
@@ -18,6 +19,31 @@ struct NotificationsSection: View {
             Toggle("", isOn: $notificationsEnabled)
                 .labelsHidden()
                 .tint(colorScheme == .dark ? Color.gray : .black)
+                .onChange(of: notificationsEnabled) { newValue in
+                    if newValue {
+                        Task {
+                            do {
+                                try await NotificationManager.shared.requestAuthorization()
+                                NotificationManager.shared.updateAllNotifications()
+                            } catch {
+                                notificationsEnabled = false
+                                isNotificationPermissionAlertPresented = true
+                            }
+                        }
+                    } else {
+                        NotificationManager.shared.updateAllNotifications()
+                    }
+                }
+        }
+        .alert("Разрешение на уведомления", isPresented: $isNotificationPermissionAlertPresented) {
+            Button("Отмена", role: .cancel) { }
+            Button("Настройки") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+        } message: {
+            Text("Для работы уведомлений необходимо разрешение. Пожалуйста, включите уведомления в настройках приложения.")
         }
     }
 }

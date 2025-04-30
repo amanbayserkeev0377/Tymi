@@ -1,9 +1,12 @@
 import SwiftUI
+import SwiftData
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("themeMode") private var themeMode: Int = 0 // 0 - System, 1 - Light, 2 - Dark
+    @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
     
     var body: some View {
         NavigationStack {
@@ -81,6 +84,11 @@ struct SettingsView: View {
         }
         // Применяем выбранную тему
         .preferredColorScheme(getPreferredColorScheme())
+        .onChange(of: notificationsEnabled) { newValue in
+            if !newValue {
+                NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
+            }
+        }
     }
         
     // MARK: - Helpers

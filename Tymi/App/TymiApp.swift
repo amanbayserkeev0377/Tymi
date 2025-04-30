@@ -22,6 +22,15 @@ struct TymiApp: App {
                 for: schema,
                 configurations: [modelConfiguration]
             )
+            
+            // Инициализируем NotificationManager
+            Task {
+                do {
+                    try await NotificationManager.shared.requestAuthorization()
+                } catch {
+                    print("Ошибка при запросе разрешения на уведомления: \(error)")
+                }
+            }
         } catch {
             print("Unresolved error loading container \(error)")
             fatalError("Could not initialize ModelContainer: \(error)")

@@ -212,6 +212,19 @@ struct NewHabitView: View {
                     reminderTime: isReminderEnabled ? reminderTime : nil,
                     startDate: startDate
                 )
+                
+                if isReminderEnabled {
+                    Task {
+                        do {
+                            try await NotificationManager.shared.requestAuthorization()
+                            NotificationManager.shared.scheduleNotifications(for: existingHabit)
+                        } catch {
+                            print("Ошибка при обновлении уведомлений: \(error)")
+                        }
+                    }
+                } else {
+                    NotificationManager.shared.cancelNotifications(for: existingHabit)
+                }
             } else {
                 // Create new habit
                 let newHabit = Habit(
@@ -225,10 +238,17 @@ struct NewHabitView: View {
                     startDate: startDate
                 )
                 modelContext.insert(newHabit)
-            }
-            
-            if isReminderEnabled {
-                print("Would schedule notification for \(title) at \(reminderTime)")
+                
+                if isReminderEnabled {
+                    Task {
+                        do {
+                            try await NotificationManager.shared.requestAuthorization()
+                            NotificationManager.shared.scheduleNotifications(for: newHabit)
+                        } catch {
+                            print("Ошибка при создании уведомлений: \(error)")
+                        }
+                    }
+                }
             }
             
             dismiss()

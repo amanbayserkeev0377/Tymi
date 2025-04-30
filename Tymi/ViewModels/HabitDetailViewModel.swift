@@ -166,14 +166,17 @@ class HabitDetailViewModel: ObservableObject {
         habit.isFreezed = true
         isFreezeAlertPresented = true
         habitsUpdateService.triggerUpdate()
+        updateHabit()
     }
     
     private func unfreezeHabit() {
         habit.isFreezed = false
         habitsUpdateService.triggerUpdate()
+        updateHabit()
     }
     
     func deleteHabit() {
+        NotificationManager.shared.cancelNotifications(for: habit)
         modelContext.delete(habit)
         errorFeedbackTrigger.toggle()
     }
@@ -196,6 +199,7 @@ class HabitDetailViewModel: ObservableObject {
         if currentProgress != existingProgress {
             habit.addProgress(currentProgress - existingProgress, for: date)
             habitsUpdateService.triggerUpdate()
+            updateHabit()
         }
     }
     
@@ -222,5 +226,20 @@ class HabitDetailViewModel: ObservableObject {
         minutesInputText = ""
         hoursInputText = ""
         updateProgress()
+    }
+    
+    @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
+    
+    func updateHabit() {
+        if notificationsEnabled {
+            Task {
+                do {
+                    try await NotificationManager.shared.requestAuthorization()
+                    NotificationManager.shared.scheduleNotifications(for: habit)
+                } catch {
+                    print("Ошибка при обновлении уведомлений: \(error)")
+                }
+            }
+        }
     }
 } 
