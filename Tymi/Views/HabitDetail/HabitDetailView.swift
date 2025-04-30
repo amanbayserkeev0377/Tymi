@@ -8,6 +8,7 @@ struct HabitDetailView: View {
     
     @StateObject private var timerService = HabitTimerService.shared
     @State private var isShowingEditSheet = false
+    @State private var isFreezeAlertPresented = false
     
     // State for alerts
     @State private var isResetAlertPresented = false
@@ -73,7 +74,10 @@ struct HabitDetailView: View {
                         }
                         .tint(.orange)
                     } else {
-                        Button(action: { habit.isFreezed = true }) {
+                        Button(action: { 
+                            habit.isFreezed = true
+                            isFreezeAlertPresented = true
+                        }) {
                             Label("Freeze", systemImage: "snowflake")
                         }
                         .tint(.blue)
@@ -151,6 +155,9 @@ struct HabitDetailView: View {
             onReset: resetProgress,
             onDelete: deleteHabit
         ))
+        .freezeHabitAlert(isPresented: $isFreezeAlertPresented) {
+            dismiss()
+        }
         .onAppear {
             if habit.type == .time {
                 timerService.restoreTimerState(for: habit.id)

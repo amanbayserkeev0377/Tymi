@@ -40,6 +40,20 @@ struct DeleteHabitAlertModifier: ViewModifier {
     }
 }
 
+// MARK: - FreezeHabitAlertModifier
+struct FreezeHabitAlertModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    let onDismiss: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .alert("You can find your frozen habit in Settings → Habits.", isPresented: $isPresented) {
+                Button("Okay", action: onDismiss)
+            }
+            .tint(.primary)
+    }
+}
+
 extension View {
     func sectionCard() -> some View {
         self.modifier(SectionCardModifier())
@@ -47,5 +61,9 @@ extension View {
     
     func deleteHabitAlert(isPresented: Binding<Bool>, onDelete: @escaping () -> Void) -> some View {
         self.modifier(DeleteHabitAlertModifier(isPresented: isPresented, onDelete: onDelete))
+    }
+    
+    func freezeHabitAlert(isPresented: Binding<Bool>, onDismiss: @escaping () -> Void) -> some View {
+        self.modifier(FreezeHabitAlertModifier(isPresented: isPresented, onDismiss: onDismiss))
     }
 }
