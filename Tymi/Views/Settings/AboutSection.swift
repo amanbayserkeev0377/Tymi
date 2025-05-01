@@ -156,7 +156,7 @@ struct AboutSettingsView: View {
                     .padding(.top, 16)
                     
                     // Версия приложения (внизу)
-                    Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
+                    Text("app_version".localized(with: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .padding(.top, 32)

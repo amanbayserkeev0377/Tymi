@@ -81,7 +81,7 @@ class NotificationManager: ObservableObject {
                 scheduleNotifications(for: habit)
             }
         } catch {
-            print("Ошибка при обновлении уведомлений: \(error)")
+            print("Error when updating notifications: \(error)")
         }
     }
     

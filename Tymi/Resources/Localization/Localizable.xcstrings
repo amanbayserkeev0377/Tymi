@@ -171,6 +171,29 @@
         }
       }
     },
+    "app_version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия"
+          }
+        }
+      }
+    },
     "appearance" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -206,7 +229,7 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Жокко чыгаруу"
+            "value" : "Токтотуу"
           }
         },
         "ru" : {
@@ -390,7 +413,7 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Жок кылуу"
+            "value" : "Жоюу"
           }
         },
         "ru" : {
@@ -407,19 +430,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Delete habit?"
+            "value" : "This will permanently delete all data for this habit."
           }
         },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Адатты өчүрүүнү каалайсызбы?"
+            "value" : "Бардык маалыматтар өчүрүлөт."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить привычку?"
+            "value" : "Все данные будут удалены."
           }
         }
       }
@@ -488,7 +511,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Редактировать"
+            "value" : "Изм."
           }
         }
       }
@@ -591,19 +614,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instead of deleting, it's recommended to use the freeze option"
+            "value" : "To keep your progress use ‘Freeze’ option."
           }
         },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Өчүрүү ордуна тоңдуруу опциясын колдонуу сунушталат"
+            "value" : "Маалыматты сактоо үчүн «Тоңдуруу» функциясын колдонуңуз."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Вместо удаления рекомендуется использовать опцию заморозки"
+            "value" : "Чтобы сохранить прогресс, заморозьте привычку."
           }
         }
       }
@@ -815,6 +838,29 @@
         }
       }
     },
+    "hours_minutes_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%dh %dm"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%dс %dм"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%dч %dм"
+          }
+        }
+      }
+    },
     "language" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -880,6 +926,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Минуты"
+          }
+        }
+      }
+    },
+    "minutes_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%dm"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%dм"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%dм"
           }
         }
       }
@@ -1344,6 +1413,29 @@
         }
       }
     },
+    "times" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "times"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "жолу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "раз"
+          }
+        }
+      }
+    },
     "today" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1390,26 +1482,6 @@
         }
       }
     },
-    "Version %@" : {
-
-    },
-    "version_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Версия %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Версия %@"
-          }
-        }
-      }
-    },
     "yesterday" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1429,75 +1501,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вчера"
-          }
-        }
-      }
-    },
-    "times" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "times"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "жолу"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "раз"
-          }
-        }
-      }
-    },
-    "hours_minutes_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%dh %dm"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%dс %dм"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%dч %dм"
-          }
-        }
-      }
-    },
-    "minutes_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%dm"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%dм"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%dм"
           }
         }
       }
