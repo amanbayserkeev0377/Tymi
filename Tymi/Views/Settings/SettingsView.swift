@@ -79,7 +79,7 @@ struct SettingsView: View {
                 }
                 .padding(.top, 16)
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Settings".localized)
             .navigationBarTitleDisplayMode(.large)
         }
         // Применяем выбранную тему

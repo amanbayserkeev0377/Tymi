@@ -13,7 +13,7 @@ struct AboutSection: View {
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
                 
-                Text("About")
+                Text("About".localized)
                     .foregroundStyle(.primary)
                 
                 Spacer()
@@ -54,7 +54,7 @@ struct AboutSettingsView: View {
                     VStack(spacing: 0) {
                         // Rate App
                         AboutRow(
-                            title: "Rate App",
+                            title: "Rate App".localized,
                             iconName: "star.fill",
                             iconColor: .primary
                         ) {
@@ -68,7 +68,7 @@ struct AboutSettingsView: View {
                         
                         // Share App
                         AboutRow(
-                            title: "Share App",
+                            title: "Share App".localized,
                             iconName: "square.and.arrow.up",
                             iconColor: .primary
                         ) {
@@ -89,7 +89,7 @@ struct AboutSettingsView: View {
                         
                         // Contact Developer
                         AboutRow(
-                            title: "Contact Developer",
+                            title: "Contact Developer".localized,
                             iconName: "ellipsis.message",
                             iconColor: .primary
                         ) {
@@ -103,7 +103,7 @@ struct AboutSettingsView: View {
                         
                         // Report a Bug
                         AboutRow(
-                            title: "Report a Bug",
+                            title: "Report a Bug".localized,
                             iconName: "ladybug",
                             iconColor: .primary
                         ) {
@@ -117,7 +117,7 @@ struct AboutSettingsView: View {
                         
                         // Terms of Service
                         AboutRow(
-                            title: "Terms of Service",
+                            title: "Terms of Service".localized,
                             iconName: "text.page",
                             iconColor: .primary
                         ) {
@@ -131,7 +131,7 @@ struct AboutSettingsView: View {
                         
                         // Privacy Policy
                         AboutRow(
-                            title: "Privacy Policy",
+                            title: "Privacy Policy".localized,
                             iconName: "text.document",
                             iconColor: .primary
                         ) {
@@ -165,7 +165,7 @@ struct AboutSettingsView: View {
                 
                 Spacer(minLength: 40)
             }
-            .navigationTitle("About")
+            .navigationTitle("About".localized)
             .navigationBarTitleDisplayMode(.inline)
         }
     }

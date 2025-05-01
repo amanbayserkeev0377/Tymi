@@ -12,7 +12,7 @@ struct LanguageSection: View {
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
                 
-                Text("language".localized)
+                Text("Language".localized)
                     .foregroundStyle(.primary)
                 
                 Spacer()

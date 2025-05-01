@@ -2,7 +2,20 @@
   "sourceLanguage" : "en",
   "strings" : {
     "" : {
-
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        }
+      }
     },
     "%lld%%" : {
       "localizations" : {
@@ -21,6 +34,7 @@
       }
     },
     "About" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -37,6 +51,7 @@
       }
     },
     "Active (%lld)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -53,6 +68,7 @@
       }
     },
     "Active Days" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -69,6 +85,7 @@
       }
     },
     "Add" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -85,6 +102,7 @@
       }
     },
     "Add Count" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -101,6 +119,7 @@
       }
     },
     "Add Time" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -117,6 +136,7 @@
       }
     },
     "Appearance" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -133,6 +153,7 @@
       }
     },
     "Cancel" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -148,7 +169,42 @@
         }
       }
     },
+    "complete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аткаруу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполнить"
+          }
+        }
+      }
+    },
+    "completed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аткарылды"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполнено"
+          }
+        }
+      }
+    },
     "Count" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -165,6 +221,7 @@
       }
     },
     "Create habit" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -181,6 +238,7 @@
       }
     },
     "Daily Goal" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -196,7 +254,25 @@
         }
       }
     },
+    "Dark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Караңгы"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тёмная"
+          }
+        }
+      }
+    },
     "Delete" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -212,7 +288,25 @@
         }
       }
     },
+    "delete_habit_confirmation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адатты өчүрүүнү каалайсызбы?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить привычку?"
+          }
+        }
+      }
+    },
     "Done" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -228,7 +322,25 @@
         }
       }
     },
+    "dont_forget" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Унутпаңыз: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не забудьте: %@"
+          }
+        }
+      }
+    },
     "Edit" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -245,6 +357,7 @@
       }
     },
     "Edit habit" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -261,6 +374,7 @@
       }
     },
     "Enter the number of times you completed this habit" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -277,6 +391,7 @@
       }
     },
     "Enter the time you spent on this habit" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -293,6 +408,7 @@
       }
     },
     "Freeze" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -308,7 +424,25 @@
         }
       }
     },
+    "freeze_instead_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Өчүрүү ордуна тоңдуруу опциясын колдонуу сунушталат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вместо удаления рекомендуется использовать опцию заморозки"
+          }
+        }
+      }
+    },
     "Freezed (%lld)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -324,7 +458,59 @@
         }
       }
     },
+    "frozen_habit_info" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адат тоңдурулду. Тоңдурулган адаттар күнүмдүк көрүнүштөн жашырылат."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Привычка заморожена. Замороженные привычки скрываются из ежедневного представления."
+          }
+        }
+      }
+    },
+    "future_self_thank_you" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Келечектеги өзүңүз сизге ыраазы болот! Биринчи адатыңызды түзүү үчүн + басыңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваше будущее \"я\" скажет вам спасибо! Нажмите +, чтобы создать свою первую привычку."
+          }
+        }
+      }
+    },
+    "goal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Максат: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цель: %@"
+          }
+        }
+      }
+    },
     "Goal: %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -341,6 +527,7 @@
       }
     },
     "Habit Name" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -356,7 +543,25 @@
         }
       }
     },
+    "habit_time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адатты аткаруу убакыты"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время привычки"
+          }
+        }
+      }
+    },
     "Habits" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -373,6 +578,7 @@
       }
     },
     "Hours" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -388,7 +594,42 @@
         }
       }
     },
+    "Language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тил"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Язык"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жарык"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Светлая"
+          }
+        }
+      }
+    },
     "Minutes" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -405,6 +646,7 @@
       }
     },
     "No active habits" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -421,6 +663,7 @@
       }
     },
     "No freezed habits" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -436,7 +679,25 @@
         }
       }
     },
+    "notification_permission" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уруксат керек"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Необходимо разрешение"
+          }
+        }
+      }
+    },
     "Notifications" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -452,7 +713,42 @@
         }
       }
     },
+    "okay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жакшы"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хорошо"
+          }
+        }
+      }
+    },
+    "permission_for_notifications" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эскертмелерди алуу үчүн системалык жөндөөлөрдө уруксат берүү керек"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для получения уведомлений необходимо предоставить разрешение в настройках системы"
+          }
+        }
+      }
+    },
     "Reminder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -468,7 +764,42 @@
         }
       }
     },
+    "reset" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Баштапкы абалга келтирүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить"
+          }
+        }
+      }
+    },
+    "reset_progress_confirmation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогрессти баштапкы абалга келтирүүнү каалайсызбы?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить прогресс?"
+          }
+        }
+      }
+    },
     "Save" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -485,6 +816,7 @@
       }
     },
     "Set your daily goal" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -501,6 +833,7 @@
       }
     },
     "Settings" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -517,6 +850,7 @@
       }
     },
     "Start Date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -532,7 +866,25 @@
         }
       }
     },
+    "System" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Системалык"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Системная"
+          }
+        }
+      }
+    },
     "Time" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -549,6 +901,7 @@
       }
     },
     "Today" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -565,6 +918,7 @@
       }
     },
     "Unfreeze" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -592,6 +946,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Версия %@"
+          }
+        }
+      }
+    },
+    "Yesterday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кечээ"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вчера"
+          }
+        }
+      }
+    },
+    "Rate App" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Баалоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценить"
+          }
+        }
+      }
+    },
+    "Share App" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бөлүшүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться"
+          }
+        }
+      }
+    },
+    "Contact Developer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разработчик менен байланышуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связаться с разработчиком"
+          }
+        }
+      }
+    },
+    "Report a Bug" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Катаны билдирүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сообщить об ошибке"
+          }
+        }
+      }
+    },
+    "Terms of Service" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кызмат көрсөтүү шарттары"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Условия использования"
+          }
+        }
+      }
+    },
+    "Privacy Policy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Купуялык саясаты"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Политика конфиденциальности"
           }
         }
       }

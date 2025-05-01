@@ -23,17 +23,17 @@ struct HabitDetailAlerts: ViewModifier {
     func body(content: Content) -> some View {
         content
             .alert("reset_progress_confirmation".localized, isPresented: $isResetAlertPresented) {
-                Button("cancel".localized, role: .cancel) { }
+                Button("Cancel".localized, role: .cancel) { }
                 Button("reset".localized, role: .destructive) {
                     onReset()
                 }
             }
             
-            .alert("Add Count", isPresented: $isCountAlertPresented) {
-                TextField("Count", text: $countInputText)
+            .alert("Add Count".localized, isPresented: $isCountAlertPresented) {
+                TextField("Count".localized, text: $countInputText)
                     .keyboardType(.numberPad)
-                Button("Cancel", role: .cancel) { }
-                Button("Add") {
+                Button("Cancel".localized, role: .cancel) { }
+                Button("Add".localized) {
                     if let count = Int(countInputText) {
                         timerService.addProgress(count, for: habit.id)
                         successFeedbackTrigger.toggle()
@@ -43,16 +43,16 @@ struct HabitDetailAlerts: ViewModifier {
                     countInputText = ""
                 }
             } message: {
-                Text("Enter the number of times you completed this habit")
+                Text("Enter the number of times you completed this habit".localized)
             }
             
-            .alert("Add Time", isPresented: $isTimeAlertPresented) {
-                TextField("Hours", text: $hoursInputText)
+            .alert("Add Time".localized, isPresented: $isTimeAlertPresented) {
+                TextField("Hours".localized, text: $hoursInputText)
                     .keyboardType(.numberPad)
-                TextField("Minutes", text: $minutesInputText)
+                TextField("Minutes".localized, text: $minutesInputText)
                     .keyboardType(.numberPad)
-                Button("Cancel", role: .cancel) { }
-                Button("Add") {
+                Button("Cancel".localized, role: .cancel) { }
+                Button("Add".localized) {
                     let hours = Int(hoursInputText) ?? 0
                     let minutes = Int(minutesInputText) ?? 0
                     let totalSeconds = hours * 3600 + minutes * 60
@@ -66,7 +66,7 @@ struct HabitDetailAlerts: ViewModifier {
                     minutesInputText = ""
                 }
             } message: {
-                Text("Enter the time you spent on this habit")
+                Text("Enter the time you spent on this habit".localized)
             }
             
             .deleteHabitAlert(isPresented: $isDeleteAlertPresented) {
@@ -109,4 +109,4 @@ extension View {
             onDelete: onDelete
         ))
     }
-} 
+}

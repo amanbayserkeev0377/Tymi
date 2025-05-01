@@ -13,7 +13,7 @@ struct NotificationsSection: View {
                 .foregroundStyle(.primary)
                 .frame(width: 24, height: 24)
             
-            Text("Notifications")
+            Text("Notifications".localized)
                 .foregroundStyle(.primary)
             
             Spacer()

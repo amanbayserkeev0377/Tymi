@@ -31,7 +31,7 @@ struct CalendarView: View {
             Button(action: {
                 selectedDate = Date()
             }) {
-                Text("Today")
+                Text("Today".localized)
                     .font(.headline)
                     .foregroundStyle(colorScheme == .dark ? .black : .white)
                     .padding(.vertical, 16)

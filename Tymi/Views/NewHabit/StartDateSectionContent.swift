@@ -10,7 +10,7 @@ struct StartDateSectionContent: View {
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
                 
-                Text("Start Date")
+                Text("Start Date".localized)
                     .foregroundStyle(.primary)
                 
                 Spacer()

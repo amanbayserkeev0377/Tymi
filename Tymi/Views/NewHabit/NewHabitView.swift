@@ -117,7 +117,7 @@ struct NewHabitView: View {
                         Button(action: {
                             saveHabit()
                         }) {
-                            Text("Save")
+                            Text("Save".localized)
                                 .font(.headline)
                                 .foregroundStyle(
                                     colorScheme == .dark ? .black : .white
@@ -134,7 +134,7 @@ struct NewHabitView: View {
                     }
                     .padding(.top, 16)
                 }
-                .navigationTitle(title.isEmpty ? "Create habit" : "Edit habit")
+                .navigationTitle(title.isEmpty ? "Create habit".localized : "Edit habit".localized)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {

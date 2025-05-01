@@ -28,7 +28,7 @@ struct HabitsSection: View {
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
                 
-                Text("Habits")
+                Text("Habits".localized)
                     .foregroundStyle(.primary)
                 
                 Spacer()
@@ -83,9 +83,9 @@ struct HabitsSettingsView: View {
             VStack(spacing: 0) {
                 // Сегментированный выбор
                 Picker("", selection: $selectedTab) {
-                    Text("Active (\(activeHabits.count))")
+                    Text("Active (%lld)".localized(with: activeHabits.count))
                         .tag(HabitsTab.active)
-                    Text("Freezed (\(freezedHabits.count))")
+                    Text("Freezed (%lld)".localized(with: freezedHabits.count))
                         .tag(HabitsTab.freezed)
                 }
                 .pickerStyle(.segmented)
@@ -98,7 +98,7 @@ struct HabitsSettingsView: View {
                     freezedHabitsView
                 }
             }
-            .navigationTitle("Habits")
+            .navigationTitle("Habits".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -106,7 +106,7 @@ struct HabitsSettingsView: View {
                         Button {
                             editMode = editMode.isEditing ? .inactive : .active
                         } label: {
-                            Text(editMode.isEditing ? "Done" : "Edit")
+                            Text(editMode.isEditing ? "Done".localized : "Edit".localized)
                         }
                     }
                 }
@@ -147,7 +147,7 @@ struct HabitsSettingsView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
             } else {
-                Text("No active habits")
+                Text("No active habits".localized)
                     .foregroundStyle(.secondary)
                     .padding(.top, 40)
             }
@@ -174,7 +174,7 @@ struct HabitsSettingsView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
             } else {
-                Text("No freezed habits")
+                Text("No freezed habits".localized)
                     .foregroundStyle(.secondary)
                     .padding(.top, 40)
             }
@@ -228,27 +228,27 @@ struct HabitSettingsRow: View {
             if editMode?.wrappedValue == .inactive {
                 Menu {
                     Button(action: { isShowingEditSheet = true }) {
-                        Label("Edit", systemImage: "pencil")
+                        Label("Edit".localized, systemImage: "pencil")
                     }
                     
                     if habit.isFreezed {
-                        Button(action: { 
+                        Button(action: {
                             habit.isFreezed = false
                             habitsUpdateService.triggerUpdate()
                         }) {
-                            Label("Unfreeze", systemImage: "flame")
+                            Label("Unfreeze".localized, systemImage: "flame")
                         }
                     } else {
-                        Button(action: { 
+                        Button(action: {
                             habit.isFreezed = true
                             habitsUpdateService.triggerUpdate()
                         }) {
-                            Label("Freeze", systemImage: "snowflake")
+                            Label("Freeze".localized, systemImage: "snowflake")
                         }
                     }
                     
                     Button(role: .destructive, action: { isDeleteAlertPresented = true }) {
-                        Label("Delete", systemImage: "trash")
+                        Label("Delete".localized, systemImage: "trash")
                     }
                     .tint(.red)
                 } label: {
@@ -271,4 +271,3 @@ struct HabitSettingsRow: View {
     }
     .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
 }
-
