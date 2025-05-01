@@ -29,11 +29,11 @@ struct HabitDetailAlerts: ViewModifier {
                 }
             }
             
-            .alert("Add Count".localized, isPresented: $isCountAlertPresented) {
-                TextField("Count".localized, text: $countInputText)
+            .alert("add_count".localized, isPresented: $isCountAlertPresented) {
+                TextField("count".localized, text: $countInputText)
                     .keyboardType(.numberPad)
-                Button("Cancel".localized, role: .cancel) { }
-                Button("Add".localized) {
+                Button("cancel".localized, role: .cancel) { }
+                Button("add".localized) {
                     if let count = Int(countInputText) {
                         timerService.addProgress(count, for: habit.id)
                         successFeedbackTrigger.toggle()
@@ -43,16 +43,16 @@ struct HabitDetailAlerts: ViewModifier {
                     countInputText = ""
                 }
             } message: {
-                Text("Enter the number of times you completed this habit".localized)
+                Text("enter_completion_count".localized)
             }
             
-            .alert("Add Time".localized, isPresented: $isTimeAlertPresented) {
-                TextField("Hours".localized, text: $hoursInputText)
+            .alert("add_time".localized, isPresented: $isTimeAlertPresented) {
+                TextField("hours".localized, text: $hoursInputText)
                     .keyboardType(.numberPad)
-                TextField("Minutes".localized, text: $minutesInputText)
+                TextField("minutes".localized, text: $minutesInputText)
                     .keyboardType(.numberPad)
-                Button("Cancel".localized, role: .cancel) { }
-                Button("Add".localized) {
+                Button("cancel".localized, role: .cancel) { }
+                Button("add".localized) {
                     let hours = Int(hoursInputText) ?? 0
                     let minutes = Int(minutesInputText) ?? 0
                     let totalSeconds = hours * 3600 + minutes * 60
@@ -66,7 +66,7 @@ struct HabitDetailAlerts: ViewModifier {
                     minutesInputText = ""
                 }
             } message: {
-                Text("Enter the time you spent on this habit".localized)
+                Text("enter_time_spent".localized)
             }
             
             .deleteHabitAlert(isPresented: $isDeleteAlertPresented) {

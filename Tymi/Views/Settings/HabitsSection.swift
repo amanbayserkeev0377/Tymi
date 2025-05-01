@@ -28,7 +28,7 @@ struct HabitsSection: View {
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
                 
-                Text("Habits".localized)
+                Text("habits".localized)
                     .foregroundStyle(.primary)
                 
                 Spacer()
@@ -83,9 +83,9 @@ struct HabitsSettingsView: View {
             VStack(spacing: 0) {
                 // Сегментированный выбор
                 Picker("", selection: $selectedTab) {
-                    Text("Active (%lld)".localized(with: activeHabits.count))
+                    Text("active_count".localized(with: activeHabits.count))
                         .tag(HabitsTab.active)
-                    Text("Freezed (%lld)".localized(with: freezedHabits.count))
+                    Text("freezed_count".localized(with: freezedHabits.count))
                         .tag(HabitsTab.freezed)
                 }
                 .pickerStyle(.segmented)
@@ -98,7 +98,7 @@ struct HabitsSettingsView: View {
                     freezedHabitsView
                 }
             }
-            .navigationTitle("Habits".localized)
+            .navigationTitle("habits".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -106,7 +106,7 @@ struct HabitsSettingsView: View {
                         Button {
                             editMode = editMode.isEditing ? .inactive : .active
                         } label: {
-                            Text(editMode.isEditing ? "Done".localized : "Edit".localized)
+                            Text(editMode.isEditing ? "done".localized : "edit".localized)
                         }
                     }
                 }
@@ -147,7 +147,7 @@ struct HabitsSettingsView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
             } else {
-                Text("No active habits".localized)
+                Text("no_active_habits".localized)
                     .foregroundStyle(.secondary)
                     .padding(.top, 40)
             }
@@ -174,7 +174,7 @@ struct HabitsSettingsView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
             } else {
-                Text("No freezed habits".localized)
+                Text("no_freezed_habits".localized)
                     .foregroundStyle(.secondary)
                     .padding(.top, 40)
             }
@@ -228,7 +228,7 @@ struct HabitSettingsRow: View {
             if editMode?.wrappedValue == .inactive {
                 Menu {
                     Button(action: { isShowingEditSheet = true }) {
-                        Label("Edit".localized, systemImage: "pencil")
+                        Label("edit".localized, systemImage: "pencil")
                     }
                     
                     if habit.isFreezed {
@@ -236,19 +236,19 @@ struct HabitSettingsRow: View {
                             habit.isFreezed = false
                             habitsUpdateService.triggerUpdate()
                         }) {
-                            Label("Unfreeze".localized, systemImage: "flame")
+                            Label("unfreeze".localized, systemImage: "flame")
                         }
                     } else {
                         Button(action: {
                             habit.isFreezed = true
                             habitsUpdateService.triggerUpdate()
                         }) {
-                            Label("Freeze".localized, systemImage: "snowflake")
+                            Label("freeze".localized, systemImage: "snowflake")
                         }
                     }
                     
                     Button(role: .destructive, action: { isDeleteAlertPresented = true }) {
-                        Label("Delete".localized, systemImage: "trash")
+                        Label("delete".localized, systemImage: "trash")
                     }
                     .tint(.red)
                 } label: {

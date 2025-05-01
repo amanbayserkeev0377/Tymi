@@ -33,9 +33,15 @@
         }
       }
     },
-    "About" : {
+    "about" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -50,9 +56,15 @@
         }
       }
     },
-    "Active (%lld)" : {
+    "active_count" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active (%lld)"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -67,9 +79,15 @@
         }
       }
     },
-    "Active Days" : {
+    "active_days" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active Days"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -84,9 +102,15 @@
         }
       }
     },
-    "Add" : {
+    "add" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -101,9 +125,15 @@
         }
       }
     },
-    "Add Count" : {
+    "add_count" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Count"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -118,9 +148,15 @@
         }
       }
     },
-    "Add Time" : {
+    "add_time" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Time"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -135,9 +171,15 @@
         }
       }
     },
-    "Appearance" : {
+    "appearance" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -152,9 +194,15 @@
         }
       }
     },
-    "Cancel" : {
+    "cancel" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -172,6 +220,12 @@
     "complete" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -189,6 +243,12 @@
     "completed" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -203,9 +263,38 @@
         }
       }
     },
-    "Count" : {
+    "contact_developer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contact Developer"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разработчик менен байланышуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связаться с разработчиком"
+          }
+        }
+      }
+    },
+    "count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Count"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -220,9 +309,15 @@
         }
       }
     },
-    "Create habit" : {
+    "create_habit" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Habit"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -237,9 +332,15 @@
         }
       }
     },
-    "Daily Goal" : {
+    "daily_goal" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Goal"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -254,9 +355,15 @@
         }
       }
     },
-    "Dark" : {
+    "dark" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -271,9 +378,15 @@
         }
       }
     },
-    "Delete" : {
+    "delete" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -291,6 +404,12 @@
     "delete_habit_confirmation" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete habit?"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -305,9 +424,15 @@
         }
       }
     },
-    "Done" : {
+    "done" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -325,6 +450,12 @@
     "dont_forget" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don't forget: %@"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -339,9 +470,15 @@
         }
       }
     },
-    "Edit" : {
+    "edit" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -356,9 +493,15 @@
         }
       }
     },
-    "Edit habit" : {
+    "edit_habit" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Habit"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -373,9 +516,15 @@
         }
       }
     },
-    "Enter the number of times you completed this habit" : {
+    "enter_completion_count" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the number of times you completed this habit"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -390,9 +539,15 @@
         }
       }
     },
-    "Enter the time you spent on this habit" : {
+    "enter_time_spent" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the time you spent on this habit"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -407,9 +562,15 @@
         }
       }
     },
-    "Freeze" : {
+    "freeze" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freeze"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -427,6 +588,12 @@
     "freeze_instead_message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instead of deleting, it's recommended to use the freeze option"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -441,9 +608,15 @@
         }
       }
     },
-    "Freezed (%lld)" : {
+    "freezed_count" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freezed (%lld)"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -461,6 +634,12 @@
     "frozen_habit_info" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit is frozen. Frozen habits are hidden from daily view."
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -478,6 +657,12 @@
     "future_self_thank_you" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your future self will thank you! Press + to create your first habit."
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -495,6 +680,12 @@
     "goal" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goal: %@"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -509,9 +700,15 @@
         }
       }
     },
-    "Goal: %@" : {
+    "goal_format" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goal: %@"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -526,9 +723,15 @@
         }
       }
     },
-    "Habit Name" : {
+    "habit_name" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit Name"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -546,6 +749,12 @@
     "habit_time" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit Time"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -560,9 +769,15 @@
         }
       }
     },
-    "Habits" : {
+    "habits" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habits"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -577,9 +792,15 @@
         }
       }
     },
-    "Hours" : {
+    "hours" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hours"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -594,9 +815,15 @@
         }
       }
     },
-    "Language" : {
+    "language" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -611,9 +838,15 @@
         }
       }
     },
-    "Light" : {
+    "light" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -628,9 +861,15 @@
         }
       }
     },
-    "Minutes" : {
+    "minutes" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minutes"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -645,9 +884,15 @@
         }
       }
     },
-    "No active habits" : {
+    "no_active_habits" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No active habits"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -662,9 +907,15 @@
         }
       }
     },
-    "No freezed habits" : {
+    "no_freezed_habits" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No freezed habits"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -682,6 +933,12 @@
     "notification_permission" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permission Required"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -696,9 +953,15 @@
         }
       }
     },
-    "Notifications" : {
+    "notifications" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -716,6 +979,12 @@
     "okay" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okay"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -733,6 +1002,12 @@
     "permission_for_notifications" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To receive notifications, you need to grant permission in system settings"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -747,9 +1022,61 @@
         }
       }
     },
-    "Reminder" : {
+    "privacy_policy" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Купуялык саясаты"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Политика конфиденциальности"
+          }
+        }
+      }
+    },
+    "rate_app" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate App"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Баалоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценить"
+          }
+        }
+      }
+    },
+    "reminder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reminder"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -764,9 +1091,38 @@
         }
       }
     },
+    "report_bug" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report a Bug"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Катаны билдирүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сообщить об ошибке"
+          }
+        }
+      }
+    },
     "reset" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -784,6 +1140,12 @@
     "reset_progress_confirmation" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset progress?"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -798,9 +1160,15 @@
         }
       }
     },
-    "Save" : {
+    "save" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -815,9 +1183,15 @@
         }
       }
     },
-    "Set your daily goal" : {
+    "set_daily_goal" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set your daily goal"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -832,9 +1206,15 @@
         }
       }
     },
-    "Settings" : {
+    "settings" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -849,9 +1229,38 @@
         }
       }
     },
-    "Start Date" : {
+    "share_app" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share App"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бөлүшүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться"
+          }
+        }
+      }
+    },
+    "start_date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Date"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -866,9 +1275,15 @@
         }
       }
     },
-    "System" : {
+    "system" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -883,9 +1298,38 @@
         }
       }
     },
-    "Time" : {
+    "terms_of_service" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Service"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кызмат көрсөтүү шарттары"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Условия использования"
+          }
+        }
+      }
+    },
+    "time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -900,9 +1344,15 @@
         }
       }
     },
-    "Today" : {
+    "today" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -917,9 +1367,15 @@
         }
       }
     },
-    "Unfreeze" : {
+    "unfreeze" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unfreeze"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -935,6 +1391,10 @@
       }
     },
     "Version %@" : {
+
+    },
+    "version_format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -950,9 +1410,15 @@
         }
       }
     },
-    "Yesterday" : {
+    "yesterday" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -967,104 +1433,71 @@
         }
       }
     },
-    "Rate App" : {
+    "times" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "times"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Баалоо"
+            "value" : "жолу"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оценить"
+            "value" : "раз"
           }
         }
       }
     },
-    "Share App" : {
+    "hours_minutes_format" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%dh %dm"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бөлүшүү"
+            "value" : "%dс %dм"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Поделиться"
+            "value" : "%dч %dм"
           }
         }
       }
     },
-    "Contact Developer" : {
+    "minutes_format" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%dm"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Разработчик менен байланышуу"
+            "value" : "%dм"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Связаться с разработчиком"
-          }
-        }
-      }
-    },
-    "Report a Bug" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Катаны билдирүү"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сообщить об ошибке"
-          }
-        }
-      }
-    },
-    "Terms of Service" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Кызмат көрсөтүү шарттары"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Условия использования"
-          }
-        }
-      }
-    },
-    "Privacy Policy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Купуялык саясаты"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Политика конфиденциальности"
+            "value" : "%dм"
           }
         }
       }

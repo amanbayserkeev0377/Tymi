@@ -11,7 +11,7 @@ struct NameFieldSectionContent: View {
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
                 
-                TextField("Habit Name".localized, text: $title)
+                TextField("habit_name".localized, text: $title)
                     .autocorrectionDisabled()
                     .focused($isFocused)
                     .tint(.primary)

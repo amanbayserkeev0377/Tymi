@@ -13,7 +13,7 @@ struct NotificationsSection: View {
                 .foregroundStyle(.primary)
                 .frame(width: 24, height: 24)
             
-            Text("Notifications".localized)
+            Text("notifications".localized)
                 .foregroundStyle(.primary)
             
             Spacer()
@@ -44,7 +44,7 @@ struct NotificationsSection: View {
                     UIApplication.shared.open(url)
                 }
             }
-        } message: {
+        
             Text("permission_for_notifications".localized)
         }
     }

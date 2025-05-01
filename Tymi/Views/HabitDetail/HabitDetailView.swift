@@ -50,19 +50,19 @@ struct HabitDetailView: View {
                         Button {
                             viewModel.isEditSheetPresented = true
                         } label: {
-                            Label("Edit".localized, systemImage: "pencil")
+                            Label("edit".localized, systemImage: "pencil")
                         }
                         
                         Button {
                             viewModel.toggleFreeze()
                         } label: {
-                            Label(habit.isFreezed ? "Unfreeze".localized : "Freeze".localized, systemImage: habit.isFreezed ? "flame" : "snowflake")
+                            Label(habit.isFreezed ? "unfreeze".localized : "freeze".localized, systemImage: habit.isFreezed ? "flame" : "snowflake")
                         }
                         
                         Button(role: .destructive) {
                             viewModel.isDeleteAlertPresented = true
                         } label: {
-                            Label("Delete".localized, systemImage: "trash")
+                            Label("delete".localized, systemImage: "trash")
                         }
                         .tint(.red)
                     } label: {
@@ -133,19 +133,19 @@ struct HabitDetailView: View {
                     Button {
                         viewModel.isEditSheetPresented = true
                     } label: {
-                        Label("Edit".localized, systemImage: "pencil")
+                        Label("edit".localized, systemImage: "pencil")
                     }
                     
                     Button {
                         viewModel.toggleFreeze()
                     } label: {
-                        Label(habit.isFreezed ? "Unfreeze".localized : "Freeze".localized, systemImage: habit.isFreezed ? "snowflake" : "snowflake.slash")
+                        Label(habit.isFreezed ? "unfreeze".localized : "freeze".localized, systemImage: habit.isFreezed ? "snowflake" : "snowflake.slash")
                     }
                     
                     Button(role: .destructive) {
                         viewModel.isDeleteAlertPresented = true
                     } label: {
-                        Label("Delete".localized, systemImage: "trash")
+                        Label("delete".localized, systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")

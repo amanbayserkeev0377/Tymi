@@ -34,7 +34,7 @@ struct GoalSectionContent: View {
                         .foregroundStyle(.primary)
                         .frame(width: 24, height: 24)
                     
-                    Text("Daily Goal".localized)
+                    Text("daily_goal".localized)
                         .foregroundStyle(.primary)
                     
                     Spacer()
@@ -58,7 +58,7 @@ struct GoalSectionContent: View {
                             HStack(spacing: 4) {
                                     Image(systemName: "number")
                                         .font(.system(size: 12, weight: selectedType == .count ? .bold : .regular))
-                                    Text("Count".localized)
+                                    Text("count".localized)
                                         .font(.system(size: 12, weight: selectedType == .count ? .bold : .regular))
                                 }
                                 .foregroundStyle(selectedType == .count ? primaryColor : secondaryColor)
@@ -90,7 +90,7 @@ struct GoalSectionContent: View {
                             HStack(spacing: 4) {
                                     Image(systemName: "clock")
                                         .font(.system(size: 12, weight: selectedType == .time ? .bold : .regular))
-                                    Text("Time".localized)
+                                    Text("time".localized)
                                         .font(.system(size: 12, weight: selectedType == .time ? .bold : .regular))
                                 }
                                 .foregroundStyle(selectedType == .time ? primaryColor : secondaryColor)
@@ -119,7 +119,7 @@ struct GoalSectionContent: View {
                 
                 HStack {
                     if selectedType == .count {
-                        TextField("Set your daily goal".localized, text: $countText)
+                        TextField("set_daily_goal".localized, text: $countText)
                             .keyboardType(.numberPad)
                             .tint(.primary)
                             .focused($isFocused)

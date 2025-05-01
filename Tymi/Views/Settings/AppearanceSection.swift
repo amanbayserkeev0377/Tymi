@@ -4,9 +4,9 @@ struct ThemeOption {
     let name: String
     let iconName: String
     
-    static let system = ThemeOption(name: "System".localized, iconName: "iphone")
-    static let light = ThemeOption(name: "Light".localized, iconName: "sun.max")
-    static let dark = ThemeOption(name: "Dark".localized, iconName: "moon")
+    static let system = ThemeOption(name: "system".localized, iconName: "iphone")
+    static let light = ThemeOption(name: "light".localized, iconName: "sun.max")
+    static let dark = ThemeOption(name: "dark".localized, iconName: "moon")
     
     static let allOptions = [system, light, dark]
 }
@@ -20,7 +20,7 @@ struct AppearanceSection: View {
                 .foregroundStyle(.primary)
                 .frame(width: 24, height: 24)
             
-            Text("Appearance".localized)
+            Text("appearance".localized)
                 .foregroundStyle(.primary)
             
             Spacer()

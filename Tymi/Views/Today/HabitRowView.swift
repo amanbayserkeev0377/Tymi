@@ -14,7 +14,7 @@ struct HabitRowView: View {
                 Text(habit.title)
                     .font(.headline)
                 
-                Text("Goal: \(habit.formattedGoal)".localized)
+                Text("goal_format".localized(with: habit.formattedGoal))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

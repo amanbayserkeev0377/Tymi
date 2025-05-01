@@ -53,7 +53,7 @@ struct ActiveDaysSectionContent: View {
                         .foregroundStyle(.primary)
                         .frame(width: 24, height: 24)
                     
-                    Text("Active Days".localized)
+                    Text("active_days".localized)
                         .foregroundStyle(.primary)
                     
                     Spacer()

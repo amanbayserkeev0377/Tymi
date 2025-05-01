@@ -10,7 +10,7 @@ struct StartDateSectionContent: View {
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
                 
-                Text("Start Date".localized)
+                Text("start_date".localized)
                     .foregroundStyle(.primary)
                 
                 Spacer()
@@ -24,8 +24,6 @@ struct StartDateSectionContent: View {
         }
     }
 }
-
-
 
 #Preview {
     @Previewable @State var startDate = Date()

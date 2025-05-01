@@ -178,9 +178,9 @@ struct TodayView: View {
     
     private func formattedNavigationTitle(for date: Date) -> String {
         if isToday(date) {
-            return "Today".localized
+            return "today".localized
         } else if isYesterday(date) {
-            return "Yesterday".localized
+            return "yesterday".localized
         } else {
             return dateFormatter.string(from: date)
         }
