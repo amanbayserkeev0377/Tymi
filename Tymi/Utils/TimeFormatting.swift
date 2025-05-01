@@ -14,7 +14,7 @@ extension Int {
         }
     }
     
-    /// Formats seconds to a string like "1:30" (hours:minutes) for progress ring
+    /// Formats seconds to a string like "5" for minutes or "1:05" for hours
     func formattedAsTimeForRing() -> String {
         let hours = self / 3600
         let minutes = (self % 3600) / 60
@@ -22,7 +22,7 @@ extension Int {
         if hours > 0 {
             return String(format: "%d:%02d", hours, minutes)
         } else {
-            return String(format: "%d:%02d", minutes, 0)
+            return String(format: "%d", minutes)
         }
     }
     
@@ -40,7 +40,7 @@ extension Int {
     
     /// Formats current value and total value to display progress, e.g. "10/20"
     func formattedAsProgress(total: Int) -> String {
-        return "\(self)/\(total)"
+        return "\(self)"
     }
     
     /// Formats current value for progress ring

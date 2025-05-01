@@ -3,6 +3,8 @@ import SwiftData
 
 @main
 struct TymiApp: App {
+    @Environment(\.scenePhase) private var scenePhase
+    
     let container: ModelContainer
     
     init() {
@@ -42,5 +44,17 @@ struct TymiApp: App {
             TodayView()
         }
         .modelContainer(container)
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            switch newPhase {
+            case .background:
+                HabitTimerService.shared.handleAppDidEnterBackground()
+            case .active:
+                HabitTimerService.shared.handleAppWillEnterForeground()
+            case .inactive:
+                break
+            @unknown default:
+                break
+            }
+        }
     }
 }

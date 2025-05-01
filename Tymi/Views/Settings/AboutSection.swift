@@ -93,7 +93,7 @@ struct AboutSettingsView: View {
                             iconName: "ellipsis.message",
                             iconColor: .primary
                         ) {
-                            if let url = URL(string: "mailto:developer@tymi.app") {
+                            if let url = URL(string: "https://t.me/amanbayserkeev0377") {
                                 UIApplication.shared.open(url)
                             }
                         }

@@ -10,11 +10,11 @@ struct HabitRowView: View {
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(habit.title)
                     .font(.headline)
                 
-                Text(habit.formattedProgress(for: date))
+                Text("Goal: \(habit.formattedGoal)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -26,8 +26,10 @@ struct HabitRowView: View {
                 currentValue: habit.formattedProgressValue(for: date),
                 isCompleted: habit.isCompletedForDate(date),
                 isExceeded: habit.isExceededForDate(date),
-                size: 46,
-                lineWidth: 6
+                size: 50,
+                lineWidth: 6.5,
+                fontSize: 13,
+                iconSize: 22
             )
         }
         .padding()

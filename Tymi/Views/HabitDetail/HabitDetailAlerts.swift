@@ -22,9 +22,9 @@ struct HabitDetailAlerts: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .alert("Are you sure you want to reset your progress for today?", isPresented: $isResetAlertPresented) {
-                Button("Cancel", role: .cancel) { }
-                Button("Reset", role: .destructive) {
+            .alert("reset_progress_confirmation".localized, isPresented: $isResetAlertPresented) {
+                Button("cancel".localized, role: .cancel) { }
+                Button("reset".localized, role: .destructive) {
                     onReset()
                 }
             }

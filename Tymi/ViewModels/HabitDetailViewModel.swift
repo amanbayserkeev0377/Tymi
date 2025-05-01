@@ -70,7 +70,8 @@ class HabitDetailViewModel: ObservableObject {
         updateProgressMetrics()
         
         if habit.type == .time {
-            timerService.restoreTimerState(for: habit.id)
+            // Восстанавливаем состояние таймера без haptic feedback
+            isTimerRunning = timerService.isTimerRunning(for: habit.id)
         }
     }
     

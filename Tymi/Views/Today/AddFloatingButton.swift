@@ -10,16 +10,16 @@ struct AddFloatingButton: View {
                 Circle()
                     .fill(
                         colorScheme == .dark
-                        ? Color.white.opacity(0.3)
-                        : Color.black.opacity(0.3)
+                        ? Color.white.opacity(0.4)
+                        : Color.black.opacity(0.4)
                     )
                     .frame(width: 48, height: 48)
                     .overlay(
                         Circle()
                             .stroke(
                                 colorScheme == .dark
-                                ? Color.white.opacity(0.2)
-                                : Color.black.opacity(0.3),
+                                ? Color.white.opacity(0.6)
+                                : Color.black.opacity(0.4),
                                 lineWidth: 0.5
                             )
                     )
@@ -29,7 +29,7 @@ struct AddFloatingButton: View {
                     .fontWeight(.semibold)
                     .foregroundStyle(
                         colorScheme == .dark
-                        ? Color.white.opacity(0.6)
+                        ? Color.black.opacity(0.7)
                         : Color.white.opacity(0.8)
                     )
             }
@@ -38,9 +38,9 @@ struct AddFloatingButton: View {
         .padding(16)
         .shadow(
             color: colorScheme == .dark
-            ? Color.white.opacity(0.4)
-            : Color.black,
-            radius: 10, x: 0, y: 4
+            ? Color.white.opacity(0.6)
+            : Color.black.opacity(0.6),
+            radius: 5, x: 0, y: 4
         )
     }
 }

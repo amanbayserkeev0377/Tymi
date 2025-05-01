@@ -12,7 +12,7 @@ struct LanguageSection: View {
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
                 
-                Text("Language")
+                Text("language".localized)
                     .foregroundStyle(.primary)
                 
                 Spacer()
@@ -23,5 +23,23 @@ struct LanguageSection: View {
             }
         }
         .tint(.primary)
+    }
+}
+
+struct LanguageSection_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack {
+            LanguageSection()
+                .padding()
+                .previewLayout(.sizeThatFits)
+                .environment(\.locale, .init(identifier: "en"))
+                .previewDisplayName("English")
+            
+            LanguageSection()
+                .padding()
+                .previewLayout(.sizeThatFits)
+                .environment(\.locale, .init(identifier: "ru"))
+                .previewDisplayName("Russian")
+        }
     }
 }

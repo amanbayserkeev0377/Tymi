@@ -1,0 +1,601 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "%lld%%" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        }
+      }
+    },
+    "About" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Программа жөнүндө"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "О программе"
+          }
+        }
+      }
+    },
+    "Active (%lld)" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активдүү (%lld)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активно (%lld)"
+          }
+        }
+      }
+    },
+    "Active Days" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активдүү күндөр"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активные дни"
+          }
+        }
+      }
+    },
+    "Add" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кошуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить"
+          }
+        }
+      }
+    },
+    "Add Count" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Санын кошуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить количество"
+          }
+        }
+      }
+    },
+    "Add Time" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убакыт кошуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить время"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сырткы көрүнүш"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешний вид"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жокко чыгаруу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена"
+          }
+        }
+      }
+    },
+    "Count" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сан"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество"
+          }
+        }
+      }
+    },
+    "Create habit" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адат түзүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать привычку"
+          }
+        }
+      }
+    },
+    "Daily Goal" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Күнүмдүк максат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежедневная цель"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жок кылуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бүттү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Готово"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оңдоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Редактировать"
+          }
+        }
+      }
+    },
+    "Edit habit" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адатты оңдоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Редактировать привычку"
+          }
+        }
+      }
+    },
+    "Enter the number of times you completed this habit" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бул адатты канча жолу аткарганыңызды киргизиңиз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите количество раз, когда вы выполнили эту привычку"
+          }
+        }
+      }
+    },
+    "Enter the time you spent on this habit" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бул адатка кеткен убактыңызды киргизиңиз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите время, потраченное на эту привычку"
+          }
+        }
+      }
+    },
+    "Freeze" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоңдуруу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заморозить"
+          }
+        }
+      }
+    },
+    "Freezed (%lld)" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоңдурулган (%lld)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заморожено (%lld)"
+          }
+        }
+      }
+    },
+    "Goal: %@" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Максат: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цель: %@"
+          }
+        }
+      }
+    },
+    "Habit Name" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адаттын аты"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Название привычки"
+          }
+        }
+      }
+    },
+    "Habits" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адаттар"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Привычки"
+          }
+        }
+      }
+    },
+    "Hours" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Саат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Часы"
+          }
+        }
+      }
+    },
+    "Minutes" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мүнөт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Минуты"
+          }
+        }
+      }
+    },
+    "No active habits" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активдүү адаттар жок"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет активных привычек"
+          }
+        }
+      }
+    },
+    "No freezed habits" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоңдурулган адаттар жок"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет замороженных привычек"
+          }
+        }
+      }
+    },
+    "Notifications" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эскертмелер"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления"
+          }
+        }
+      }
+    },
+    "Reminder" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эскертүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Напоминание"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сактоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить"
+          }
+        }
+      }
+    },
+    "Set your daily goal" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Күнүмдүк максатыңызды коюңуз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Установите ежедневную цель"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жөндөөлөр"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
+    "Start Date" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Башталган күн"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дата начала"
+          }
+        }
+      }
+    },
+    "Time" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убакыт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время"
+          }
+        }
+      }
+    },
+    "Today" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бүгүн"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня"
+          }
+        }
+      }
+    },
+    "Unfreeze" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоңдуруудан чыгаруу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разморозить"
+          }
+        }
+      }
+    },
+    "Version %@" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия %@"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

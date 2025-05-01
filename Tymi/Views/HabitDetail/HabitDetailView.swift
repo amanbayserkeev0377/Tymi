@@ -72,7 +72,7 @@ struct HabitDetailView: View {
                 .padding(.top)
                 
                 // Goal header
-                Text("Goal: \(viewModel.formattedGoal)")
+                Text("goal".localized(with: viewModel.formattedGoal))
                     .font(.subheadline)
                     .padding(.bottom, 5)
                 
@@ -109,7 +109,7 @@ struct HabitDetailView: View {
                 Button(action: {
                     viewModel.completeHabit()
                 }) {
-                    Text(viewModel.isAlreadyCompleted ? "Completed" : "Complete")
+                    Text(viewModel.isAlreadyCompleted ? "completed".localized : "complete".localized)
                         .font(.headline)
                         .foregroundStyle(
                             colorScheme == .dark ? .black : .white

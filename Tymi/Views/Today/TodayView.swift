@@ -20,7 +20,9 @@ struct TodayView: View {
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMMM d"
+        formatter.dateStyle = .full
+        formatter.timeStyle = .none
+        
         return formatter
     }()
     
@@ -176,9 +178,9 @@ struct TodayView: View {
     
     private func formattedNavigationTitle(for date: Date) -> String {
         if isToday(date) {
-            return "Today"
+            return "today".localized
         } else if isYesterday(date) {
-            return "Yesterday"
+            return "yesterday".localized
         } else {
             return dateFormatter.string(from: date)
         }

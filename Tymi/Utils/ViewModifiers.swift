@@ -29,13 +29,13 @@ struct DeleteHabitAlertModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .alert("This will permanently delete all data for this habit.", isPresented: $isPresented) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
+            .alert("delete_habit_confirmation".localized, isPresented: $isPresented) {
+                Button("cancel".localized, role: .cancel) { }
+                Button("delete".localized, role: .destructive) {
                     onDelete()
                 }
             } message: {
-                Text("Freeze it instead to keep your progress.")
+                Text("freeze_instead_message".localized)
             }
     }
 }
@@ -47,8 +47,8 @@ struct FreezeHabitAlertModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .alert("You can find your frozen habit in Settings → Habits.", isPresented: $isPresented) {
-                Button("Okay", action: onDismiss)
+            .alert("frozen_habit_info".localized, isPresented: $isPresented) {
+                Button("okay".localized, action: onDismiss)
             }
             .tint(.primary)
     }

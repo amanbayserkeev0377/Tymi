@@ -45,8 +45,8 @@ class NotificationManager: ObservableObject {
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
             
             let content = UNMutableNotificationContent()
-            content.title = "Время для привычки"
-            content.body = "Не забудьте выполнить \(habit.title)"
+            content.title = "habit_time".localized
+            content.body = "dont_forget".localized(with: habit.title)
             content.sound = .default
             
             let request = UNNotificationRequest(

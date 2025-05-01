@@ -131,7 +131,13 @@ final class Habit {
         case .count:
             return "\(goal) times"
         case .time:
-            return goal.formattedAsDuration()
+            let hours = goal / 3600
+            let minutes = (goal % 3600) / 60
+            if hours > 0 {
+                return "\(hours)h \(minutes)m"
+            } else {
+                return "\(minutes)m"
+            }
         }
     }
     

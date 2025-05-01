@@ -13,7 +13,7 @@ struct EmptyStateView: View {
                 .scaledToFit()
                 .frame(width: 120, height: 120)
             
-            Text("Your future self will thank you! Tap '+' to start tracking.")
+            Text("future_self_thank_you".localized)
                 .font(.headline)
                 .fontWeight(.medium)
                 .foregroundStyle(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.8))

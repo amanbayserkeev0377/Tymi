@@ -10,6 +10,7 @@ struct DailyProgressRing: View {
     
     let date: Date
     @Query private var habits: [Habit]
+    var iconSize: CGFloat = 64
     
     // MARK: - Computed Properties
     
@@ -111,11 +112,11 @@ struct DailyProgressRing: View {
             // Текст в центре
             if isCompleted && !isExceeded {
                 Image(systemName: "checkmark")
-                    .font(.system(size: 44, weight: .bold))
+                    .font(.system(size: iconSize, weight: .bold))
                     .foregroundStyle(textColor)
             } else {
                 Text("\(Int(completionPercentage * 100))%")
-                    .font(.system(size: 32, weight: .bold))
+                    .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(textColor)
             }
         }

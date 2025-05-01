@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ProgressRing: View {
     let progress: Double
@@ -7,6 +8,8 @@ struct ProgressRing: View {
     let isExceeded: Bool
     var size: CGFloat = 180
     var lineWidth: CGFloat = 22
+    var fontSize: CGFloat = 36
+    var iconSize: CGFloat = 64
     @Environment(\.colorScheme) var colorScheme
     
     private var ringColors: [Color] {
@@ -52,6 +55,18 @@ struct ProgressRing: View {
         return 0
     }
     
+    private var adjustedFontSize: CGFloat {
+        // Если значение содержит двоеточие (время) и длиннее 5 символов
+        if currentValue.contains(":") && currentValue.count > 5 {
+            return fontSize - 2
+        }
+        // Для маленьких чисел (до 9999) используем больший размер
+        if let number = Int(currentValue), number < 10000 {
+            return fontSize + 8
+        }
+        return fontSize
+    }
+    
     var body: some View {
         ZStack {
             // Фоновый круг
@@ -79,13 +94,15 @@ struct ProgressRing: View {
             // Текст в центре
             if isCompleted && !isExceeded {
                 Image(systemName: "checkmark")
-                    .font(.system(size: size * 0.25, weight: .bold))
+                    .font(.system(size: iconSize, weight: .bold))
                     .foregroundStyle(textColor)
             } else {
                 Text(currentValue)
-                    .font(.system(size: size * 0.18, weight: .bold))
+                    .font(.system(size: adjustedFontSize, weight: .bold))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(textColor)
+                    .minimumScaleFactor(0.8)
+                    .lineLimit(1)
             }
         }
         .frame(width: size, height: size)

@@ -37,15 +37,15 @@ struct NotificationsSection: View {
                     }
                 }
         }
-        .alert("Разрешение на уведомления", isPresented: $isNotificationPermissionAlertPresented) {
-            Button("Отмена", role: .cancel) { }
-            Button("Настройки") {
+        .alert("notification_permission".localized, isPresented: $isNotificationPermissionAlertPresented) {
+            Button("cancel".localized, role: .cancel) { }
+            Button("settings".localized) {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
             }
         } message: {
-            Text("Для работы уведомлений необходимо разрешение. Пожалуйста, включите уведомления в настройках приложения.")
+            Text("permission_for_notifications".localized)
         }
     }
 }
