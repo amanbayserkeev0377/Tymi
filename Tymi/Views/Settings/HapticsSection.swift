@@ -22,9 +22,3 @@ struct HapticsSection: View {
         }
     }
 }
-
-#Preview {
-    HapticsSection()
-        .padding()
-        .previewLayout(.sizeThatFits)
-} 

@@ -50,7 +50,7 @@ struct ProgressControlSection: View {
                 Image(systemName: "plus")
                     .font(.system(size: 30))
                     .tint(.primary)
-                    .frame(width: 48, height: 48)
+                    .frame(width: 44, height: 44)
             }
             .increaseHaptic(trigger: incrementTrigger)
         }

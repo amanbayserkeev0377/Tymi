@@ -21,7 +21,7 @@ struct NotificationsSection: View {
             Toggle("", isOn: $notificationsEnabled)
                 .labelsHidden()
                 .tint(colorScheme == .dark ? Color.gray : .black)
-                .onChange(of: notificationsEnabled) { newValue in
+                .onChange(of: notificationsEnabled) { _, newValue in
                     if newValue {
                         Task {
                             do {

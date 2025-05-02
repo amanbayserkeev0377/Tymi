@@ -13,7 +13,7 @@ enum Weekday: Int, CaseIterable {
         let userDefaults = UserDefaults.standard
         let firstWeekday = userDefaults.integer(forKey: "firstDayOfWeek")
         
-        let effectiveFirstWeekday = firstWeekday > 0 ? firstWeekday : Calendar.current.firstWeekday
+        let effectiveFirstWeekday = firstWeekday == 0 ? Calendar.current.firstWeekday : firstWeekday
         
         let firstWeekdayIndex = effectiveFirstWeekday - 1
         

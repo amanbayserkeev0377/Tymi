@@ -8,79 +8,73 @@ struct SettingsView: View {
     @AppStorage("themeMode") private var themeMode: Int = 0 // 0 - System, 1 - Light, 2 - Dark
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
     
+    private var sectionBackground: some View {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(colorScheme == .dark
+                           ? Color.white.opacity(0.1)
+                           : Color.black.opacity(0.1),
+                           lineWidth: 0.5)
+            )
+            .shadow(radius: 0.5)
+    }
+    
+    private let sectionPadding = EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16)
+    private var divider: some View {
+        Divider().padding(.leading, 48)
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    // Основные настройки
                     VStack(spacing: 0) {
-                        // Appearance
-                        AppearanceSection()
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                        // Habits
+                        HabitsSection()
+                            .padding(sectionPadding)
                         
-                        Divider()
-                            .padding(.leading, 48)
+                        divider
                         
                         // Language
                         LanguageSection()
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                            .padding(sectionPadding)
                         
-                        Divider()
-                            .padding(.leading, 48)
+                        divider
                         
-                        // Habits
-                        HabitsSection()
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                        // Appearance
+                        AppearanceSection()
+                            .padding(sectionPadding)
                         
-                        Divider()
-                            .padding(.leading, 48)
+                        divider
+                        
+                        // Week Start
+                        WeekStartSection()
+                            .padding(sectionPadding)
+                        
+                        divider
                         
                         // Notifications
                         NotificationsSection()
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                            .padding(sectionPadding)
                             
-                        Divider()
-                            .padding(.leading, 48)
+                        divider
                             
                         // Haptics
                         HapticsSection()
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                            .padding(sectionPadding)
                     }
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(colorScheme == .dark
-                                            ? Color.white.opacity(0.1)
-                                            : Color.black.opacity(0.1),
-                                            lineWidth: 0.5)
-                            )
-                            .shadow(radius: 0.5)
-                    )
+                    .background(sectionBackground)
                     .padding(.horizontal)
                     
+                    // About
                     VStack(spacing: 0) {
                         AboutSection()
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                            .padding(sectionPadding)
                     }
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(colorScheme == .dark
-                                            ? Color.white.opacity(0.1)
-                                            : Color.black.opacity(0.1),
-                                            lineWidth: 0.5)
-                            )
-                            .shadow(radius: 0.5)
-                    )
+                    .background(sectionBackground)
                     .padding(.horizontal)
                     
                     Spacer(minLength: 40)
@@ -90,9 +84,9 @@ struct SettingsView: View {
             .navigationTitle("settings".localized)
             .navigationBarTitleDisplayMode(.large)
         }
-        // Применяем выбранную тему
+        // Apply selected colorscheme
         .preferredColorScheme(getPreferredColorScheme())
-        .onChange(of: notificationsEnabled) { newValue in
+        .onChange(of: notificationsEnabled) { _, newValue in
             if !newValue {
                 NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
             }
@@ -100,7 +94,6 @@ struct SettingsView: View {
     }
         
     // MARK: - Helpers
-    // Метод для определения цветовой схемы на основе выбранной темы
     private func getPreferredColorScheme() -> ColorScheme? {
         return ThemeHelper.colorSchemeFromThemeMode(themeMode)
     }

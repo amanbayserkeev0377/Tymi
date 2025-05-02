@@ -9,7 +9,6 @@ struct HabitDetailView: View {
     @StateObject private var viewModel: HabitDetailViewModel
     @State private var isShowingEditSheet = false
     
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
@@ -34,11 +33,15 @@ struct HabitDetailView: View {
             viewModel.modelContext = modelContext
             viewModel.habitsUpdateService = habitsUpdateService
         }()
-        ScrollView {
             VStack(spacing: 20) {
                 // Header with close and menu buttons
                 HStack {
                     
+                    Spacer()
+                    
+                    Text(habit.title)
+                        .font(.title)
+                        .fontWeight(.bold)
                     
                     Spacer()
                     
@@ -63,6 +66,8 @@ struct HabitDetailView: View {
                         .tint(.red)
                     } label: {
                         Image(systemName: "ellipsis.circle")
+                        .font(.system(size: 24))
+                        .frame(width: 44, height: 44)
                     }
                     .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
                 }
@@ -122,35 +127,7 @@ struct HabitDetailView: View {
                 .padding(.bottom)
             }
             .padding()
-        }
-        .navigationTitle(habit.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    Button {
-                        viewModel.isEditSheetPresented = true
-                    } label: {
-                        Label("edit".localized, systemImage: "pencil")
-                    }
-                    
-                    Button {
-                        viewModel.toggleFreeze()
-                    } label: {
-                        Label(habit.isFreezed ? "unfreeze".localized : "freeze".localized, systemImage: habit.isFreezed ? "snowflake" : "snowflake.slash")
-                    }
-                    
-                    Button(role: .destructive) {
-                        viewModel.isDeleteAlertPresented = true
-                    } label: {
-                        Label("delete".localized, systemImage: "trash")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                }
-                .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
-            }
-        }
+        
         .sheet(isPresented: $viewModel.isEditSheetPresented) {
             NewHabitView(habit: habit)
         }

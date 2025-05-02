@@ -51,7 +51,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "О программе"
+            "value" : "О приложении"
           }
         }
       }
@@ -212,7 +212,76 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Внешний вид"
+            "value" : "Оформление"
+          }
+        }
+      }
+    },
+    "appearance_dark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Түнкү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Темное"
+          }
+        }
+      }
+    },
+    "appearance_light" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Күндүзгү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Светлое"
+          }
+        }
+      }
+    },
+    "appearance_system" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Авто"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как в системе"
           }
         }
       }
@@ -374,29 +443,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ежедневная цель"
-          }
-        }
-      }
-    },
-    "dark" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dark"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Түнкү"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тёмная"
           }
         }
       }
@@ -660,19 +706,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habit is frozen. Frozen habits are hidden from daily view."
+            "value" : "You can find your frozen habit in Settings → Habits."
           }
         },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Адат тоңдурулду. Тоңдурулган адаттар күнүмдүк көрүнүштөн жашырылат."
+            "value" : "Жөндөөлөрдө тоңдурулган адаттарды таба аласыз → Адаттар."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Привычка заморожена. Замороженные привычки скрываются из ежедневного представления."
+            "value" : "Вы можете найти замороженные привычки в Настройках → Привычки."
           }
         }
       }
@@ -903,29 +949,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Язык"
-          }
-        }
-      }
-    },
-    "light" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Light"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Күндүзгү"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Светлая"
           }
         }
       }
@@ -1367,29 +1390,6 @@
         }
       }
     },
-    "system" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "System"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Системалык"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Системная"
-          }
-        }
-      }
-    },
     "terms_of_service" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1501,6 +1501,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Разморозить"
+          }
+        }
+      }
+    },
+    "week_start_day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week Start"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жуманын башталышы"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начало недели"
+          }
+        }
+      }
+    },
+    "week_start_system" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тутумдагыдай"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как в системе"
           }
         }
       }

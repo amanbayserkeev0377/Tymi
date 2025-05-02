@@ -4,9 +4,9 @@ struct ThemeOption {
     let name: String
     let iconName: String
     
-    static let system = ThemeOption(name: "system".localized, iconName: "iphone")
-    static let light = ThemeOption(name: "light".localized, iconName: "sun.max")
-    static let dark = ThemeOption(name: "dark".localized, iconName: "moon")
+    static let system = ThemeOption(name: "appearance_system".localized, iconName: "iphone")
+    static let light = ThemeOption(name: "appearance_light".localized, iconName: "sun.max")
+    static let dark = ThemeOption(name: "appearance_dark".localized, iconName: "moon")
     
     static let allOptions = [system, light, dark]
 }
