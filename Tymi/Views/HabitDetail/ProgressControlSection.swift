@@ -9,7 +9,6 @@ struct ProgressControlSection: View {
     var onIncrement: () -> Void
     var onDecrement: () -> Void
     
-    @State private var progressValue: Int = 0
     @State private var incrementTrigger: Bool = false
     @State private var decrementTrigger: Bool = false
     
@@ -25,16 +24,15 @@ struct ProgressControlSection: View {
         HStack(spacing: 40) {
             // minus
             Button(action: {
-                progressValue -= 1
-                onDecrement()
                 decrementTrigger.toggle()
+                onDecrement()
             }) {
                 Image(systemName: "minus")
                     .font(.system(size: 30))
                     .tint(.primary)
                     .frame(width: 44, height: 44)
             }
-            .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: decrementTrigger))
+            .decreaseHaptic(trigger: decrementTrigger)
             
             // Progress Ring
             ProgressRing(
@@ -46,21 +44,17 @@ struct ProgressControlSection: View {
             
             // plus
             Button(action: {
-                progressValue += 1
-                onIncrement()
                 incrementTrigger.toggle()
+                onIncrement()
             }) {
                 Image(systemName: "plus")
                     .font(.system(size: 30))
                     .tint(.primary)
                     .frame(width: 48, height: 48)
             }
-            .modifier(HapticManager.shared.sensoryFeedback(.increase, trigger: incrementTrigger))
+            .increaseHaptic(trigger: incrementTrigger)
         }
         .padding()
-        .onAppear {
-            progressValue = currentProgress
-        }
     }
 }
 

@@ -38,12 +38,7 @@ struct HabitDetailView: View {
             VStack(spacing: 20) {
                 // Header with close and menu buttons
                 HStack {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 20))
-                            .foregroundStyle(.primary)
-                    }
-                    .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
+                    
                     
                     Spacer()
                     
@@ -180,6 +175,16 @@ struct HabitDetailView: View {
         }
         .onDisappear {
             viewModel.saveProgress()
+        }
+        .onChange(of: viewModel.successFeedbackTrigger) { _, newValue in
+            if newValue {
+                HapticManager.shared.play(.success)
+            }
+        }
+        .onChange(of: viewModel.errorFeedbackTrigger) { _, newValue in
+            if newValue {
+                HapticManager.shared.play(.error)
+            }
         }
     }
 }
