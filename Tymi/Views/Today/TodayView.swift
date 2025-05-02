@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct TodayView: View {
-    //MARK: - Properties
+    // MARK: - Properties
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
@@ -20,11 +20,29 @@ struct TodayView: View {
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .full
-        formatter.timeStyle = .none
-        
+        formatter.setLocalizedDateFormatFromTemplate("EEEE d MMM")
         return formatter
     }()
+    
+    func formattedDate(_ date: Date) -> String {
+        
+        let weekdayFormatter = DateFormatter()
+        weekdayFormatter.dateFormat = "EEEE"
+        weekdayFormatter.locale = dateFormatter.locale
+        let weekday = weekdayFormatter.string(from: date).prefix(1).uppercased() + weekdayFormatter.string(from: date).dropFirst().lowercased()
+        
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "d"
+        dayFormatter.locale = dateFormatter.locale
+        let day = dayFormatter.string(from: date)
+        
+        let monthFormatter = DateFormatter()
+        monthFormatter.dateFormat = "MMM"
+        monthFormatter.locale = dateFormatter.locale
+        let month = monthFormatter.string(from: date).prefix(1).uppercased() + monthFormatter.string(from: date).dropFirst().lowercased()
+        
+        return "\(weekday), \(day) \(month)"
+    }
     
     // MARK: - Body
     
@@ -182,7 +200,7 @@ struct TodayView: View {
         } else if isYesterday(date) {
             return "yesterday".localized
         } else {
-            return dateFormatter.string(from: date)
+            return formattedDate(date)
         }
     }
 }

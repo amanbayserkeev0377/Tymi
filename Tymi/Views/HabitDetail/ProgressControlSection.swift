@@ -10,6 +10,8 @@ struct ProgressControlSection: View {
     var onDecrement: () -> Void
     
     @State private var progressValue: Int = 0
+    @State private var incrementTrigger: Bool = false
+    @State private var decrementTrigger: Bool = false
     
     private var isCompleted: Bool {
         completionPercentage >= 1.0
@@ -25,13 +27,14 @@ struct ProgressControlSection: View {
             Button(action: {
                 progressValue -= 1
                 onDecrement()
+                decrementTrigger.toggle()
             }) {
                 Image(systemName: "minus")
                     .font(.system(size: 30))
                     .tint(.primary)
                     .frame(width: 44, height: 44)
             }
-            .sensoryFeedback(.decrease, trigger: progressValue)
+            .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: decrementTrigger))
             
             // Progress Ring
             ProgressRing(
@@ -45,20 +48,18 @@ struct ProgressControlSection: View {
             Button(action: {
                 progressValue += 1
                 onIncrement()
+                incrementTrigger.toggle()
             }) {
                 Image(systemName: "plus")
                     .font(.system(size: 30))
                     .tint(.primary)
                     .frame(width: 48, height: 48)
             }
-            .sensoryFeedback(.increase, trigger: progressValue)
+            .modifier(HapticManager.shared.sensoryFeedback(.increase, trigger: incrementTrigger))
         }
         .padding()
         .onAppear {
             progressValue = currentProgress
-        }
-        .onChange(of: currentProgress) { oldValue, newValue in
-            progressValue = newValue
         }
     }
 }

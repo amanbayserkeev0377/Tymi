@@ -41,6 +41,14 @@ struct SettingsView: View {
                         NotificationsSection()
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
+                            
+                        Divider()
+                            .padding(.leading, 48)
+                            
+                        // Haptics
+                        HapticsSection()
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
                     }
                     .background(
                         RoundedRectangle(cornerRadius: 12)

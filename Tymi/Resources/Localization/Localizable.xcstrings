@@ -45,7 +45,7 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Программа жөнүндө"
+            "value" : "Тиркеме жөнүндө"
           }
         },
         "ru" : {
@@ -390,7 +390,7 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Караңгы"
+            "value" : "Түнкү"
           }
         },
         "ru" : {
@@ -505,7 +505,7 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оңдоо"
+            "value" : "Түзөтүү"
           }
         },
         "ru" : {
@@ -815,6 +815,29 @@
         }
       }
     },
+    "haptics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptics"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вибрациялуу жооп"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виброотклик"
+          }
+        }
+      }
+    },
     "hours" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -896,7 +919,7 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Жарык"
+            "value" : "Күндүзгү"
           }
         },
         "ru" : {

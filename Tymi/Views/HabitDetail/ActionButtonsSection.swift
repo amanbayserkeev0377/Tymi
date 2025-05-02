@@ -23,7 +23,7 @@ struct ActionButtonsSection: View {
                     .font(.system(size: 24))
                     .tint(.primary)
             }
-            .sensoryFeedback(.impact(weight: .medium), trigger: resetPressed)
+            .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: resetPressed))
             
             // Timer/Toggle button
             Button(action: {
@@ -40,7 +40,7 @@ struct ActionButtonsSection: View {
                         .tint(.primary)
                 }
             }
-            .sensoryFeedback(.impact(weight: .medium), trigger: togglePressed)
+            .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: togglePressed))
             
             // Manual entry button (only for Time habits)
             if habit.type == .time {
@@ -52,7 +52,7 @@ struct ActionButtonsSection: View {
                         .font(.system(size: 24))
                         .tint(.primary)
                 }
-                .sensoryFeedback(.impact(weight: .medium), trigger: manualEntryPressed)
+                .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: manualEntryPressed))
             }
         }
         .padding(.bottom, 40)

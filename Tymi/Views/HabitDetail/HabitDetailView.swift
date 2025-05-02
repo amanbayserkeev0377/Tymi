@@ -43,6 +43,7 @@ struct HabitDetailView: View {
                             .font(.system(size: 20))
                             .foregroundStyle(.primary)
                     }
+                    .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
                     
                     Spacer()
                     
@@ -68,6 +69,7 @@ struct HabitDetailView: View {
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
+                    .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
                 }
                 .padding(.top)
                 
@@ -120,6 +122,7 @@ struct HabitDetailView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .disabled(viewModel.isAlreadyCompleted)
+                .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: !viewModel.isAlreadyCompleted))
                 .padding(.horizontal)
                 .padding(.bottom)
             }
@@ -150,6 +153,7 @@ struct HabitDetailView: View {
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
+                .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
             }
         }
         .sheet(isPresented: $viewModel.isEditSheetPresented) {

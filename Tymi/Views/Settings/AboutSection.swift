@@ -118,7 +118,7 @@ struct AboutSettingsView: View {
                         // Terms of Service
                         AboutRow(
                             title: "terms_of_service".localized,
-                            iconName: "text.page",
+                            iconName: "text.document",
                             iconColor: .primary
                         ) {
                             if let url = URL(string: "https://tymi.app/terms") {
@@ -132,7 +132,7 @@ struct AboutSettingsView: View {
                         // Privacy Policy
                         AboutRow(
                             title: "privacy_policy".localized,
-                            iconName: "text.document",
+                            iconName: "lock",
                             iconColor: .primary
                         ) {
                             if let url = URL(string: "https://tymi.app/privacy") {
