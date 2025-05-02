@@ -32,18 +32,8 @@ struct DailyProgressRing: View {
         activeHabitsForDate.allSatisfy { $0.isCompletedForDate(date) }
     }
     
-    private var isExceeded: Bool {
-        activeHabitsForDate.allSatisfy { $0.isExceededForDate(date) }
-    }
-    
     private var ringColors: [Color] {
-        if isExceeded {
-            return [
-                Color(#colorLiteral(red: 0.2588235294, green: 0.3921568627, blue: 1, alpha: 1)),
-                Color(#colorLiteral(red: 0.9222695707, green: 0.1548486791, blue: 0.2049736653, alpha: 1)),
-                Color(#colorLiteral(red: 0.2588235294, green: 0.3921568627, blue: 1, alpha: 1))
-            ]
-        } else if isCompleted {
+        if isCompleted {
             return [
                 Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1)),
                 Color(#colorLiteral(red: 0.1803921569, green: 0.5450980392, blue: 0.3411764706, alpha: 1)),
@@ -63,24 +53,13 @@ struct DailyProgressRing: View {
     }
     
     private var textColor: Color {
-        if isExceeded {
-            return colorScheme == .dark ?
-            Color(#colorLiteral(red: 1, green: 0.3806057187, blue: 0.1013509959, alpha: 1)) :
-            Color(#colorLiteral(red: 0.7450980544, green: 0.1568627506, blue: 0.07450980693, alpha: 1))
-        } else if isCompleted {
+        if isCompleted {
             return colorScheme == .dark ?
             Color(#colorLiteral(red: 0.8196078431, green: 1, blue: 0.8352941176, alpha: 1)) :
             Color(#colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1))
         } else {
             return .primary
         }
-    }
-    
-    private var rotationAngle: Double {
-        if isExceeded {
-            return (completionPercentage - 1.0) * 360
-        }
-        return 0
     }
     
     // MARK: - Body
@@ -93,7 +72,7 @@ struct DailyProgressRing: View {
             
             // Кольцо прогресса
             Circle()
-                .trim(from: 0, to: isExceeded ? 1 : completionPercentage)
+                .trim(from: 0, to: completionPercentage)
                 .stroke(
                     AngularGradient(
                         colors: ringColors,
@@ -107,10 +86,9 @@ struct DailyProgressRing: View {
                     )
                 )
                 .rotationEffect(.degrees(-90))
-                .rotationEffect(.degrees(rotationAngle))
             
             // Текст в центре
-            if isCompleted && !isExceeded {
+            if isCompleted {
                 Image(systemName: "checkmark")
                     .font(.system(size: iconSize, weight: .bold))
                     .foregroundStyle(textColor)
