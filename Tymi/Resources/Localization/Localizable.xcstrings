@@ -275,13 +275,36 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Авто"
+            "value" : "Тутумдагыдай"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Как в системе"
+          }
+        }
+      }
+    },
+    "best_streak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эң мыкты"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рекорд"
           }
         }
       }
@@ -420,6 +443,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Создать привычку"
+          }
+        }
+      }
+    },
+    "current_streak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streak"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тизмек"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подряд"
           }
         }
       }
@@ -1478,6 +1524,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сегодня"
+          }
+        }
+      }
+    },
+    "total_completions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жалпы"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всего"
           }
         }
       }

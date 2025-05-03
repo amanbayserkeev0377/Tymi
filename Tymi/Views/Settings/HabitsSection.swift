@@ -253,6 +253,7 @@ struct HabitSettingsRow: View {
                     .tint(.red)
                 } label: {
                     Image(systemName: "ellipsis")
+                        .frame(width: 36, height: 36)
                 }
             }
         }

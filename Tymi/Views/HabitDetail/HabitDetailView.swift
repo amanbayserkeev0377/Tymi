@@ -65,9 +65,13 @@ struct HabitDetailView: View {
                         }
                         .tint(.red)
                     } label: {
-                        Image(systemName: "ellipsis.circle")
-                        .font(.system(size: 24))
-                        .frame(width: 44, height: 44)
+                        Image(systemName: "ellipsis")
+                        .font(.system(size: 16))
+                        .frame(width: 26, height: 26)
+                        .background(
+                            Circle()
+                                .fill(colorScheme == .dark ? Color.gray.opacity(0.1) : Color.gray.opacity(0.1))
+                        )
                     }
                     .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
                 }
@@ -77,6 +81,13 @@ struct HabitDetailView: View {
                 Text("goal".localized(with: viewModel.formattedGoal))
                     .font(.subheadline)
                     .padding(.bottom, 5)
+                
+                // Statistics section
+                StatisticsSection(
+                    currentStreak: viewModel.currentStreak,
+                    bestStreak: viewModel.bestStreak,
+                    totalCompletions: viewModel.totalCompletions
+                )
                 
                 // Progress controls
                 ProgressControlSection(

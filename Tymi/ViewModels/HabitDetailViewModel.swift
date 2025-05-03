@@ -10,6 +10,7 @@ class HabitDetailViewModel: ObservableObject {
     var modelContext: ModelContext
     var habitsUpdateService: HabitsUpdateService
     let timerService: HabitTimerService
+    private let statsManager: StatsManager
     
     // MARK: - Published Properties
     @Published private(set) var currentProgress: Int = 0
@@ -17,6 +18,11 @@ class HabitDetailViewModel: ObservableObject {
     @Published private(set) var formattedProgress: String = ""
     @Published private(set) var isTimerRunning: Bool = false
     @Published var isEditSheetPresented = false
+    
+    // MARK: - Statistics Properties
+    @Published private(set) var currentStreak: Int = 0
+    @Published private(set) var bestStreak: Int = 0
+    @Published private(set) var totalCompletions: Int = 0
     
     // MARK: - Alert States
     @Published var isResetAlertPresented = false
@@ -59,9 +65,11 @@ class HabitDetailViewModel: ObservableObject {
         self.modelContext = modelContext
         self.timerService = timerService
         self.habitsUpdateService = habitsUpdateService
+        self.statsManager = StatsManager(modelContext: modelContext)
         
         setupInitialState()
         setupSubscriptions()
+        updateStatistics()
     }
     
     // MARK: - Setup
@@ -200,6 +208,9 @@ class HabitDetailViewModel: ObservableObject {
         // Используем новый метод для сохранения
         timerService.persistCompletions(for: habit.id, in: modelContext, date: date)
         
+        // Обновляем статистику
+        updateStatistics()
+        
         // Обновляем UI
         habitsUpdateService.triggerUpdate()
     }
@@ -238,9 +249,17 @@ class HabitDetailViewModel: ObservableObject {
                     try await NotificationManager.shared.requestAuthorization()
                     NotificationManager.shared.scheduleNotifications(for: habit)
                 } catch {
-                    print("Ошибка при обновлении уведомлений: \(error)")
+                    print("Error when updating notifications: \(error)")
                 }
             }
         }
+    }
+    
+    // MARK: - Statistics Management
+    private func updateStatistics() {
+        let stats = statsManager.calculateStats(for: habit, upTo: date)
+        currentStreak = stats.currentStreak
+        bestStreak = stats.bestStreak
+        totalCompletions = stats.totalCompletions
     }
 } 
