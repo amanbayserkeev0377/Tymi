@@ -129,7 +129,13 @@ struct HabitDetailView: View {
                         )
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(viewModel.isAlreadyCompleted ? Color.gray.opacity(0.2) : Color.primary)
+                        .background(
+                            viewModel.isAlreadyCompleted
+                            ? Color.gray
+                            : (colorScheme == .dark
+                               ? Color.white.opacity(0.7)
+                               : Color.black)
+                        )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .disabled(viewModel.isAlreadyCompleted)

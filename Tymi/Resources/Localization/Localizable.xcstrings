@@ -17,6 +17,22 @@
         }
       }
     },
+    "%lld" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
     "%lld%%" : {
       "localizations" : {
         "ky-KG" : {
@@ -1091,6 +1107,23 @@
         }
       }
     },
+    "no_habits_for_date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No habits for this day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Нет привычек на этот день"
+          }
+        }
+      }
+    },
     "notification_permission" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1547,6 +1580,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Всего"
+          }
+        }
+      }
+    },
+    "try_different_date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try selecting a different date or add a new habit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Попробуйте выбрать другую дату или добавить новую привычку"
+          }
+        }
+      }
+    },
+    "try_selecting_today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No habits for this date. Try selecting today or add a new habit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Нет привычек на эту дату. Попробуйте выбрать сегодня или добавить новую привычку"
           }
         }
       }

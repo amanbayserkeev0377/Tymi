@@ -101,6 +101,10 @@ final class Habit {
     
     // Check if habit is active on specific date
     func isActiveOnDate(_ date: Date) -> Bool {
+        if date < startDate {
+            return false
+        }
+        
         let weekday = Weekday.from(date: date)
         return isActive(on: weekday)
     }

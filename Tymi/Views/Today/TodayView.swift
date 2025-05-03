@@ -24,22 +24,22 @@ struct TodayView: View {
         return formatter
     }()
     
+    // Активные привычки для выбранной даты
+    private var activeHabitsForDate: [Habit] {
+        habits.filter { $0.isActiveOnDate(selectedDate) && selectedDate >= $0.startDate }
+    }
+    
+    // Имеются ли привычки для выбранной даты
+    private var hasHabitsForDate: Bool {
+        return !activeHabitsForDate.isEmpty
+    }
+    
     func formattedDate(_ date: Date) -> String {
-        
-        let weekdayFormatter = DateFormatter()
-        weekdayFormatter.dateFormat = "EEEE"
-        weekdayFormatter.locale = dateFormatter.locale
-        let weekday = weekdayFormatter.string(from: date).prefix(1).uppercased() + weekdayFormatter.string(from: date).dropFirst().lowercased()
-        
-        let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "d"
-        dayFormatter.locale = dateFormatter.locale
-        let day = dayFormatter.string(from: date)
-        
-        let monthFormatter = DateFormatter()
-        monthFormatter.dateFormat = "MMM"
-        monthFormatter.locale = dateFormatter.locale
-        let month = monthFormatter.string(from: date).prefix(1).uppercased() + monthFormatter.string(from: date).dropFirst().lowercased()
+        let weekday = DateFormatter.weekday.string(from: date).prefix(1).uppercased()
+                      + DateFormatter.weekday.string(from: date).dropFirst().lowercased()
+        let day = DateFormatter.dayOfMonth.string(from: date)
+        let month = DateFormatter.shortMonth.string(from: date).prefix(1).uppercased()
+                    + DateFormatter.shortMonth.string(from: date).dropFirst().lowercased()
         
         return "\(weekday), \(day) \(month)"
     }
@@ -51,135 +51,153 @@ struct TodayView: View {
             ZStack {
                 TodayViewBackground()
                 
-                ScrollView {
-                    VStack(spacing: 0) {
-                        if habits.isEmpty {
-                            EmptyStateView()
-                        } else {
-                            DailyProgressRing(date: selectedDate)
-                                .environmentObject(habitsUpdateService)
-                                .padding(.top, 16)
-                            
-                            Spacer()
-                            
-                            // Список привычек
-                            VStack(spacing: 12) {
-                                ForEach(habits) { habit in
-                                    if habit.isActiveOnDate(selectedDate) {
-                                        HabitRowView(
-                                            habit: habit,
-                                            date: selectedDate,
-                                            onTap: {
-                                                selectedHabit = habit
-                                            }
-                                        )
+                VStack {
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            if habits.isEmpty {
+                                // Нет привычек вообще
+                                EmptyStateView()
+                            } else {
+                                // Кольцо прогресса отображается всегда
+                                DailyProgressRing(date: selectedDate)
+                                    .environmentObject(habitsUpdateService)
+                                    .padding(.top, 16)
+                                
+                                // Список привычек для выбранной даты
+                                if hasHabitsForDate {
+                                    VStack(spacing: 12) {
+                                        ForEach(activeHabitsForDate) { habit in
+                                            HabitRowView(
+                                                habit: habit,
+                                                date: selectedDate,
+                                                onTap: {
+                                                    selectedHabit = habit
+                                                }
+                                            )
+                                        }
+                                    }
+                                    .padding(.top, 12)
+                                } else {
+                                    // Специальное сообщение, если нет привычек на выбранную дату
+                                    // но при этом привычки в целом существуют
+                                    if !Calendar.current.isDateInToday(selectedDate) {
+                                        Text("try_selecting_today".localized)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                            .multilineTextAlignment(.center)
+                                            .padding(.top, 20)
                                     }
                                 }
+                                
+                                // Добавляем пространство внизу для кнопки добавления
+                                Spacer(minLength: 100)
                             }
-                            .padding(.top, 12)
-                            .padding(.bottom, 80) // Место для кнопки добавления
                         }
                     }
                 }
                 
-                // AddFloatingButton
-                .overlay(alignment: .bottomTrailing) {
-                    AddFloatingButton(action: { isShowingNewHabitSheet = true })
-                }
-                .navigationTitle(formattedNavigationTitle(for: selectedDate))
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button(action: {
-                            isShowingSettingsSheet = true
-                        }) {
-                            Image(systemName: "gearshape")
-                        }
-                        .tint(.primary)
-                    }
+                // AddFloatingButton - всегда в том же месте
+                VStack {
+                    Spacer()
                     
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: {
-                            isShowingCalendarSheet = true
-                        }) {
-                            Image(systemName: "calendar")
-                        }
-                        .tint(.primary)
+                    HStack {
+                        Spacer()
+                        AddFloatingButton(action: { isShowingNewHabitSheet = true })
                     }
                 }
-                .sheet(isPresented: $isShowingNewHabitSheet) {
-                    NewHabitView()
-                        .presentationBackground {
-                            ZStack {
-                                Rectangle().fill(.ultraThinMaterial)
-                                if colorScheme != .dark {
-                                    Color.white.opacity(0.6)
-                                }
-                            }
-                        }
-                }
-                .sheet(isPresented: $isShowingCalendarSheet) {
-                    CalendarView(selectedDate: $selectedDate)
-                        .presentationDetents([.fraction(0.7)])
-                        .presentationDragIndicator(.visible)
-                        .presentationCornerRadius(40)
-                        .presentationBackground {
-                            let cornerRadius: CGFloat = 40
-                            ZStack {
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .fill(.ultraThinMaterial)
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .stroke(
-                                        colorScheme == .dark
-                                        ? Color.white.opacity(0.1)
-                                        : Color.black.opacity(0.15),
-                                        lineWidth: 1.5
-                                    )
-                            }
-                        }
+                .padding(.bottom, 20)
+            }
+            .navigationTitle(formattedNavigationTitle(for: selectedDate))
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: {
+                        isShowingSettingsSheet = true
+                    }) {
+                        Image(systemName: "gearshape")
+                    }
+                    .tint(.primary)
                 }
                 
-                .sheet(isPresented: $isShowingSettingsSheet) {
-                    SettingsView()
-                        .presentationDetents([.fraction(0.8)])
-                        .presentationDragIndicator(.visible)
-                        .presentationCornerRadius(40)
-                        .presentationBackground {
-                            let cornerRadius: CGFloat = 40
-                            ZStack {
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .fill(.ultraThinMaterial)
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .stroke(
-                                        colorScheme == .dark
-                                        ? Color.white.opacity(0.1)
-                                        : Color.black.opacity(0.15),
-                                        lineWidth: 1.5
-                                    )
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        isShowingCalendarSheet = true
+                    }) {
+                        Image(systemName: "calendar")
+                    }
+                    .tint(.primary)
+                }
+            }
+            .sheet(isPresented: $isShowingNewHabitSheet) {
+                NewHabitView()
+                    .presentationBackground {
+                        ZStack {
+                            Rectangle().fill(.ultraThinMaterial)
+                            if colorScheme != .dark {
+                                Color.white.opacity(0.6)
                             }
                         }
-                }
-                
-                .sheet(item: $selectedHabit) { habit in
-                    HabitDetailView(habit: habit, date: selectedDate)
-                        .environmentObject(habitsUpdateService)
-                        .presentationDetents([.fraction(0.8)])
-                        .presentationDragIndicator(.visible)
-                        .presentationCornerRadius(40)
-                        .presentationBackground {
-                            let cornerRadius: CGFloat = 40
-                            ZStack {
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .fill(.ultraThinMaterial)
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .stroke(
-                                        colorScheme == .dark
-                                        ? Color.white.opacity(0.1)
-                                        : Color.black.opacity(0.15),
-                                        lineWidth: 1.5
-                                    )
-                            }
+                    }
+            }
+            .sheet(isPresented: $isShowingCalendarSheet) {
+                CalendarView(selectedDate: $selectedDate)
+                    .presentationDetents([.fraction(0.7)])
+                    .presentationDragIndicator(.visible)
+                    .presentationCornerRadius(40)
+                    .presentationBackground {
+                        let cornerRadius: CGFloat = 40
+                        ZStack {
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .fill(.ultraThinMaterial)
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .stroke(
+                                    colorScheme == .dark
+                                    ? Color.white.opacity(0.1)
+                                    : Color.black.opacity(0.15),
+                                    lineWidth: 1.5
+                                )
                         }
-                }
+                    }
+            }
+            .sheet(isPresented: $isShowingSettingsSheet) {
+                SettingsView()
+                    .presentationDetents([.fraction(0.8)])
+                    .presentationDragIndicator(.visible)
+                    .presentationCornerRadius(40)
+                    .presentationBackground {
+                        let cornerRadius: CGFloat = 40
+                        ZStack {
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .fill(.ultraThinMaterial)
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .stroke(
+                                    colorScheme == .dark
+                                    ? Color.white.opacity(0.1)
+                                    : Color.black.opacity(0.15),
+                                    lineWidth: 1.5
+                                )
+                        }
+                    }
+            }
+            .sheet(item: $selectedHabit) { habit in
+                HabitDetailView(habit: habit, date: selectedDate)
+                    .environmentObject(habitsUpdateService)
+                    .presentationDetents([.fraction(0.8)])
+                    .presentationDragIndicator(.visible)
+                    .presentationCornerRadius(40)
+                    .presentationBackground {
+                        let cornerRadius: CGFloat = 40
+                        ZStack {
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .fill(.ultraThinMaterial)
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .stroke(
+                                    colorScheme == .dark
+                                    ? Color.white.opacity(0.1)
+                                    : Color.black.opacity(0.15),
+                                    lineWidth: 1.5
+                                )
+                        }
+                    }
             }
         }
     }

@@ -15,7 +15,7 @@ struct DailyProgressRing: View {
     // MARK: - Computed Properties
     
     private var activeHabitsForDate: [Habit] {
-        habits.filter { !$0.isFreezed && $0.isActiveOnDate(date) }
+        habits.filter { !$0.isFreezed && $0.isActiveOnDate(date) && date >= $0.startDate }
     }
     
     private var completionPercentage: Double {
@@ -29,7 +29,7 @@ struct DailyProgressRing: View {
     }
     
     private var isCompleted: Bool {
-        activeHabitsForDate.allSatisfy { $0.isCompletedForDate(date) }
+        activeHabitsForDate.allSatisfy { $0.isCompletedForDate(date) } && !activeHabitsForDate.isEmpty
     }
     
     private var ringColors: [Color] {
@@ -62,44 +62,75 @@ struct DailyProgressRing: View {
         }
     }
     
+    // Проверка наличия привычек для выбранной даты
+    private var hasHabitsForDate: Bool {
+        return !activeHabitsForDate.isEmpty
+    }
+    
     // MARK: - Body
     
     var body: some View {
-        ZStack {
-            // Фоновый круг
-            Circle()
-                .stroke(Color.secondary.opacity(0.1), lineWidth: 22)
-            
-            // Кольцо прогресса
-            Circle()
-                .trim(from: 0, to: completionPercentage)
-                .stroke(
-                    AngularGradient(
-                        colors: ringColors,
-                        center: .center,
-                        startAngle: .degrees(0),
-                        endAngle: .degrees(360)
-                    ),
-                    style: StrokeStyle(
-                        lineWidth: 22,
-                        lineCap: .round
-                    )
-                )
-                .rotationEffect(.degrees(-90))
-            
-            // Текст в центре
-            if isCompleted {
-                Image(systemName: "checkmark")
-                    .font(.system(size: iconSize, weight: .bold))
-                    .foregroundStyle(textColor)
+        VStack(spacing: 24) {
+            if hasHabitsForDate {
+                // Показываем кольцо прогресса, если есть привычки для этого дня
+                ZStack {
+                    // Фоновый круг
+                    Circle()
+                        .stroke(Color.secondary.opacity(0.1), lineWidth: 22)
+                    
+                    // Кольцо прогресса
+                    Circle()
+                        .trim(from: 0, to: completionPercentage)
+                        .stroke(
+                            AngularGradient(
+                                colors: ringColors,
+                                center: .center,
+                                startAngle: .degrees(0),
+                                endAngle: .degrees(360)
+                            ),
+                            style: StrokeStyle(
+                                lineWidth: 22,
+                                lineCap: .round
+                            )
+                        )
+                        .rotationEffect(.degrees(-90))
+                    
+                    // Текст в центре
+                    if isCompleted {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: iconSize, weight: .bold))
+                            .foregroundStyle(textColor)
+                    } else {
+                        Text("\(Int(completionPercentage * 100))%")
+                            .font(.system(size: 44, weight: .bold))
+                            .foregroundStyle(textColor)
+                    }
+                }
+                .frame(width: 180, height: 180)
+                .animation(.easeInOut(duration: 0.3), value: completionPercentage)
             } else {
-                Text("\(Int(completionPercentage * 100))%")
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(textColor)
+                // Сообщение, когда нет активных привычек
+                VStack(spacing: 12) {
+                    Image(systemName: "calendar.badge.exclamationmark")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.secondary)
+                    
+                    Text("no_habits_for_date".localized)
+                        .font(.title3)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("try_different_date".localized)
+                        .font(.subheadline)
+                        .foregroundStyle(.tertiary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                }
+                .frame(height: 180)
+                .padding(.horizontal, 20)
             }
         }
-        .frame(width: 180, height: 180)
-        .animation(.easeInOut(duration: 0.3), value: completionPercentage)
         .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
             // Обновление не требуется, так как @Query автоматически обновит данные
         }

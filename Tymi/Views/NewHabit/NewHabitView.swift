@@ -6,6 +6,7 @@ struct NewHabitView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     // MARK: - Properties
     private let habit: Habit?
@@ -55,84 +56,94 @@ struct NewHabitView: View {
         }
     }
     
+    // Получаем адаптивные отступы в зависимости от размера экрана
+    private var adaptiveHorizontalPadding: CGFloat {
+        horizontalSizeClass == .compact ? 16 : 20
+    }
+    
+    // Максимальная ширина содержимого для лучшей читаемости на больших экранах
+    private var contentMaxWidth: CGFloat {
+        horizontalSizeClass == .compact ? UIScreen.main.bounds.width - 32 : 600
+    }
+    
     // MARK: - Body
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Name
-                    VStack {
-                        NameFieldSectionContent(title: $title, isFocused: $isNameFieldFocused)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                    }
-                    .background(sectionBackground)
-                    .padding(.horizontal)
-                    
-                    // Goal
-                    VStack {
-                        GoalSectionContent(
-                            selectedType: $selectedType,
-                            countGoal: $countGoal,
-                            hours: $hours,
-                            minutes: $minutes
-                        )
-                        .focused($isCountFieldFocused)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                    }
-                    .background(sectionBackground)
-                    .padding(.horizontal)
-                    
-                    VStack(spacing: 0) {
-                        // StartDate
-                        StartDateSectionContent(startDate: $startDate)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                    // Центрируем и ограничиваем ширину содержимого
+                    VStack(spacing: 16) {
+                        // Name
+                        VStack {
+                            NameFieldSectionContent(title: $title, isFocused: $isNameFieldFocused)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                        }
+                        .background(sectionBackground)
                         
-                        Divider()
-                            .padding(.leading, 48)
-                        
-                        // Reminder
-                        ReminderSectionContent(
-                            isReminderEnabled: $isReminderEnabled,
-                            reminderTime: $reminderTime
-                        )
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                    }
-                    .background(sectionBackground)
-                    .padding(.horizontal)
-                    
-                    // ActiveDays
-                    VStack {
-                        ActiveDaysSectionContent(activeDays: $activeDays)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                    }
-                    .background(sectionBackground)
-                    .padding(.horizontal)
-                    
-                    // Save Button
-                    Button(action: {
-                        saveHabit()
-                    }) {
-                        Text("save".localized)
-                            .font(.headline)
-                            .foregroundStyle(
-                                colorScheme == .dark ? .black : .white
+                        // Goal
+                        VStack {
+                            GoalSectionContent(
+                                selectedType: $selectedType,
+                                countGoal: $countGoal,
+                                hours: $hours,
+                                minutes: $minutes
                             )
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(isFormValid ? Color.primary : Color.gray)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .focused($isCountFieldFocused)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                        }
+                        .background(sectionBackground)
+                        
+                        VStack(spacing: 0) {
+                            // StartDate
+                            StartDateSectionContent(startDate: $startDate)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                            
+                            Divider()
+                                .padding(.leading, 48)
+                            
+                            // Reminder
+                            ReminderSectionContent(
+                                isReminderEnabled: $isReminderEnabled,
+                                reminderTime: $reminderTime
+                            )
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                        }
+                        .background(sectionBackground)
+                        
+                        // ActiveDays
+                        VStack {
+                            ActiveDaysSectionContent(activeDays: $activeDays)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                        }
+                        .background(sectionBackground)
+                        
+                        // Save Button
+                        Button(action: {
+                            saveHabit()
+                        }) {
+                            Text("save".localized)
+                                .font(.headline)
+                                .foregroundStyle(
+                                    colorScheme == .dark ? .black : .white
+                                )
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(isFormValid ? Color.primary : Color.gray)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .disabled(!isFormValid)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
                     }
-                    .disabled(!isFormValid)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 20)
+                    .frame(maxWidth: contentMaxWidth)
                 }
                 .padding(.top, 16)
+                .padding(.horizontal, adaptiveHorizontalPadding)
             }
             .navigationTitle(title.isEmpty ? "create_habit".localized : "edit_habit".localized)
             .navigationBarTitleDisplayMode(.inline)
