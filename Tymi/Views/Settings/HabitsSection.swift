@@ -55,7 +55,7 @@ struct HabitsSection: View {
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .fill(.ultraThinMaterial)
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.primary.opacity(0.2), lineWidth: 1.5)
+                            .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                     }
                 }
         }

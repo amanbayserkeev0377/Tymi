@@ -122,6 +122,32 @@ struct TodayView: View {
                     .tint(.primary)
                 }
                 
+                ToolbarItem(placement: .navigation) {
+                    if !Calendar.current.isDateInToday(selectedDate) {
+                        Button(action: {
+                            withAnimation {
+                                selectedDate = Date()
+                            }
+                        }) {
+                            HStack(spacing: 2) {
+                                Text("today".localized)
+                                    .font(.footnote)
+                                    .foregroundStyle(Color.gray.opacity(0.7))
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(Color.gray.opacity(0.7))
+                            }
+                            .padding(.vertical, 2)
+                            .padding(.horizontal, 6)
+                        }
+                        .buttonStyle(.plain)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(Color.gray.opacity(0.7), lineWidth: 1)
+                        )
+                    }
+                }
+                
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         isShowingStatsSheet = true

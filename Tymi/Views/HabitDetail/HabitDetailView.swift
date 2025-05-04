@@ -28,7 +28,7 @@ struct HabitDetailView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 15) {
             // Header with close and menu buttons
             HStack {
                 
@@ -65,7 +65,7 @@ struct HabitDetailView: View {
                         .frame(width: 26, height: 26)
                         .background(
                             Circle()
-                                .fill(colorScheme == .dark ? Color.gray.opacity(0.1) : Color.gray.opacity(0.1))
+                                .fill(Color.gray.opacity(0.1))
                         )
                 }
                 .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
@@ -75,7 +75,6 @@ struct HabitDetailView: View {
             // Goal header
             Text("goal".localized(with: viewModel.formattedGoal))
                 .font(.subheadline)
-                .padding(.bottom, 5)
             
             // Statistics section
             StatisticsSection(

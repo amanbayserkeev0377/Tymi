@@ -8,7 +8,7 @@ struct SectionCardModifier: ViewModifier {
         content
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
+                    .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.8))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(colorScheme == .dark
