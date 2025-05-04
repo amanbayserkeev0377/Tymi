@@ -25,16 +25,7 @@ class HabitDetailViewModel: ObservableObject {
     
     // MARK: - State Properties
     @Published var isEditSheetPresented = false
-    @Published var isResetAlertPresented = false
-    @Published var isCountAlertPresented = false
-    @Published var isTimeAlertPresented = false
-    @Published var isDeleteAlertPresented = false
-    @Published var isFreezeAlertPresented = false
-    @Published var countInputText = ""
-    @Published var hoursInputText = ""
-    @Published var minutesInputText = ""
-    @Published var successFeedbackTrigger = false
-    @Published var errorFeedbackTrigger = false
+    @Published var alertState = AlertState()
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -166,7 +157,7 @@ class HabitDetailViewModel: ObservableObject {
     
     private func freezeHabit() {
         habit.isFreezed = true
-        isFreezeAlertPresented = true
+        alertState.isFreezeAlertPresented = true
         habitsUpdateService.triggerUpdate()
         updateHabit()
     }
@@ -180,7 +171,7 @@ class HabitDetailViewModel: ObservableObject {
     func deleteHabit() {
         NotificationManager.shared.cancelNotifications(for: habit)
         modelContext.delete(habit)
-        errorFeedbackTrigger.toggle()
+        alertState.errorFeedbackTrigger.toggle()
     }
     
     // MARK: - Progress Actions
@@ -192,7 +183,7 @@ class HabitDetailViewModel: ObservableObject {
     func completeHabit() {
         timerService.addProgress(habit.goal - currentProgress, for: habit.id)
         saveProgress()
-        successFeedbackTrigger.toggle()
+        alertState.successFeedbackTrigger.toggle()
     }
     
     func saveProgress() {
@@ -203,17 +194,17 @@ class HabitDetailViewModel: ObservableObject {
     
     // MARK: - Input Handling
     func handleCountInput() {
-        if let value = Int(countInputText), value > 0 {
+        if let value = Int(alertState.countInputText), value > 0 {
             timerService.addProgress(value, for: habit.id)
-            successFeedbackTrigger.toggle()
+            alertState.successFeedbackTrigger.toggle()
         }
-        countInputText = ""
+        alertState.countInputText = ""
         updateProgress()
     }
     
     func handleTimeInput() {
-        let minutes = Int(minutesInputText) ?? 0
-        let hours = Int(hoursInputText) ?? 0
+        let minutes = Int(alertState.minutesInputText) ?? 0
+        let hours = Int(alertState.hoursInputText) ?? 0
         let totalSeconds = (hours * 3600) + (minutes * 60)
         
         if totalSeconds > 0 {
@@ -221,11 +212,11 @@ class HabitDetailViewModel: ObservableObject {
                 timerService.stopTimer(for: habit.id)
             }
             timerService.addProgress(totalSeconds, for: habit.id)
-            successFeedbackTrigger.toggle()
+            alertState.successFeedbackTrigger.toggle()
         }
         
-        minutesInputText = ""
-        hoursInputText = ""
+        alertState.minutesInputText = ""
+        alertState.hoursInputText = ""
         updateProgress()
     }
     

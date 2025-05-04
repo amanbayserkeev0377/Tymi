@@ -14,6 +14,7 @@ struct TodayView: View {
     @State private var isShowingNewHabitSheet = false
     @State private var selectedHabit: Habit? = nil
     @State private var isShowingSettingsSheet = false
+    @State private var isShowingStatsSheet = false
     @StateObject private var habitsUpdateService = HabitsUpdateService()
     
     private let dateFormatter: DateFormatter = {
@@ -117,6 +118,15 @@ struct TodayView: View {
                         isShowingSettingsSheet = true
                     }) {
                         Image(systemName: "gearshape")
+                    }
+                    .tint(.primary)
+                }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        isShowingStatsSheet = true
+                    }) {
+                        Image(systemName: "chart.bar")
                     }
                     .tint(.primary)
                 }

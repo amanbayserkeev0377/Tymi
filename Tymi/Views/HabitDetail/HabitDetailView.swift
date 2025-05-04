@@ -17,22 +17,17 @@ struct HabitDetailView: View {
     init(habit: Habit, date: Date = .now) {
         self.habit = habit
         self.date = date
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
+        
         _viewModel = StateObject(wrappedValue: HabitDetailViewModel(
             habit: habit,
             date: date,
-            modelContext: ModelContext(container),
+            modelContext: ModelContext(ModelContainer.empty),
             habitsUpdateService: HabitsUpdateService()
         ))
     }
     
     // MARK: - Body
     var body: some View {
-        let _ = {
-            viewModel.modelContext = modelContext
-            viewModel.habitsUpdateService = habitsUpdateService
-        }()
         VStack(spacing: 20) {
             // Header with close and menu buttons
             HStack {
@@ -59,7 +54,7 @@ struct HabitDetailView: View {
                     }
                     
                     Button(role: .destructive) {
-                        viewModel.isDeleteAlertPresented = true
+                        viewModel.alertState.isDeleteAlertPresented = true
                     } label: {
                         Label("delete".localized, systemImage: "trash")
                     }
@@ -103,16 +98,16 @@ struct HabitDetailView: View {
             ActionButtonsSection(
                 habit: habit,
                 isTimerRunning: viewModel.isTimerRunning,
-                onReset: { viewModel.isResetAlertPresented = true },
+                onReset: { viewModel.alertState.isResetAlertPresented = true },
                 onTimerToggle: {
                     if habit.type == .time {
                         viewModel.toggleTimer()
                     } else {
-                        viewModel.isCountAlertPresented = true
+                        viewModel.alertState.isCountAlertPresented = true
                     }
                 },
                 onManualEntry: {
-                    viewModel.isTimeAlertPresented = true
+                    viewModel.alertState.isTimeAlertPresented = true
                 }
             )
             
@@ -143,6 +138,11 @@ struct HabitDetailView: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
+        .onAppear {
+            viewModel.modelContext = modelContext
+            viewModel.habitsUpdateService = habitsUpdateService
+        }
+        
         .padding()
         
         .sheet(isPresented: $viewModel.isEditSheetPresented) {
@@ -160,30 +160,22 @@ struct HabitDetailView: View {
             habit: habit,
             date: date,
             timerService: viewModel.timerService,
-            isResetAlertPresented: $viewModel.isResetAlertPresented,
-            isCountAlertPresented: $viewModel.isCountAlertPresented,
-            isTimeAlertPresented: $viewModel.isTimeAlertPresented,
-            isDeleteAlertPresented: $viewModel.isDeleteAlertPresented,
-            countInputText: $viewModel.countInputText,
-            hoursInputText: $viewModel.hoursInputText,
-            minutesInputText: $viewModel.minutesInputText,
-            successFeedbackTrigger: $viewModel.successFeedbackTrigger,
-            errorFeedbackTrigger: $viewModel.errorFeedbackTrigger,
+            alertState: $viewModel.alertState,
             onReset: viewModel.resetProgress,
             onDelete: viewModel.deleteHabit
         )
-        .freezeHabitAlert(isPresented: $viewModel.isFreezeAlertPresented) {
+        .freezeHabitAlert(isPresented: $viewModel.alertState.isFreezeAlertPresented) {
             viewModel.isEditSheetPresented = false
         }
         .onDisappear {
             viewModel.saveProgress()
         }
-        .onChange(of: viewModel.successFeedbackTrigger) { _, newValue in
+        .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
             if newValue {
                 HapticManager.shared.play(.success)
             }
         }
-        .onChange(of: viewModel.errorFeedbackTrigger) { _, newValue in
+        .onChange(of: viewModel.alertState.errorFeedbackTrigger) { _, newValue in
             if newValue {
                 HapticManager.shared.play(.error)
             }
@@ -191,26 +183,13 @@ struct HabitDetailView: View {
     }
 }
 
-#Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
-    
-    // Create test Count habit
-    let countHabit = Habit(title: "Push-ups", type: .count, goal: 50)
-    
-    // Create test Time habit
-    let timeHabit = Habit(title: "Meditation", type: .time, goal: 3600) // 1 hour
-    
-    return TabView {
-        HabitDetailView(habit: countHabit)
-            .tabItem {
-                Label("Count", systemImage: "number")
-            }
-        
-        HabitDetailView(habit: timeHabit)
-            .tabItem {
-                Label("Time", systemImage: "timer")
-            }
+extension ModelContainer {
+    static var empty: ModelContainer {
+        do {
+            let config = ModelConfiguration(isStoredInMemoryOnly: true)
+            return try ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
+        } catch {
+            fatalError("Failed to create empty model container: \(error)")
+        }
     }
-    .modelContainer(container)
 }

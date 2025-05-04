@@ -66,8 +66,6 @@ struct DaysScrollView: View {
         .background(
             Rectangle()
                 .fill(Color.clear)
-                .background(.ultraThinMaterial)
-                .shadow(color: Color.black.opacity(0.1), radius: 1, y: 1)
         )
     }
     
