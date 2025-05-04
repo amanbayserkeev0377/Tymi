@@ -18,6 +18,7 @@
       }
     },
     "%lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -485,9 +486,6 @@
           }
         }
       }
-    },
-    "Daily Progress" : {
-
     },
     "daily_goal" : {
       "extractionState" : "manual",
@@ -1563,9 +1561,6 @@
           }
         }
       }
-    },
-    "Today" : {
-
     },
     "total_completions" : {
       "extractionState" : "manual",

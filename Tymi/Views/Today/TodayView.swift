@@ -13,7 +13,6 @@ struct TodayView: View {
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
     @State private var selectedHabit: Habit? = nil
-    @State private var isShowingCalendarSheet = false
     @State private var isShowingSettingsSheet = false
     @StateObject private var habitsUpdateService = HabitsUpdateService()
     
@@ -107,21 +106,17 @@ struct TodayView: View {
                 .padding(.bottom, 20)
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
+            .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                DaysScrollView(selectedDate: $selectedDate)
+                    .environmentObject(habitsUpdateService)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
                         isShowingSettingsSheet = true
                     }) {
                         Image(systemName: "gearshape")
-                    }
-                    .tint(.primary)
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        isShowingCalendarSheet = true
-                    }) {
-                        Image(systemName: "calendar")
                     }
                     .tint(.primary)
                 }
@@ -134,26 +129,6 @@ struct TodayView: View {
                             if colorScheme != .dark {
                                 Color.white.opacity(0.6)
                             }
-                        }
-                    }
-            }
-            .sheet(isPresented: $isShowingCalendarSheet) {
-                CalendarView(selectedDate: $selectedDate)
-                    .presentationDetents([.fraction(0.7)])
-                    .presentationDragIndicator(.visible)
-                    .presentationCornerRadius(40)
-                    .presentationBackground {
-                        let cornerRadius: CGFloat = 40
-                        ZStack {
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .fill(.ultraThinMaterial)
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .stroke(
-                                    colorScheme == .dark
-                                    ? Color.white.opacity(0.1)
-                                    : Color.black.opacity(0.15),
-                                    lineWidth: 1.5
-                                )
                         }
                     }
             }
