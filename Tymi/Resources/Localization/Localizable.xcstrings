@@ -486,6 +486,9 @@
         }
       }
     },
+    "Daily Progress" : {
+
+    },
     "daily_goal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1118,7 +1121,7 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Нет привычек на этот день"
           }
         }
@@ -1561,6 +1564,9 @@
         }
       }
     },
+    "Today" : {
+
+    },
     "total_completions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1595,7 +1601,7 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Попробуйте выбрать другую дату или добавить новую привычку"
           }
         }
@@ -1612,7 +1618,7 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Нет привычек на эту дату. Попробуйте выбрать сегодня или добавить новую привычку"
           }
         }

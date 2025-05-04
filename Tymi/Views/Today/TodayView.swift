@@ -7,9 +7,8 @@ struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     
-    @Query(filter: #Predicate<Habit> { !$0.isFreezed },
-           sort: \Habit.createdAt)
-    private var habits: [Habit]
+    @Query(filter: #Predicate<Habit> { !$0.isFreezed }, sort: \Habit.createdAt)
+    private var baseHabits: [Habit]
     
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
@@ -26,7 +25,7 @@ struct TodayView: View {
     
     // Активные привычки для выбранной даты
     private var activeHabitsForDate: [Habit] {
-        habits.filter { $0.isActiveOnDate(selectedDate) && selectedDate >= $0.startDate }
+        baseHabits.filter { $0.isActiveOnDate(selectedDate) && selectedDate >= $0.startDate }
     }
     
     // Имеются ли привычки для выбранной даты
@@ -54,7 +53,7 @@ struct TodayView: View {
                 VStack {
                     ScrollView {
                         VStack(spacing: 0) {
-                            if habits.isEmpty {
+                            if baseHabits.isEmpty {
                                 // Нет привычек вообще
                                 EmptyStateView()
                             } else {

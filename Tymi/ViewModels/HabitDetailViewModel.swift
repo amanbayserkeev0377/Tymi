@@ -5,11 +5,11 @@ import Combine
 @MainActor
 class HabitDetailViewModel: ObservableObject {
     // MARK: - Dependencies
-    let habit: Habit
-    let date: Date
+    private let habit: Habit
+    private let date: Date
     var modelContext: ModelContext
     var habitsUpdateService: HabitsUpdateService
-    let timerService: HabitTimerService
+    var timerService: HabitTimerService
     private let statsManager: StatsManager
     
     // MARK: - Published Properties
@@ -17,30 +17,25 @@ class HabitDetailViewModel: ObservableObject {
     @Published private(set) var completionPercentage: Double = 0
     @Published private(set) var formattedProgress: String = ""
     @Published private(set) var isTimerRunning: Bool = false
-    @Published var isEditSheetPresented = false
     
     // MARK: - Statistics Properties
     @Published private(set) var currentStreak: Int = 0
     @Published private(set) var bestStreak: Int = 0
     @Published private(set) var totalCompletions: Int = 0
     
-    // MARK: - Alert States
+    // MARK: - State Properties
+    @Published var isEditSheetPresented = false
     @Published var isResetAlertPresented = false
     @Published var isCountAlertPresented = false
     @Published var isTimeAlertPresented = false
     @Published var isDeleteAlertPresented = false
     @Published var isFreezeAlertPresented = false
-    
-    // MARK: - Input States
     @Published var countInputText = ""
     @Published var hoursInputText = ""
     @Published var minutesInputText = ""
-    
-    // MARK: - Feedback States
     @Published var successFeedbackTrigger = false
     @Published var errorFeedbackTrigger = false
     
-    // MARK: - Cancellables
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
@@ -57,14 +52,13 @@ class HabitDetailViewModel: ObservableObject {
         habit: Habit,
         date: Date,
         modelContext: ModelContext,
-        timerService: HabitTimerService = .shared,
         habitsUpdateService: HabitsUpdateService
     ) {
         self.habit = habit
         self.date = date
         self.modelContext = modelContext
-        self.timerService = timerService
         self.habitsUpdateService = habitsUpdateService
+        self.timerService = .shared
         self.statsManager = StatsManager(modelContext: modelContext)
         
         setupInitialState()
@@ -202,16 +196,8 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     func saveProgress() {
-        let existingProgress = habit.progressForDate(date)
-        let currentProgress = timerService.getCurrentProgress(for: habit.id)
-        
-        // Используем новый метод для сохранения
         timerService.persistCompletions(for: habit.id, in: modelContext, date: date)
-        
-        // Обновляем статистику
         updateStatistics()
-        
-        // Обновляем UI
         habitsUpdateService.triggerUpdate()
     }
     
@@ -231,6 +217,9 @@ class HabitDetailViewModel: ObservableObject {
         let totalSeconds = (hours * 3600) + (minutes * 60)
         
         if totalSeconds > 0 {
+            if timerService.isTimerRunning(for: habit.id) {
+                timerService.stopTimer(for: habit.id)
+            }
             timerService.addProgress(totalSeconds, for: habit.id)
             successFeedbackTrigger.toggle()
         }
@@ -240,22 +229,11 @@ class HabitDetailViewModel: ObservableObject {
         updateProgress()
     }
     
-    @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
-    
-    func updateHabit() {
-        if notificationsEnabled {
-            Task {
-                do {
-                    try await NotificationManager.shared.requestAuthorization()
-                    NotificationManager.shared.scheduleNotifications(for: habit)
-                } catch {
-                    print("Error when updating notifications: \(error)")
-                }
-            }
-        }
+    // MARK: - Private Methods
+    private func updateHabit() {
+        try? modelContext.save()
     }
     
-    // MARK: - Statistics Management
     private func updateStatistics() {
         let stats = statsManager.calculateStats(for: habit, upTo: date)
         currentStreak = stats.currentStreak

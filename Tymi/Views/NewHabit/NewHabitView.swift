@@ -145,7 +145,7 @@ struct NewHabitView: View {
                 .padding(.top, 16)
                 .padding(.horizontal, adaptiveHorizontalPadding)
             }
-            .navigationTitle(title.isEmpty ? "create_habit".localized : "edit_habit".localized)
+            .navigationTitle(habit == nil ? "create_habit".localized : "edit_habit".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

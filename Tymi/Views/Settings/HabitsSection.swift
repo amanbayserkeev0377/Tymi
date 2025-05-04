@@ -2,21 +2,25 @@ import SwiftUI
 import SwiftData
 
 struct HabitsSection: View {
-    @Query private var habits: [Habit]
+    @Query(filter: #Predicate<Habit> { !$0.isFreezed }) private var activeHabits: [Habit]
+    @Query(filter: #Predicate<Habit> { $0.isFreezed }) private var freezedHabits: [Habit]
     @State private var showingHabitsSettings = false
     @StateObject private var habitsUpdateService = HabitsUpdateService()
     
     init() {
-        let descriptor = FetchDescriptor<Habit>()
-        _habits = Query(descriptor)
+        let activeDescriptor = FetchDescriptor<Habit>(predicate: #Predicate<Habit> { !$0.isFreezed })
+        _activeHabits = Query(activeDescriptor)
+        
+        let freezedDescriptor = FetchDescriptor<Habit>(predicate: #Predicate<Habit> { $0.isFreezed })
+        _freezedHabits = Query(freezedDescriptor)
     }
     
-    private var activeHabits: Int {
-        habits.filter { !$0.isFreezed }.count
+    private var activeHabitsCount: Int {
+        activeHabits.count
     }
     
-    private var freezedHabits: Int {
-        habits.filter { $0.isFreezed }.count
+    private var freezedHabitsCount: Int {
+        freezedHabits.count
     }
     
     var body: some View {
@@ -259,6 +263,7 @@ struct HabitSettingsRow: View {
         }
         .sheet(isPresented: $isShowingEditSheet) {
             NewHabitView(habit: habit)
+                .presentationBackground(.ultraThinMaterial)
         }
         .deleteHabitAlert(isPresented: $isDeleteAlertPresented) {
             modelContext.delete(habit)

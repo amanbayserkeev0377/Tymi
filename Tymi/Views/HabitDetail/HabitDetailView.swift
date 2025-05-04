@@ -33,120 +33,128 @@ struct HabitDetailView: View {
             viewModel.modelContext = modelContext
             viewModel.habitsUpdateService = habitsUpdateService
         }()
-            VStack(spacing: 20) {
-                // Header with close and menu buttons
-                HStack {
-                    
-                    Spacer()
-                    
-                    Text(habit.title)
-                        .font(.title)
-                        .fontWeight(.bold)
-                    
-                    Spacer()
-                    
-                    Menu {
-                        Button {
-                            viewModel.isEditSheetPresented = true
-                        } label: {
-                            Label("edit".localized, systemImage: "pencil")
-                        }
-                        
-                        Button {
-                            viewModel.toggleFreeze()
-                        } label: {
-                            Label(habit.isFreezed ? "unfreeze".localized : "freeze".localized, systemImage: habit.isFreezed ? "flame" : "snowflake")
-                        }
-                        
-                        Button(role: .destructive) {
-                            viewModel.isDeleteAlertPresented = true
-                        } label: {
-                            Label("delete".localized, systemImage: "trash")
-                        }
-                        .tint(.red)
+        VStack(spacing: 20) {
+            // Header with close and menu buttons
+            HStack {
+                
+                Spacer()
+                
+                Text(habit.title)
+                    .font(.title)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Menu {
+                    Button {
+                        viewModel.isEditSheetPresented = true
                     } label: {
-                        Image(systemName: "ellipsis")
+                        Label("edit".localized, systemImage: "pencil")
+                    }
+                    
+                    Button {
+                        viewModel.toggleFreeze()
+                    } label: {
+                        Label(habit.isFreezed ? "unfreeze".localized : "freeze".localized, systemImage: habit.isFreezed ? "flame" : "snowflake")
+                    }
+                    
+                    Button(role: .destructive) {
+                        viewModel.isDeleteAlertPresented = true
+                    } label: {
+                        Label("delete".localized, systemImage: "trash")
+                    }
+                    .tint(.red)
+                } label: {
+                    Image(systemName: "ellipsis")
                         .font(.system(size: 16))
                         .frame(width: 26, height: 26)
                         .background(
                             Circle()
                                 .fill(colorScheme == .dark ? Color.gray.opacity(0.1) : Color.gray.opacity(0.1))
                         )
-                    }
-                    .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
                 }
-                .padding(.top)
-                
-                // Goal header
-                Text("goal".localized(with: viewModel.formattedGoal))
-                    .font(.subheadline)
-                    .padding(.bottom, 5)
-                
-                // Statistics section
-                StatisticsSection(
-                    currentStreak: viewModel.currentStreak,
-                    bestStreak: viewModel.bestStreak,
-                    totalCompletions: viewModel.totalCompletions
-                )
-                
-                // Progress controls
-                ProgressControlSection(
-                    habit: habit,
-                    currentProgress: .constant(viewModel.currentProgress),
-                    completionPercentage: viewModel.completionPercentage,
-                    formattedProgress: viewModel.formattedProgress,
-                    onIncrement: viewModel.incrementProgress,
-                    onDecrement: viewModel.decrementProgress
-                )
-                
-                // Action buttons
-                ActionButtonsSection(
-                    habit: habit,
-                    isTimerRunning: viewModel.isTimerRunning,
-                    onReset: { viewModel.isResetAlertPresented = true },
-                    onTimerToggle: {
-                        if habit.type == .time {
-                            viewModel.toggleTimer()
-                        } else {
-                            viewModel.isCountAlertPresented = true
-                        }
-                    },
-                    onManualEntry: {
-                        viewModel.isTimeAlertPresented = true
-                    }
-                )
-                
-                Spacer()
-                
-                // Complete button at the bottom
-                Button(action: {
-                    viewModel.completeHabit()
-                }) {
-                    Text(viewModel.isAlreadyCompleted ? "completed".localized : "complete".localized)
-                        .font(.headline)
-                        .foregroundStyle(
-                            colorScheme == .dark ? .black : .white
-                        )
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            viewModel.isAlreadyCompleted
-                            ? Color.gray
-                            : (colorScheme == .dark
-                               ? Color.white.opacity(0.7)
-                               : Color.black)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-                .disabled(viewModel.isAlreadyCompleted)
-                .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: !viewModel.isAlreadyCompleted))
-                .padding(.horizontal)
-                .padding(.bottom)
+                .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
             }
-            .padding()
+            .padding(.top)
+            
+            // Goal header
+            Text("goal".localized(with: viewModel.formattedGoal))
+                .font(.subheadline)
+                .padding(.bottom, 5)
+            
+            // Statistics section
+            StatisticsSection(
+                currentStreak: viewModel.currentStreak,
+                bestStreak: viewModel.bestStreak,
+                totalCompletions: viewModel.totalCompletions
+            )
+            
+            // Progress controls
+            ProgressControlSection(
+                habit: habit,
+                currentProgress: .constant(viewModel.currentProgress),
+                completionPercentage: viewModel.completionPercentage,
+                formattedProgress: viewModel.formattedProgress,
+                onIncrement: viewModel.incrementProgress,
+                onDecrement: viewModel.decrementProgress
+            )
+            
+            // Action buttons
+            ActionButtonsSection(
+                habit: habit,
+                isTimerRunning: viewModel.isTimerRunning,
+                onReset: { viewModel.isResetAlertPresented = true },
+                onTimerToggle: {
+                    if habit.type == .time {
+                        viewModel.toggleTimer()
+                    } else {
+                        viewModel.isCountAlertPresented = true
+                    }
+                },
+                onManualEntry: {
+                    viewModel.isTimeAlertPresented = true
+                }
+            )
+            
+            Spacer()
+            
+            // Complete button at the bottom
+            Button(action: {
+                viewModel.completeHabit()
+            }) {
+                Text(viewModel.isAlreadyCompleted ? "completed".localized : "complete".localized)
+                    .font(.headline)
+                    .foregroundStyle(
+                        colorScheme == .dark ? .black : .white
+                    )
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        viewModel.isAlreadyCompleted
+                        ? Color.gray
+                        : (colorScheme == .dark
+                           ? Color.white.opacity(0.7)
+                           : Color.black)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            .disabled(viewModel.isAlreadyCompleted)
+            .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: !viewModel.isAlreadyCompleted))
+            .padding(.horizontal)
+            .padding(.bottom)
+        }
+        .padding()
         
         .sheet(isPresented: $viewModel.isEditSheetPresented) {
             NewHabitView(habit: habit)
+                .presentationBackground {
+                    ZStack {
+                        Rectangle().fill(.ultraThinMaterial)
+                        if colorScheme != .dark {
+                            Color.white.opacity(0.6)
+                        }
+                    }
+                }
         }
         .habitDetailAlerts(
             habit: habit,

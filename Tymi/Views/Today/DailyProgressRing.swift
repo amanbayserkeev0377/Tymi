@@ -9,13 +9,13 @@ struct DailyProgressRing: View {
     @Environment(\.colorScheme) private var colorScheme
     
     let date: Date
-    @Query private var habits: [Habit]
+    @Query(filter: #Predicate<Habit> { !$0.isFreezed }, sort: \Habit.createdAt) private var baseHabits: [Habit]
     var iconSize: CGFloat = 64
     
     // MARK: - Computed Properties
     
     private var activeHabitsForDate: [Habit] {
-        habits.filter { !$0.isFreezed && $0.isActiveOnDate(date) && date >= $0.startDate }
+        baseHabits.filter { $0.isActiveOnDate(date) && date >= $0.startDate }
     }
     
     private var completionPercentage: Double {

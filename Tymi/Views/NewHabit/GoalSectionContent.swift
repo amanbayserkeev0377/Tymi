@@ -147,9 +147,8 @@ struct GoalSectionContent: View {
         }
         .onAppear {
             updateTimeDateFromHoursAndMinutes()
-            if selectedType == .count {
-                countText = ""
-                countGoal = 0
+            if selectedType == .count && countGoal > 0 {
+                countText = String(countGoal)
             }
         }
     }
