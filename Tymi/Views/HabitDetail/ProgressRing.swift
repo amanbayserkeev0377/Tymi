@@ -56,11 +56,34 @@ struct ProgressRing: View {
     }
     
     private var adjustedFontSize: CGFloat {
-        // Если значение содержит двоеточие (время) и длиннее 5 символов
+        // Специальная настройка для HabitRowView (маленькие кольца)
+        if size <= 55 {
+            // Для маленьких колец используем специальные размеры
+            let baseRowSize: CGFloat = 16 // Увеличенный базовый размер для HabitRowView
+            
+            // Проверка длины значения
+            let valueLength = currentValue.count
+            
+            // Настраиваем размер в зависимости от содержимого
+            if currentValue.contains(":") {
+                // Время (содержит двоеточие)
+                return baseRowSize - 2
+            } else if valueLength > 5 {
+                // Длинные числовые значения
+                return baseRowSize - 1
+            } else if valueLength > 3 {
+                // Средние числовые значения
+                return baseRowSize
+            } else {
+                // Короткие числовые значения (1-3 цифры)
+                return baseRowSize + 1
+            }
+        }
+        
+        // Стандартная логика для обычных колец
         if currentValue.contains(":") && currentValue.count > 5 {
             return fontSize - 2
         }
-        // Для маленьких чисел (до 9999) используем больший размер
         if let number = Int(currentValue), number < 10000 {
             return fontSize + 8
         }

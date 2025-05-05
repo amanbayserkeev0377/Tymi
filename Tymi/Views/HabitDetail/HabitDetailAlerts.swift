@@ -52,30 +52,46 @@ struct HabitDetailAlerts: ViewModifier {
             }
             
             .alert("add_time".localized, isPresented: $alertState.isTimeAlertPresented) {
-                TextField("hours".localized, text: $alertState.hoursInputText)
+                TextField("hours_less_than_24".localized, text: $alertState.hoursInputText)
                     .keyboardType(.numberPad)
-                TextField("minutes".localized, text: $alertState.minutesInputText)
+                TextField("minutes_less_than_60".localized, text: $alertState.minutesInputText)
                     .keyboardType(.numberPad)
                 Button("cancel".localized, role: .cancel) { }
                 Button("add".localized) {
                     let hours = Int(alertState.hoursInputText) ?? 0
                     let minutes = Int(alertState.minutesInputText) ?? 0
                     let totalSeconds = hours * 3600 + minutes * 60
-                    if totalSeconds > 0 {
-                        timerService.addProgress(totalSeconds, for: habit.id)
+                    
+                    // Проверяем валидность ввода
+                    let isValidInput = (hours > 0 || minutes > 0) && hours < 25 && minutes < 60
+                    
+                    if isValidInput && totalSeconds > 0 {
+                        // Вызываем метод обработки в ViewModel
+                        if timerService.isTimerRunning(for: habit.id) {
+                            timerService.stopTimer(for: habit.id)
+                        }
+                        
+                        // Получаем текущий прогресс и проверяем лимит 24 часов
+                        let currentProgress = timerService.getCurrentProgress(for: habit.id)
+                        if currentProgress + totalSeconds > 86400 {
+                            let remainingSeconds = 86400 - currentProgress
+                            if remainingSeconds > 0 {
+                                timerService.addProgress(remainingSeconds, for: habit.id)
+                            }
+                        } else {
+                            timerService.addProgress(totalSeconds, for: habit.id)
+                        }
+                        
                         alertState.successFeedbackTrigger.toggle()
                     } else {
                         alertState.errorFeedbackTrigger.toggle()
                     }
+                    
                     alertState.hoursInputText = ""
                     alertState.minutesInputText = ""
                 }
             } message: {
                 Text("enter_time_spent".localized)
-            }
-            
-            .deleteHabitAlert(isPresented: $alertState.isDeleteAlertPresented) {
-                onDelete()
             }
     }
 }

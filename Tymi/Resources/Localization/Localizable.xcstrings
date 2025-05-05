@@ -953,6 +953,17 @@
         }
       }
     },
+    "hours_less_than_24" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hours (less than 24)"
+          }
+        }
+      }
+    },
     "hours_minutes_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1045,6 +1056,17 @@
         }
       }
     },
+    "minutes_less_than_60" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "minutes (less than 60)"
+          }
+        }
+      }
+    },
     "no_active_habits" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1087,23 +1109,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет замороженных привычек"
-          }
-        }
-      }
-    },
-    "no_habits_for_date" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No habits for this day"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет привычек на этот день"
           }
         }
       }

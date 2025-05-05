@@ -105,10 +105,21 @@ class HabitDetailViewModel: ObservableObject {
         if habit.type == .count {
             timerService.addProgress(1, for: habit.id)
         } else {
-            if timerService.isTimerRunning(for: habit.id) {
-                timerService.stopTimer(for: habit.id)
+            // Проверяем, не превысим ли мы 24 часа (86400 секунд)
+            let currentValue = timerService.getCurrentProgress(for: habit.id)
+            if currentValue + 60 <= 86400 { // 24 часа = 86400 секунд
+                if timerService.isTimerRunning(for: habit.id) {
+                    timerService.stopTimer(for: habit.id)
+                }
+                timerService.addProgress(60, for: habit.id)
+            } else {
+                // Если превышаем 24 часа, устанавливаем ровно 24 часа
+                timerService.resetTimer(for: habit.id)
+                timerService.addProgress(86400, for: habit.id)
+                
+                // Показываем обратную связь пользователю
+                alertState.successFeedbackTrigger.toggle()
             }
-            timerService.addProgress(60, for: habit.id)
         }
         updateProgress()
     }
@@ -203,8 +214,20 @@ class HabitDetailViewModel: ObservableObject {
     func completeHabit() {
         // Получаем текущий прогресс из timerService
         let currentValue = timerService.getCurrentProgress(for: habit.id)
-        let toAdd = habit.goal - currentValue
         
+        // Рассчитываем сколько нужно добавить до цели
+        var toAdd = habit.goal - currentValue
+        
+        // Проверяем лимит в 24 часа для типа time
+        if habit.type == .time {
+            // Если цель + текущий прогресс превышают 24 часа, ограничиваем
+            let maxValue = 86400 // 24 часа в секундах
+            if currentValue + toAdd > maxValue {
+                toAdd = maxValue - currentValue
+            }
+        }
+        
+        // Добавляем прогресс если нужно
         if toAdd > 0 {
             timerService.addProgress(toAdd, for: habit.id)
         }
@@ -213,13 +236,9 @@ class HabitDetailViewModel: ObservableObject {
         currentProgress = timerService.getCurrentProgress(for: habit.id)
         updateProgressMetrics()
         
-        // Помечаем, что были изменения
-        hasChanges = true
-        
-        // Звуковая обратная связь
+        // Сохраняем прогресс
+        saveProgress()
         alertState.successFeedbackTrigger.toggle()
-        
-        // Но НЕ обновляем базу данных и не отправляем уведомления сейчас
     }
     
     // MARK: - Input Handling
@@ -233,21 +252,7 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     func handleTimeInput() {
-        let minutes = Int(alertState.minutesInputText) ?? 0
-        let hours = Int(alertState.hoursInputText) ?? 0
-        let totalSeconds = (hours * 3600) + (minutes * 60)
-        
-        if totalSeconds > 0 {
-            if timerService.isTimerRunning(for: habit.id) {
-                timerService.stopTimer(for: habit.id)
-            }
-            timerService.addProgress(totalSeconds, for: habit.id)
-            alertState.successFeedbackTrigger.toggle()
-            updateProgress()
-        }
-        
-        alertState.minutesInputText = ""
-        alertState.hoursInputText = ""
+        updateProgress()
     }
     
     // MARK: - Save Progress

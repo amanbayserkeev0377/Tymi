@@ -52,7 +52,9 @@ struct NewHabitView: View {
         case .count:
             return countGoal
         case .time:
-            return (hours * 3600) + (minutes * 60)
+            let totalSeconds = (hours * 3600) + (minutes * 60)
+            // Ограничиваем максимум 24 часами
+            return min(totalSeconds, 86400)
         }
     }
     
@@ -207,8 +209,15 @@ struct NewHabitView: View {
                                       to: nil, from: nil, for: nil)
     }
     
-    // MARK: - Actions
     private func saveHabit() {
+        if selectedType == .time {
+            let totalSeconds = (hours * 3600) + (minutes * 60)
+            if totalSeconds > 86400 {
+                hours = 24
+                minutes = 0
+            }
+        }
+        
         if let existingHabit = habit {
             // Update existing habit
             existingHabit.update(

@@ -28,7 +28,7 @@ struct HabitRowView: View {
                 isExceeded: habit.isExceededForDate(date),
                 size: 50,
                 lineWidth: 6.5,
-                fontSize: 13,
+                fontSize: 16,
                 iconSize: 22
             )
         }
