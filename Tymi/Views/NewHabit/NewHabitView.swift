@@ -210,6 +210,10 @@ struct NewHabitView: View {
     }
     
     private func saveHabit() {
+        if selectedType == .count && countGoal > 999999 {
+            countGoal = 999999
+        }
+        
         if selectedType == .time {
             let totalSeconds = (hours * 3600) + (minutes * 60)
             if totalSeconds > 86400 {

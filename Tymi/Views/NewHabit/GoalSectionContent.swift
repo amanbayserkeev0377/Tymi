@@ -125,7 +125,7 @@ struct GoalSectionContent: View {
                             .focused($isFocused)
                             .onChange(of: countText) { _, newValue in
                                 if let number = Int(newValue) {
-                                    countGoal = number
+                                    countGoal = min(number, 999999)
                                 } else {
                                     countGoal = 0
                                 }

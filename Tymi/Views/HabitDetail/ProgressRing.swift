@@ -59,7 +59,7 @@ struct ProgressRing: View {
         // Специальная настройка для HabitRowView (маленькие кольца)
         if size <= 55 {
             // Для маленьких колец используем специальные размеры
-            let baseRowSize: CGFloat = 16 // Увеличенный базовый размер для HabitRowView
+            let baseRowSize: CGFloat = 16 // Базовый размер для HabitRowView
             
             // Проверка длины значения
             let valueLength = currentValue.count
@@ -68,14 +68,17 @@ struct ProgressRing: View {
             if currentValue.contains(":") {
                 // Время (содержит двоеточие)
                 return baseRowSize - 2
-            } else if valueLength > 5 {
-                // Длинные числовые значения
-                return baseRowSize - 1
+            } else if valueLength >= 6 {
+                // Значения больше 100,000
+                return baseRowSize - 4
+            } else if valueLength >= 5 {
+                // Значения от 10,000 до 99,999
+                return baseRowSize - 2
             } else if valueLength > 3 {
-                // Средние числовые значения
-                return baseRowSize
+                // Значения от 1,000 до 9,999
+                return baseRowSize - 1
             } else {
-                // Короткие числовые значения (1-3 цифры)
+                // Короткие числовые значения (1-999)
                 return baseRowSize + 1
             }
         }
@@ -86,6 +89,10 @@ struct ProgressRing: View {
         }
         if let number = Int(currentValue), number < 10000 {
             return fontSize + 8
+        } else if let number = Int(currentValue), number >= 100000 {
+            return fontSize - 4
+        } else if let number = Int(currentValue), number >= 10000 {
+            return fontSize - 2
         }
         return fontSize
     }

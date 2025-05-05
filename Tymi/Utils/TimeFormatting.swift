@@ -45,7 +45,13 @@ extension Int {
     
     /// Formats current value for progress ring
     func formattedAsProgressForRing() -> String {
-        return "\(self)"
+        if self >= 100000 {
+            return "\(self / 1000)K"
+        } else if self >= 10000 {
+            return "\(self)"
+        } else {
+            return "\(self)"
+        }
     }
 }
 

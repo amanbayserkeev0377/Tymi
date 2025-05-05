@@ -169,7 +169,7 @@ final class Habit {
     
     // Calculate completion percentage for the day
     func completionPercentageForDate(_ date: Date) -> Double {
-        let progress = progressForDate(date)
+        let progress = min(progressForDate(date), 999999)
         
         if goal <= 0 {
             return progress > 0 ? 1.0 : 0.0

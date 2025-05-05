@@ -103,21 +103,23 @@ class HabitDetailViewModel: ObservableObject {
     
     func incrementProgress() {
         if habit.type == .count {
-            timerService.addProgress(1, for: habit.id)
-        } else {
-            // Проверяем, не превысим ли мы 24 часа (86400 секунд)
             let currentValue = timerService.getCurrentProgress(for: habit.id)
-            if currentValue + 60 <= 86400 { // 24 часа = 86400 секунд
+            if currentValue < 999999 {
+                timerService.addProgress(1, for: habit.id)
+            } else {
+                alertState.errorFeedbackTrigger.toggle()
+            }
+        } else {
+            let currentValue = timerService.getCurrentProgress(for: habit.id)
+            if currentValue + 60 <= 86400 {
                 if timerService.isTimerRunning(for: habit.id) {
                     timerService.stopTimer(for: habit.id)
                 }
                 timerService.addProgress(60, for: habit.id)
             } else {
-                // Если превышаем 24 часа, устанавливаем ровно 24 часа
                 timerService.resetTimer(for: habit.id)
                 timerService.addProgress(86400, for: habit.id)
                 
-                // Показываем обратную связь пользователю
                 alertState.successFeedbackTrigger.toggle()
             }
         }
@@ -241,11 +243,27 @@ class HabitDetailViewModel: ObservableObject {
         alertState.successFeedbackTrigger.toggle()
     }
     
-    // MARK: - Input Handling
     func handleCountInput() {
         if let value = Int(alertState.countInputText), value > 0 {
-            timerService.addProgress(value, for: habit.id)
-            alertState.successFeedbackTrigger.toggle()
+            // Получаем текущий прогресс
+            let currentProgress = timerService.getCurrentProgress(for: habit.id)
+            
+            // Проверяем, не превысит ли общее значение 999,999
+            if currentProgress + value > 999999 {
+                // Если превысит, добавляем только то, что доведёт до 999,999
+                let remainingValue = 999999 - currentProgress
+                
+                if remainingValue > 0 {
+                    timerService.addProgress(remainingValue, for: habit.id)
+                    alertState.successFeedbackTrigger.toggle()
+                } else {
+                    alertState.errorFeedbackTrigger.toggle()
+                }
+            } else {
+                // Если не превысит, добавляем всё введённое значение
+                timerService.addProgress(value, for: habit.id)
+                alertState.successFeedbackTrigger.toggle()
+            }
             updateProgress()
         }
         alertState.countInputText = ""
