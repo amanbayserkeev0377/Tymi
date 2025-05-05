@@ -13,15 +13,14 @@ struct DayProgressItem: View {
         "\(calendar.component(.day, from: date))"
     }
     
-    private var dayName: String {
-        date.formatted(.dateTime.weekday(.abbreviated))
-    }
-    
     private var isToday: Bool {
         calendar.isDateInToday(date)
     }
     
-    // Градиентные цвета для прогресса, как в других компонентах
+    private var isFutureDate: Bool {
+        date > Date()
+    }
+    
     private var progressColors: [Color] {
         if progress >= 1.0 {
             return [
@@ -47,52 +46,62 @@ struct DayProgressItem: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 8) {
-                // День недели (Пн, Вт, ...)
-                Text(dayName)
-                    .font(.caption)
-                    .foregroundStyle(isSelected ? .primary : .secondary)
-                
-                // Кружок с числом и индикатором прогресса
                 ZStack {
-                    // Фоновый круг для индикатора прогресса
-                    Circle()
-                        .stroke(Color.secondary.opacity(0.1), lineWidth: 4)
-                        .frame(width: 36, height: 36)
-                    
-                    // Индикатор прогресса
-                    Circle()
-                        .trim(from: 0, to: progress)
-                        .stroke(
-                            AngularGradient(
-                                colors: progressColors,
-                                center: .center,
-                                startAngle: .degrees(0),
-                                endAngle: .degrees(360)
-                            ),
-                            style: StrokeStyle(
-                                lineWidth: 4,
-                                lineCap: .round
+                    if isFutureDate {
+                        Circle()
+                            .fill(Color.clear)
+                            .frame(width: 36, height: 36)
+                    } else {
+                        Circle()
+                            .stroke(Color.secondary.opacity(0.1), lineWidth: 4)
+                            .frame(width: 36, height: 36)
+                        
+                        Circle()
+                            .trim(from: 0, to: progress)
+                            .stroke(
+                                AngularGradient(
+                                    colors: progressColors,
+                                    center: .center,
+                                    startAngle: .degrees(0),
+                                    endAngle: .degrees(360)
+                                ),
+                                style: StrokeStyle(
+                                    lineWidth: 4,
+                                    lineCap: .round
+                                )
                             )
-                        )
-                        .rotationEffect(.degrees(-90))
-                        .frame(width: 36, height: 36)
+                            .rotationEffect(.degrees(-90))
+                            .frame(width: 36, height: 36)
+                    }
                     
-                    // Число
-                    Text(dayNumber)
-                        .font(.system(size: 15, weight: isSelected || isToday ? .bold : .regular))
-                        .foregroundStyle(isSelected ? .primary : .secondary)
+                    if isFutureDate {
+                        Text(dayNumber)
+                            .font(.system(size: 15, weight: .regular))
+                            .foregroundStyle(.tertiary)
+                    } else if isToday {
+                        Text(dayNumber)
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(Color.orange)
+                    } else {
+                        Text(dayNumber)
+                            .font(.system(size: 15, weight: isSelected ? .bold : .regular))
+                            .foregroundStyle(isSelected ? .primary : .secondary)
+                    }
                 }
                 
-                // Индикатор выбранного дня (точка снизу)
-                if isSelected {
+                if isSelected && !isFutureDate {
                     Circle()
-                        .fill(.primary)
+                        .fill(isToday ? Color.orange : Color.primary)
                         .frame(width: 5, height: 5)
-                        .padding(.top, -2)
+                } else {
+                    Color.clear
+                        .frame(width: 5, height: 5)
                 }
             }
-            .frame(width: 44, height: 70)
+            .frame(width: 44, height: 60)
+            .opacity(isFutureDate ? 0.6 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
+        .disabled(isFutureDate)
     }
 }

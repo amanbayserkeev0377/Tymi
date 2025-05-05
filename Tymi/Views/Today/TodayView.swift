@@ -109,7 +109,7 @@ struct TodayView: View {
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .top, spacing: 0) {
-                DaysScrollView(selectedDate: $selectedDate)
+                WeeklyCalendarView(selectedDate: $selectedDate)
                     .environmentObject(habitsUpdateService)
             }
             .toolbar {
