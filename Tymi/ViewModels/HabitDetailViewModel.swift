@@ -27,6 +27,9 @@ class HabitDetailViewModel: ObservableObject {
     @Published var isEditSheetPresented = false
     @Published var alertState = AlertState()
     
+    // Флаг для отслеживания были ли изменения, требующие сохранения
+    private var hasChanges = false
+    
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
@@ -76,6 +79,7 @@ class HabitDetailViewModel: ObservableObject {
                       let progress = updates[self.habit.id] else { return }
                 self.currentProgress = progress
                 self.updateProgressMetrics()
+                self.hasChanges = true
             }
             .store(in: &cancellables)
         
@@ -131,11 +135,10 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     private func updateProgress() {
-        // Важное изменение: Здесь мы напрямую запрашиваем текущий прогресс
-        // чтобы тесты правильно считывали обновленное значение
+        // Напрямую запрашиваем текущий прогресс
         currentProgress = timerService.getCurrentProgress(for: habit.id)
         updateProgressMetrics()
-        habitsUpdateService.triggerUpdate()
+        hasChanges = true
     }
     
     // MARK: - Timer Management
@@ -146,6 +149,7 @@ class HabitDetailViewModel: ObservableObject {
             timerService.startTimer(for: habit.id, initialProgress: currentProgress)
         }
         isTimerRunning = timerService.isTimerRunning(for: habit.id)
+        hasChanges = true
     }
     
     // MARK: - Habit Management
@@ -160,30 +164,44 @@ class HabitDetailViewModel: ObservableObject {
     private func freezeHabit() {
         habit.isFreezed = true
         alertState.isFreezeAlertPresented = true
-        habitsUpdateService.triggerUpdate()
         updateHabit()
+        // Сразу уведомляем, т.к. это важное изменение
+        habitsUpdateService.triggerUpdate()
     }
     
     private func unfreezeHabit() {
         habit.isFreezed = false
-        habitsUpdateService.triggerUpdate()
         updateHabit()
+        // Сразу уведомляем, т.к. это важное изменение
+        habitsUpdateService.triggerUpdate()
     }
     
     func deleteHabit() {
         NotificationManager.shared.cancelNotifications(for: habit)
         modelContext.delete(habit)
         alertState.errorFeedbackTrigger.toggle()
+        // Сразу уведомляем, т.к. это важное изменение
+        habitsUpdateService.triggerUpdate()
     }
     
     // MARK: - Progress Actions
     func resetProgress() {
+        // 1. Сбрасываем таймер
         timerService.resetTimer(for: habit.id)
-        updateProgress()
+        
+        // 2. Обновляем локальные данные
+        currentProgress = 0
+        updateProgressMetrics()
+        
+        // Помечаем, что были изменения
+        hasChanges = true
+        
+        // Но НЕ обновляем базу данных и не отправляем уведомления сейчас
+        // Это будет сделано только при закрытии представления
     }
     
     func completeHabit() {
-        // Исправление: не используем текущий прогресс, который может быть неактуальным
+        // Получаем текущий прогресс из timerService
         let currentValue = timerService.getCurrentProgress(for: habit.id)
         let toAdd = habit.goal - currentValue
         
@@ -191,35 +209,17 @@ class HabitDetailViewModel: ObservableObject {
             timerService.addProgress(toAdd, for: habit.id)
         }
         
-        // Обновляем прогресс напрямую для тестов
+        // Обновляем прогресс напрямую
         currentProgress = timerService.getCurrentProgress(for: habit.id)
         updateProgressMetrics()
         
-        saveProgress()
+        // Помечаем, что были изменения
+        hasChanges = true
+        
+        // Звуковая обратная связь
         alertState.successFeedbackTrigger.toggle()
-    }
-    
-    func saveProgress() {
-        // Исправление: Явно получаем текущий прогресс из timerService
-        let progress = timerService.getCurrentProgress(for: habit.id)
         
-        // Для тестов: непосредственно добавляем прогресс в habit если он больше 0
-        if progress > 0 {
-            // Проверяем существующий прогресс
-            let existingProgress = habit.progressForDate(date)
-            
-            // Добавляем новый прогресс, если он отличается
-            if progress != existingProgress {
-                habit.addProgress(progress - existingProgress, for: date)
-                try? modelContext.save()
-            }
-        }
-        
-        // Также используем стандартный метод для сохранения (на случай, если он что-то еще делает)
-        timerService.persistCompletions(for: habit.id, in: modelContext, date: date)
-        
-        updateStatistics()
-        habitsUpdateService.triggerUpdate()
+        // Но НЕ обновляем базу данных и не отправляем уведомления сейчас
     }
     
     // MARK: - Input Handling
@@ -227,9 +227,9 @@ class HabitDetailViewModel: ObservableObject {
         if let value = Int(alertState.countInputText), value > 0 {
             timerService.addProgress(value, for: habit.id)
             alertState.successFeedbackTrigger.toggle()
+            updateProgress()
         }
         alertState.countInputText = ""
-        updateProgress()
     }
     
     func handleTimeInput() {
@@ -243,11 +243,75 @@ class HabitDetailViewModel: ObservableObject {
             }
             timerService.addProgress(totalSeconds, for: habit.id)
             alertState.successFeedbackTrigger.toggle()
+            updateProgress()
         }
         
         alertState.minutesInputText = ""
         alertState.hoursInputText = ""
-        updateProgress()
+    }
+    
+    // MARK: - Save Progress
+    func saveProgress() {
+        // Если не было изменений, выходим
+        if !hasChanges {
+            return
+        }
+        
+        // Получаем текущий прогресс из timerService
+        let progress = timerService.getCurrentProgress(for: habit.id)
+        
+        // Обрабатываем случай сброса прогресса
+        if progress == 0 {
+            // Удаляем все записи о прогрессе для текущего дня
+            let existingCompletions = habit.completions.filter {
+                Calendar.current.isDate($0.date, inSameDayAs: date)
+            }
+            
+            for completion in existingCompletions {
+                modelContext.delete(completion)
+            }
+            
+            try? modelContext.save()
+        } else {
+            // Проверяем существующий прогресс
+            let existingProgress = habit.progressForDate(date)
+            
+            // Если прогресс изменился, обновляем данные
+            if progress != existingProgress {
+                // Если текущий прогресс меньше существующего, удаляем записи и создаем новую
+                if progress < existingProgress {
+                    let existingCompletions = habit.completions.filter {
+                        Calendar.current.isDate($0.date, inSameDayAs: date)
+                    }
+                    
+                    for completion in existingCompletions {
+                        modelContext.delete(completion)
+                    }
+                    
+                    // Если прогресс > 0, добавляем новую запись
+                    if progress > 0 {
+                        habit.addProgress(progress, for: date)
+                    }
+                } else {
+                    // Если прогресс больше, просто добавляем разницу
+                    habit.addProgress(progress - existingProgress, for: date)
+                }
+                
+                try? modelContext.save()
+            }
+        }
+        
+        // Также используем стандартный метод для сохранения (на случай, если он что-то еще делает)
+        timerService.persistCompletions(for: habit.id, in: modelContext, date: date)
+        
+        // Обновляем статистику
+        updateStatistics()
+        
+        // Сбрасываем флаг изменений
+        hasChanges = false
+        
+        // Отправляем уведомление об обновлении
+        habitsUpdateService.triggerUpdate()
     }
     
     // MARK: - Private Methods

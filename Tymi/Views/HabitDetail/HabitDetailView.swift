@@ -136,6 +136,9 @@ struct HabitDetailView: View {
             .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: !viewModel.isAlreadyCompleted))
             .padding(.horizontal)
             .padding(.bottom)
+            .transaction { transaction in
+                transaction.animation = Animation.easeInOut(duration: 0.5)
+            }
         }
         .onAppear {
             viewModel.modelContext = modelContext

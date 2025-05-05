@@ -132,7 +132,7 @@ struct DailyProgressRing: View {
             }
         }
         .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
-            // Обновление не требуется, так как @Query автоматически обновит данные
+            
         }
     }
 }
@@ -149,4 +149,4 @@ struct DailyProgressRing: View {
     .background(TodayViewBackground())
     .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
     .environmentObject(HabitsUpdateService())
-} 
+}
