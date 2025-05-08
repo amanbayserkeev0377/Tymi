@@ -9,22 +9,6 @@ struct GoalSectionContent: View {
     @State private var timeDate: Date = Calendar.current.date(bySettingHour: 1, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var countText: String = ""
     @FocusState private var isFocused: Bool
-    @Environment(\.colorScheme) private var colorScheme
-    
-    // Animation state
-    @Namespace private var animation
-    
-    private var primaryColor: Color {
-        colorScheme == .dark ? .white : .black
-    }
-    
-    private var secondaryColor: Color {
-        colorScheme == .dark ? Color.white.opacity(0.3) : Color.black.opacity(0.3)
-    }
-    
-    private var backgroundColor: Color {
-        colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.1)
-    }
     
     var body: some View {
         Section {
@@ -39,78 +23,15 @@ struct GoalSectionContent: View {
                     
                     Spacer()
                     
-                    // Custom Segmented Control
-                    HStack(spacing: 0) {
-                        // Count Button
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                selectedType = .count
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    if countGoal > 0 {
-                                        countText = String(countGoal)
-                                    } else {
-                                        countText = ""
-                                        countGoal = 0
-                                    }
-                                }
-                            }
-                        } label: {
-                            HStack(spacing: 4) {
-                                    Image(systemName: "number")
-                                        .font(.system(size: 12, weight: selectedType == .count ? .bold : .regular))
-                                    Text("count".localized)
-                                        .font(.system(size: 12, weight: selectedType == .count ? .bold : .regular))
-                                }
-                                .foregroundStyle(selectedType == .count ? primaryColor : secondaryColor)
-                                .frame(height: 28)
-                                .padding(.horizontal, 8)
-                                .background {
-                                    if selectedType == .count {
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .fill(backgroundColor)
-                                            .matchedGeometryEffect(id: "TypeBackground", in: animation)
-                                    }
-                                }
-                            }
-                            .contentShape(Rectangle())
+                    Picker("", selection: $selectedType.animation()) {
+                        Text("count".localized)
+                            .tag(HabitType.count)
                         
-                        // Time Button
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                selectedType = .time
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    if hours == 0 && minutes == 0 {
-                                        hours = 1
-                                        minutes = 0
-                                    }
-                                    updateTimeDateFromHoursAndMinutes()
-                                }
-                            }
-                        } label: {
-                            HStack(spacing: 4) {
-                                    Image(systemName: "clock")
-                                        .font(.system(size: 12, weight: selectedType == .time ? .bold : .regular))
-                                    Text("time".localized)
-                                        .font(.system(size: 12, weight: selectedType == .time ? .bold : .regular))
-                                }
-                                .foregroundStyle(selectedType == .time ? primaryColor : secondaryColor)
-                                .frame(height: 28)
-                                .padding(.horizontal, 8)
-                                .background {
-                                    if selectedType == .time {
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .fill(backgroundColor)
-                                            .matchedGeometryEffect(id: "TypeBackground", in: animation)
-                                    }
-                                }
-                            }
-                            .contentShape(Rectangle())
+                        Text("time".localized,)
+                            .tag(HabitType.time)
                     }
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(secondaryColor.opacity(0.5), lineWidth: 1)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 170)
                 }
                 .frame(height: 37)
                 
@@ -130,6 +51,7 @@ struct GoalSectionContent: View {
                                     countGoal = 0
                                 }
                             }
+                            .transition(.opacity)
                     } else {
                         Spacer()
                         DatePicker("", selection: $timeDate, displayedComponents: [.hourAndMinute])
@@ -139,16 +61,34 @@ struct GoalSectionContent: View {
                             .onChange(of: timeDate) { _, newValue in
                                 updateHoursAndMinutesFromTimeDate()
                             }
+                            .transition(.opacity.combined(with: .move(edge: .trailing)))
                     }
                 }
                 .frame(height: 37)
                 .padding(.leading, 28)
+                .animation(.easeInOut(duration: 0.4), value: selectedType)
             }
         }
         .onAppear {
             updateTimeDateFromHoursAndMinutes()
             if selectedType == .count && countGoal > 0 {
                 countText = String(countGoal)
+            }
+        }
+        .onChange(of: selectedType) { _, newValue in
+            if newValue == .count {
+                if countGoal > 0 {
+                    countText = String(countGoal)
+                } else {
+                    countText = ""
+                    countGoal = 0
+                }
+            } else {
+                if hours == 0 && minutes == 0 {
+                    hours = 1
+                    minutes = 0
+                }
+                updateTimeDateFromHoursAndMinutes()
             }
         }
     }
@@ -163,31 +103,4 @@ struct GoalSectionContent: View {
     private func updateTimeDateFromHoursAndMinutes() {
         timeDate = Calendar.current.date(bySettingHour: hours, minute: minutes, second: 0, of: Date()) ?? Date()
     }
-}
-
-#Preview {
-    VStack(spacing: 40) {
-        GoalSectionContent(
-            selectedType: .constant(.count),
-            countGoal: .constant(5),
-            hours: .constant(1),
-            minutes: .constant(30)
-        )
-        .padding()
-        .background(Color.white)
-        .cornerRadius(12)
-        .preferredColorScheme(.light)
-        
-        GoalSectionContent(
-            selectedType: .constant(.time),
-            countGoal: .constant(5),
-            hours: .constant(1),
-            minutes: .constant(30)
-        )
-        .padding()
-        .background(Color.black)
-        .cornerRadius(12)
-        .preferredColorScheme(.dark)
-    }
-    .padding()
 }

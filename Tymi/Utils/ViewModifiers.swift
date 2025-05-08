@@ -22,48 +22,8 @@ struct SectionCardModifier: ViewModifier {
     }
 }
 
-// MARK: - DeleteHabitAlertModifier
-struct DeleteHabitAlertModifier: ViewModifier {
-    @Binding var isPresented: Bool
-    let onDelete: () -> Void
-    
-    func body(content: Content) -> some View {
-        content
-            .alert("delete_habit_confirmation".localized, isPresented: $isPresented) {
-                Button("cancel".localized, role: .cancel) { }
-                Button("delete".localized, role: .destructive) {
-                    onDelete()
-                }
-            } message: {
-                Text("freeze_instead_message".localized)
-            }
-    }
-}
-
-// MARK: - FreezeHabitAlertModifier
-struct FreezeHabitAlertModifier: ViewModifier {
-    @Binding var isPresented: Bool
-    let onDismiss: () -> Void
-    
-    func body(content: Content) -> some View {
-        content
-            .alert("frozen_habit_info".localized, isPresented: $isPresented) {
-                Button("okay".localized, action: onDismiss)
-            }
-            .tint(.primary)
-    }
-}
-
 extension View {
     func sectionCard() -> some View {
         self.modifier(SectionCardModifier())
-    }
-    
-    func deleteHabitAlert(isPresented: Binding<Bool>, onDelete: @escaping () -> Void) -> some View {
-        self.modifier(DeleteHabitAlertModifier(isPresented: isPresented, onDelete: onDelete))
-    }
-    
-    func freezeHabitAlert(isPresented: Binding<Bool>, onDismiss: @escaping () -> Void) -> some View {
-        self.modifier(FreezeHabitAlertModifier(isPresented: isPresented, onDismiss: onDismiss))
     }
 }

@@ -8,11 +8,11 @@ struct ReminderSectionContent: View {
     var body: some View {
         Section {
             HStack(alignment: .center, spacing: 12) {
-                Image(systemName: "bell")
-                    .foregroundStyle(.primary)
-                    .frame(width: 24, height: 24)
-                    .symbolEffect(.bounce, options: .repeat(1), value: isReminderEnabled)
-                
+                    Image(systemName: "bell.badge")
+                        .foregroundStyle(.primary)
+                        .frame(width: 24, height: 24)
+                        .symbolEffect(.bounce, options: .repeat(1), value: isReminderEnabled)
+                    
                 Text("reminder".localized)
                 
                 Spacer()

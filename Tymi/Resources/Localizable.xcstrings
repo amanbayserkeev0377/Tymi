@@ -1005,7 +1005,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove Icon"
+            "value" : "Remove"
           }
         },
         "ky-KG" : {
@@ -1017,7 +1017,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Без иконки"
+            "value" : "Удалить"
           }
         }
       }

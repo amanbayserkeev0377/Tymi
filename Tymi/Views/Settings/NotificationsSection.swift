@@ -12,40 +12,65 @@ struct NotificationsSection: View {
             Image(systemName: "bell.badge")
                 .foregroundStyle(.primary)
                 .frame(width: 24, height: 24)
+                .symbolEffect(.bounce, options: .repeat(1), value: notificationsEnabled)
             
             Text("notifications".localized)
                 .foregroundStyle(.primary)
             
             Spacer()
             
-            Toggle("", isOn: $notificationsEnabled)
+            Toggle("", isOn: $notificationsEnabled.animation(.easeInOut(duration: 0.3)))
                 .labelsHidden()
                 .tint(colorScheme == .dark ? Color.gray : .black)
                 .onChange(of: notificationsEnabled) { _, newValue in
-                    if newValue {
-                        Task {
-                            do {
-                                try await NotificationManager.shared.requestAuthorization()
-                                NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
-                            } catch {
-                                notificationsEnabled = false
-                                isNotificationPermissionAlertPresented = true
-                            }
-                        }
-                    } else {
-                        NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
-                    }
+                    handleNotificationToggle(newValue)
                 }
         }
         .alert("notification_permission".localized, isPresented: $isNotificationPermissionAlertPresented) {
             Button("cancel".localized, role: .cancel) { }
             Button("settings".localized) {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
+                openSettings()
+            }
+            
+            Text("permission_for_notifications".localized)
+        }
+    }
+    
+    private func handleNotificationToggle(_ isEnabled: Bool) {
+        if isEnabled {
+            requestNotificationPermission()
+        } else {
+            NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
+        }
+    }
+    
+    private func requestNotificationPermission() {
+        Task {
+            do {
+                try await NotificationManager.shared.requestAuthorization()
+                
+                let isAuthorized = await NotificationManager.shared.checkNotificationStatus()
+                
+                await MainActor.run {
+                    if isAuthorized {
+                        NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
+                    } else {
+                        notificationsEnabled = false
+                        isNotificationPermissionAlertPresented = true
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    notificationsEnabled = false
+                    isNotificationPermissionAlertPresented = true
                 }
             }
-        
-            Text("permission_for_notifications".localized)
+        }
+    }
+    
+    private func openSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
         }
     }
 }

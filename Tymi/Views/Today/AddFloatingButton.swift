@@ -44,23 +44,3 @@ struct AddFloatingButton: View {
         )
     }
 }
-
-struct AddFloatingButton_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            AddFloatingButton(action: {})
-                .preferredColorScheme(.light)
-                .previewLayout(.sizeThatFits)
-                .padding()
-                .background(Color(.systemBackground))
-                .previewDisplayName("Light Theme")
-            
-            AddFloatingButton(action: {})
-                .preferredColorScheme(.dark)
-                .previewLayout(.sizeThatFits)
-                .padding()
-                .background(Color(.systemBackground))
-                .previewDisplayName("Dark Theme")
-        }
-    }
-}

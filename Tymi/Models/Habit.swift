@@ -85,7 +85,7 @@ final class Habit {
         }
         
         self.reminderTime = reminderTime
-        self.startDate = startDate
+        self.startDate = Calendar.current.startOfDay(for: startDate)
     }
     
     // Check if habit is active on specific day
@@ -106,24 +106,15 @@ final class Habit {
     func isActiveOnDate(_ date: Date) -> Bool {
         let calendar = Calendar.userPreferred
         
-        // Если дата раньше даты начала, то привычка неактивна
-        if date < calendar.startOfDay(for: startDate) {
+        let dateStartOfDay = calendar.startOfDay(for: date)
+        let startDateOfDay = calendar.startOfDay(for: startDate)
+        
+        if dateStartOfDay < startDateOfDay {
             return false
         }
         
-        // Получаем день недели для указанной даты (0-6, где 0 - воскресенье)
         let weekday = Weekday.from(date: date)
-        
-        // Проверяем, активен ли день недели для данной привычки
-        let isActive = self.isActive(on: weekday)
-        
-        // Для отладки
-        print("Habit \(title): Checking if active for \(date)")
-        print("  Start date: \(startDate)")
-        print("  Day of week: \(weekday.rawValue) (\(weekday.fullName))")
-        print("  Is active for this day: \(isActive)")
-        
-        return isActive
+        return isActive(on: weekday)
     }
     
     // Get progress for specific date

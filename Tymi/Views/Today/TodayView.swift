@@ -16,38 +16,19 @@ struct TodayView: View {
     @State private var isShowingSettingsSheet = false
     @State private var habitsUpdateService = HabitsUpdateService()
     
-    // Добавляем состояние для принудительного обновления
-    @State private var forceViewUpdate: Bool = false
-    
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate("EEEE d MMM")
         return formatter
     }()
     
-    // Активные привычки для выбранной даты
+    // Вычисляемое свойство для фильтрации привычек на основе выбранной даты
     private var activeHabitsForDate: [Habit] {
-        // Используем forceViewUpdate как триггер для перевычисления
-        _ = forceViewUpdate
-        
-        // Применяем фильтрацию к базовым привычкам
-        let activeHabits = baseHabits.filter { habit in
-            let isActive = habit.isActiveOnDate(selectedDate)
-            let isAfterStartDate = selectedDate >= habit.startDate
-            
-            // Для отладки
-            print("Checking habit: \(habit.title)")
-            print("  Is active on date: \(isActive)")
-            print("  Is after start date: \(isAfterStartDate)")
-            print("  Combined result: \(isActive && isAfterStartDate)")
-            
-            return isActive && isAfterStartDate
+        baseHabits.filter { habit in
+            !habit.isFreezed &&
+            habit.isActiveOnDate(selectedDate) &&
+            selectedDate >= habit.startDate
         }
-        
-        // Для отладки
-        print("Total active habits for \(selectedDate): \(activeHabits.count)")
-        
-        return activeHabits
     }
     
     // Имеются ли привычки для выбранной даты
@@ -57,10 +38,10 @@ struct TodayView: View {
     
     func formattedDate(_ date: Date) -> String {
         let weekday = DateFormatter.weekday.string(from: date).prefix(1).uppercased()
-                      + DateFormatter.weekday.string(from: date).dropFirst().lowercased()
+        + DateFormatter.weekday.string(from: date).dropFirst().lowercased()
         let day = DateFormatter.dayOfMonth.string(from: date)
         let month = DateFormatter.shortMonth.string(from: date).prefix(1).uppercased()
-                    + DateFormatter.shortMonth.string(from: date).dropFirst().lowercased()
+        + DateFormatter.shortMonth.string(from: date).dropFirst().lowercased()
         
         return "\(weekday), \(day) \(month)"
     }
@@ -98,7 +79,6 @@ struct TodayView: View {
                                         }
                                     }
                                     .padding(.top, 12)
-                                    .id("habits-list-\(forceViewUpdate)") // Важно: это заставит SwiftUI пересоздать список
                                 } else {
                                     // Специальное сообщение, если нет привычек на выбранную дату
                                     // но при этом привычки в целом существуют
@@ -128,6 +108,7 @@ struct TodayView: View {
                     }
                 }
                 .padding(.bottom, 20)
+                .padding(.horizontal, 5)
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
             .navigationBarTitleDisplayMode(.inline)
@@ -182,10 +163,6 @@ struct TodayView: View {
                             }
                         }
                     }
-                    .onDisappear {
-                        // При закрытии окна создания привычки обновляем привычки
-                        refreshHabitsQuery()
-                    }
             }
             .sheet(isPresented: $isShowingSettingsSheet) {
                 SettingsView()
@@ -209,54 +186,34 @@ struct TodayView: View {
                     }
             }
             .sheet(item: $selectedHabit) { habit in
-                HabitDetailView(habit: habit, date: selectedDate)
-                    .environment(habitsUpdateService)
-                    .presentationDetents([.fraction(0.8)])
-                    .presentationDragIndicator(.visible)
-                    .presentationCornerRadius(40)
-                    .presentationBackground {
-                        let cornerRadius: CGFloat = 40
-                        ZStack {
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .fill(.ultraThinMaterial)
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .stroke(
-                                    colorScheme == .dark
-                                    ? Color.white.opacity(0.1)
-                                    : Color.black.opacity(0.15),
-                                    lineWidth: 1.5
-                                )
-                        }
+                HabitDetailView(
+                    habit: habit,
+                    date: selectedDate,
+                    onDelete: {
+                        selectedHabit = nil
                     }
-            }
-            .onChange(of: selectedDate) { oldValue, newValue in
-                print("TodayView: Date changed from \(oldValue) to \(newValue)")
-                
-                // Вызываем немедленное обновление
-                forceViewUpdate.toggle()
-                
-                // Также запускаем отложенное обновление через 100мс
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    forceViewUpdate.toggle()
-                    
-                    // Обновляем данные через сервис обновления
-                    habitsUpdateService.triggerUpdate()
-                    
-                    // Добавляем еще одно обновление через 300мс для подстраховки
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        refreshHabitsQuery()
+                )
+                .environment(habitsUpdateService)
+                .presentationDetents([.fraction(0.8)])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(40)
+                .presentationBackground {
+                    let cornerRadius: CGFloat = 40
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(.ultraThinMaterial)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(
+                                colorScheme == .dark
+                                ? Color.white.opacity(0.1)
+                                : Color.black.opacity(0.15),
+                                lineWidth: 1.5
+                            )
                     }
                 }
             }
-            .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
-                // Обновляем представление при сигнале от сервиса обновления
-                refreshHabitsQuery()
-            }
-            .onAppear {
-                // При появлении представления обновляем список
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    refreshHabitsQuery()
-                }
+            .onChange(of: selectedDate) { _, _ in
+                habitsUpdateService.triggerUpdate()
             }
         }
         .environment(habitsUpdateService)
@@ -281,31 +238,4 @@ struct TodayView: View {
             return formattedDate(date)
         }
     }
-    
-    // Метод для принудительного обновления запроса привычек
-    private func refreshHabitsQuery() {
-        let descriptor = FetchDescriptor<Habit>(
-            predicate: #Predicate<Habit> { !$0.isFreezed },
-            sortBy: [SortDescriptor(\Habit.createdAt)]
-        )
-        
-        Task {
-            do {
-                // Выполняем запрос заново
-                _ = try modelContext.fetch(descriptor)
-                
-                // Обновляем состояние для перерисовки интерфейса
-                DispatchQueue.main.async {
-                    forceViewUpdate.toggle()
-                }
-            } catch {
-                print("Error refreshing habits: \(error)")
-            }
-        }
-    }
-}
-
-#Preview {
-    TodayView()
-        .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
 }

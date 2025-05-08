@@ -27,8 +27,11 @@ final class HabitDetailViewModel {
     var isEditSheetPresented = false
     var alertState = AlertState()
     
-    // Флаг для отслеживания были ли изменения, требующие сохранения
+    
+    // Need filter
     private var hasChanges = false
+    private var saveDebounceTask: Task<Void, Never>?
+    var onHabitDeleted: (() -> Void)?
     
     
     // MARK: - Computed Properties
@@ -154,6 +157,19 @@ final class HabitDetailViewModel {
         currentProgress = timerService.getCurrentProgress(for: habit.id)
         updateProgressMetrics()
         hasChanges = true
+        
+        saveDebounceTask?.cancel()
+        
+        saveDebounceTask = Task { @MainActor in
+            do {
+                try await Task.sleep(for: .seconds(0.5))
+                if !Task.isCancelled {
+                    saveProgress()
+                }
+            } catch {
+                
+            }
+        }
     }
     
     // MARK: - Timer Management
@@ -165,6 +181,8 @@ final class HabitDetailViewModel {
         }
         isTimerRunning = timerService.isTimerRunning(for: habit.id)
         hasChanges = true
+        
+        saveProgress()
     }
     
     // MARK: - Habit Management
@@ -194,6 +212,8 @@ final class HabitDetailViewModel {
         modelContext.delete(habit)
         alertState.errorFeedbackTrigger.toggle()
         habitsUpdateService.triggerUpdate()
+        
+        onHabitDeleted?()
     }
     
     // MARK: - Progress Actions
@@ -298,6 +318,17 @@ final class HabitDetailViewModel {
         updateStatistics()
         hasChanges = false
         habitsUpdateService.triggerUpdate()
+    }
+    
+    func saveIfNeeded() {
+        if hasChanges {
+            saveProgress()
+        }
+    }
+    
+    func cleanup() {
+        saveDebounceTask?.cancel()
+        saveIfNeeded()
     }
     
     // MARK: - Private Methods

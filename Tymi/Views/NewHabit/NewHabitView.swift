@@ -239,7 +239,7 @@ struct NewHabitView: View {
             iconName: selectedIcon,
             activeDays: activeDays,
             reminderTime: isReminderEnabled ? reminderTime : nil,
-            startDate: startDate
+            startDate: Calendar.current.startOfDay(for: startDate)
         )
         
         if isReminderEnabled {
@@ -282,7 +282,7 @@ struct NewHabitView: View {
             }
         }
         
-        habitsUpdateService.triggerDelayedUpdate(delay: 0.5)
+        habitsUpdateService.triggerUpdate()
     }
     
     dismiss()

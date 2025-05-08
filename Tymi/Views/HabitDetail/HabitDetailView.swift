@@ -14,7 +14,7 @@ struct HabitDetailView: View {
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
     // MARK: - Initialization
-    init(habit: Habit, date: Date = .now) {
+    init(habit: Habit, date: Date = .now, onDelete: (() -> Void)? = nil) {
         self.habit = habit
         self.date = date
         
@@ -24,6 +24,8 @@ struct HabitDetailView: View {
             modelContext: ModelContext(ModelContainer.empty),
             habitsUpdateService: HabitsUpdateService()
         ))
+        
+        viewModel.onHabitDeleted = onDelete
     }
     
     // MARK: - Body
@@ -155,11 +157,10 @@ struct HabitDetailView: View {
                     }
                 }
         }
-        .habitDetailAlerts(
-            habit: habit,
-            date: date,
-            timerService: viewModel.timerService,
+        .habitAlerts(
             alertState: $viewModel.alertState,
+            habit: habit,
+            timerService: viewModel.timerService,
             onReset: viewModel.resetProgress,
             onDelete: viewModel.deleteHabit
         )
@@ -167,7 +168,7 @@ struct HabitDetailView: View {
             viewModel.isEditSheetPresented = false
         }
         .onDisappear {
-            viewModel.saveProgress()
+            viewModel.cleanup()
         }
         .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
             if newValue {

@@ -9,16 +9,16 @@ struct HapticsSection: View {
             Image(systemName: "waveform")
                 .foregroundStyle(.primary)
                 .frame(width: 24, height: 24)
+                .symbolEffect(.bounce, options: .repeat(1), value: hapticsEnabled)
             
             Text("haptics".localized)
                 .foregroundStyle(.primary)
             
             Spacer()
             
-            Toggle("", isOn: $hapticsEnabled)
+            Toggle("", isOn: $hapticsEnabled.animation(.easeInOut(duration: 0.3)))
                 .labelsHidden()
                 .tint(colorScheme == .dark ? Color.gray : .black)
-                .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: hapticsEnabled))
         }
     }
 }
