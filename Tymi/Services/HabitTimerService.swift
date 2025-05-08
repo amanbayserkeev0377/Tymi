@@ -7,11 +7,11 @@ class HabitTimerService: ObservableObject {
     
     // MARK: - Properties
     
-    // Модель данных для таймеров
+    // Структура данных для таймеров
     private struct TimerData {
-        var startTime: Date?           // Время запуска таймера (nil если не запущен)
-        var accumulatedSeconds: Int    // Накопленное время в секундах
-        var isActive: Bool             // Флаг активности таймера
+        var startTimestamp: TimeInterval?    // Момент запуска таймера (Unix timestamp)
+        var accumulatedSeconds: Int          // Накопленное время в секундах
+        var isActive: Bool                   // Флаг активности таймера
     }
     
     // Словарь с данными таймеров
@@ -26,7 +26,6 @@ class HabitTimerService: ObservableObject {
     // UserDefaults ключи
     private enum Keys {
         static let timerData = "habit.timer.data"
-        static let backgroundTime = "habit.background.time"
         static let activeTimers = "habit.active.timers"
     }
     
@@ -65,10 +64,10 @@ class HabitTimerService: ObservableObject {
         var hasChanges = false
         
         lock.lock()
-        let now = Date()
+        let now = Date().timeIntervalSince1970
         for (habitId, data) in habitTimers where data.isActive {
-            if let startTime = data.startTime {
-                let elapsedTime = Int(now.timeIntervalSince(startTime))
+            if let startTime = data.startTimestamp {
+                let elapsedTime = Int(now - startTime)
                 let totalSeconds = data.accumulatedSeconds + elapsedTime
                 
                 if progressUpdates[habitId] != totalSeconds {
@@ -95,25 +94,24 @@ class HabitTimerService: ObservableObject {
     // MARK: - Сохранение и загрузка состояния
     
     private func loadSavedState() {
-        // Загружаем накопленное время
-        if let savedData = UserDefaults.standard.dictionary(forKey: Keys.timerData) as? [String: Int] {
+        // Загружаем накопленное время и статус таймеров
+        if let savedData = UserDefaults.standard.dictionary(forKey: Keys.timerData) as? [String: [String: Any]] {
             lock.lock()
-            for (habitId, seconds) in savedData {
+            for (habitId, data) in savedData {
+                let accumulatedSeconds = data["accumulated"] as? Int ?? 0
+                let startTimestamp = data["startTime"] as? TimeInterval
+                let isActive = data["isActive"] as? Bool ?? false
+                
                 habitTimers[habitId] = TimerData(
-                    startTime: nil,
-                    accumulatedSeconds: seconds,
-                    isActive: false
+                    startTimestamp: isActive ? Date().timeIntervalSince1970 : startTimestamp,
+                    accumulatedSeconds: accumulatedSeconds,
+                    isActive: isActive
                 )
-                progressUpdates[habitId] = seconds
+                
+                // Обновляем прогресс сразу для UI
+                progressUpdates[habitId] = accumulatedSeconds
             }
             lock.unlock()
-        }
-        
-        // Восстанавливаем активные таймеры
-        if let activeIds = UserDefaults.standard.stringArray(forKey: Keys.activeTimers) {
-            for habitId in activeIds {
-                startTimer(for: habitId)
-            }
         }
     }
     
@@ -121,76 +119,45 @@ class HabitTimerService: ObservableObject {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             guard let self = self else { return }
             
-            var dataToSave: [String: Int] = [:]
-            var activeTimers: [String] = []
+            var dataToSave: [String: [String: Any]] = [:]
             
             self.lock.lock()
             for (habitId, data) in self.habitTimers {
-                dataToSave[habitId] = data.accumulatedSeconds
-                if data.isActive {
-                    activeTimers.append(habitId)
+                var timerData: [String: Any] = [:]
+                
+                // Если таймер активен, сначала обновим накопленное время
+                if data.isActive, let startTime = data.startTimestamp {
+                    let now = Date().timeIntervalSince1970
+                    let elapsed = Int(now - startTime)
+                    let totalAccumulated = data.accumulatedSeconds + elapsed
+                    
+                    timerData["accumulated"] = totalAccumulated
+                    timerData["startTime"] = now // Обновляем время старта
+                } else {
+                    timerData["accumulated"] = data.accumulatedSeconds
+                    timerData["startTime"] = data.startTimestamp
                 }
+                
+                timerData["isActive"] = data.isActive
+                dataToSave[habitId] = timerData
             }
             self.lock.unlock()
             
             UserDefaults.standard.set(dataToSave, forKey: HabitTimerService.Keys.timerData)
-            UserDefaults.standard.set(activeTimers, forKey: HabitTimerService.Keys.activeTimers)
         }
     }
     
     // MARK: - Обработка состояния приложения
     
     func handleAppDidEnterBackground() {
-        // Сохраняем время ухода в фон
-        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Keys.backgroundTime)
-        
-        lock.lock()
-        // Обновляем накопленное время для всех активных таймеров
-        for (habitId, data) in habitTimers where data.isActive {
-            if let startTime = data.startTime {
-                let elapsedTime = Int(Date().timeIntervalSince(startTime))
-                habitTimers[habitId]?.accumulatedSeconds += elapsedTime
-                
-                // Обновляем время начала отсчета, НО оставляем таймер активным
-                habitTimers[habitId]?.startTime = Date()
-            }
-        }
-        lock.unlock()
-        
-        saveState()
+        saveState() // Сохраняем текущее состояние
     }
     
     func handleAppWillEnterForeground() {
-        guard let timestamp = UserDefaults.standard.object(forKey: Keys.backgroundTime) as? Double else {
-            return
-        }
-        
-        let backgroundDate = Date(timeIntervalSince1970: timestamp)
-        let timeInBackground = Int(Date().timeIntervalSince(backgroundDate))
-        
-        guard timeInBackground > 0 else { return }
-        
-        lock.lock()
-        let now = Date()
-        // Получаем список активных таймеров
-        let activeTimerIds = habitTimers.filter { $0.value.isActive }.keys
-        
-        // Для всех активных таймеров добавляем время, проведенное в фоне
-        for habitId in activeTimerIds {
-            habitTimers[habitId]?.accumulatedSeconds += timeInBackground
-            habitTimers[habitId]?.startTime = now
-            progressUpdates[habitId] = habitTimers[habitId]?.accumulatedSeconds ?? 0
-        }
-        lock.unlock()
-        
-        // Уведомляем слушателей об изменениях
-        if !activeTimerIds.isEmpty {
-            DispatchQueue.main.async { [weak self] in
-                self?.objectWillChange.send()
-            }
-        }
-        
-        saveState()
+        // При возвращении в приложение не нужно специально обрабатывать,
+        // так как мы будем вычислять прошедшее время по timestamp
+        // Просто обновляем прогресс, чтобы отразить изменения
+        updateAllProgress()
     }
     
     // MARK: - Управление таймерами
@@ -201,7 +168,7 @@ class HabitTimerService: ObservableObject {
         // Создаем запись для привычки, если нет
         if habitTimers[habitId] == nil {
             habitTimers[habitId] = TimerData(
-                startTime: nil,
+                startTimestamp: nil,
                 accumulatedSeconds: initialProgress,
                 isActive: false
             )
@@ -214,8 +181,8 @@ class HabitTimerService: ObservableObject {
         }
         
         // Активируем таймер
-        let now = Date()
-        habitTimers[habitId]?.startTime = now
+        let now = Date().timeIntervalSince1970
+        habitTimers[habitId]?.startTimestamp = now
         habitTimers[habitId]?.isActive = true
         
         // Фиксируем текущий прогресс для уведомления UI
@@ -241,13 +208,14 @@ class HabitTimerService: ObservableObject {
         }
         
         // Обновляем накопленное время
-        if let startTime = data.startTime {
-            let elapsedTime = Int(Date().timeIntervalSince(startTime))
+        if let startTime = data.startTimestamp {
+            let now = Date().timeIntervalSince1970
+            let elapsedTime = Int(now - startTime)
             data.accumulatedSeconds += elapsedTime
         }
         
         // Деактивируем таймер
-        data.startTime = nil
+        data.startTimestamp = nil
         data.isActive = false
         
         // Обновляем состояние
@@ -272,7 +240,7 @@ class HabitTimerService: ObservableObject {
         
         // Сбрасываем данные
         habitTimers[habitId] = TimerData(
-            startTime: wasActive ? Date() : nil,
+            startTimestamp: wasActive ? Date().timeIntervalSince1970 : nil,
             accumulatedSeconds: 0,
             isActive: wasActive
         )
@@ -293,7 +261,7 @@ class HabitTimerService: ObservableObject {
         // Проверяем, существует ли запись
         if habitTimers[habitId] == nil {
             habitTimers[habitId] = TimerData(
-                startTime: nil,
+                startTimestamp: nil,
                 accumulatedSeconds: 0,
                 isActive: false
             )
@@ -304,9 +272,13 @@ class HabitTimerService: ObservableObject {
         var currentSeconds = habitTimers[habitId]?.accumulatedSeconds ?? 0
         
         // Если таймер активен, добавляем накопленное время
-        if wasActive, let startTime = habitTimers[habitId]?.startTime {
-            let elapsedTime = Int(Date().timeIntervalSince(startTime))
+        if wasActive, let startTime = habitTimers[habitId]?.startTimestamp {
+            let now = Date().timeIntervalSince1970
+            let elapsedTime = Int(now - startTime)
             currentSeconds += elapsedTime
+            
+            // Обновляем время начала
+            habitTimers[habitId]?.startTimestamp = now
         }
         
         // Добавляем новое значение
@@ -314,11 +286,6 @@ class HabitTimerService: ObservableObject {
         
         // Обновляем состояние
         habitTimers[habitId]?.accumulatedSeconds = currentSeconds
-        
-        // Если таймер был активен, обновляем время начала
-        if wasActive {
-            habitTimers[habitId]?.startTime = Date()
-        }
         
         // Фиксируем текущий прогресс для уведомления UI
         let finalProgress = currentSeconds
@@ -339,9 +306,10 @@ class HabitTimerService: ObservableObject {
         lock.lock()
         defer { lock.unlock() }
         
-        // Если таймер активен, добавляем текущее накопленное время
-        if let data = habitTimers[habitId], data.isActive, let startTime = data.startTime {
-            let elapsedTime = Int(Date().timeIntervalSince(startTime))
+        // Если таймер активен, вычисляем текущее время
+        if let data = habitTimers[habitId], data.isActive, let startTime = data.startTimestamp {
+            let now = Date().timeIntervalSince1970
+            let elapsedTime = Int(now - startTime)
             return data.accumulatedSeconds + elapsedTime
         }
         
@@ -376,7 +344,25 @@ class HabitTimerService: ObservableObject {
                 
                 // Добавляем новый прогресс, если он отличается
                 if currentProgress != existingProgress {
-                    habit.addProgress(currentProgress - existingProgress, for: date)
+                    // Если текущий прогресс меньше существующего, удаляем записи и создаем новую
+                    if currentProgress < existingProgress {
+                        let existingCompletions = habit.completions.filter {
+                            Calendar.current.isDate($0.date, inSameDayAs: date)
+                        }
+                        
+                        for completion in existingCompletions {
+                            modelContext.delete(completion)
+                        }
+                        
+                        // Если прогресс > 0, добавляем новую запись
+                        if currentProgress > 0 {
+                            habit.addProgress(currentProgress, for: date)
+                        }
+                    } else {
+                        // Если прогресс больше, просто добавляем разницу
+                        habit.addProgress(currentProgress - existingProgress, for: date)
+                    }
+                    
                     try modelContext.save()
                 }
             } catch {
