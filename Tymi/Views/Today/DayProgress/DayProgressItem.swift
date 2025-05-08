@@ -7,18 +7,27 @@ struct DayProgressItem: View {
     let onTap: () -> Void
     
     @Environment(\.colorScheme) private var colorScheme
-    @StateObject private var calendarManager = CalendarManager.shared
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @AppStorage("firstDayOfWeek") private var firstDayOfWeek: Int = 0
+    
+    private var calendar: Calendar {
+        return Calendar.userPreferred
+    }
     
     private var dayNumber: String {
-        "\(calendarManager.calendar.component(.day, from: date))"
+        "\(calendar.component(.day, from: date))"
     }
     
     private var isToday: Bool {
-        calendarManager.calendar.isDateInToday(date)
+        calendar.isDateInToday(date)
     }
     
     private var isFutureDate: Bool {
         date > Date()
+    }
+    
+    private var isValidDate: Bool {
+        date <= Date().addingTimeInterval(86400 * 365) // Не более года в будущем
     }
     
     private var progressColors: [Color] {
@@ -43,32 +52,82 @@ struct DayProgressItem: View {
         }
     }
     
+    private var circleSize: CGFloat {
+        switch dynamicTypeSize {
+        case .accessibility5:
+            return 44
+        case .accessibility4:
+            return 40
+        case .accessibility3:
+            return 38
+        case .accessibility2:
+            return 36
+        case .accessibility1:
+            return 34
+        default:
+            return 32
+        }
+    }
+    
+    private var fontSize: CGFloat {
+        switch dynamicTypeSize {
+        case .accessibility5:
+            return 17
+        case .accessibility4:
+            return 16
+        case .accessibility3:
+            return 15.5
+        case .accessibility2:
+            return 15
+        case .accessibility1:
+            return 14.5
+        default:
+            return 14
+        }
+    }
+    
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 4) {
+            VStack(spacing: 8) {
                 ZStack {
-                    Circle()
-                        .fill(
-                            AngularGradient(
-                                colors: progressColors,
-                                center: .center,
-                                startAngle: .degrees(0),
-                                endAngle: .degrees(360)
+                    if isFutureDate {
+                        Circle()
+                            .fill(Color.clear)
+                            .frame(width: circleSize, height: circleSize)
+                    } else {
+                        Circle()
+                            .stroke(Color.secondary.opacity(0.1), lineWidth: 4)
+                            .frame(width: circleSize, height: circleSize)
+                        
+                        Circle()
+                            .trim(from: 0, to: progress)
+                            .stroke(
+                                AngularGradient(
+                                    colors: progressColors,
+                                    center: .center,
+                                    startAngle: .degrees(0),
+                                    endAngle: .degrees(360)
+                                ),
+                                style: StrokeStyle(
+                                    lineWidth: 4,
+                                    lineCap: .round
+                                )
                             )
-                        )
-                        .frame(width: 44, height: 44)
+                            .rotationEffect(.degrees(-90))
+                            .frame(width: circleSize, height: circleSize)
+                    }
                     
                     if isFutureDate {
                         Text(dayNumber)
-                            .font(.system(size: 15, weight: .regular))
+                            .font(.system(size: fontSize, weight: .regular))
                             .foregroundStyle(.tertiary)
                     } else if isToday {
                         Text(dayNumber)
-                            .font(.system(size: 15, weight: .bold))
+                            .font(.system(size: fontSize, weight: .bold))
                             .foregroundColor(Color.orange)
                     } else {
                         Text(dayNumber)
-                            .font(.system(size: 15, weight: isSelected ? .bold : .regular))
+                            .font(.system(size: fontSize, weight: isSelected ? .bold : .regular))
                             .foregroundStyle(isSelected ? .primary : .secondary)
                     }
                 }
@@ -82,10 +141,10 @@ struct DayProgressItem: View {
                         .frame(width: 5, height: 5)
                 }
             }
-            .frame(width: 44, height: 60)
+            .frame(width: circleSize + 8, height: circleSize + 24)
             .opacity(isFutureDate ? 0.6 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
-        .disabled(isFutureDate)
+        .disabled(isFutureDate || !isValidDate)
     }
 }

@@ -1,301 +1,314 @@
 import Foundation
-import Combine
 import SwiftData
+import UIKit
 
-class HabitTimerService: ObservableObject {
+@Observable
+final class HabitTimerService {
     static let shared = HabitTimerService()
     
-    // MARK: - Properties
+    // MARK: - Типы и структуры данных
     
-    // Структура данных для таймеров
-    private struct TimerData {
-        var startTimestamp: TimeInterval?    // Момент запуска таймера (Unix timestamp)
-        var accumulatedSeconds: Int          // Накопленное время в секундах
-        var isActive: Bool                   // Флаг активности таймера
+    /// Структура данных для хранения информации о таймере
+    private struct TimerData: Codable {
+        var startTimestamp: TimeInterval?  // Момент запуска таймера (Unix timestamp)
+        var accumulatedSeconds: Int        // Накопленное время в секундах
+        var isActive: Bool                 // Флаг активности таймера
     }
     
-    // Словарь с данными таймеров
-    private var habitTimers: [String: TimerData] = [:]
-    private let lock = NSLock()
-    private var masterTimer: Timer?
-    private let updateInterval: TimeInterval = 1.0
-    
-    // Публикуемое значение прогресса
-    @Published private(set) var progressUpdates: [String: Int] = [:]
-    
-    // UserDefaults ключи
+    /// Ключи для хранения настроек
     private enum Keys {
         static let timerData = "habit.timer.data"
-        static let activeTimers = "habit.active.timers"
     }
+    
+    // MARK: - Свойства
+    
+    /// Максимальное количество одновременно активных таймеров
+    private let maxActiveTimers = 3
+    
+    /// Словарь с прогрессом для каждого таймера
+    private(set) var progressUpdates: [String: Int] = [:]
+    
+    /// Словарь с данными таймеров
+    private var habitTimers: [String: TimerData] = [:]
+    
+    /// Таймер для регулярного обновления
+    private var timerTask: Task<Void, Never>?
+    
+    /// Защита доступа к данным
+    private let lock = NSLock()
     
     // MARK: - Инициализация
     
     private init() {
         loadSavedState()
-        setupMasterTimer()
+        startTimerTask()
+        setupApplicationLifecycleObservers()
     }
     
     deinit {
-        masterTimer?.invalidate()
+        timerTask?.cancel()
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - Настройка таймеров
     
-    private func setupMasterTimer() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            self.masterTimer = Timer.scheduledTimer(
-                withTimeInterval: self.updateInterval,
-                repeats: true
-            ) { [weak self] _ in
-                self?.updateAllProgress()
-            }
-            
-            if let timer = self.masterTimer {
-                RunLoop.main.add(timer, forMode: .common)
+    private func setupApplicationLifecycleObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+    
+    private func startTimerTask() {
+        timerTask = Task { @MainActor in
+            for await _ in AsyncTimerSequence(interval: .seconds(1), tolerance: .seconds(0.1)) {
+                if Task.isCancelled { break }
+                updateAllProgress()
             }
         }
     }
     
     private func updateAllProgress() {
-        var updatedProgress: [String: Int] = [:]
         var hasChanges = false
+        var updatedProgress: [String: Int] = [:]
         
-        lock.lock()
-        let now = Date().timeIntervalSince1970
-        for (habitId, data) in habitTimers where data.isActive {
-            if let startTime = data.startTimestamp {
-                let elapsedTime = Int(now - startTime)
-                let totalSeconds = data.accumulatedSeconds + elapsedTime
-                
-                if progressUpdates[habitId] != totalSeconds {
-                    updatedProgress[habitId] = totalSeconds
-                    hasChanges = true
+        withLock {
+            let now = Date().timeIntervalSince1970
+            
+            for (habitId, data) in habitTimers where data.isActive {
+                if let startTime = data.startTimestamp {
+                    let elapsedTime = Int(now - startTime)
+                    let totalSeconds = data.accumulatedSeconds + elapsedTime
+                    
+                    if progressUpdates[habitId] != totalSeconds {
+                        progressUpdates[habitId] = totalSeconds
+                        updatedProgress[habitId] = totalSeconds
+                        hasChanges = true
+                    }
                 }
             }
         }
-        lock.unlock()
         
         if hasChanges {
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                
-                for (habitId, progress) in updatedProgress {
-                    self.progressUpdates[habitId] = progress
-                }
-                
-                self.objectWillChange.send()
-            }
+            NotificationCenter.default.post(
+                name: .progressUpdated,
+                object: self,
+                userInfo: ["progressUpdates": progressUpdates]
+            )
         }
+    }
+    
+    // MARK: - Вспомогательный метод для блокировки
+    
+    private func withLock<T>(_ action: () throws -> T) rethrows -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return try action()
     }
     
     // MARK: - Сохранение и загрузка состояния
     
     private func loadSavedState() {
-        // Загружаем накопленное время и статус таймеров
-        if let savedData = UserDefaults.standard.dictionary(forKey: Keys.timerData) as? [String: [String: Any]] {
-            lock.lock()
-            for (habitId, data) in savedData {
-                let accumulatedSeconds = data["accumulated"] as? Int ?? 0
-                let startTimestamp = data["startTime"] as? TimeInterval
-                let isActive = data["isActive"] as? Bool ?? false
-                
+        guard let savedData = UserDefaults.standard.data(forKey: Keys.timerData),
+              let decodedData = try? JSONDecoder().decode([String: TimerData].self, from: savedData) else {
+            return
+        }
+        
+        withLock {
+            for (habitId, data) in decodedData {
                 habitTimers[habitId] = TimerData(
-                    startTimestamp: isActive ? Date().timeIntervalSince1970 : startTimestamp,
-                    accumulatedSeconds: accumulatedSeconds,
-                    isActive: isActive
+                    startTimestamp: data.isActive ? Date().timeIntervalSince1970 : data.startTimestamp,
+                    accumulatedSeconds: data.accumulatedSeconds,
+                    isActive: data.isActive
                 )
                 
-                // Обновляем прогресс сразу для UI
-                progressUpdates[habitId] = accumulatedSeconds
+                progressUpdates[habitId] = data.accumulatedSeconds
             }
-            lock.unlock()
         }
     }
     
     private func saveState() {
-        DispatchQueue.global(qos: .utility).async { [weak self] in
+        Task.detached(priority: .utility) { [weak self] in
             guard let self = self else { return }
             
-            var dataToSave: [String: [String: Any]] = [:]
+            var dataToSave: [String: TimerData] = [:]
             
-            self.lock.lock()
-            for (habitId, data) in self.habitTimers {
-                var timerData: [String: Any] = [:]
-                
-                // Если таймер активен, сначала обновим накопленное время
-                if data.isActive, let startTime = data.startTimestamp {
-                    let now = Date().timeIntervalSince1970
-                    let elapsed = Int(now - startTime)
-                    let totalAccumulated = data.accumulatedSeconds + elapsed
+            self.withLock {
+                for (habitId, data) in self.habitTimers {
+                    var timerData = data
                     
-                    timerData["accumulated"] = totalAccumulated
-                    timerData["startTime"] = now // Обновляем время старта
-                } else {
-                    timerData["accumulated"] = data.accumulatedSeconds
-                    timerData["startTime"] = data.startTimestamp
+                    if data.isActive, let startTime = data.startTimestamp {
+                        let now = Date().timeIntervalSince1970
+                        let elapsed = Int(now - startTime)
+                        timerData.accumulatedSeconds += elapsed
+                        timerData.startTimestamp = now
+                    }
+                    
+                    dataToSave[habitId] = timerData
                 }
-                
-                timerData["isActive"] = data.isActive
-                dataToSave[habitId] = timerData
             }
-            self.lock.unlock()
             
-            UserDefaults.standard.set(dataToSave, forKey: HabitTimerService.Keys.timerData)
+            if let encodedData = try? JSONEncoder().encode(dataToSave) {
+                await MainActor.run {
+                    UserDefaults.standard.set(encodedData, forKey: Keys.timerData)
+                }
+            }
         }
     }
     
-    // MARK: - Обработка состояния приложения
+    // MARK: - Обработка жизненного цикла приложения
     
-    func handleAppDidEnterBackground() {
-        saveState() // Сохраняем текущее состояние
+    @objc func handleAppDidEnterBackground() {
+        saveState()
     }
     
-    func handleAppWillEnterForeground() {
-        // При возвращении в приложение не нужно специально обрабатывать,
-        // так как мы будем вычислять прошедшее время по timestamp
-        // Просто обновляем прогресс, чтобы отразить изменения
+    @objc func handleAppWillEnterForeground() {
         updateAllProgress()
     }
     
     // MARK: - Управление таймерами
     
     func startTimer(for habitId: String, initialProgress: Int = 0) {
-        lock.lock()
+        var shouldSave = false
         
-        // Создаем запись для привычки, если нет
-        if habitTimers[habitId] == nil {
-            habitTimers[habitId] = TimerData(
-                startTimestamp: nil,
-                accumulatedSeconds: initialProgress,
-                isActive: false
+        withLock {
+            if habitTimers[habitId] == nil {
+                habitTimers[habitId] = TimerData(
+                    startTimestamp: nil,
+                    accumulatedSeconds: initialProgress,
+                    isActive: false
+                )
+            }
+            
+            guard !(habitTimers[habitId]?.isActive ?? false) else {
+                return
+            }
+            
+            // Проверяем ограничение на количество таймеров
+            let activeCount = habitTimers.values.filter { $0.isActive }.count
+            guard activeCount < maxActiveTimers else {
+                // Превышено максимальное количество таймеров
+                return
+            }
+            
+            let now = Date().timeIntervalSince1970
+            habitTimers[habitId]?.startTimestamp = now
+            habitTimers[habitId]?.isActive = true
+            
+            let progress = habitTimers[habitId]?.accumulatedSeconds ?? 0
+            progressUpdates[habitId] = progress
+            
+            shouldSave = true
+        }
+        
+        if shouldSave {
+            NotificationCenter.default.post(
+                name: .progressUpdated,
+                object: self,
+                userInfo: ["progressUpdates": progressUpdates]
             )
+            
+            saveState()
         }
-        
-        // Если таймер уже активен, не делаем ничего
-        guard !(habitTimers[habitId]?.isActive ?? false) else {
-            lock.unlock()
-            return
-        }
-        
-        // Активируем таймер
-        let now = Date().timeIntervalSince1970
-        habitTimers[habitId]?.startTimestamp = now
-        habitTimers[habitId]?.isActive = true
-        
-        // Фиксируем текущий прогресс для уведомления UI
-        let progress = habitTimers[habitId]?.accumulatedSeconds ?? 0
-        lock.unlock()
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.progressUpdates[habitId] = progress
-            self.objectWillChange.send()
-        }
-        
-        saveState()
     }
     
     func stopTimer(for habitId: String) {
-        lock.lock()
+        var shouldSave = false
         
-        // Проверяем, что таймер существует и активен
-        guard var data = habitTimers[habitId], data.isActive else {
-            lock.unlock()
-            return
+        withLock {
+            guard var data = habitTimers[habitId], data.isActive else {
+                return
+            }
+            
+            if let startTime = data.startTimestamp {
+                let now = Date().timeIntervalSince1970
+                let elapsedTime = Int(now - startTime)
+                data.accumulatedSeconds += elapsedTime
+            }
+            
+            data.startTimestamp = nil
+            data.isActive = false
+            
+            habitTimers[habitId] = data
+            progressUpdates[habitId] = data.accumulatedSeconds
+            
+            shouldSave = true
         }
         
-        // Обновляем накопленное время
-        if let startTime = data.startTimestamp {
-            let now = Date().timeIntervalSince1970
-            let elapsedTime = Int(now - startTime)
-            data.accumulatedSeconds += elapsedTime
+        if shouldSave {
+            NotificationCenter.default.post(
+                name: .progressUpdated,
+                object: self,
+                userInfo: ["progressUpdates": progressUpdates]
+            )
+            
+            saveState()
         }
-        
-        // Деактивируем таймер
-        data.startTimestamp = nil
-        data.isActive = false
-        
-        // Обновляем состояние
-        habitTimers[habitId] = data
-        let finalProgress = data.accumulatedSeconds
-        lock.unlock()
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.progressUpdates[habitId] = finalProgress
-            self.objectWillChange.send()
-        }
-        
-        saveState()
     }
     
     func resetTimer(for habitId: String) {
-        lock.lock()
-        
-        // Проверяем, активен ли таймер
-        let wasActive = habitTimers[habitId]?.isActive ?? false
-        
-        // Сбрасываем данные
-        habitTimers[habitId] = TimerData(
-            startTimestamp: wasActive ? Date().timeIntervalSince1970 : nil,
-            accumulatedSeconds: 0,
-            isActive: wasActive
-        )
-        lock.unlock()
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.progressUpdates[habitId] = 0
-            self.objectWillChange.send()
+        withLock {
+            let wasActive = habitTimers[habitId]?.isActive ?? false
+            
+            habitTimers[habitId] = TimerData(
+                startTimestamp: wasActive ? Date().timeIntervalSince1970 : nil,
+                accumulatedSeconds: 0,
+                isActive: wasActive
+            )
+            
+            progressUpdates[habitId] = 0
         }
+        
+        NotificationCenter.default.post(
+            name: .progressUpdated,
+            object: self,
+            userInfo: ["progressUpdates": progressUpdates]
+        )
         
         saveState()
     }
     
     func addProgress(_ value: Int, for habitId: String) {
-        lock.lock()
-        
-        // Проверяем, существует ли запись
-        if habitTimers[habitId] == nil {
-            habitTimers[habitId] = TimerData(
-                startTimestamp: nil,
-                accumulatedSeconds: 0,
-                isActive: false
-            )
-        }
-        
-        // Сохраняем состояние активности
-        let wasActive = habitTimers[habitId]?.isActive ?? false
-        var currentSeconds = habitTimers[habitId]?.accumulatedSeconds ?? 0
-        
-        // Если таймер активен, добавляем накопленное время
-        if wasActive, let startTime = habitTimers[habitId]?.startTimestamp {
-            let now = Date().timeIntervalSince1970
-            let elapsedTime = Int(now - startTime)
-            currentSeconds += elapsedTime
+        withLock {
+            if habitTimers[habitId] == nil {
+                habitTimers[habitId] = TimerData(
+                    startTimestamp: nil,
+                    accumulatedSeconds: 0,
+                    isActive: false
+                )
+            }
             
-            // Обновляем время начала
-            habitTimers[habitId]?.startTimestamp = now
+            let wasActive = habitTimers[habitId]?.isActive ?? false
+            var currentSeconds = habitTimers[habitId]?.accumulatedSeconds ?? 0
+            
+            if wasActive, let startTime = habitTimers[habitId]?.startTimestamp {
+                let now = Date().timeIntervalSince1970
+                let elapsedTime = Int(now - startTime)
+                currentSeconds += elapsedTime
+                
+                habitTimers[habitId]?.startTimestamp = now
+            }
+            
+            currentSeconds += value
+            
+            habitTimers[habitId]?.accumulatedSeconds = currentSeconds
+            progressUpdates[habitId] = currentSeconds
         }
         
-        // Добавляем новое значение
-        currentSeconds += value
-        
-        // Обновляем состояние
-        habitTimers[habitId]?.accumulatedSeconds = currentSeconds
-        
-        // Фиксируем текущий прогресс для уведомления UI
-        let finalProgress = currentSeconds
-        lock.unlock()
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.progressUpdates[habitId] = finalProgress
-            self.objectWillChange.send()
-        }
+        NotificationCenter.default.post(
+            name: .progressUpdated,
+            object: self,
+            userInfo: ["progressUpdates": progressUpdates]
+        )
         
         saveState()
     }
@@ -303,24 +316,21 @@ class HabitTimerService: ObservableObject {
     // MARK: - Получение данных
     
     func getCurrentProgress(for habitId: String) -> Int {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        // Если таймер активен, вычисляем текущее время
-        if let data = habitTimers[habitId], data.isActive, let startTime = data.startTimestamp {
-            let now = Date().timeIntervalSince1970
-            let elapsedTime = Int(now - startTime)
-            return data.accumulatedSeconds + elapsedTime
+        withLock {
+            if let data = habitTimers[habitId], data.isActive, let startTime = data.startTimestamp {
+                let now = Date().timeIntervalSince1970
+                let elapsedTime = Int(now - startTime)
+                return data.accumulatedSeconds + elapsedTime
+            }
+            
+            return habitTimers[habitId]?.accumulatedSeconds ?? 0
         }
-        
-        return habitTimers[habitId]?.accumulatedSeconds ?? 0
     }
     
     func isTimerRunning(for habitId: String) -> Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        return habitTimers[habitId]?.isActive ?? false
+        withLock {
+            return habitTimers[habitId]?.isActive ?? false
+        }
     }
     
     // MARK: - SwiftData интеграция
@@ -330,8 +340,7 @@ class HabitTimerService: ObservableObject {
         
         guard currentProgress > 0 else { return }
         
-        DispatchQueue.main.async {
-            // Находим привычку по ID
+        Task { @MainActor in
             let descriptor = FetchDescriptor<Habit>()
             do {
                 let habits = try modelContext.fetch(descriptor)
@@ -339,75 +348,113 @@ class HabitTimerService: ObservableObject {
                     return
                 }
                 
-                // Получаем существующий прогресс
                 let existingProgress = habit.progressForDate(date)
                 
-                // Добавляем новый прогресс, если он отличается
                 if currentProgress != existingProgress {
-                    // Если текущий прогресс меньше существующего, удаляем записи и создаем новую
-                    if currentProgress < existingProgress {
-                        let existingCompletions = habit.completions.filter {
-                            Calendar.current.isDate($0.date, inSameDayAs: date)
+                    try modelContext.transaction {
+                        if currentProgress < existingProgress {
+                            let existingCompletions = habit.completions.filter {
+                                Calendar.current.isDate($0.date, inSameDayAs: date)
+                            }
+                            
+                            for completion in existingCompletions {
+                                modelContext.delete(completion)
+                            }
+                            
+                            if currentProgress > 0 {
+                                habit.addProgress(currentProgress, for: date)
+                            }
+                        } else {
+                            habit.addProgress(currentProgress - existingProgress, for: date)
                         }
-                        
-                        for completion in existingCompletions {
-                            modelContext.delete(completion)
-                        }
-                        
-                        // Если прогресс > 0, добавляем новую запись
-                        if currentProgress > 0 {
-                            habit.addProgress(currentProgress, for: date)
-                        }
-                    } else {
-                        // Если прогресс больше, просто добавляем разницу
-                        habit.addProgress(currentProgress - existingProgress, for: date)
                     }
-                    
-                    try modelContext.save()
                 }
             } catch {
-                print("Error saving progress: \(error)")
+                print("Error saving progress: \(error.localizedDescription)")
             }
         }
     }
     
-    // MARK: - Дополнительные методы
+    // MARK: - Вспомогательные методы
     
-    // Метод для ограничения количества одновременных таймеров
-    private func isMaxTimersLimitReached() -> Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        let activeCount = habitTimers.values.filter { $0.isActive }.count
-        return activeCount >= 3 // Ограничение в 3 активных таймера
-    }
-    
-    // Метод для очистки неиспользуемых таймеров
     func cleanupUnusedTimers() {
-        lock.lock()
-        
-        // Находим неактивные таймеры с нулевым прогрессом
-        let unusedIds = habitTimers.filter {
-            !$0.value.isActive && $0.value.accumulatedSeconds == 0
-        }.keys
-        
-        // Удаляем их из словаря
-        for id in unusedIds {
-            habitTimers.removeValue(forKey: id)
-            progressUpdates.removeValue(forKey: id)
+        withLock {
+            let unusedIds = habitTimers.filter {
+                !$0.value.isActive && $0.value.accumulatedSeconds == 0
+            }.keys
+            
+            for id in unusedIds {
+                habitTimers.removeValue(forKey: id)
+                progressUpdates.removeValue(forKey: id)
+            }
         }
-        
-        lock.unlock()
         
         saveState()
     }
     
-    // Получение статистики активных таймеров
     func getActiveTimersInfo() -> (count: Int, ids: [String]) {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        let activeTimers = habitTimers.filter { $0.value.isActive }
-        return (activeTimers.count, Array(activeTimers.keys))
+        withLock {
+            let activeTimers = habitTimers.filter { $0.value.isActive }
+            return (activeTimers.count, Array(activeTimers.keys))
+        }
+    }
+    
+    // MARK: - Поток обновлений для асинхронного наблюдения
+    
+    var progressUpdatesSequence: AsyncStream<[String: Int]> {
+        AsyncStream { continuation in
+            let observer = NotificationCenter.default.addObserver(
+                forName: .progressUpdated,
+                object: self,
+                queue: .main
+            ) { _ in
+                continuation.yield(self.progressUpdates)
+            }
+            
+            continuation.onTermination = { _ in
+                NotificationCenter.default.removeObserver(observer)
+            }
+        }
+    }
+    
+    var objectWillChangeSequence: AsyncStream<Void> {
+        AsyncStream { continuation in
+            let observer = NotificationCenter.default.addObserver(
+                forName: .objectWillChange,
+                object: self,
+                queue: .main
+            ) { _ in
+                continuation.yield(())
+            }
+            
+            continuation.onTermination = { _ in
+                NotificationCenter.default.removeObserver(observer)
+            }
+        }
+    }
+}
+
+// MARK: - Расширения
+
+extension Notification.Name {
+    static let progressUpdated = Notification.Name("ProgressUpdated")
+    static let objectWillChange = Notification.Name("ObservableObjectWillChange")
+}
+
+// MARK: - AsyncTimer для iOS 17+
+
+struct AsyncTimerSequence: AsyncSequence, AsyncIteratorProtocol {
+    typealias Element = Void
+    
+    let interval: Duration
+    let tolerance: Duration
+    
+    func makeAsyncIterator() -> Self {
+        self
+    }
+    
+    mutating func next() async -> Void? {
+        try? await Task.sleep(for: interval, tolerance: tolerance)
+        return Task.isCancelled ? nil : ()
     }
 }

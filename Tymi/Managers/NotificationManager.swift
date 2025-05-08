@@ -5,10 +5,10 @@ import SwiftData
 
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
-    @StateObject private var calendarManager = CalendarManager.shared
     
     @Published var permissionStatus: Bool = false
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
+    @AppStorage("firstDayOfWeek") private var firstDayOfWeek: Int = 0
     
     private init() {
         setupNotifications()
@@ -18,7 +18,6 @@ class NotificationManager: ObservableObject {
     }
     
     private func setupNotifications() {
-        // Регистрируем наблюдатель за изменением первого дня недели
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleFirstDayOfWeekChanged),
@@ -29,25 +28,41 @@ class NotificationManager: ObservableObject {
     
     @objc private func handleFirstDayOfWeekChanged(_ notification: Notification) {
         if let firstDayOfWeek = notification.userInfo?["firstDayOfWeek"] as? Int {
-            // Обновляем все уведомления с учетом нового первого дня недели
             updateAllNotifications(firstDayOfWeek: firstDayOfWeek)
         }
     }
     
     private func updateAllNotifications(firstDayOfWeek: Int) {
-        // Получаем все активные уведомления
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+        UNUserNotificationCenter.current().getPendingNotificationRequests { [weak self] requests in
+            guard let self = self else { return }
+            
             for request in requests {
-                // Обновляем каждое уведомление с учетом нового первого дня недели
                 self.updateNotification(request, firstDayOfWeek: firstDayOfWeek)
             }
         }
     }
     
     private func updateNotification(_ request: UNNotificationRequest, firstDayOfWeek: Int) {
-        // Здесь логика обновления конкретного уведомления
-        // Например, если уведомление привязано к определенному дню недели,
-        // нужно пересчитать его с учетом нового первого дня недели
+        guard let trigger = request.trigger as? UNCalendarNotificationTrigger,
+              let weekday = trigger.dateComponents.weekday else {
+            return
+        }
+        
+        // Отменяем старое уведомление
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [request.identifier])
+        
+        // Создаем новое уведомление с обновленным днем недели
+        var newDateComponents = trigger.dateComponents
+        newDateComponents.weekday = weekday
+        
+        let newTrigger = UNCalendarNotificationTrigger(dateMatching: newDateComponents, repeats: true)
+        let newRequest = UNNotificationRequest(
+            identifier: request.identifier,
+            content: request.content,
+            trigger: newTrigger
+        )
+        
+        UNUserNotificationCenter.current().add(newRequest)
     }
     
     func requestAuthorization() async throws {
@@ -62,20 +77,18 @@ class NotificationManager: ObservableObject {
             return
         }
         
-        // Отменяем существующие уведомления для этой привычки
         cancelNotifications(for: habit)
         
-        let calendar = Calendar.current
+        let calendar = Calendar.userPreferred
         let components = calendar.dateComponents([.hour, .minute], from: reminderTime)
         
-        // Создаем уведомления для каждого активного дня
         for (index, isActive) in habit.activeDays.enumerated() where isActive {
-            let weekday = Weekday.orderedByUserPreference[index]
+            let weekday = calendar.systemWeekdayFromOrdered(index: index)
             
             var dateComponents = DateComponents()
             dateComponents.hour = components.hour
             dateComponents.minute = components.minute
-            dateComponents.weekday = weekday.rawValue + 1 // UNCalendarNotificationTrigger использует 1-7 для дней недели (1 = воскресенье)
+            dateComponents.weekday = weekday
             
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
             
@@ -85,30 +98,38 @@ class NotificationManager: ObservableObject {
             content.sound = .default
             
             let request = UNNotificationRequest(
-                identifier: "\(habit.id)-\(weekday.rawValue)",
+                identifier: "\(habit.id)-\(weekday)",
                 content: content,
                 trigger: trigger
             )
             
-            UNUserNotificationCenter.current().add(request)
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Error scheduling notification: \(error.localizedDescription)")
+                }
+            }
         }
     }
     
     func cancelNotifications(for habit: Habit) {
-        let identifiers = Weekday.orderedByUserPreference.map { "\(habit.id)-\($0.rawValue)" }
+        // Удалена неиспользуемая переменная calendar
+        
+        let identifiers = (1...7).map { weekday in
+            "\(habit.id)-\(weekday)"
+        }
+        
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: identifiers)
     }
     
     func updateAllNotifications(modelContext: ModelContext) {
-        // Сначала удаляем все уведомления
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
         
-        // Если уведомления отключены глобально, выходим
         if !notificationsEnabled {
             return
         }
         
-        // Получаем все привычки и перепланируем уведомления
         let descriptor = FetchDescriptor<Habit>()
         do {
             let habits = try modelContext.fetch(descriptor)
@@ -124,4 +145,4 @@ class NotificationManager: ObservableObject {
         let settings = await UNUserNotificationCenter.current().notificationSettings()
         return settings.authorizationStatus == .authorized
     }
-} 
+}

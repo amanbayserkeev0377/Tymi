@@ -4,33 +4,24 @@ import SwiftData
 struct WeeklyCalendarView: View {
     @Binding var selectedDate: Date
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
+    @Environment(HabitsUpdateService.self) private var habitsUpdateService
     @AppStorage("firstDayOfWeek") private var firstDayOfWeek: Int = 0
-    @StateObject private var calendarManager = CalendarManager.shared
     
     @Query private var habits: [Habit]
     
     @State private var weeks: [[Date]] = []
     @State private var currentWeekIndex: Int = 0
     @State private var progressData: [Date: Double] = [:]
+    @State private var errorMessage: String?
     
     private let weekCount = 8
     
+    private var calendar: Calendar {
+        return Calendar.userPreferred
+    }
+
     private var weekdaySymbols: [String] {
-        let symbols = calendarManager.calendar.shortWeekdaySymbols
-        
-        let formattedSymbols = symbols.map { symbol in
-            if symbol.count > 0 {
-                return symbol.prefix(1).uppercased() + symbol.dropFirst().lowercased()
-            }
-            return symbol
-        }
-        
-        let firstWeekdayIndex = calendarManager.getEffectiveFirstWeekday() - 1
-        
-        let before = Array(formattedSymbols[firstWeekdayIndex...])
-        let after = Array(formattedSymbols[..<firstWeekdayIndex])
-        return before + after
+        return calendar.orderedFormattedWeekdaySymbols
     }
     
     init(selectedDate: Binding<Date>) {
@@ -60,7 +51,7 @@ struct WeeklyCalendarView: View {
                         ForEach(week, id: \.self) { date in
                             DayProgressItem(
                                 date: date,
-                                isSelected: calendarManager.calendar.isDate(selectedDate, inSameDayAs: date),
+                                isSelected: calendar.isDate(selectedDate, inSameDayAs: date),
                                 progress: progressData[date] ?? 0,
                                 onTap: {
                                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -80,6 +71,10 @@ struct WeeklyCalendarView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 70)
+            .onChange(of: currentWeekIndex) { _, _ in
+                // Подгружаем данные о прогрессе при смене недели
+                loadProgressData()
+            }
         }
         .onAppear {
             generateWeeks()
@@ -93,37 +88,54 @@ struct WeeklyCalendarView: View {
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    habitsUpdateService.triggerUpdate()
-                }
+                habitsUpdateService.triggerUpdate()
+            }
         }
         .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
+            // Обновляем данные о прогрессе, когда изменяются привычки
             loadProgressData()
+        }
+        .onChange(of: firstDayOfWeek) { _, _ in
+            // Перегенерируем недели при изменении первого дня недели
+            weeks = []
+            generateWeeks()
+            findCurrentWeekIndex()
+            loadProgressData()
+        }
+        .alert(errorMessage ?? "Error", isPresented: .constant(errorMessage != nil)) {
+            Button("OK") {
+                errorMessage = nil
+            }
         }
     }
     
     private func generateWeeks() {
         let today = Date()
-        var generatedWeeks: [[Date]] = []
+        let calendar = Calendar.userPreferred
         
-        let effectiveFirstWeekday = calendarManager.getEffectiveFirstWeekday()
-        
-        var components = calendarManager.calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
-        components.weekday = effectiveFirstWeekday
-        
-        guard let currentWeekStart = calendarManager.calendar.date(from: components) else {
+        guard let currentWeekStart = calendar.date(
+            from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
+        ) else {
+            errorMessage = "Failed to generate calendar weeks"
             return
         }
         
+        var generatedWeeks: [[Date]] = []
+        
         for weekOffset in (1-weekCount)...0 {
-            if let weekStart = calendarManager.calendar.date(byAdding: .weekOfYear, value: weekOffset, to: currentWeekStart) {
-                var weekDates: [Date] = []
-                
-                for dayOffset in 0..<7 {
-                    if let date = calendarManager.calendar.date(byAdding: .day, value: dayOffset, to: weekStart) {
-                        weekDates.append(date)
-                    }
+            guard let weekStartDate = calendar.date(byAdding: .weekOfYear, value: weekOffset, to: currentWeekStart) else {
+                continue
+            }
+            
+            var weekDates: [Date] = []
+            
+            for dayOffset in 0..<7 {
+                if let date = calendar.date(byAdding: .day, value: dayOffset, to: weekStartDate) {
+                    weekDates.append(date)
                 }
-                
+            }
+            
+            if !weekDates.isEmpty {
                 generatedWeeks.append(weekDates)
             }
         }
@@ -132,28 +144,44 @@ struct WeeklyCalendarView: View {
     }
     
     private func loadProgressData() {
+        // Оптимизированная версия - загружаем только для текущей недели и соседних
         Task {
-            for week in weeks {
-                for date in week {
-                    if date <= Date() {
-                        let progress = await calculateProgress(for: date)
-                        
-                        await MainActor.run {
+            // Определяем диапазон недель для обновления (текущая и соседние)
+            let visibleRange = max(0, currentWeekIndex - 1)...min(weeks.count - 1, currentWeekIndex + 1)
+            
+            for weekIndex in visibleRange {
+                if weekIndex < weeks.count {
+                    let week = weeks[weekIndex]
+                    
+                    // Обновляем только даты до сегодня
+                    let now = Date()
+                    let relevantDates = week.filter { $0 <= now }
+                    
+                    for date in relevantDates {
+                        // Всегда обновляем сегодняшний день, для остальных - только если нет данных
+                        if calendar.isDateInToday(date) || progressData[date] == nil {
+                            let progress = calculateProgress(for: date)
                             progressData[date] = progress
                         }
                     }
                 }
             }
+            
+            // Загружаем данные для сегодняшнего дня в любом случае
+            let today = Date()
+            progressData[calendar.startOfDay(for: today)] = calculateProgress(for: today)
         }
     }
     
-    private func calculateProgress(for date: Date) async -> Double {
+    private func calculateProgress(for date: Date) -> Double {
+        // Фильтруем привычки, которые активны в этот день
         let activeHabits = habits.filter { habit in
             habit.isActiveOnDate(date) && date >= habit.startDate
         }
         
         guard !activeHabits.isEmpty else { return 0 }
         
+        // Вычисляем общий прогресс
         let totalProgress = activeHabits.reduce(0.0) { total, habit in
             let percentage = habit.completionPercentageForDate(date)
             return total + percentage
@@ -174,7 +202,7 @@ struct WeeklyCalendarView: View {
     
     private func findWeekIndex(for date: Date) -> Int? {
         for (index, week) in weeks.enumerated() {
-            if week.contains(where: { calendarManager.calendar.isDate($0, inSameDayAs: date) }) {
+            if week.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
                 return index
             }
         }

@@ -9,11 +9,8 @@ struct IconPickerView: View {
     @Binding var selectedIcon: String?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    
-    // Временное хранение выбранной иконки
     @State private var tempSelectedIcon: String?
     
-    // Инициализация временного выбора текущей иконкой
     init(selectedIcon: Binding<String?>) {
         self._selectedIcon = selectedIcon
         self._tempSelectedIcon = State(initialValue: selectedIcon.wrappedValue)

@@ -6,19 +6,19 @@ struct HabitDetailView: View {
     let habit: Habit
     let date: Date
     
-    @StateObject private var viewModel: HabitDetailViewModel
+    @State private var viewModel: HabitDetailViewModel
     @State private var isShowingEditSheet = false
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
+    @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
     // MARK: - Initialization
     init(habit: Habit, date: Date = .now) {
         self.habit = habit
         self.date = date
         
-        _viewModel = StateObject(wrappedValue: HabitDetailViewModel(
+        _viewModel = State(wrappedValue: HabitDetailViewModel(
             habit: habit,
             date: date,
             modelContext: ModelContext(ModelContainer.empty),

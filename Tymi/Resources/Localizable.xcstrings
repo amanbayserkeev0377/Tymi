@@ -1183,6 +1183,9 @@
         }
       }
     },
+    "Not selected" : {
+
+    },
     "notification_permission" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1228,6 +1231,9 @@
           }
         }
       }
+    },
+    "OK" : {
+
     },
     "okay" : {
       "extractionState" : "manual",
@@ -1435,6 +1441,9 @@
           }
         }
       }
+    },
+    "Selected" : {
+
     },
     "set_daily_goal" : {
       "extractionState" : "manual",

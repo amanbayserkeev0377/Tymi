@@ -11,8 +11,7 @@ struct ReminderSectionContent: View {
                 Image(systemName: "bell")
                     .foregroundStyle(.primary)
                     .frame(width: 24, height: 24)
-                    .scaleEffect(isReminderEnabled ? 1.2 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isReminderEnabled)
+                    .symbolEffect(.bounce, options: .repeat(1), value: isReminderEnabled)
                 
                 Text("reminder".localized)
                 

@@ -5,7 +5,7 @@ struct DailyProgressRing: View {
     // MARK: - Properties
     
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
+    @Environment(HabitsUpdateService.self) private var habitsUpdateService
     @Environment(\.colorScheme) private var colorScheme
     
     let date: Date
@@ -135,18 +135,4 @@ struct DailyProgressRing: View {
             
         }
     }
-}
-
-#Preview {
-    VStack {
-        DailyProgressRing(date: Date())
-            .preferredColorScheme(.light)
-        
-        DailyProgressRing(date: Date())
-            .preferredColorScheme(.dark)
-    }
-    .padding()
-    .background(TodayViewBackground())
-    .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
-    .environmentObject(HabitsUpdateService())
 }

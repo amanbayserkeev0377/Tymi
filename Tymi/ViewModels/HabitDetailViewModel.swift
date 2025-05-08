@@ -1,9 +1,9 @@
 import SwiftUI
 import SwiftData
-import Combine
 
+@Observable
 @MainActor
-class HabitDetailViewModel: ObservableObject {
+final class HabitDetailViewModel {
     // MARK: - Dependencies
     private let habit: Habit
     private let date: Date
@@ -12,25 +12,24 @@ class HabitDetailViewModel: ObservableObject {
     var timerService: HabitTimerService
     private let statsManager: StatsManager
     
-    // MARK: - Published Properties
-    @Published private(set) var currentProgress: Int = 0
-    @Published private(set) var completionPercentage: Double = 0
-    @Published private(set) var formattedProgress: String = ""
-    @Published private(set) var isTimerRunning: Bool = false
+    // MARK: - State Properties
+    private(set) var currentProgress: Int = 0
+    private(set) var completionPercentage: Double = 0
+    private(set) var formattedProgress: String = ""
+    private(set) var isTimerRunning: Bool = false
     
     // MARK: - Statistics Properties
-    @Published private(set) var currentStreak: Int = 0
-    @Published private(set) var bestStreak: Int = 0
-    @Published private(set) var totalCompletions: Int = 0
+    private(set) var currentStreak: Int = 0
+    private(set) var bestStreak: Int = 0
+    private(set) var totalCompletions: Int = 0
     
-    // MARK: - State Properties
-    @Published var isEditSheetPresented = false
-    @Published var alertState = AlertState()
+    // MARK: - UI State
+    var isEditSheetPresented = false
+    var alertState = AlertState()
     
     // Флаг для отслеживания были ли изменения, требующие сохранения
     private var hasChanges = false
     
-    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
     var isAlreadyCompleted: Bool {
@@ -56,7 +55,7 @@ class HabitDetailViewModel: ObservableObject {
         self.statsManager = StatsManager(modelContext: modelContext)
         
         setupInitialState()
-        setupSubscriptions()
+        setupObservers()
         updateStatistics()
     }
     
@@ -70,35 +69,39 @@ class HabitDetailViewModel: ObservableObject {
         }
     }
     
-    private func setupSubscriptions() {
-        // Подписываемся на изменения прогресса
-        timerService.$progressUpdates
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] updates in
-                guard let self = self,
-                      let progress = updates[self.habit.id] else { return }
-                self.currentProgress = progress
-                self.updateProgressMetrics()
-                self.hasChanges = true
-            }
-            .store(in: &cancellables)
+    private func setupObservers() {
+        // Создаем захват weak self для предотвращения утечек памяти
+        let habitId = habit.id
         
-        // Подписываемся на изменения состояния таймера
-        timerService.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                self.isTimerRunning = self.timerService.isTimerRunning(for: self.habit.id)
+        // Запускаем наблюдение за прогрессом
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            
+            for await updates in self.timerService.progressUpdatesSequence {
+                if let progress = updates[habitId] {
+                    self.currentProgress = progress
+                    self.updateProgressMetrics()
+                    self.hasChanges = true
+                }
             }
-            .store(in: &cancellables)
+        }
+        
+        // Запускаем наблюдение за состоянием таймера
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            
+            for await _ in self.timerService.objectWillChangeSequence {
+                self.isTimerRunning = self.timerService.isTimerRunning(for: habitId)
+            }
+        }
     }
     
     // MARK: - Progress Management
     private func updateProgressMetrics() {
         completionPercentage = habit.goal > 0 ? Double(currentProgress) / Double(habit.goal) : 0
         formattedProgress = habit.type == .count ?
-            currentProgress.formattedAsProgress(total: habit.goal) :
-            currentProgress.formattedAsTime()
+        currentProgress.formattedAsProgress(total: habit.goal) :
+        currentProgress.formattedAsTime()
     }
     
     func incrementProgress() {
@@ -128,8 +131,8 @@ class HabitDetailViewModel: ObservableObject {
     
     func decrementProgress() {
         if habit.type == .count {
-            let currentProgress = timerService.getCurrentProgress(for: habit.id)
-            if currentProgress > 0 {
+            let currentValue = timerService.getCurrentProgress(for: habit.id)
+            if currentValue > 0 {
                 timerService.addProgress(-1, for: habit.id)
             }
         } else {
@@ -137,10 +140,10 @@ class HabitDetailViewModel: ObservableObject {
                 timerService.stopTimer(for: habit.id)
             }
             
-            let currentProgress = timerService.getCurrentProgress(for: habit.id)
-            if currentProgress >= 60 {
+            let currentValue = timerService.getCurrentProgress(for: habit.id)
+            if currentValue >= 60 {
                 timerService.addProgress(-60, for: habit.id)
-            } else if currentProgress > 0 {
+            } else if currentValue > 0 {
                 timerService.resetTimer(for: habit.id)
             }
         }
@@ -148,7 +151,6 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     private func updateProgress() {
-        // Напрямую запрашиваем текущий прогресс
         currentProgress = timerService.getCurrentProgress(for: habit.id)
         updateProgressMetrics()
         hasChanges = true
@@ -178,14 +180,12 @@ class HabitDetailViewModel: ObservableObject {
         habit.isFreezed = true
         alertState.isFreezeAlertPresented = true
         updateHabit()
-        // Сразу уведомляем, т.к. это важное изменение
         habitsUpdateService.triggerUpdate()
     }
     
     private func unfreezeHabit() {
         habit.isFreezed = false
         updateHabit()
-        // Сразу уведомляем, т.к. это важное изменение
         habitsUpdateService.triggerUpdate()
     }
     
@@ -193,65 +193,45 @@ class HabitDetailViewModel: ObservableObject {
         NotificationManager.shared.cancelNotifications(for: habit)
         modelContext.delete(habit)
         alertState.errorFeedbackTrigger.toggle()
-        // Сразу уведомляем, т.к. это важное изменение
         habitsUpdateService.triggerUpdate()
     }
     
     // MARK: - Progress Actions
     func resetProgress() {
-        // 1. Сбрасываем таймер
         timerService.resetTimer(for: habit.id)
-        
-        // 2. Обновляем локальные данные
         currentProgress = 0
         updateProgressMetrics()
-        
-        // Помечаем, что были изменения
         hasChanges = true
-        
-        // Но НЕ обновляем базу данных и не отправляем уведомления сейчас
-        // Это будет сделано только при закрытии представления
     }
     
     func completeHabit() {
-        // Получаем текущий прогресс из timerService
         let currentValue = timerService.getCurrentProgress(for: habit.id)
-        
-        // Рассчитываем сколько нужно добавить до цели
         var toAdd = habit.goal - currentValue
         
-        // Проверяем лимит в 24 часа для типа time
         if habit.type == .time {
-            // Если цель + текущий прогресс превышают 24 часа, ограничиваем
             let maxValue = 86400 // 24 часа в секундах
             if currentValue + toAdd > maxValue {
                 toAdd = maxValue - currentValue
             }
         }
         
-        // Добавляем прогресс если нужно
         if toAdd > 0 {
             timerService.addProgress(toAdd, for: habit.id)
         }
         
-        // Обновляем прогресс напрямую
         currentProgress = timerService.getCurrentProgress(for: habit.id)
         updateProgressMetrics()
         
-        // Сохраняем прогресс
         saveProgress()
         alertState.successFeedbackTrigger.toggle()
     }
     
     func handleCountInput() {
         if let value = Int(alertState.countInputText), value > 0 {
-            // Получаем текущий прогресс
-            let currentProgress = timerService.getCurrentProgress(for: habit.id)
+            let currentValue = timerService.getCurrentProgress(for: habit.id)
             
-            // Проверяем, не превысит ли общее значение 999,999
-            if currentProgress + value > 999999 {
-                // Если превысит, добавляем только то, что доведёт до 999,999
-                let remainingValue = 999999 - currentProgress
+            if currentValue + value > 999999 {
+                let remainingValue = 999999 - currentValue
                 
                 if remainingValue > 0 {
                     timerService.addProgress(remainingValue, for: habit.id)
@@ -260,7 +240,6 @@ class HabitDetailViewModel: ObservableObject {
                     alertState.errorFeedbackTrigger.toggle()
                 }
             } else {
-                // Если не превысит, добавляем всё введённое значение
                 timerService.addProgress(value, for: habit.id)
                 alertState.successFeedbackTrigger.toggle()
             }
@@ -275,17 +254,13 @@ class HabitDetailViewModel: ObservableObject {
     
     // MARK: - Save Progress
     func saveProgress() {
-        // Если не было изменений, выходим
         if !hasChanges {
             return
         }
         
-        // Получаем текущий прогресс из timerService
         let progress = timerService.getCurrentProgress(for: habit.id)
         
-        // Обрабатываем случай сброса прогресса
         if progress == 0 {
-            // Удаляем все записи о прогрессе для текущего дня
             let existingCompletions = habit.completions.filter {
                 Calendar.current.isDate($0.date, inSameDayAs: date)
             }
@@ -296,12 +271,9 @@ class HabitDetailViewModel: ObservableObject {
             
             try? modelContext.save()
         } else {
-            // Проверяем существующий прогресс
             let existingProgress = habit.progressForDate(date)
             
-            // Если прогресс изменился, обновляем данные
             if progress != existingProgress {
-                // Если текущий прогресс меньше существующего, удаляем записи и создаем новую
                 if progress < existingProgress {
                     let existingCompletions = habit.completions.filter {
                         Calendar.current.isDate($0.date, inSameDayAs: date)
@@ -311,12 +283,10 @@ class HabitDetailViewModel: ObservableObject {
                         modelContext.delete(completion)
                     }
                     
-                    // Если прогресс > 0, добавляем новую запись
                     if progress > 0 {
                         habit.addProgress(progress, for: date)
                     }
                 } else {
-                    // Если прогресс больше, просто добавляем разницу
                     habit.addProgress(progress - existingProgress, for: date)
                 }
                 
@@ -324,16 +294,9 @@ class HabitDetailViewModel: ObservableObject {
             }
         }
         
-        // Также используем стандартный метод для сохранения (на случай, если он что-то еще делает)
         timerService.persistCompletions(for: habit.id, in: modelContext, date: date)
-        
-        // Обновляем статистику
         updateStatistics()
-        
-        // Сбрасываем флаг изменений
         hasChanges = false
-        
-        // Отправляем уведомление об обновлении
         habitsUpdateService.triggerUpdate()
     }
     

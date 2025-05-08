@@ -5,7 +5,7 @@ struct HabitsSection: View {
     @Query(filter: #Predicate<Habit> { !$0.isFreezed }) private var activeHabits: [Habit]
     @Query(filter: #Predicate<Habit> { $0.isFreezed }) private var freezedHabits: [Habit]
     @State private var showingHabitsSettings = false
-    @StateObject private var habitsUpdateService = HabitsUpdateService()
+    @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
     init() {
         let activeDescriptor = FetchDescriptor<Habit>(predicate: #Predicate<Habit> { !$0.isFreezed })
@@ -45,7 +45,7 @@ struct HabitsSection: View {
         .tint(.primary)
         .sheet(isPresented: $showingHabitsSettings) {
             HabitsSettingsView()
-                .environmentObject(habitsUpdateService)
+                .environment(habitsUpdateService)
                 .presentationDetents([.fraction(0.8)])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(40)
@@ -67,7 +67,7 @@ struct HabitsSettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
+    @Environment(HabitsUpdateService.self) private var habitsUpdateService
     @State private var activeHabitsOrder: [Habit] = []
     @State private var editMode: EditMode = .inactive
     @State private var selectedTab: HabitsTab = .active
@@ -213,7 +213,7 @@ struct HabitSettingsRow: View {
     let habit: Habit
     @Environment(\.editMode) private var editMode
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
+    @Environment(HabitsUpdateService.self) private var habitsUpdateService
     @State private var isShowingEditSheet = false
     @State private var isDeleteAlertPresented = false
     

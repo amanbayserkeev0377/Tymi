@@ -104,7 +104,7 @@ final class Habit {
     
     // Check if habit is active on specific date
     func isActiveOnDate(_ date: Date) -> Bool {
-        let calendar = Calendar.current
+        let calendar = Calendar.userPreferred
         
         // Если дата раньше даты начала, то привычка неактивна
         if date < calendar.startOfDay(for: startDate) {

@@ -14,7 +14,7 @@ struct TodayView: View {
     @State private var isShowingNewHabitSheet = false
     @State private var selectedHabit: Habit? = nil
     @State private var isShowingSettingsSheet = false
-    @StateObject private var habitsUpdateService = HabitsUpdateService()
+    @State private var habitsUpdateService = HabitsUpdateService()
     
     // Добавляем состояние для принудительного обновления
     @State private var forceViewUpdate: Bool = false
@@ -81,7 +81,7 @@ struct TodayView: View {
                             } else {
                                 // Кольцо прогресса отображается всегда
                                 DailyProgressRing(date: selectedDate)
-                                    .environmentObject(habitsUpdateService)
+                                    .environment(habitsUpdateService)
                                     .padding(.top, 16)
                                 
                                 // Список привычек для выбранной даты
@@ -133,7 +133,7 @@ struct TodayView: View {
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .top, spacing: 0) {
                 WeeklyCalendarView(selectedDate: $selectedDate)
-                    .environmentObject(habitsUpdateService)
+                    .environment(habitsUpdateService)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -173,7 +173,7 @@ struct TodayView: View {
             }
             .sheet(isPresented: $isShowingNewHabitSheet) {
                 NewHabitView()
-                    .environmentObject(habitsUpdateService)
+                    .environment(habitsUpdateService)
                     .presentationBackground {
                         ZStack {
                             Rectangle().fill(.ultraThinMaterial)
@@ -189,7 +189,7 @@ struct TodayView: View {
             }
             .sheet(isPresented: $isShowingSettingsSheet) {
                 SettingsView()
-                    .environmentObject(habitsUpdateService)
+                    .environment(habitsUpdateService)
                     .presentationDetents([.fraction(0.8)])
                     .presentationDragIndicator(.visible)
                     .presentationCornerRadius(40)
@@ -210,7 +210,7 @@ struct TodayView: View {
             }
             .sheet(item: $selectedHabit) { habit in
                 HabitDetailView(habit: habit, date: selectedDate)
-                    .environmentObject(habitsUpdateService)
+                    .environment(habitsUpdateService)
                     .presentationDetents([.fraction(0.8)])
                     .presentationDragIndicator(.visible)
                     .presentationCornerRadius(40)
@@ -259,7 +259,7 @@ struct TodayView: View {
                 }
             }
         }
-        .environmentObject(habitsUpdateService)
+        .environment(habitsUpdateService)
     }
     
     // MARK: - Helper Methods
