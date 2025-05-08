@@ -108,7 +108,7 @@ struct TodayView: View {
                     }
                 }
                 .padding(.bottom, 20)
-                .padding(.horizontal, 5)
+                .padding(.trailing, 5)
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
             .navigationBarTitleDisplayMode(.inline)

@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Common AlertState
-struct AlertState {
+struct AlertState: Equatable {
     var isResetAlertPresented: Bool = false
     var isCountAlertPresented: Bool = false
     var isTimeAlertPresented: Bool = false
@@ -14,6 +14,19 @@ struct AlertState {
     
     var successFeedbackTrigger: Bool = false
     var errorFeedbackTrigger: Bool = false
+    
+    static func == (lhs: AlertState, rhs: AlertState) -> Bool {
+        return lhs.isResetAlertPresented == rhs.isResetAlertPresented &&
+               lhs.isCountAlertPresented == rhs.isCountAlertPresented &&
+               lhs.isTimeAlertPresented == rhs.isTimeAlertPresented &&
+               lhs.isDeleteAlertPresented == rhs.isDeleteAlertPresented &&
+               lhs.isFreezeAlertPresented == rhs.isFreezeAlertPresented &&
+               lhs.countInputText == rhs.countInputText &&
+               lhs.hoursInputText == rhs.hoursInputText &&
+               lhs.minutesInputText == rhs.minutesInputText &&
+               lhs.successFeedbackTrigger == rhs.successFeedbackTrigger &&
+               lhs.errorFeedbackTrigger == rhs.errorFeedbackTrigger
+    }
 }
 
 // MARK: - Alert Modifiers
