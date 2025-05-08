@@ -961,6 +961,18 @@
             "state" : "translated",
             "value" : "hours (less than 24)"
           }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "сааттар (24 төн аз)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "часы (меньше 24)"
+          }
         }
       }
     },
@@ -983,6 +995,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%dч %dм"
+          }
+        }
+      }
+    },
+    "icon_picker_remove_icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Icon"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Белгисиз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без иконки"
+          }
+        }
+      }
+    },
+    "icon_picker_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Icon"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Белги тандоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбор иконки"
           }
         }
       }
@@ -1063,6 +1121,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "minutes (less than 60)"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "мүнөттөр (60 тан аз)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "минуты (меньше 60)"
           }
         }
       }

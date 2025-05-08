@@ -7,6 +7,7 @@ final class Habit {
     var title: String
     var type: HabitType
     var goal: Int // Target value (count or seconds for time)
+    var iconName: String? // Иконка привычки
     
     // System properties
     var createdAt: Date
@@ -54,6 +55,7 @@ final class Habit {
         title: String,
         type: HabitType = .count,
         goal: Int = 0,
+        iconName: String? = nil,
         createdAt: Date = .now,
         isFreezed: Bool = false,
         activeDays: [Bool]? = nil,
@@ -63,6 +65,7 @@ final class Habit {
         self.title = title
         self.type = type
         self.goal = goal
+        self.iconName = iconName
         self.createdAt = createdAt
         self.isFreezed = isFreezed
         self.completions = []
@@ -190,6 +193,7 @@ final class Habit {
         title: String,
         type: HabitType,
         goal: Int,
+        iconName: String?,
         activeDays: [Bool],
         reminderTime: Date?,
         startDate: Date
@@ -197,6 +201,7 @@ final class Habit {
         self.title = title
         self.type = type
         self.goal = goal
+        self.iconName = iconName
         self.activeDays = activeDays
         self.reminderTime = reminderTime
         self.startDate = startDate

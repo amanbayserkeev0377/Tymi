@@ -21,6 +21,8 @@ struct NewHabitView: View {
     @State private var isReminderEnabled = false
     @State private var reminderTime = Date()
     @State private var startDate = Date()
+    @State private var selectedIcon: String? = nil
+    @State private var isShowingIconPicker = false
     
     @FocusState private var isNameFieldFocused: Bool
     @FocusState private var isCountFieldFocused: Bool
@@ -38,6 +40,7 @@ struct NewHabitView: View {
             _isReminderEnabled = State(initialValue: habit.reminderTime != nil)
             _reminderTime = State(initialValue: habit.reminderTime ?? Date())
             _startDate = State(initialValue: habit.startDate)
+            _selectedIcon = State(initialValue: habit.iconName)
         }
     }
     
@@ -73,79 +76,79 @@ struct NewHabitView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Центрируем и ограничиваем ширину содержимого
                     VStack(spacing: 16) {
-                        // Name
-                        VStack {
+                        HStack(spacing: 16) {
+                            // Icon
+                            IconSectionContent(selectedIcon: $selectedIcon)
+                            
+                            // Name
                             NameFieldSectionContent(title: $title, isFocused: $isNameFieldFocused)
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 16)
                         }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
                         .background(sectionBackground)
-                        
-                        // Goal
-                        VStack {
-                            GoalSectionContent(
-                                selectedType: $selectedType,
-                                countGoal: $countGoal,
-                                hours: $hours,
-                                minutes: $minutes
-                            )
-                            .focused($isCountFieldFocused)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                        }
-                        .background(sectionBackground)
-                        
-                        VStack(spacing: 0) {
-                            // StartDate
-                            StartDateSectionContent(startDate: $startDate)
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 16)
-                            
-                            Divider()
-                                .padding(.leading, 48)
-                            
-                            // Reminder
-                            ReminderSectionContent(
-                                isReminderEnabled: $isReminderEnabled,
-                                reminderTime: $reminderTime
-                            )
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                        }
-                        .background(sectionBackground)
-                        
-                        // ActiveDays
-                        VStack {
-                            ActiveDaysSectionContent(activeDays: $activeDays)
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 16)
-                        }
-                        .background(sectionBackground)
-                        
-                        // Save Button
-                        Button(action: {
-                            saveHabit()
-                        }) {
-                            Text("save".localized)
-                                .font(.headline)
-                                .foregroundStyle(
-                                    colorScheme == .dark ? .black : .white
-                                )
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(isFormValid ? Color.primary : Color.gray)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        .disabled(!isFormValid)
-                        .padding(.top, 8)
-                        .padding(.bottom, 20)
                     }
-                    .frame(maxWidth: contentMaxWidth)
+                    
+                    // Goal
+                    VStack {
+                        GoalSectionContent(
+                            selectedType: $selectedType,
+                            countGoal: $countGoal,
+                            hours: $hours,
+                            minutes: $minutes
+                        )
+                        .focused($isCountFieldFocused)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                    }
+                    .background(sectionBackground)
+                    
+                    VStack(spacing: 0) {
+                        // StartDate
+                        StartDateSectionContent(startDate: $startDate)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                        
+                        Divider()
+                            .padding(.leading, 48)
+                        
+                        // Reminder
+                        ReminderSectionContent(
+                            isReminderEnabled: $isReminderEnabled,
+                            reminderTime: $reminderTime
+                        )
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                    }
+                    .background(sectionBackground)
+                    
+                    // ActiveDays
+                    VStack {
+                        ActiveDaysSectionContent(activeDays: $activeDays)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                    }
+                    .background(sectionBackground)
+                    
+                    // Save Button
+                    Button(action: {
+                        saveHabit()
+                    }) {
+                        Text("save".localized)
+                            .font(.headline)
+                            .foregroundStyle(
+                                colorScheme == .dark ? .black : .white
+                            )
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(isFormValid ? Color.primary : Color.gray)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .disabled(!isFormValid)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
                 }
-                .padding(.top, 16)
-                .padding(.horizontal, adaptiveHorizontalPadding)
+                .frame(maxWidth: contentMaxWidth)
             }
             .navigationTitle(habit == nil ? "create_habit".localized : "edit_habit".localized)
             .navigationBarTitleDisplayMode(.inline)
@@ -186,6 +189,9 @@ struct NewHabitView: View {
                         hideKeyboard()
                     }
             )
+            .sheet(isPresented: $isShowingIconPicker) {
+                IconPickerView(selectedIcon: $selectedIcon)
+            }
         }
     }
     
@@ -206,7 +212,7 @@ struct NewHabitView: View {
         isNameFieldFocused = false
         isCountFieldFocused = false
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                      to: nil, from: nil, for: nil)
+                                        to: nil, from: nil, for: nil)
     }
     
     private func saveHabit() {
@@ -228,6 +234,7 @@ struct NewHabitView: View {
                 title: title,
                 type: selectedType,
                 goal: effectiveGoal,
+                iconName: selectedIcon,
                 activeDays: activeDays,
                 reminderTime: isReminderEnabled ? reminderTime : nil,
                 startDate: startDate
@@ -251,6 +258,7 @@ struct NewHabitView: View {
                 title: title,
                 type: selectedType,
                 goal: effectiveGoal,
+                iconName: selectedIcon,
                 createdAt: Date(),
                 isFreezed: false,
                 activeDays: activeDays,

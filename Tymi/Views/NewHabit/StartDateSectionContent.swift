@@ -15,7 +15,12 @@ struct StartDateSectionContent: View {
                 
                 Spacer()
                 
-                DatePicker("", selection: $startDate, displayedComponents: .date)
+                DatePicker(
+                    "",
+                    selection: $startDate,
+                    in: ...Date(),
+                    displayedComponents: .date
+                )
                     .datePickerStyle(.compact)
                     .tint(.primary)
                     .labelsHidden()

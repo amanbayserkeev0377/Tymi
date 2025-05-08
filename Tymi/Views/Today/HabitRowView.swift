@@ -10,6 +10,14 @@ struct HabitRowView: View {
     
     var body: some View {
         HStack {
+            if let iconName = habit.iconName {
+                Image(systemName: iconName)
+                    .font(.title2)
+                    .foregroundStyle(.primary)
+                    .frame(width: 30, height: 30)
+                    .padding(.trailing, 8)
+            }
+            
             VStack(alignment: .leading, spacing: 2) {
                 Text(habit.title)
                     .font(.headline)

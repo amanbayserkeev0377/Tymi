@@ -6,20 +6,11 @@ struct NameFieldSectionContent: View {
     
     var body: some View {
         Section {
-            HStack {
-                Image(systemName: "pencil")
-                    .foregroundStyle(.primary)
-                    .frame(width: 24, height: 24)
-                
-                TextField("habit_name".localized, text: $title)
-                    .autocorrectionDisabled()
-                    .focused($isFocused)
-                    .tint(.primary)
-            }
-            .frame(height: 37)
-        }
-        .onAppear {
-            isFocused = true
+            TextField("habit_name".localized, text: $title)
+                .autocorrectionDisabled()
+                .focused($isFocused)
+                .tint(.primary)
+                .frame(height: 37)
         }
     }
 }
