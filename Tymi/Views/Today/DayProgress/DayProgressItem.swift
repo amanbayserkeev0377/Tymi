@@ -7,14 +7,14 @@ struct DayProgressItem: View {
     let onTap: () -> Void
     
     @Environment(\.colorScheme) private var colorScheme
-    private let calendar = Calendar.current
+    @StateObject private var calendarManager = CalendarManager.shared
     
     private var dayNumber: String {
-        "\(calendar.component(.day, from: date))"
+        "\(calendarManager.calendar.component(.day, from: date))"
     }
     
     private var isToday: Bool {
-        calendar.isDateInToday(date)
+        calendarManager.calendar.isDateInToday(date)
     }
     
     private var isFutureDate: Bool {
@@ -45,34 +45,18 @@ struct DayProgressItem: View {
     
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
                 ZStack {
-                    if isFutureDate {
-                        Circle()
-                            .fill(Color.clear)
-                            .frame(width: 36, height: 36)
-                    } else {
-                        Circle()
-                            .stroke(Color.secondary.opacity(0.1), lineWidth: 4)
-                            .frame(width: 36, height: 36)
-                        
-                        Circle()
-                            .trim(from: 0, to: progress)
-                            .stroke(
-                                AngularGradient(
-                                    colors: progressColors,
-                                    center: .center,
-                                    startAngle: .degrees(0),
-                                    endAngle: .degrees(360)
-                                ),
-                                style: StrokeStyle(
-                                    lineWidth: 4,
-                                    lineCap: .round
-                                )
+                    Circle()
+                        .fill(
+                            AngularGradient(
+                                colors: progressColors,
+                                center: .center,
+                                startAngle: .degrees(0),
+                                endAngle: .degrees(360)
                             )
-                            .rotationEffect(.degrees(-90))
-                            .frame(width: 36, height: 36)
-                    }
+                        )
+                        .frame(width: 44, height: 44)
                     
                     if isFutureDate {
                         Text(dayNumber)

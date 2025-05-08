@@ -1,6 +1,7 @@
 import SwiftUI
 
-struct WeekStartOption {
+struct WeekStartOption: Identifiable {
+    let id: Int
     let name: String
     let value: Int
     
@@ -9,16 +10,22 @@ struct WeekStartOption {
         return name.prefix(1).uppercased() + name.dropFirst().lowercased()
     }
     
-    static let system = WeekStartOption(name: "week_start_system".localized, value: 0)
+    static let system = WeekStartOption(
+        id: 0,
+        name: "week_start_system".localized,
+        value: 0
+    )
     
     static let sunday = WeekStartOption(
+        id: 1,
         name: formatDayName(Weekday.sunday.fullName),
-        value: 7
+        value: 1 // Воскресенье = 1 (системная константа)
     )
     
     static let monday = WeekStartOption(
+        id: 2,
         name: formatDayName(Weekday.monday.fullName),
-        value: 1
+        value: 2 // Понедельник = 2 (системная константа)
     )
     
     static let allOptions = [system, sunday, monday]
@@ -26,6 +33,7 @@ struct WeekStartOption {
 
 struct WeekStartSection: View {
     @AppStorage("firstDayOfWeek") private var firstDayOfWeek: Int = 0
+    @StateObject private var calendarManager = CalendarManager.shared
     
     var body: some View {
         HStack {
@@ -39,16 +47,23 @@ struct WeekStartSection: View {
             Spacer()
             
             Menu {
-                ForEach(WeekStartOption.allOptions, id: \.value) { option in
+                ForEach(WeekStartOption.allOptions) { option in
                     Button(action: {
                         firstDayOfWeek = option.value
-                        NotificationCenter.default.post(name: Notification.Name("FirstDayOfWeekChanged"), object: nil)
+                        NotificationCenter.default.post(
+                            name: Notification.Name("FirstDayOfWeekChanged"),
+                            object: nil,
+                            userInfo: ["firstDayOfWeek": option.value]
+                        )
                     }) {
                         HStack {
                             Text(option.name)
+                            if option.value == firstDayOfWeek {
+                                Image(systemName: "checkmark")
                             }
                         }
                     }
+                }
             } label: {
                 HStack {
                     Text(getSelectedDayName())
@@ -61,7 +76,14 @@ struct WeekStartSection: View {
     }
     
     private func getSelectedDayName() -> String {
-        WeekStartOption.allOptions.first { $0.value == firstDayOfWeek }?.name ?? WeekStartOption.system.name
+        if firstDayOfWeek == 0 {
+            return WeekStartOption.system.name
+        }
+        
+        // Преобразуем значение в индекс (0-6)
+        let weekdayIndex = firstDayOfWeek - 1
+        let weekday = Weekday(rawValue: weekdayIndex) ?? .sunday
+        return WeekStartOption.formatDayName(weekday.fullName)
     }
 }
 

@@ -5,6 +5,8 @@ struct WeeklyCalendarView: View {
     @Binding var selectedDate: Date
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
+    @AppStorage("firstDayOfWeek") private var firstDayOfWeek: Int = 0
+    @StateObject private var calendarManager = CalendarManager.shared
     
     @Query private var habits: [Habit]
     
@@ -12,11 +14,10 @@ struct WeeklyCalendarView: View {
     @State private var currentWeekIndex: Int = 0
     @State private var progressData: [Date: Double] = [:]
     
-    private let calendar = Calendar.current
     private let weekCount = 8
     
     private var weekdaySymbols: [String] {
-        let symbols = calendar.shortWeekdaySymbols
+        let symbols = calendarManager.calendar.shortWeekdaySymbols
         
         let formattedSymbols = symbols.map { symbol in
             if symbol.count > 0 {
@@ -25,9 +26,10 @@ struct WeeklyCalendarView: View {
             return symbol
         }
         
-        let firstWeekday = calendar.firstWeekday - 1
-        let before = Array(formattedSymbols[firstWeekday...])
-        let after = Array(formattedSymbols[..<firstWeekday])
+        let firstWeekdayIndex = calendarManager.getEffectiveFirstWeekday() - 1
+        
+        let before = Array(formattedSymbols[firstWeekdayIndex...])
+        let after = Array(formattedSymbols[..<firstWeekdayIndex])
         return before + after
     }
     
@@ -58,11 +60,15 @@ struct WeeklyCalendarView: View {
                         ForEach(week, id: \.self) { date in
                             DayProgressItem(
                                 date: date,
-                                isSelected: calendar.isDate(selectedDate, inSameDayAs: date),
+                                isSelected: calendarManager.calendar.isDate(selectedDate, inSameDayAs: date),
                                 progress: progressData[date] ?? 0,
                                 onTap: {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         selectedDate = date
+                                    }
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        habitsUpdateService.triggerUpdate()
                                     }
                                 }
                             )
@@ -86,6 +92,9 @@ struct WeeklyCalendarView: View {
                     currentWeekIndex = weekIndex
                 }
             }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    habitsUpdateService.triggerUpdate()
+                }
         }
         .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
             loadProgressData()
@@ -96,16 +105,21 @@ struct WeeklyCalendarView: View {
         let today = Date()
         var generatedWeeks: [[Date]] = []
         
-        guard let currentWeekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)) else {
+        let effectiveFirstWeekday = calendarManager.getEffectiveFirstWeekday()
+        
+        var components = calendarManager.calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
+        components.weekday = effectiveFirstWeekday
+        
+        guard let currentWeekStart = calendarManager.calendar.date(from: components) else {
             return
         }
         
         for weekOffset in (1-weekCount)...0 {
-            if let weekStart = calendar.date(byAdding: .weekOfYear, value: weekOffset, to: currentWeekStart) {
+            if let weekStart = calendarManager.calendar.date(byAdding: .weekOfYear, value: weekOffset, to: currentWeekStart) {
                 var weekDates: [Date] = []
                 
                 for dayOffset in 0..<7 {
-                    if let date = calendar.date(byAdding: .day, value: dayOffset, to: weekStart) {
+                    if let date = calendarManager.calendar.date(byAdding: .day, value: dayOffset, to: weekStart) {
                         weekDates.append(date)
                     }
                 }
@@ -160,7 +174,7 @@ struct WeeklyCalendarView: View {
     
     private func findWeekIndex(for date: Date) -> Int? {
         for (index, week) in weeks.enumerated() {
-            if week.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
+            if week.contains(where: { calendarManager.calendar.isDate($0, inSameDayAs: date) }) {
                 return index
             }
         }

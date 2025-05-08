@@ -7,7 +7,7 @@ struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     
-    @Query(filter: #Predicate<Habit> { !$0.isFreezed }, sort: \Habit.createdAt)
+    @Query(filter: #Predicate<Habit> { !$0.isFreezed }, sort: [SortDescriptor(\Habit.createdAt)])
     private var baseHabits: [Habit]
     
     @State private var selectedDate: Date = .now
@@ -15,6 +15,9 @@ struct TodayView: View {
     @State private var selectedHabit: Habit? = nil
     @State private var isShowingSettingsSheet = false
     @StateObject private var habitsUpdateService = HabitsUpdateService()
+    
+    // Добавляем состояние для принудительного обновления
+    @State private var forceViewUpdate: Bool = false
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -24,7 +27,27 @@ struct TodayView: View {
     
     // Активные привычки для выбранной даты
     private var activeHabitsForDate: [Habit] {
-        baseHabits.filter { $0.isActiveOnDate(selectedDate) && selectedDate >= $0.startDate }
+        // Используем forceViewUpdate как триггер для перевычисления
+        _ = forceViewUpdate
+        
+        // Применяем фильтрацию к базовым привычкам
+        let activeHabits = baseHabits.filter { habit in
+            let isActive = habit.isActiveOnDate(selectedDate)
+            let isAfterStartDate = selectedDate >= habit.startDate
+            
+            // Для отладки
+            print("Checking habit: \(habit.title)")
+            print("  Is active on date: \(isActive)")
+            print("  Is after start date: \(isAfterStartDate)")
+            print("  Combined result: \(isActive && isAfterStartDate)")
+            
+            return isActive && isAfterStartDate
+        }
+        
+        // Для отладки
+        print("Total active habits for \(selectedDate): \(activeHabits.count)")
+        
+        return activeHabits
     }
     
     // Имеются ли привычки для выбранной даты
@@ -75,6 +98,7 @@ struct TodayView: View {
                                         }
                                     }
                                     .padding(.top, 12)
+                                    .id("habits-list-\(forceViewUpdate)") // Важно: это заставит SwiftUI пересоздать список
                                 } else {
                                     // Специальное сообщение, если нет привычек на выбранную дату
                                     // но при этом привычки в целом существуют
@@ -149,6 +173,7 @@ struct TodayView: View {
             }
             .sheet(isPresented: $isShowingNewHabitSheet) {
                 NewHabitView()
+                    .environmentObject(habitsUpdateService)
                     .presentationBackground {
                         ZStack {
                             Rectangle().fill(.ultraThinMaterial)
@@ -157,9 +182,14 @@ struct TodayView: View {
                             }
                         }
                     }
+                    .onDisappear {
+                        // При закрытии окна создания привычки обновляем привычки
+                        refreshHabitsQuery()
+                    }
             }
             .sheet(isPresented: $isShowingSettingsSheet) {
                 SettingsView()
+                    .environmentObject(habitsUpdateService)
                     .presentationDetents([.fraction(0.8)])
                     .presentationDragIndicator(.visible)
                     .presentationCornerRadius(40)
@@ -199,7 +229,37 @@ struct TodayView: View {
                         }
                     }
             }
+            .onChange(of: selectedDate) { oldValue, newValue in
+                print("TodayView: Date changed from \(oldValue) to \(newValue)")
+                
+                // Вызываем немедленное обновление
+                forceViewUpdate.toggle()
+                
+                // Также запускаем отложенное обновление через 100мс
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    forceViewUpdate.toggle()
+                    
+                    // Обновляем данные через сервис обновления
+                    habitsUpdateService.triggerUpdate()
+                    
+                    // Добавляем еще одно обновление через 300мс для подстраховки
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        refreshHabitsQuery()
+                    }
+                }
+            }
+            .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
+                // Обновляем представление при сигнале от сервиса обновления
+                refreshHabitsQuery()
+            }
+            .onAppear {
+                // При появлении представления обновляем список
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    refreshHabitsQuery()
+                }
+            }
         }
+        .environmentObject(habitsUpdateService)
     }
     
     // MARK: - Helper Methods
@@ -219,6 +279,28 @@ struct TodayView: View {
             return "yesterday".localized
         } else {
             return formattedDate(date)
+        }
+    }
+    
+    // Метод для принудительного обновления запроса привычек
+    private func refreshHabitsQuery() {
+        let descriptor = FetchDescriptor<Habit>(
+            predicate: #Predicate<Habit> { !$0.isFreezed },
+            sortBy: [SortDescriptor(\Habit.createdAt)]
+        )
+        
+        Task {
+            do {
+                // Выполняем запрос заново
+                _ = try modelContext.fetch(descriptor)
+                
+                // Обновляем состояние для перерисовки интерфейса
+                DispatchQueue.main.async {
+                    forceViewUpdate.toggle()
+                }
+            } catch {
+                print("Error refreshing habits: \(error)")
+            }
         }
     }
 }

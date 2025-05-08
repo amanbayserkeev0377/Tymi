@@ -5,14 +5,49 @@ import SwiftData
 
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
+    @StateObject private var calendarManager = CalendarManager.shared
     
     @Published var permissionStatus: Bool = false
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
     
     private init() {
+        setupNotifications()
         Task {
             permissionStatus = await checkNotificationStatus()
         }
+    }
+    
+    private func setupNotifications() {
+        // Регистрируем наблюдатель за изменением первого дня недели
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleFirstDayOfWeekChanged),
+            name: NSNotification.Name("FirstDayOfWeekChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleFirstDayOfWeekChanged(_ notification: Notification) {
+        if let firstDayOfWeek = notification.userInfo?["firstDayOfWeek"] as? Int {
+            // Обновляем все уведомления с учетом нового первого дня недели
+            updateAllNotifications(firstDayOfWeek: firstDayOfWeek)
+        }
+    }
+    
+    private func updateAllNotifications(firstDayOfWeek: Int) {
+        // Получаем все активные уведомления
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            for request in requests {
+                // Обновляем каждое уведомление с учетом нового первого дня недели
+                self.updateNotification(request, firstDayOfWeek: firstDayOfWeek)
+            }
+        }
+    }
+    
+    private func updateNotification(_ request: UNNotificationRequest, firstDayOfWeek: Int) {
+        // Здесь логика обновления конкретного уведомления
+        // Например, если уведомление привязано к определенному дню недели,
+        // нужно пересчитать его с учетом нового первого дня недели
     }
     
     func requestAuthorization() async throws {
@@ -40,7 +75,7 @@ class NotificationManager: ObservableObject {
             var dateComponents = DateComponents()
             dateComponents.hour = components.hour
             dateComponents.minute = components.minute
-            dateComponents.weekday = weekday.rawValue + 1 // UNCalendarNotificationTrigger использует 1-7 для дней недели
+            dateComponents.weekday = weekday.rawValue + 1 // UNCalendarNotificationTrigger использует 1-7 для дней недели (1 = воскресенье)
             
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
             

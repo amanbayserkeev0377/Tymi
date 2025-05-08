@@ -3,29 +3,25 @@ import SwiftUI
 struct ActiveDaysSectionContent: View {
     @Binding var activeDays: [Bool]
     @Environment(\.colorScheme) private var colorScheme
-    
-    // Calendar for day names
-    private let calendar = Calendar.current
+    @StateObject private var calendarManager = CalendarManager.shared
     
     // Day symbols (short names like "Mon", "Tue")
     private var daySymbols: [String] {
-        let symbols = calendar.shortWeekdaySymbols // e.g., ["Mon", "Tue", ...]
+        let symbols = calendarManager.calendar.shortWeekdaySymbols
         
-        // Rearrange symbols based on first day of week
-        let firstWeekday = calendar.firstWeekday - 1
-        let before = Array(symbols[firstWeekday...])
-        let after = Array(symbols[..<firstWeekday])
+        let firstWeekdayIndex = calendarManager.getEffectiveFirstWeekday() - 1
+        let before = Array(symbols[firstWeekdayIndex...])
+        let after = Array(symbols[..<firstWeekdayIndex])
         return before + after
     }
     
     // Full day names for accessibility
     private var fullDayNames: [String] {
-        let names = calendar.weekdaySymbols
+        let names = calendarManager.calendar.weekdaySymbols
         
-        // Rearrange names based on first day of week
-        let firstWeekday = calendar.firstWeekday - 1
-        let before = Array(names[firstWeekday...])
-        let after = Array(names[..<firstWeekday])
+        let firstWeekdayIndex = calendarManager.getEffectiveFirstWeekday() - 1
+        let before = Array(names[firstWeekdayIndex...])
+        let after = Array(names[..<firstWeekdayIndex])
         return before + after
     }
     

@@ -8,6 +8,8 @@ struct NewHabitView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
+    @EnvironmentObject private var habitsUpdateService: HabitsUpdateService
+    
     // MARK: - Properties
     private let habit: Habit?
     
