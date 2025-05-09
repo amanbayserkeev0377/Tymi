@@ -36,6 +36,11 @@ final class HabitDetailViewModel {
     private var progressObserverTask: Task<Void, Never>?
     private var timerStateObserverTask: Task<Void, Never>?
     
+    private enum Limits {
+        static let maxCount = 999999
+        static let maxTimeSeconds = 86400 // 24hr
+    }
+    
     // MARK: - Computed Properties
     var isAlreadyCompleted: Bool {
         currentProgress >= habit.goal
@@ -110,7 +115,7 @@ final class HabitDetailViewModel {
             }
         }
     }
-        
+    
     // MARK: - Progress Management
     private func updateProgressMetrics() {
         completionPercentage = habit.goal > 0 ? Double(currentProgress) / Double(habit.goal) : 0
@@ -122,21 +127,21 @@ final class HabitDetailViewModel {
     func incrementProgress() {
         if habit.type == .count {
             let currentValue = timerService.getCurrentProgress(for: habit.id)
-            if currentValue < 999999 {
+            if currentValue < Limits.maxCount {
                 timerService.addProgress(1, for: habit.id)
             } else {
                 alertState.errorFeedbackTrigger.toggle()
             }
         } else {
             let currentValue = timerService.getCurrentProgress(for: habit.id)
-            if currentValue + 60 <= 86400 {
+            if currentValue + 60 <= Limits.maxTimeSeconds {
                 if timerService.isTimerRunning(for: habit.id) {
                     timerService.stopTimer(for: habit.id)
                 }
                 timerService.addProgress(60, for: habit.id)
             } else {
                 timerService.resetTimer(for: habit.id)
-                timerService.addProgress(86400, for: habit.id)
+                timerService.addProgress(Limits.maxTimeSeconds, for: habit.id)
                 
                 alertState.successFeedbackTrigger.toggle()
             }
@@ -228,6 +233,26 @@ final class HabitDetailViewModel {
         onHabitDeleted?()
     }
     
+    func syncUIStates() {
+        let newAlertState = AlertState(
+            isResetAlertPresented: alertState.isResetAlertPresented,
+            isCountAlertPresented: alertState.isCountAlertPresented,
+            isTimeAlertPresented: alertState.isTimeAlertPresented,
+            isDeleteAlertPresented: alertState.isDeleteAlertPresented,
+            isFreezeAlertPresented: alertState.isFreezeAlertPresented,
+            countInputText: alertState.countInputText,
+            hoursInputText: alertState.hoursInputText,
+            minutesInputText: alertState.minutesInputText,
+            successFeedbackTrigger: alertState.successFeedbackTrigger,
+            errorFeedbackTrigger: alertState.errorFeedbackTrigger
+        )
+        
+        // Обновляем только если состояние реально изменилось (исключая триггеры)
+        if newAlertState != alertState {
+            alertState = newAlertState
+        }
+    }
+    
     // MARK: - Progress Actions
     func resetProgress() {
         timerService.resetTimer(for: habit.id)
@@ -241,7 +266,7 @@ final class HabitDetailViewModel {
         var toAdd = habit.goal - currentValue
         
         if habit.type == .time {
-            let maxValue = 86400 // 24 часа в секундах
+            let maxValue = Limits.maxTimeSeconds
             if currentValue + toAdd > maxValue {
                 toAdd = maxValue - currentValue
             }
@@ -259,24 +284,29 @@ final class HabitDetailViewModel {
     }
     
     func handleCountInput() {
-        if let value = Int(alertState.countInputText), value > 0 {
-            let currentValue = timerService.getCurrentProgress(for: habit.id)
-            
-            if currentValue + value > 999999 {
-                let remainingValue = 999999 - currentValue
-                
-                if remainingValue > 0 {
-                    timerService.addProgress(remainingValue, for: habit.id)
-                    alertState.successFeedbackTrigger.toggle()
-                } else {
-                    alertState.errorFeedbackTrigger.toggle()
-                }
-            } else {
-                timerService.addProgress(value, for: habit.id)
-                alertState.successFeedbackTrigger.toggle()
-            }
-            updateProgress()
+        guard let value = Int(alertState.countInputText), value > 0 else {
+            alertState.errorFeedbackTrigger.toggle()
+            alertState.countInputText = ""
+            return
         }
+        
+        let currentValue = timerService.getCurrentProgress(for: habit.id)
+        
+        if currentValue + value > Limits.maxCount {
+            let remainingValue = Limits.maxCount - currentValue
+            
+            if remainingValue > 0 {
+                timerService.addProgress(remainingValue, for: habit.id)
+                alertState.successFeedbackTrigger.toggle()
+            } else {
+                alertState.errorFeedbackTrigger.toggle()
+            }
+        } else {
+            timerService.addProgress(value, for: habit.id)
+            alertState.successFeedbackTrigger.toggle()
+        }
+        
+        updateProgress()
         alertState.countInputText = ""
     }
     
@@ -301,7 +331,11 @@ final class HabitDetailViewModel {
                 modelContext.delete(completion)
             }
             
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                print("Ошибка при сохранении прогресса (удаление завершений): \(error)")
+            }
         } else {
             let existingProgress = habit.progressForDate(date)
             
@@ -322,7 +356,11 @@ final class HabitDetailViewModel {
                     habit.addProgress(progress - existingProgress, for: date)
                 }
                 
-                try? modelContext.save()
+                do {
+                    try modelContext.save()
+                } catch {
+                    print("Ошибка при сохранении прогресса: \(error)")
+                }
             }
         }
         
@@ -339,6 +377,8 @@ final class HabitDetailViewModel {
     }
     
     func cleanup() {
+        onHabitDeleted = nil
+        
         saveDebounceTask?.cancel()
         progressObserverTask?.cancel()
         timerStateObserverTask?.cancel()
@@ -347,7 +387,11 @@ final class HabitDetailViewModel {
     
     // MARK: - Private Methods
     private func updateHabit() {
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("Ошибка при обновлении привычки: \(error)")
+        }
     }
     
     private func updateStatistics() {

@@ -65,29 +65,6 @@ struct NotificationsSection: View {
         }
     }
     
-    private func requestNotificationPermission() {
-        Task {
-            do {
-                
-                let isAuthorized = await NotificationManager.shared.checkNotificationStatus()
-                
-                await MainActor.run {
-                    if isAuthorized {
-                        NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
-                    } else {
-                        notificationsEnabled = false
-                        isNotificationPermissionAlertPresented = true
-                    }
-                }
-            } catch {
-                await MainActor.run {
-                    notificationsEnabled = false
-                    isNotificationPermissionAlertPresented = true
-                }
-            }
-        }
-    }
-    
     private func openSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
