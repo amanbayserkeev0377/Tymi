@@ -57,6 +57,7 @@ struct TymiApp: App {
             case .active:
                 HabitTimerService.shared.handleAppWillEnterForeground()
             case .inactive:
+                HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
                 break
             @unknown default:
                 break

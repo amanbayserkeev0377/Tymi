@@ -169,9 +169,9 @@ final class HabitTimerService {
                     if data.isActive, let startTime = data.startTimestamp {
                         let elapsed = Int(now - startTime)
                         
-                        #if DEBUG
+#if DEBUG
                         print("Таймер \(habitId): восстановлен с учетом \(elapsed) секунд прошедшего времени")
-                        #endif
+#endif
                         
                         updatedData.accumulatedSeconds += elapsed
                         updatedData.startTimestamp = now // Обновляем timestamp для следующего цикла
@@ -189,8 +189,7 @@ final class HabitTimerService {
         }
     }
     
-    private func saveState() {
-        // Блокировка чтобы избежать race condition
+    private func saveState(synchronous: Bool = false) {
         lock.lock()
         defer { lock.unlock() }
         
@@ -198,31 +197,35 @@ final class HabitTimerService {
         
         for (habitId, data) in habitTimers {
             var timerData = data
-            
             if data.isActive, let startTime = data.startTimestamp {
                 let now = Date().timeIntervalSince1970
                 let elapsed = Int(now - startTime)
                 timerData.accumulatedSeconds += elapsed
                 timerData.startTimestamp = now
             }
-            
             dataToSave[habitId] = timerData
         }
         
-        // Запускаем сохранение отдельно, чтобы не блокировать основной поток
-        Task.detached(priority: .utility) { [dataToSave] in
-            if let encodedData = try? JSONEncoder().encode(dataToSave) {
-                await MainActor.run {
+        do {
+            let encodedData = try JSONEncoder().encode(dataToSave)
+            if synchronous {
+                // Синхронное сохранение для критических сценариев
+                UserDefaults.standard.set(encodedData, forKey: Self.Keys.timerData)
+            } else {
+                // Асинхронное сохранение для некритичных сценариев
+                Task.detached(priority: .utility) {
                     UserDefaults.standard.set(encodedData, forKey: Self.Keys.timerData)
                 }
             }
+        } catch {
+            print("Ошибка кодирования данных таймеров: \(error)")
         }
     }
     
     // MARK: - Обработка жизненного цикла приложения
     
     @objc func handleAppDidEnterBackground() {
-        saveState()
+        saveState(synchronous: true)
     }
     
     @objc func handleAppWillEnterForeground() {
@@ -231,7 +234,18 @@ final class HabitTimerService {
     }
     
     @objc func handleAppWillTerminate() {
-        saveState()
+        // Отменяем все активные таймеры перед сохранением
+        lock.lock()
+        let activeTimerIds = habitTimers.filter { $0.value.isActive }.keys
+        lock.unlock()
+        
+        // Останавливаем каждый активный таймер
+        for habitId in activeTimerIds {
+            stopTimer(for: habitId)
+        }
+        
+        // Теперь сохраняем окончательное состояние
+        saveState(synchronous: true)
         timerTask?.cancel()
     }
     
@@ -455,6 +469,18 @@ final class HabitTimerService {
                     }
                 }
             }
+        }
+    }
+    
+    func persistAllCompletionsToSwiftData(modelContext: ModelContext) {
+        lock.lock()
+        let currentProgressCopy = progressUpdates
+        lock.unlock()
+        
+        // Для данного контекста сохраняем все таймеры с ненулевым прогрессом
+        for (habitId, progress) in currentProgressCopy where progress > 0 {
+            // Используем существующий метод для сохранения каждого таймера
+            persistCompletions(for: habitId, in: modelContext, date: Date())
         }
     }
     
