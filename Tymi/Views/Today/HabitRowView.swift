@@ -66,11 +66,16 @@ struct HabitRowView: View {
                 isPressed = true
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation {
-                    isPressed = false
+            Task {
+                try? await Task.sleep(for: .seconds(0.1))
+                if !Task.isCancelled {
+                    await MainActor.run {
+                        withAnimation {
+                            isPressed = false
+                        }
+                        onTap()
+                    }
                 }
-                onTap()
             }
         }
     }

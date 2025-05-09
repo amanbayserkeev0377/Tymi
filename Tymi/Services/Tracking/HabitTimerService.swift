@@ -3,7 +3,7 @@ import SwiftData
 import UIKit
 
 @Observable
-final class HabitTimerService {
+final class HabitTimerService: ProgressTrackingService {
     static let shared = HabitTimerService()
     
     // MARK: - Типы и структуры данных
@@ -388,6 +388,10 @@ final class HabitTimerService {
         }
     }
     
+    func resetProgress(for habitId: String) {
+        resetTimer(for: habitId)
+    }
+    
     // MARK: - Получение данных
     
     func getCurrentProgress(for habitId: String) -> Int {
@@ -410,12 +414,17 @@ final class HabitTimerService {
     
     // MARK: - SwiftData интеграция
     
-    func persistCompletions(
+    func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date) {
+        persistCompletionsImpl(for: habitId, in: modelContext, date: date, retryCount: 0)
+    }
+    
+    private func persistCompletionsImpl(
         for habitId: String,
         in modelContext: ModelContext,
         date: Date = .now,
         retryCount: Int = 0
     ) {
+        // Вставляем весь код из текущего метода persistCompletions сюда
         // Получаем прогресс атомарно
         let currentProgress = getCurrentProgress(for: habitId)
         
@@ -465,8 +474,8 @@ final class HabitTimerService {
                 // Ограничиваем количество повторных попыток
                 if retryCount < 3 {
                     try? await Task.sleep(for: .seconds(1))
-                    // Неопасный вызов с инкрементом счетчика повторов
-                    persistCompletions(for: habitId, in: modelContext, date: date, retryCount: retryCount + 1)
+                    // Вызываем приватный метод для повторной попытки
+                    self.persistCompletionsImpl(for: habitId, in: modelContext, date: date, retryCount: retryCount + 1)
                 }
             }
         }

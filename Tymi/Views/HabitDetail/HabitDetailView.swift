@@ -175,7 +175,7 @@ struct HabitDetailView: View {
         .habitAlerts(
             alertState: $alertState,
             habit: habit,
-            timerService: viewModel?.timerService ?? .shared,
+            progressService: viewModel?.progressService ?? ProgressServiceProvider.getService(for: habit), // Заменено timerService
             onReset: {
                 viewModel?.resetProgress()
                 // Обновление локального состояния после сброса
