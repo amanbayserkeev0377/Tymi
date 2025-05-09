@@ -105,30 +105,33 @@ final class HabitTimerService {
     }
     
     private func updateAllProgress() {
-        // Используем локальный флаг для отслеживания изменений
-        var hasLocalChanges = false
-        
-        withLock {
-            let now = Date().timeIntervalSince1970
+            var hasLocalChanges = false
             
-            for (habitId, data) in habitTimers where data.isActive {
-                if let startTime = data.startTimestamp {
-                    let elapsedTime = Int(now - startTime)
-                    let totalSeconds = data.accumulatedSeconds + elapsedTime
-                    
-                    if progressUpdates[habitId] != totalSeconds {
-                        progressUpdates[habitId] = totalSeconds
-                        hasLocalChanges = true
+            withLock {
+                let now = Date().timeIntervalSince1970
+                
+                for (habitId, data) in habitTimers where data.isActive {
+                    if let startTime = data.startTimestamp {
+                        let elapsedTime = Int(now - startTime)
+                        let totalSeconds = data.accumulatedSeconds + elapsedTime
+                        
+                        if progressUpdates[habitId] != totalSeconds {
+                            progressUpdates[habitId] = totalSeconds
+                            hasLocalChanges = true
+                        }
                     }
                 }
             }
+            
+            if hasLocalChanges {
+                Task { @MainActor in
+                    self.needsUIUpdate = true
+                    // Немедленно отправляем уведомление, если требуется
+                    notifyProgressUpdated()
+                }
+            }
         }
-        
-        // Если были изменения, отмечаем что требуется обновление UI
-        if hasLocalChanges {
-            needsUIUpdate = true
-        }
-    }
+
     
     private func notifyProgressUpdated() {
         let progressCopy = withLock {
@@ -413,60 +416,57 @@ final class HabitTimerService {
         date: Date = .now,
         retryCount: Int = 0
     ) {
-        // Получаем прогресс атомарно в одной операции
+        // Получаем прогресс атомарно
         let currentProgress = getCurrentProgress(for: habitId)
         
         guard currentProgress > 0 else { return }
         
         Task { @MainActor in
-            let descriptor = FetchDescriptor<Habit>()
             do {
-                let habits = try modelContext.fetch(descriptor)
-                guard let habit = habits.first(where: { String(describing: $0.persistentModelID) == habitId }) else {
+                // Сначала нужно получить все привычки
+                let descriptor = FetchDescriptor<Habit>()
+                let allHabits = try modelContext.fetch(descriptor)
+                
+                // Затем находим нужную по UUID (преобразованному из строки)
+                guard let uuid = UUID(uuidString: habitId),
+                      let habit = allHabits.first(where: { $0.uuid == uuid }) else {
                     return
                 }
                 
                 let existingProgress = habit.progressForDate(date)
                 
                 // Если прогресс не изменился, нет смысла обновлять
-                if currentProgress == existingProgress {
-                    return
-                }
+                if currentProgress == existingProgress { return }
                 
-                // Обернем все изменения в транзакцию SwiftData
                 try modelContext.transaction {
                     if currentProgress < existingProgress {
-                        // Если текущий прогресс меньше существующего, удаляем все старые записи
-                        let existingCompletions = habit.completions.filter {
+                        // Удаляем старые записи
+                        let oldCompletions = habit.completions.filter {
                             Calendar.current.isDate($0.date, inSameDayAs: date)
                         }
-                        
-                        for completion in existingCompletions {
+                        for completion in oldCompletions {
                             modelContext.delete(completion)
                         }
                         
-                        // Добавляем новый прогресс, если он больше 0
+                        // Добавляем новый прогресс
                         if currentProgress > 0 {
                             habit.addProgress(currentProgress, for: date)
                         }
                     } else {
-                        // Просто добавляем разницу
+                        // Добавляем разницу
                         habit.addProgress(currentProgress - existingProgress, for: date)
                     }
                 }
                 
-                // Сохраняем контекст после транзакции
                 try modelContext.save()
             } catch {
                 print("Ошибка сохранения прогресса: \(error.localizedDescription)")
                 
                 // Ограничиваем количество повторных попыток
                 if retryCount < 3 {
-                    if #available(iOS 17.0, *) {
-                        try? await Task.sleep(for: .seconds(1))
-                        // Неопасный вызов с инкрементом счетчика повторов
-                        persistCompletions(for: habitId, in: modelContext, date: date, retryCount: retryCount + 1)
-                    }
+                    try? await Task.sleep(for: .seconds(1))
+                    // Неопасный вызов с инкрементом счетчика повторов
+                    persistCompletions(for: habitId, in: modelContext, date: date, retryCount: retryCount + 1)
                 }
             }
         }

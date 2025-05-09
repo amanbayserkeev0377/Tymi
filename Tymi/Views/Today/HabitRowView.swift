@@ -75,23 +75,3 @@ struct HabitRowView: View {
         }
     }
 }
-
-#Preview {
-    VStack {
-        HabitRowView(
-            habit: Habit(title: "Утренняя зарядка", type: .count, goal: 20),
-            date: Date(),
-            onTap: {}
-        )
-        .preferredColorScheme(.light)
-        
-        HabitRowView(
-            habit: Habit(title: "Медитация", type: .time, goal: 3600),
-            date: Date(),
-            onTap: {}
-        )
-        .preferredColorScheme(.dark)
-    }
-    .padding()
-    .background(TodayViewBackground())
-}

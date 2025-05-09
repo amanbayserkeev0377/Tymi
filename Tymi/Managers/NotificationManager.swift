@@ -70,7 +70,7 @@ class NotificationManager: ObservableObject {
             content.sound = .default
             
             let request = UNNotificationRequest(
-                identifier: "\(habit.id)-\(weekday)",
+                identifier: "\(habit.uuid.uuidString)-\(weekday)",
                 content: content,
                 trigger: trigger
             )
@@ -89,7 +89,7 @@ class NotificationManager: ObservableObject {
     // Отмена уведомлений для привычки
     func cancelNotifications(for habit: Habit) {
         let identifiers = (1...7).map { weekday in
-            "\(habit.id)-\(weekday)"
+            "\(habit.uuid.uuidString)-\(weekday)"
         }
         
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)

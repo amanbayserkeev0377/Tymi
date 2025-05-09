@@ -3,6 +3,8 @@ import SwiftData
 
 @Model
 final class Habit {
+    @Attribute(.unique) var uuid: UUID
+    
     // Basic properties
     var title: String
     var type: HabitType
@@ -47,7 +49,7 @@ final class Habit {
     
     // Computed property for string ID
     var id: String {
-        return String(describing: persistentModelID)
+        return uuid.uuidString
     }
     
     // Initializer with default values
@@ -62,6 +64,7 @@ final class Habit {
         reminderTime: Date? = nil,
         startDate: Date = .now
     ) {
+        self.uuid = UUID()
         self.title = title
         self.type = type
         self.goal = goal

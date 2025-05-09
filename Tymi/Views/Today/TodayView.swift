@@ -76,6 +76,7 @@ struct TodayView: View {
                                                     selectedHabit = habit
                                                 }
                                             )
+                                            .id(habit.uuid)
                                         }
                                     }
                                     .padding(.top, 12)

@@ -232,7 +232,7 @@ extension View {
                 isPresented: alertState.isCountAlertPresented,
                 inputText: alertState.countInputText,
                 timerService: timerService,
-                habitId: habit.id,
+                habitId: habit.uuid.uuidString,
                 successTrigger: alertState.successFeedbackTrigger,
                 errorTrigger: alertState.errorFeedbackTrigger
             )
@@ -241,7 +241,7 @@ extension View {
                 hoursText: alertState.hoursInputText,
                 minutesText: alertState.minutesInputText,
                 timerService: timerService,
-                habitId: habit.id,
+                habitId: habit.uuid.uuidString,
                 successTrigger: alertState.successFeedbackTrigger,
                 errorTrigger: alertState.errorFeedbackTrigger
             )

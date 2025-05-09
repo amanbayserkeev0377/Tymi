@@ -6,6 +6,7 @@ import SwiftData
 final class HabitDetailViewModel {
     // MARK: - Dependencies
     private let habit: Habit
+    private let habitId: String
     private let date: Date
     var modelContext: ModelContext
     var habitsUpdateService: HabitsUpdateService
@@ -58,6 +59,7 @@ final class HabitDetailViewModel {
         habitsUpdateService: HabitsUpdateService
     ) {
         self.habit = habit
+        self.habitId = habit.uuid.uuidString
         self.date = date
         self.modelContext = modelContext
         self.habitsUpdateService = habitsUpdateService
@@ -71,11 +73,11 @@ final class HabitDetailViewModel {
     
     // MARK: - Setup
     private func setupInitialState() {
-        currentProgress = timerService.getCurrentProgress(for: habit.id)
+        currentProgress = timerService.getCurrentProgress(for: habitId)
         updateProgressMetrics()
         
         if habit.type == .time {
-            isTimerRunning = timerService.isTimerRunning(for: habit.id)
+            isTimerRunning = timerService.isTimerRunning(for: habitId)
         }
     }
     
@@ -83,10 +85,7 @@ final class HabitDetailViewModel {
         // Сначала отменяем предыдущие задачи, если они существуют
         progressObserverTask?.cancel()
         timerStateObserverTask?.cancel()
-        
-        // Создаем захват weak self для предотвращения утечек памяти
-        let habitId = habit.id
-        
+            
         // Запускаем наблюдение за прогрессом
         progressObserverTask = Task { @MainActor [weak self] in
             guard let self = self else { return }
@@ -95,10 +94,14 @@ final class HabitDetailViewModel {
                 // Проверяем, не была ли задача отменена
                 if Task.isCancelled { break }
                 
-                if let progress = updates[habitId] {
-                    self.currentProgress = progress
-                    self.updateProgressMetrics()
-                    self.hasChanges = true
+                if let progress = updates[self.habitId] {
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            self.currentProgress = progress
+                            self.updateProgressMetrics()
+                            self.hasChanges = true
+                        }
+                    }
                 }
             }
         }
@@ -111,7 +114,9 @@ final class HabitDetailViewModel {
                 // Проверяем, не была ли задача отменена
                 if Task.isCancelled { break }
                 
-                self.isTimerRunning = self.timerService.isTimerRunning(for: habitId)
+                await MainActor.run {
+                    self.isTimerRunning = self.timerService.isTimerRunning(for: self.habitId)
+                }
             }
         }
     }
@@ -126,22 +131,22 @@ final class HabitDetailViewModel {
     
     func incrementProgress() {
         if habit.type == .count {
-            let currentValue = timerService.getCurrentProgress(for: habit.id)
+            let currentValue = timerService.getCurrentProgress(for: habitId)
             if currentValue < Limits.maxCount {
-                timerService.addProgress(1, for: habit.id)
+                timerService.addProgress(1, for: habitId)
             } else {
                 alertState.errorFeedbackTrigger.toggle()
             }
         } else {
-            let currentValue = timerService.getCurrentProgress(for: habit.id)
+            let currentValue = timerService.getCurrentProgress(for: habitId)
             if currentValue + 60 <= Limits.maxTimeSeconds {
-                if timerService.isTimerRunning(for: habit.id) {
-                    timerService.stopTimer(for: habit.id)
+                if timerService.isTimerRunning(for: habitId) {
+                    timerService.stopTimer(for: habitId)
                 }
-                timerService.addProgress(60, for: habit.id)
+                timerService.addProgress(60, for: habitId)
             } else {
-                timerService.resetTimer(for: habit.id)
-                timerService.addProgress(Limits.maxTimeSeconds, for: habit.id)
+                timerService.resetTimer(for: habitId)
+                timerService.addProgress(Limits.maxTimeSeconds, for: habitId)
                 
                 alertState.successFeedbackTrigger.toggle()
             }
@@ -151,27 +156,27 @@ final class HabitDetailViewModel {
     
     func decrementProgress() {
         if habit.type == .count {
-            let currentValue = timerService.getCurrentProgress(for: habit.id)
+            let currentValue = timerService.getCurrentProgress(for: habitId)
             if currentValue > 0 {
-                timerService.addProgress(-1, for: habit.id)
+                timerService.addProgress(-1, for: habitId)
             }
         } else {
-            if timerService.isTimerRunning(for: habit.id) {
-                timerService.stopTimer(for: habit.id)
+            if timerService.isTimerRunning(for: habitId) {
+                timerService.stopTimer(for: habitId)
             }
             
-            let currentValue = timerService.getCurrentProgress(for: habit.id)
+            let currentValue = timerService.getCurrentProgress(for: habitId)
             if currentValue >= 60 {
-                timerService.addProgress(-60, for: habit.id)
+                timerService.addProgress(-60, for: habitId)
             } else if currentValue > 0 {
-                timerService.resetTimer(for: habit.id)
+                timerService.resetTimer(for: habitId)
             }
         }
         updateProgress()
     }
     
     private func updateProgress() {
-        currentProgress = timerService.getCurrentProgress(for: habit.id)
+        currentProgress = timerService.getCurrentProgress(for: habitId)
         updateProgressMetrics()
         hasChanges = true
         
@@ -191,12 +196,12 @@ final class HabitDetailViewModel {
     
     // MARK: - Timer Management
     func toggleTimer() {
-        if timerService.isTimerRunning(for: habit.id) {
-            timerService.stopTimer(for: habit.id)
+        if timerService.isTimerRunning(for: habitId) {
+            timerService.stopTimer(for: habitId)
         } else {
-            timerService.startTimer(for: habit.id, initialProgress: currentProgress)
+            timerService.startTimer(for: habitId, initialProgress: currentProgress)
         }
-        isTimerRunning = timerService.isTimerRunning(for: habit.id)
+        isTimerRunning = timerService.isTimerRunning(for: habitId)
         hasChanges = true
         
         saveProgress()
@@ -255,14 +260,14 @@ final class HabitDetailViewModel {
     
     // MARK: - Progress Actions
     func resetProgress() {
-        timerService.resetTimer(for: habit.id)
+        timerService.resetTimer(for: habitId)
         currentProgress = 0
         updateProgressMetrics()
         hasChanges = true
     }
     
     func completeHabit() {
-        let currentValue = timerService.getCurrentProgress(for: habit.id)
+        let currentValue = timerService.getCurrentProgress(for: habitId)
         var toAdd = habit.goal - currentValue
         
         if habit.type == .time {
@@ -273,10 +278,10 @@ final class HabitDetailViewModel {
         }
         
         if toAdd > 0 {
-            timerService.addProgress(toAdd, for: habit.id)
+            timerService.addProgress(toAdd, for: habitId)
         }
         
-        currentProgress = timerService.getCurrentProgress(for: habit.id)
+        currentProgress = timerService.getCurrentProgress(for: habitId)
         updateProgressMetrics()
         
         saveProgress()
@@ -290,19 +295,19 @@ final class HabitDetailViewModel {
             return
         }
         
-        let currentValue = timerService.getCurrentProgress(for: habit.id)
+        let currentValue = timerService.getCurrentProgress(for: habitId)
         
         if currentValue + value > Limits.maxCount {
             let remainingValue = Limits.maxCount - currentValue
             
             if remainingValue > 0 {
-                timerService.addProgress(remainingValue, for: habit.id)
+                timerService.addProgress(remainingValue, for: habitId)
                 alertState.successFeedbackTrigger.toggle()
             } else {
                 alertState.errorFeedbackTrigger.toggle()
             }
         } else {
-            timerService.addProgress(value, for: habit.id)
+            timerService.addProgress(value, for: habitId)
             alertState.successFeedbackTrigger.toggle()
         }
         
@@ -320,7 +325,7 @@ final class HabitDetailViewModel {
             return
         }
         
-        let progress = timerService.getCurrentProgress(for: habit.id)
+        let progress = timerService.getCurrentProgress(for: habitId)
         
         if progress == 0 {
             let existingCompletions = habit.completions.filter {
@@ -364,7 +369,7 @@ final class HabitDetailViewModel {
             }
         }
         
-        timerService.persistCompletions(for: habit.id, in: modelContext, date: date)
+        timerService.persistCompletions(for: habitId, in: modelContext, date: date)
         updateStatistics()
         hasChanges = false
         habitsUpdateService.triggerUpdate()
