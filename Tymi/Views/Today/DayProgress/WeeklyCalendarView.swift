@@ -14,12 +14,16 @@ struct WeeklyCalendarView: View {
     @State private var progressData: [Date: Double] = [:]
     @State private var errorMessage: String?
     
+    @State private var lastUpdateTime: TimeInterval = 0
+    private let updateThreshold: TimeInterval = 0.5
+    @State private var updateTask: Task<Void, Never>?
+    
     private let weekCount = 8
     
     private var calendar: Calendar {
         return Calendar.userPreferred
     }
-
+    
     private var weekdaySymbols: [String] {
         return calendar.orderedFormattedWeekdaySymbols
     }
@@ -58,11 +62,13 @@ struct WeeklyCalendarView: View {
                                         selectedDate = date
                                     }
                                     
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    Task { @MainActor in
+                                        try? await Task.sleep(for: .seconds(0.1))
                                         habitsUpdateService.triggerUpdate()
                                     }
                                 }
                             )
+                            .frame(width: 44)
                         }
                     }
                     .padding(.horizontal, 16)
@@ -87,13 +93,22 @@ struct WeeklyCalendarView: View {
                     currentWeekIndex = weekIndex
                 }
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.1))
                 habitsUpdateService.triggerUpdate()
             }
         }
         .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
-            // Обновляем данные о прогрессе, когда изменяются привычки
-            loadProgressData()
+            // Отменяем предыдущую задачу, если она существует
+            updateTask?.cancel()
+            
+            // Создаем новую задачу с небольшой задержкой
+            updateTask = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.1))
+                if !Task.isCancelled {
+                    loadProgressData()
+                }
+            }
         }
         .onChange(of: firstDayOfWeek) { _, _ in
             // Перегенерируем недели при изменении первого дня недели
@@ -101,6 +116,9 @@ struct WeeklyCalendarView: View {
             generateWeeks()
             findCurrentWeekIndex()
             loadProgressData()
+        }
+        .onDisappear {
+            updateTask?.cancel()
         }
         .alert(errorMessage ?? "Error", isPresented: .constant(errorMessage != nil)) {
             Button("OK") {
@@ -144,8 +162,19 @@ struct WeeklyCalendarView: View {
     }
     
     private func loadProgressData() {
+        // Проверяем, прошло ли достаточно времени с последнего обновления
+        let now = Date().timeIntervalSince1970
+        if now - lastUpdateTime < updateThreshold {
+            return
+        }
+        
+        lastUpdateTime = now
+        
         // Оптимизированная версия - загружаем только для текущей недели и соседних
-        Task {
+        Task { @MainActor in
+            
+            if Task.isCancelled { return }
+            
             // Определяем диапазон недель для обновления (текущая и соседние)
             let visibleRange = max(0, currentWeekIndex - 1)...min(weeks.count - 1, currentWeekIndex + 1)
             
@@ -192,7 +221,8 @@ struct WeeklyCalendarView: View {
     
     private func findCurrentWeekIndex() {
         if let index = findWeekIndex(for: selectedDate) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.1))
                 withAnimation {
                     currentWeekIndex = index
                 }

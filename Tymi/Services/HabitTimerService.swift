@@ -22,9 +22,6 @@ final class HabitTimerService {
     
     // MARK: - Свойства
     
-    /// Максимальное количество одновременно активных таймеров
-    private let maxActiveTimers = 3
-    
     /// Словарь с прогрессом для каждого таймера
     private(set) var progressUpdates: [String: Int] = [:]
     
@@ -36,6 +33,15 @@ final class HabitTimerService {
     
     /// Защита доступа к данным
     private let lock = NSLock()
+    
+    /// Время между обновлениями UI (в секундах)
+    private let updateInterval: TimeInterval = 1.0
+    
+    /// Время последнего обновления UI
+    private var lastUIUpdateTime: TimeInterval = 0
+    
+    /// Флаг необходимости обновления UI
+    private var needsUIUpdate: Bool = false
     
     // MARK: - Инициализация
     
@@ -69,17 +75,31 @@ final class HabitTimerService {
     }
     
     private func startTimerTask() {
+        // Отменяем предыдущую задачу, если она существует
+        timerTask?.cancel()
+        
         timerTask = Task { @MainActor in
-            for await _ in AsyncTimerSequence(interval: .seconds(1), tolerance: .seconds(0.1)) {
+            // Используем единый таймер для всех привычек
+            for await _ in AsyncTimerSequence(interval: .milliseconds(500), tolerance: .milliseconds(100)) {
                 if Task.isCancelled { break }
+                
                 updateAllProgress()
+                
+                // Отправляем уведомление об обновлении UI, только если прошло достаточно времени
+                // или если явно указано, что обновление необходимо
+                let currentTime = Date().timeIntervalSince1970
+                if currentTime - lastUIUpdateTime >= updateInterval || needsUIUpdate {
+                    notifyProgressUpdated()
+                    lastUIUpdateTime = currentTime
+                    needsUIUpdate = false
+                }
             }
         }
     }
     
     private func updateAllProgress() {
-        var hasChanges = false
-        var updatedProgress: [String: Int] = [:]
+        // Используем локальный флаг для отслеживания изменений
+        var hasLocalChanges = false
         
         withLock {
             let now = Date().timeIntervalSince1970
@@ -91,20 +111,28 @@ final class HabitTimerService {
                     
                     if progressUpdates[habitId] != totalSeconds {
                         progressUpdates[habitId] = totalSeconds
-                        updatedProgress[habitId] = totalSeconds
-                        hasChanges = true
+                        hasLocalChanges = true
                     }
                 }
             }
         }
         
-        if hasChanges {
-            NotificationCenter.default.post(
-                name: .progressUpdated,
-                object: self,
-                userInfo: ["progressUpdates": progressUpdates]
-            )
+        // Если были изменения, отмечаем что требуется обновление UI
+        if hasLocalChanges {
+            needsUIUpdate = true
         }
+    }
+    
+    private func notifyProgressUpdated() {
+        let progressCopy = withLock {
+            return progressUpdates
+        }
+        
+        NotificationCenter.default.post(
+            name: .progressUpdated,
+            object: self,
+            userInfo: ["progressUpdates": progressCopy]
+        )
     }
     
     // MARK: - Вспомогательный метод для блокировки
@@ -173,12 +201,14 @@ final class HabitTimerService {
     
     @objc func handleAppWillEnterForeground() {
         updateAllProgress()
+        notifyProgressUpdated() // Принудительно обновляем UI
     }
     
     // MARK: - Управление таймерами
     
     func startTimer(for habitId: String, initialProgress: Int = 0) {
         var shouldSave = false
+        var shouldUpdate = false
         
         withLock {
             if habitTimers[habitId] == nil {
@@ -193,12 +223,7 @@ final class HabitTimerService {
                 return
             }
             
-            // Проверяем ограничение на количество таймеров
-            let activeCount = habitTimers.values.filter { $0.isActive }.count
-            guard activeCount < maxActiveTimers else {
-                // Превышено максимальное количество таймеров
-                return
-            }
+            // Убираем ограничение на количество таймеров
             
             let now = Date().timeIntervalSince1970
             habitTimers[habitId]?.startTimestamp = now
@@ -208,21 +233,21 @@ final class HabitTimerService {
             progressUpdates[habitId] = progress
             
             shouldSave = true
+            shouldUpdate = true
+        }
+        
+        if shouldUpdate {
+            notifyProgressUpdated()
         }
         
         if shouldSave {
-            NotificationCenter.default.post(
-                name: .progressUpdated,
-                object: self,
-                userInfo: ["progressUpdates": progressUpdates]
-            )
-            
             saveState()
         }
     }
     
     func stopTimer(for habitId: String) {
         var shouldSave = false
+        var shouldUpdate = false
         
         withLock {
             guard var data = habitTimers[habitId], data.isActive else {
@@ -242,22 +267,23 @@ final class HabitTimerService {
             progressUpdates[habitId] = data.accumulatedSeconds
             
             shouldSave = true
+            shouldUpdate = true
+        }
+        
+        if shouldUpdate {
+            notifyProgressUpdated()
         }
         
         if shouldSave {
-            NotificationCenter.default.post(
-                name: .progressUpdated,
-                object: self,
-                userInfo: ["progressUpdates": progressUpdates]
-            )
-            
             saveState()
         }
     }
     
     func resetTimer(for habitId: String) {
+        var wasActive = false
+        
         withLock {
-            let wasActive = habitTimers[habitId]?.isActive ?? false
+            wasActive = habitTimers[habitId]?.isActive ?? false
             
             habitTimers[habitId] = TimerData(
                 startTimestamp: wasActive ? Date().timeIntervalSince1970 : nil,
@@ -268,16 +294,14 @@ final class HabitTimerService {
             progressUpdates[habitId] = 0
         }
         
-        NotificationCenter.default.post(
-            name: .progressUpdated,
-            object: self,
-            userInfo: ["progressUpdates": progressUpdates]
-        )
-        
+        notifyProgressUpdated()
         saveState()
     }
     
     func addProgress(_ value: Int, for habitId: String) {
+        var shouldSave = false
+        var shouldUpdate = false
+        
         withLock {
             if habitTimers[habitId] == nil {
                 habitTimers[habitId] = TimerData(
@@ -302,15 +326,18 @@ final class HabitTimerService {
             
             habitTimers[habitId]?.accumulatedSeconds = currentSeconds
             progressUpdates[habitId] = currentSeconds
+            
+            shouldSave = true
+            shouldUpdate = true
         }
         
-        NotificationCenter.default.post(
-            name: .progressUpdated,
-            object: self,
-            userInfo: ["progressUpdates": progressUpdates]
-        )
+        if shouldUpdate {
+            notifyProgressUpdated()
+        }
         
-        saveState()
+        if shouldSave {
+            saveState()
+        }
     }
     
     // MARK: - Получение данных
@@ -336,6 +363,7 @@ final class HabitTimerService {
     // MARK: - SwiftData интеграция
     
     func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date = .now) {
+        // Получаем прогресс атомарно в одной операции
         let currentProgress = getCurrentProgress(for: habitId)
         
         guard currentProgress > 0 else { return }
@@ -378,18 +406,22 @@ final class HabitTimerService {
     // MARK: - Вспомогательные методы
     
     func cleanupUnusedTimers() {
+        var timersToRemove: [String] = []
+        
         withLock {
-            let unusedIds = habitTimers.filter {
+            timersToRemove = habitTimers.filter {
                 !$0.value.isActive && $0.value.accumulatedSeconds == 0
-            }.keys
+            }.keys.map { $0 }
             
-            for id in unusedIds {
+            for id in timersToRemove {
                 habitTimers.removeValue(forKey: id)
                 progressUpdates.removeValue(forKey: id)
             }
         }
         
-        saveState()
+        if !timersToRemove.isEmpty {
+            saveState()
+        }
     }
     
     func getActiveTimersInfo() -> (count: Int, ids: [String]) {
@@ -407,12 +439,25 @@ final class HabitTimerService {
                 forName: .progressUpdated,
                 object: self,
                 queue: .main
-            ) { _ in
-                continuation.yield(self.progressUpdates)
+            ) { [weak self] notification in
+                guard let self = self else {
+                    continuation.finish()
+                    return
+                }
+                
+                // Получаем копию прогресса атомарно
+                let progressCopy = withLock {
+                    return self.progressUpdates
+                }
+                
+                continuation.yield(progressCopy)
             }
             
-            continuation.onTermination = { _ in
+            continuation.onTermination = { [weak self] _ in
                 NotificationCenter.default.removeObserver(observer)
+                
+                // Убедимся, что состояние сохранено при завершении потока
+                self?.saveState()
             }
         }
     }

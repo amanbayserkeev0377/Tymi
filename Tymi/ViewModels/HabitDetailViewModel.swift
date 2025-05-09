@@ -33,6 +33,8 @@ final class HabitDetailViewModel {
     private var saveDebounceTask: Task<Void, Never>?
     var onHabitDeleted: (() -> Void)?
     
+    private var progressObserverTask: Task<Void, Never>?
+    private var timerStateObserverTask: Task<Void, Never>?
     
     // MARK: - Computed Properties
     var isAlreadyCompleted: Bool {
@@ -73,14 +75,21 @@ final class HabitDetailViewModel {
     }
     
     private func setupObservers() {
+        // Сначала отменяем предыдущие задачи, если они существуют
+        progressObserverTask?.cancel()
+        timerStateObserverTask?.cancel()
+        
         // Создаем захват weak self для предотвращения утечек памяти
         let habitId = habit.id
         
         // Запускаем наблюдение за прогрессом
-        Task { @MainActor [weak self] in
+        progressObserverTask = Task { @MainActor [weak self] in
             guard let self = self else { return }
             
             for await updates in self.timerService.progressUpdatesSequence {
+                // Проверяем, не была ли задача отменена
+                if Task.isCancelled { break }
+                
                 if let progress = updates[habitId] {
                     self.currentProgress = progress
                     self.updateProgressMetrics()
@@ -90,15 +99,18 @@ final class HabitDetailViewModel {
         }
         
         // Запускаем наблюдение за состоянием таймера
-        Task { @MainActor [weak self] in
+        timerStateObserverTask = Task { @MainActor [weak self] in
             guard let self = self else { return }
             
             for await _ in self.timerService.objectWillChangeSequence {
+                // Проверяем, не была ли задача отменена
+                if Task.isCancelled { break }
+                
                 self.isTimerRunning = self.timerService.isTimerRunning(for: habitId)
             }
         }
     }
-    
+        
     // MARK: - Progress Management
     private func updateProgressMetrics() {
         completionPercentage = habit.goal > 0 ? Double(currentProgress) / Double(habit.goal) : 0
@@ -328,6 +340,8 @@ final class HabitDetailViewModel {
     
     func cleanup() {
         saveDebounceTask?.cancel()
+        progressObserverTask?.cancel()
+        timerStateObserverTask?.cancel()
         saveIfNeeded()
     }
     
