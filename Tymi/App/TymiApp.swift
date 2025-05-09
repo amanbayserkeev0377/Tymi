@@ -31,9 +31,17 @@ struct TymiApp: App {
                     let granted = try await NotificationManager.shared.requestAuthorization()
                     if !granted {
                         print("Пользователь отказал в разрешении на уведомления")
+                        // Обновляем состояние уведомлений в UserDefaults
+                        await MainActor.run {
+                            UserDefaults.standard.set(false, forKey: "notificationsEnabled")
+                        }
                     }
                 } catch {
                     print("Ошибка при запросе разрешения на уведомления: \(error)")
+                    // Обрабатываем ошибку
+                    await MainActor.run {
+                        UserDefaults.standard.set(false, forKey: "notificationsEnabled")
+                    }
                 }
             }
         } catch {

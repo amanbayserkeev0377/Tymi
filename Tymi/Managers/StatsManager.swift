@@ -35,7 +35,11 @@ class StatsManager {
             
             if dayCompletions.isEmpty {
                 if !habit.isActiveOnDate(currentDate) {
-                    currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate)!
+                    guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDate) else {
+                        // Не удалось перейти к предыдущему дню, прерываем подсчет
+                        break
+                    }
+                    currentDate = previousDay
                     continue
                 }
                 break
@@ -44,7 +48,11 @@ class StatsManager {
             let totalProgress = dayCompletions.reduce(0) { $0 + $1.value }
             if totalProgress >= habit.goal {
                 streak += 1
-                currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate)!
+                guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDate) else {
+                    // Не удалось перейти к предыдущему дню, но серию уже учли
+                    break
+                }
+                currentDate = previousDay
             } else {
                 break
             }

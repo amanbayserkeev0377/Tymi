@@ -96,18 +96,30 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: identifiers)
     }
     
-    // Обновление всех уведомлений
+    // Обновление в методе updateAllNotifications
     func updateAllNotifications(modelContext: ModelContext) {
         // Удаляем все запланированные уведомления
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         
-        // Если уведомления отключены, просто выходим
-        if !notificationsEnabled {
+        // Проверяем, включены ли уведомления в приложении
+        guard notificationsEnabled else {
             return
         }
         
-        // Запрашиваем все привычки
+        // Асинхронно проверяем разрешения
         Task {
+            let isAuthorized = await checkNotificationStatus()
+            
+            if !isAuthorized {
+                // Если разрешения отсутствуют, обновляем состояние приложения
+                await MainActor.run {
+                    notificationsEnabled = false
+                    // Можно добавить показ алерта или другую обратную связь
+                }
+                return
+            }
+            
+            // Продолжаем только если есть разрешение
             let descriptor = FetchDescriptor<Habit>()
             do {
                 let habits = try modelContext.fetch(descriptor)

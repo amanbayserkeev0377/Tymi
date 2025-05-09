@@ -135,6 +135,8 @@ struct WeeklyCalendarView: View {
             from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
         ) else {
             errorMessage = "Failed to generate calendar weeks"
+            // Инициализируем пустой массив как резервный вариант
+            weeks = []
             return
         }
         
@@ -142,6 +144,8 @@ struct WeeklyCalendarView: View {
         
         for weekOffset in (1-weekCount)...0 {
             guard let weekStartDate = calendar.date(byAdding: .weekOfYear, value: weekOffset, to: currentWeekStart) else {
+                // Логирование ошибки, но продолжение цикла
+                print("Не удалось создать дату начала недели для смещения \(weekOffset)")
                 continue
             }
             
@@ -156,6 +160,11 @@ struct WeeklyCalendarView: View {
             if !weekDates.isEmpty {
                 generatedWeeks.append(weekDates)
             }
+        }
+        
+        // Проверяем, что сгенерировали хоть какие-то недели
+        if generatedWeeks.isEmpty {
+            errorMessage = "Не удалось сгенерировать недели календаря"
         }
         
         weeks = generatedWeeks
@@ -176,29 +185,32 @@ struct WeeklyCalendarView: View {
             if Task.isCancelled { return }
             
             // Определяем диапазон недель для обновления (текущая и соседние)
-            let visibleRange = max(0, currentWeekIndex - 1)...min(weeks.count - 1, currentWeekIndex + 1)
-            
-            for weekIndex in visibleRange {
-                if weekIndex < weeks.count {
-                    let week = weeks[weekIndex]
-                    
-                    // Обновляем только даты до сегодня
-                    let now = Date()
-                    let relevantDates = week.filter { $0 <= now }
-                    
-                    for date in relevantDates {
-                        // Всегда обновляем сегодняшний день, для остальных - только если нет данных
-                        if calendar.isDateInToday(date) || progressData[date] == nil {
-                            let progress = calculateProgress(for: date)
-                            progressData[date] = progress
+            if !weeks.isEmpty {
+                let visibleRange = max(0, currentWeekIndex - 1)...min(weeks.count - 1, currentWeekIndex + 1)
+                
+                for weekIndex in visibleRange {
+                    if weekIndex < weeks.count {
+                        let week = weeks[weekIndex]
+                        
+                        // Обновляем только даты до сегодня
+                        let now = Date()
+                        let relevantDates = week.filter { $0 <= now }
+                        
+                        for date in relevantDates {
+                            // Всегда обновляем сегодняшний день, для остальных - только если нет данных
+                            if calendar.isDateInToday(date) || progressData[date] == nil {
+                                let progress = calculateProgress(for: date)
+                                progressData[date] = progress
+                            }
                         }
                     }
                 }
+                
+                // Загружаем данные для сегодняшнего дня в любом случае
+                let today = Date()
+                let todayStart = calendar.startOfDay(for: today)
+                progressData[todayStart] = calculateProgress(for: today)
             }
-            
-            // Загружаем данные для сегодняшнего дня в любом случае
-            let today = Date()
-            progressData[calendar.startOfDay(for: today)] = calculateProgress(for: today)
         }
     }
     
@@ -222,15 +234,25 @@ struct WeeklyCalendarView: View {
     private func findCurrentWeekIndex() {
         if let index = findWeekIndex(for: selectedDate) {
             Task { @MainActor in
-                try? await Task.sleep(for: .seconds(0.1))
-                withAnimation {
-                    currentWeekIndex = index
+                do {
+                    try await Task.sleep(for: .seconds(0.1))
+                    if !Task.isCancelled {
+                        withAnimation {
+                            currentWeekIndex = index
+                        }
+                    }
+                } catch {
+                    // Обработка ошибок Task.sleep
                 }
             }
         }
     }
     
     private func findWeekIndex(for date: Date) -> Int? {
+        if weeks.isEmpty {
+            return nil
+        }
+        
         for (index, week) in weeks.enumerated() {
             if week.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
                 return index

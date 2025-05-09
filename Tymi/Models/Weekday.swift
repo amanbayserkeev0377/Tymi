@@ -57,6 +57,8 @@ extension Calendar {
         let firstDayOfWeek = UserDefaults.standard.integer(forKey: "firstDayOfWeek")
         
         var calendar = Calendar.current
+        // Явно устанавливаем часовой пояс пользователя
+        calendar.timeZone = TimeZone.current
         calendar.firstWeekday = firstDayOfWeek == 0 ? calendar.firstWeekday : firstDayOfWeek
         
         return calendar
