@@ -218,75 +218,98 @@ struct NewHabitView: View {
     }
     
     private func saveHabit() {
-    if selectedType == .count && countGoal > 999999 {
-        countGoal = 999999
-    }
-    
-    if selectedType == .time {
-        let totalSeconds = (hours * 3600) + (minutes * 60)
-        if totalSeconds > 86400 {
-            hours = 24
-            minutes = 0
+        if selectedType == .count && countGoal > 999999 {
+            countGoal = 999999
         }
-    }
-    
-    if let existingHabit = habit {
-        // Update existing habit
-        existingHabit.update(
-            title: title,
-            type: selectedType,
-            goal: effectiveGoal,
-            iconName: selectedIcon,
-            activeDays: activeDays,
-            reminderTime: isReminderEnabled ? reminderTime : nil,
-            startDate: Calendar.current.startOfDay(for: startDate)
-        )
         
-        if isReminderEnabled {
-            Task {
-                do {
-                    try await NotificationManager.shared.requestAuthorization()
-                    NotificationManager.shared.scheduleNotifications(for: existingHabit)
-                } catch {
-                    print("Ошибка при обновлении уведомлений: \(error)")
-                }
+        if selectedType == .time {
+            let totalSeconds = (hours * 3600) + (minutes * 60)
+            if totalSeconds > 86400 {
+                hours = 24
+                minutes = 0
             }
+        }
+        
+        if let existingHabit = habit {
+            // Update existing habit
+            existingHabit.update(
+                title: title,
+                type: selectedType,
+                goal: effectiveGoal,
+                iconName: selectedIcon,
+                activeDays: activeDays,
+                reminderTime: isReminderEnabled ? reminderTime : nil,
+                startDate: Calendar.current.startOfDay(for: startDate)
+            )
+            
+            if isReminderEnabled {
+                Task {
+                    do {
+                        let granted = try await NotificationManager.shared.requestAuthorization()
+                        if granted {
+                            let success = await NotificationManager.shared.scheduleNotifications(for: existingHabit)
+                            if !success {
+                                // Можно добавить обратную связь пользователю
+                                print("Не удалось запланировать уведомления")
+                            }
+                        } else {
+                            await MainActor.run {
+                                isReminderEnabled = false
+                            }
+                        }
+                    } catch {
+                        print("Ошибка при обновлении уведомлений: \(error)")
+                        await MainActor.run {
+                            isReminderEnabled = false
+                        }
+                    }
+                }
+            } else {
+                NotificationManager.shared.cancelNotifications(for: existingHabit)
+            }
+            
+            habitsUpdateService.triggerUpdate()
         } else {
-            NotificationManager.shared.cancelNotifications(for: existingHabit)
-        }
-        
-        habitsUpdateService.triggerUpdate()
-    } else {
-        // Create new habit
-        let newHabit = Habit(
-            title: title,
-            type: selectedType,
-            goal: effectiveGoal,
-            iconName: selectedIcon,
-            createdAt: Date(),
-            isFreezed: false,
-            activeDays: activeDays,
-            reminderTime: isReminderEnabled ? reminderTime : nil,
-            startDate: startDate
-        )
-        modelContext.insert(newHabit)
-        
-        if isReminderEnabled {
-            Task {
-                do {
-                    try await NotificationManager.shared.requestAuthorization()
-                    NotificationManager.shared.scheduleNotifications(for: newHabit)
-                } catch {
-                    print("Ошибка при создании уведомлений: \(error)")
+            // Create new habit
+            let newHabit = Habit(
+                title: title,
+                type: selectedType,
+                goal: effectiveGoal,
+                iconName: selectedIcon,
+                createdAt: Date(),
+                isFreezed: false,
+                activeDays: activeDays,
+                reminderTime: isReminderEnabled ? reminderTime : nil,
+                startDate: startDate
+            )
+            modelContext.insert(newHabit)
+            
+            if isReminderEnabled {
+                Task {
+                    do {
+                        let granted = try await NotificationManager.shared.requestAuthorization()
+                        if granted {
+                            let success = await NotificationManager.shared.scheduleNotifications(for: newHabit)
+                            if !success {
+                                print("Не удалось запланировать уведомления для новой привычки")
+                            }
+                        } else {
+                            // Обработка отказа
+                            await MainActor.run {
+                                isReminderEnabled = false
+                            }
+                        }
+                    } catch {
+                        print("Ошибка при запросе разрешения на уведомления: \(error)")
+                    }
                 }
             }
+            
+            habitsUpdateService.triggerUpdate()
         }
         
-        habitsUpdateService.triggerUpdate()
+        dismiss()
     }
-    
-    dismiss()
-}
 }
 
 #Preview {

@@ -16,18 +16,35 @@ class NotificationManager: ObservableObject {
     }
     
     // Запрос разрешений на уведомления
-    func requestAuthorization() async throws {
+    func requestAuthorization() async throws -> Bool {
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
-        try await UNUserNotificationCenter.current().requestAuthorization(options: options)
-        permissionStatus = await checkNotificationStatus()
+        let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: options)
+        
+        await MainActor.run {
+            self.permissionStatus = granted
+        }
+        
+        return granted
     }
     
-    // Планирование уведомлений для привычки
-    func scheduleNotifications(for habit: Habit) {
-        // Если уведомления отключены или нет времени напоминания - отменяем уведомления
-        guard notificationsEnabled, let reminderTime = habit.reminderTime else {
+    // Планирование уведомлений для привычки с проверкой разрешений
+    func scheduleNotifications(for habit: Habit) async -> Bool {
+        // Проверяем, есть ли у нас разрешение на уведомления
+        guard notificationsEnabled else {
             cancelNotifications(for: habit)
-            return
+            return false
+        }
+        
+        // Проверяем статус разрешений
+        let isAuthorized = await checkNotificationStatus()
+        if !isAuthorized {
+            return false
+        }
+        
+        // Проверяем наличие времени напоминания
+        guard let reminderTime = habit.reminderTime else {
+            cancelNotifications(for: habit)
+            return false
         }
         
         // Сначала отменяем старые уведомления
@@ -58,12 +75,15 @@ class NotificationManager: ObservableObject {
                 trigger: trigger
             )
             
-            UNUserNotificationCenter.current().add(request) { error in
-                if let error = error {
-                    print("Error scheduling notification: \(error.localizedDescription)")
-                }
+            do {
+                try await UNUserNotificationCenter.current().add(request)
+            } catch {
+                print("Ошибка при планировании уведомления: \(error.localizedDescription)")
+                return false
             }
         }
+        
+        return true
     }
     
     // Отмена уведомлений для привычки
@@ -87,15 +107,17 @@ class NotificationManager: ObservableObject {
         }
         
         // Запрашиваем все привычки
-        let descriptor = FetchDescriptor<Habit>()
-        do {
-            let habits = try modelContext.fetch(descriptor)
-            // Планируем уведомления только для привычек с настроенным временем напоминания
-            for habit in habits where habit.reminderTime != nil {
-                scheduleNotifications(for: habit)
+        Task {
+            let descriptor = FetchDescriptor<Habit>()
+            do {
+                let habits = try modelContext.fetch(descriptor)
+                // Планируем уведомления только для привычек с настроенным временем напоминания
+                for habit in habits where habit.reminderTime != nil {
+                    _ = await scheduleNotifications(for: habit)
+                }
+            } catch {
+                print("Ошибка при обновлении уведомлений: \(error)")
             }
-        } catch {
-            print("Error when updating notifications: \(error)")
         }
     }
     
@@ -103,5 +125,18 @@ class NotificationManager: ObservableObject {
     func checkNotificationStatus() async -> Bool {
         let settings = await UNUserNotificationCenter.current().notificationSettings()
         return settings.authorizationStatus == .authorized
+    }
+    
+    // Проверка и обработка отключенных уведомлений
+    func handleDisabledNotifications() async {
+        // Предотвращаем лишние обновления UI
+        let isCurrentlyEnabled = notificationsEnabled
+        let isAuthorized = await checkNotificationStatus()
+        
+        if !isAuthorized && isCurrentlyEnabled {
+            await MainActor.run {
+                notificationsEnabled = false
+            }
+        }
     }
 }

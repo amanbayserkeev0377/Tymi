@@ -28,7 +28,10 @@ struct TymiApp: App {
             // Инициализируем NotificationManager
             Task {
                 do {
-                    try await NotificationManager.shared.requestAuthorization()
+                    let granted = try await NotificationManager.shared.requestAuthorization()
+                    if !granted {
+                        print("Пользователь отказал в разрешении на уведомления")
+                    }
                 } catch {
                     print("Ошибка при запросе разрешения на уведомления: \(error)")
                 }
@@ -42,6 +45,9 @@ struct TymiApp: App {
     var body: some Scene {
         WindowGroup {
             TodayView()
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+                    HabitTimerService.shared.handleAppWillTerminate()
+                }
         }
         .modelContainer(container)
         .onChange(of: scenePhase) { oldPhase, newPhase in

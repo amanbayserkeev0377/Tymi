@@ -37,17 +37,37 @@ struct NotificationsSection: View {
     }
     
     private func handleNotificationToggle(_ isEnabled: Bool) {
-        if isEnabled {
-            requestNotificationPermission()
-        } else {
-            NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
+        Task {
+            if isEnabled {
+                do {
+                    let granted = try await NotificationManager.shared.requestAuthorization()
+                    
+                    await MainActor.run {
+                        if !granted {
+                            // Если пользователь отказал в разрешениях
+                            notificationsEnabled = false
+                            isNotificationPermissionAlertPresented = true
+                        } else {
+                            // Уведомления разрешены, обновляем их
+                            NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
+                        }
+                    }
+                } catch {
+                    await MainActor.run {
+                        notificationsEnabled = false
+                        isNotificationPermissionAlertPresented = true
+                    }
+                }
+            } else {
+                // Уведомления отключены в приложении
+                NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
+            }
         }
     }
     
     private func requestNotificationPermission() {
         Task {
             do {
-                try await NotificationManager.shared.requestAuthorization()
                 
                 let isAuthorized = await NotificationManager.shared.checkNotificationStatus()
                 

@@ -204,6 +204,10 @@ final class HabitTimerService {
         notifyProgressUpdated() // Принудительно обновляем UI
     }
     
+    @objc func handleAppWillTerminate() {
+        saveState()
+    }
+    
     // MARK: - Управление таймерами
     
     func startTimer(for habitId: String, initialProgress: Int = 0) {
