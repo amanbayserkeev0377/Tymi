@@ -72,6 +72,13 @@ final class HabitTimerService {
             name: UIApplication.willEnterForegroundNotification,
             object: nil
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppWillTerminate),
+            name: UIApplication.willTerminateNotification,
+            object: nil
+        )
     }
     
     private func startTimerTask() {
@@ -146,48 +153,67 @@ final class HabitTimerService {
     // MARK: - Сохранение и загрузка состояния
     
     private func loadSavedState() {
-        guard let savedData = UserDefaults.standard.data(forKey: Keys.timerData),
-              let decodedData = try? JSONDecoder().decode([String: TimerData].self, from: savedData) else {
+        guard let savedData = UserDefaults.standard.data(forKey: Keys.timerData) else {
             return
         }
         
-        withLock {
-            for (habitId, data) in decodedData {
-                habitTimers[habitId] = TimerData(
-                    startTimestamp: data.isActive ? Date().timeIntervalSince1970 : data.startTimestamp,
-                    accumulatedSeconds: data.accumulatedSeconds,
-                    isActive: data.isActive
-                )
-                
-                progressUpdates[habitId] = data.accumulatedSeconds
+        do {
+            let decodedData = try JSONDecoder().decode([String: TimerData].self, from: savedData)
+            let now = Date().timeIntervalSince1970
+            
+            withLock {
+                for (habitId, data) in decodedData {
+                    var updatedData = data
+                    
+                    // Если таймер активен, учитываем прошедшее время
+                    if data.isActive, let startTime = data.startTimestamp {
+                        let elapsed = Int(now - startTime)
+                        
+                        #if DEBUG
+                        print("Таймер \(habitId): восстановлен с учетом \(elapsed) секунд прошедшего времени")
+                        #endif
+                        
+                        updatedData.accumulatedSeconds += elapsed
+                        updatedData.startTimestamp = now // Обновляем timestamp для следующего цикла
+                    }
+                    
+                    habitTimers[habitId] = updatedData
+                    progressUpdates[habitId] = updatedData.accumulatedSeconds
+                }
             }
+        } catch {
+            print("Ошибка при загрузке сохраненного состояния таймеров: \(error)")
+            
+            // В случае ошибки декодирования очищаем сохраненные данные
+            UserDefaults.standard.removeObject(forKey: Keys.timerData)
         }
     }
     
     private func saveState() {
-        Task.detached(priority: .utility) { [weak self] in
-            guard let self = self else { return }
+        // Блокировка чтобы избежать race condition
+        lock.lock()
+        defer { lock.unlock() }
+        
+        var dataToSave: [String: TimerData] = [:]
+        
+        for (habitId, data) in habitTimers {
+            var timerData = data
             
-            var dataToSave: [String: TimerData] = [:]
-            
-            self.withLock {
-                for (habitId, data) in self.habitTimers {
-                    var timerData = data
-                    
-                    if data.isActive, let startTime = data.startTimestamp {
-                        let now = Date().timeIntervalSince1970
-                        let elapsed = Int(now - startTime)
-                        timerData.accumulatedSeconds += elapsed
-                        timerData.startTimestamp = now
-                    }
-                    
-                    dataToSave[habitId] = timerData
-                }
+            if data.isActive, let startTime = data.startTimestamp {
+                let now = Date().timeIntervalSince1970
+                let elapsed = Int(now - startTime)
+                timerData.accumulatedSeconds += elapsed
+                timerData.startTimestamp = now
             }
             
+            dataToSave[habitId] = timerData
+        }
+        
+        // Запускаем сохранение отдельно, чтобы не блокировать основной поток
+        Task.detached(priority: .utility) { [dataToSave] in
             if let encodedData = try? JSONEncoder().encode(dataToSave) {
                 await MainActor.run {
-                    UserDefaults.standard.set(encodedData, forKey: Keys.timerData)
+                    UserDefaults.standard.set(encodedData, forKey: Self.Keys.timerData)
                 }
             }
         }
@@ -206,6 +232,7 @@ final class HabitTimerService {
     
     @objc func handleAppWillTerminate() {
         saveState()
+        timerTask?.cancel()
     }
     
     // MARK: - Управление таймерами
@@ -366,7 +393,12 @@ final class HabitTimerService {
     
     // MARK: - SwiftData интеграция
     
-    func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date = .now) {
+    func persistCompletions(
+        for habitId: String,
+        in modelContext: ModelContext,
+        date: Date = .now,
+        retryCount: Int = 0
+    ) {
         // Получаем прогресс атомарно в одной операции
         let currentProgress = getCurrentProgress(for: habitId)
         
@@ -382,27 +414,46 @@ final class HabitTimerService {
                 
                 let existingProgress = habit.progressForDate(date)
                 
-                if currentProgress != existingProgress {
-                    try modelContext.transaction {
-                        if currentProgress < existingProgress {
-                            let existingCompletions = habit.completions.filter {
-                                Calendar.current.isDate($0.date, inSameDayAs: date)
-                            }
-                            
-                            for completion in existingCompletions {
-                                modelContext.delete(completion)
-                            }
-                            
-                            if currentProgress > 0 {
-                                habit.addProgress(currentProgress, for: date)
-                            }
-                        } else {
-                            habit.addProgress(currentProgress - existingProgress, for: date)
+                // Если прогресс не изменился, нет смысла обновлять
+                if currentProgress == existingProgress {
+                    return
+                }
+                
+                // Обернем все изменения в транзакцию SwiftData
+                try modelContext.transaction {
+                    if currentProgress < existingProgress {
+                        // Если текущий прогресс меньше существующего, удаляем все старые записи
+                        let existingCompletions = habit.completions.filter {
+                            Calendar.current.isDate($0.date, inSameDayAs: date)
                         }
+                        
+                        for completion in existingCompletions {
+                            modelContext.delete(completion)
+                        }
+                        
+                        // Добавляем новый прогресс, если он больше 0
+                        if currentProgress > 0 {
+                            habit.addProgress(currentProgress, for: date)
+                        }
+                    } else {
+                        // Просто добавляем разницу
+                        habit.addProgress(currentProgress - existingProgress, for: date)
                     }
                 }
+                
+                // Сохраняем контекст после транзакции
+                try modelContext.save()
             } catch {
-                print("Error saving progress: \(error.localizedDescription)")
+                print("Ошибка сохранения прогресса: \(error.localizedDescription)")
+                
+                // Ограничиваем количество повторных попыток
+                if retryCount < 3 {
+                    if #available(iOS 17.0, *) {
+                        try? await Task.sleep(for: .seconds(1))
+                        // Неопасный вызов с инкрементом счетчика повторов
+                        persistCompletions(for: habitId, in: modelContext, date: date, retryCount: retryCount + 1)
+                    }
+                }
             }
         }
     }
