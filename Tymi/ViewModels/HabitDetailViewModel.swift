@@ -325,17 +325,29 @@ final class HabitDetailViewModel {
         }
     }
     
-    func cleanup() {
-        onHabitDeleted = nil
-        
+    func cleanup(stopTimer: Bool = true) {
+        // Отменяем все задачи
         saveDebounceTask?.cancel()
+        saveDebounceTask = nil
         
+        // Удаляем наблюдатели
         if let observer = progressObserver {
             NotificationCenter.default.removeObserver(observer)
             progressObserver = nil
         }
         
-        saveIfNeeded()
+        // Сохраняем прогресс если есть изменения
+        if hasChanges {
+            saveProgress()
+        }
+        
+        // Очищаем callback
+        onHabitDeleted = nil
+        
+        // Останавливаем таймер если он запущен
+        if stopTimer && isTimerRunning {
+            progressService.stopTimer(for: habitId)
+        }
     }
     
     // MARK: - Private Methods

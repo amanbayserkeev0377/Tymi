@@ -95,6 +95,10 @@ final class HabitTimerService: ProgressTrackingService {
     // MARK: - Управление таймерами
     
     func startTimer(for habitId: String, initialProgress: Int = 0) {
+        // Останавливаем другие активные таймеры
+            for (existingId, data) in timerData where data.isActive && existingId != habitId {
+                stopTimer(for: existingId)
+            }
         // Создаем таймер, если нужно
         if timerData[habitId] == nil {
             timerData[habitId] = TimerData(
@@ -220,9 +224,14 @@ final class HabitTimerService: ProgressTrackingService {
             dataToSave[habitId] = timerData
         }
         
-        // Сохраняем в UserDefaults без Task.detached (упрощение)
-        if let encodedData = try? JSONEncoder().encode(dataToSave) {
+        // Сохраняем в UserDefaults с обработкой ошибок
+        do {
+            let encodedData = try JSONEncoder().encode(dataToSave)
             UserDefaults.standard.set(encodedData, forKey: "habit.timer.data")
+            UserDefaults.standard.synchronize() // Принудительно сохраняем
+        } catch {
+            print("Ошибка сохранения таймеров: \(error)")
+            // Можно добавить дополнительную логику обработки ошибок
         }
     }
     
