@@ -42,3 +42,9 @@ protocol ProgressTrackingServiceProvider {
     /// Получение сервиса для привычки
     static func getService(for habit: Habit) -> ProgressTrackingService
 }
+
+// Добавим определение константы для имени уведомления
+extension Notification.Name {
+    static let progressUpdated = Notification.Name("ProgressUpdated")
+    static let objectWillChange = Notification.Name("ObservableObjectWillChange")
+}

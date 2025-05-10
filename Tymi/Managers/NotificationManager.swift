@@ -15,7 +15,7 @@ class NotificationManager: ObservableObject {
         }
     }
     
-    // Запрос разрешений на уведомления
+    // Запрос разрешений на уведомления (требует async/await)
     func requestAuthorization() async throws -> Bool {
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: options)
@@ -96,7 +96,7 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: identifiers)
     }
     
-    // Обновление в методе updateAllNotifications
+    // Упрощенное обновление в updateAllNotifications
     func updateAllNotifications(modelContext: ModelContext) {
         // Удаляем все запланированные уведомления
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
@@ -114,7 +114,6 @@ class NotificationManager: ObservableObject {
                 // Если разрешения отсутствуют, обновляем состояние приложения
                 await MainActor.run {
                     notificationsEnabled = false
-                    // Можно добавить показ алерта или другую обратную связь
                 }
                 return
             }

@@ -57,38 +57,3 @@ struct ProgressControlSection: View {
         .padding()
     }
 }
-
-#Preview {
-    VStack(spacing: 20) {
-        // Count habit
-        ProgressControlSection(
-            habit: Habit(title: "Push-ups", type: .count, goal: 20),
-            currentProgress: .constant(10),
-            completionPercentage: 0.5,
-            formattedProgress: "10/20",
-            onIncrement: {},
-            onDecrement: {}
-        )
-        
-        // Exceeded goal
-        ProgressControlSection(
-            habit: Habit(title: "Push-ups", type: .count, goal: 20),
-            currentProgress: .constant(25),
-            completionPercentage: 1.25,
-            formattedProgress: "25/20",
-            onIncrement: {},
-            onDecrement: {}
-        )
-        
-        // Time habit
-        ProgressControlSection(
-            habit: Habit(title: "Meditation", type: .time, goal: 3600),
-            currentProgress: .constant(1800),
-            completionPercentage: 0.5,
-            formattedProgress: "0:30:00",
-            onIncrement: {},
-            onDecrement: {}
-        )
-    }
-    .padding()
-}

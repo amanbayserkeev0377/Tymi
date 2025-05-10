@@ -36,8 +36,7 @@ final class HabitDetailViewModel {
     private var saveDebounceTask: Task<Void, Never>?
     var onHabitDeleted: (() -> Void)?
     
-    private var progressObserverTask: Task<Void, Never>?
-    private var timerStateObserverTask: Task<Void, Never>?
+    private var progressObserver: NSObjectProtocol?
     
     private enum Limits {
         static let maxCount = 999999
@@ -87,39 +86,25 @@ final class HabitDetailViewModel {
     }
     
     private func setupObservers() {
-        // Сначала отменяем предыдущие задачи, если они существуют
-        progressObserverTask?.cancel()
-        timerStateObserverTask?.cancel()
-            
-        // Запускаем наблюдение за прогрессом
-        progressObserverTask = Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            
-            for await updates in self.progressService.progressUpdatesSequence {
-                // Проверяем, не была ли задача отменена
-                if Task.isCancelled { break }
-                
-                if let progress = updates[self.habitId] {
-                    if !Task.isCancelled {
-                        await MainActor.run {
-                            self.currentProgress = progress
-                            self.updateProgressMetrics()
-                            self.hasChanges = true
-                        }
-                    }
-                }
+        progressObserver = NotificationCenter.default.addObserver(
+            forName: .progressUpdated,
+            object: nil,
+            queue: .main // Всё равно используем main queue для первоначальной обработки
+        ) { [weak self] notification in
+            guard let self = self,
+                  let updates = notification.userInfo?["progressUpdates"] as? [String: Int],
+                  let progress = updates[self.habitId] else {
+                return
             }
-        }
-        
-        // Запускаем наблюдение за состоянием таймера
-        timerStateObserverTask = Task { @MainActor [weak self] in
-            guard let self = self else { return }
             
-            for await _ in self.progressService.objectWillChangeSequence {
-                // Проверяем, не была ли задача отменена
-                if Task.isCancelled { break }
+            // Запускаем задачу на MainActor для обновления свойств
+            Task { @MainActor [self] in
+                self.currentProgress = progress
+                self.updateProgressMetrics()
+                self.hasChanges = true
                 
-                await MainActor.run {
+                // Обновляем статус таймера
+                if self.habit.type == .time {
                     self.isTimerRunning = self.progressService.isTimerRunning(for: self.habitId)
                 }
             }
@@ -194,7 +179,7 @@ final class HabitDetailViewModel {
                     saveProgress()
                 }
             } catch {
-                
+                // Игнорируем ошибки отмены
             }
         }
     }
@@ -272,44 +257,19 @@ final class HabitDetailViewModel {
     }
     
     func completeHabit() {
-        Task { @MainActor in
-            let currentValue = progressService.getCurrentProgress(for: habitId)
-            var toAdd = habit.goal - currentValue
-            
-            // Ограничиваем максимальное значение для предотвращения зависаний
-            let maxSingleAdd = 1000 // Разумное ограничение для одной операции
-            toAdd = min(toAdd, maxSingleAdd)
-            
-            if habit.type == .time {
-                let maxValue = Limits.maxTimeSeconds
-                if currentValue + toAdd > maxValue {
-                    toAdd = maxValue - currentValue
-                }
-            }
-            
-            // Добавляем прогресс чанками, чтобы предотвратить зависание UI
-            if toAdd > 0 {
-                let chunkSize = 100
-                var remainingValue = toAdd
-                
-                while remainingValue > 0 {
-                    let chunk = min(remainingValue, chunkSize)
-                    progressService.addProgress(chunk, for: habitId)
-                    remainingValue -= chunk
-                    
-                    // Даем возможность UI обновиться между операциями
-                    if remainingValue > 0 {
-                        try? await Task.sleep(for: .nanoseconds(1_000_000)) // 1 миллисекунда
-                    }
-                }
-            }
-            
-            currentProgress = progressService.getCurrentProgress(for: habitId)
-            updateProgressMetrics()
-            
-            saveProgress()
-            alertState.successFeedbackTrigger.toggle()
+        let currentValue = progressService.getCurrentProgress(for: habitId)
+        let toAdd = habit.goal - currentValue
+        
+        if toAdd <= 0 {
+            return // Уже завершено
         }
+        
+        // Добавляем прогресс сразу - без анимации по частям
+        progressService.addProgress(toAdd, for: habitId)
+        currentProgress = progressService.getCurrentProgress(for: habitId)
+        updateProgressMetrics()
+        saveProgress()
+        alertState.successFeedbackTrigger.toggle()
     }
     
     func handleCountInput() {
@@ -350,16 +310,13 @@ final class HabitDetailViewModel {
             return
         }
         
-        // Используем Task для асинхронной работы
-        Task { @MainActor in
-            // Сохраняем в базу данных через соответствующий сервис
-            progressService.persistCompletions(for: habitId, in: modelContext, date: date)
-            
-            // Обновляем статистику и UI
-            updateStatistics()
-            hasChanges = false
-            habitsUpdateService.triggerDelayedUpdate(delay: 0.3)
-        }
+        // Сохраняем в базу данных
+        progressService.persistCompletions(for: habitId, in: modelContext, date: date)
+        
+        // Обновляем статистику и UI
+        updateStatistics()
+        hasChanges = false
+        habitsUpdateService.triggerDelayedUpdate(delay: 0.3)
     }
     
     func saveIfNeeded() {
@@ -372,8 +329,12 @@ final class HabitDetailViewModel {
         onHabitDeleted = nil
         
         saveDebounceTask?.cancel()
-        progressObserverTask?.cancel()
-        timerStateObserverTask?.cancel()
+        
+        if let observer = progressObserver {
+            NotificationCenter.default.removeObserver(observer)
+            progressObserver = nil
+        }
+        
         saveIfNeeded()
     }
     

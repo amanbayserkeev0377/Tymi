@@ -192,6 +192,9 @@ struct HabitDetailView: View {
             alertState.isFreezeAlertPresented = false
         }
         .onDisappear {
+            if viewModel?.isTimerRunning ?? false {
+                viewModel?.toggleTimer() // Останавливаем таймер
+            }
             viewModel?.cleanup()
         }
         // Наблюдаем за изменениями в локальном состоянии alertState

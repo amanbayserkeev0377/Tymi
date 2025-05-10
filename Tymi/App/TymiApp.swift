@@ -9,64 +9,57 @@ struct TymiApp: App {
     
     init() {
         do {
-            let schema = Schema([
-                Habit.self,
-                HabitCompletion.self
-            ])
+            let schema = Schema([Habit.self, HabitCompletion.self])
+            let modelConfiguration = ModelConfiguration(schema: schema)
+            container = try ModelContainer(for: schema, configurations: [modelConfiguration])
             
-            let modelConfiguration = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                allowsSave: true
-            )
-            
-            container = try ModelContainer(
-                for: schema,
-                configurations: [modelConfiguration]
-            )
-            
-            // Инициализируем NotificationManager
+            // Запрашиваем разрешения на уведомления
             Task {
                 do {
                     let granted = try await NotificationManager.shared.requestAuthorization()
-                    if !granted {
-                        print("Пользователь отказал в разрешении на уведомления")
-                        // Обновляем состояние уведомлений в UserDefaults
-                        await MainActor.run {
-                            UserDefaults.standard.set(false, forKey: "notificationsEnabled")
-                        }
+                    await MainActor.run {
+                        UserDefaults.standard.set(granted, forKey: "notificationsEnabled")
                     }
                 } catch {
-                    print("Ошибка при запросе разрешения на уведомления: \(error)")
-                    // Обрабатываем ошибку
-                    await MainActor.run {
-                        UserDefaults.standard.set(false, forKey: "notificationsEnabled")
-                    }
+                    print("Ошибка запроса разрешений: \(error)")
                 }
             }
         } catch {
-            print("Unresolved error loading container \(error)")
-            fatalError("Could not initialize ModelContainer: \(error)")
+            print("Ошибка инициализации: \(error)")
+            fatalError("Не удалось создать ModelContainer: \(error)")
         }
     }
     
     var body: some Scene {
         WindowGroup {
             TodayView()
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
-                    HabitTimerService.shared.handleAppWillTerminate()
-                }
         }
         .modelContainer(container)
-        .onChange(of: scenePhase) { oldPhase, newPhase in
+        .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .background:
-                HabitTimerService.shared.handleAppDidEnterBackground()
-            case .active:
-                HabitTimerService.shared.handleAppWillEnterForeground()
-            case .inactive:
+                // Сохраняем состояние при уходе в фон
+                NotificationCenter.default.post(
+                    name: UIApplication.didEnterBackgroundNotification,
+                    object: nil
+                )
+                
+                // Сохраняем данные в SwiftData
                 HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
-                break
+                HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+                
+            case .active:
+                // Обновляем состояние при возвращении
+                NotificationCenter.default.post(
+                    name: UIApplication.willEnterForegroundNotification,
+                    object: nil
+                )
+                
+            case .inactive:
+                // Сохраняем данные в SwiftData
+                HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+                HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+                
             @unknown default:
                 break
             }

@@ -96,4 +96,4 @@ class StatsManager {
         }
         return completedDays.count
     }
-} 
+}
