@@ -3,6 +3,9 @@ import SwiftData
 
 /// Протокол для сервисов отслеживания прогресса привычек
 protocol ProgressTrackingService: Observable {
+    /// Прогресс для всех привычек (ключ - ID привычки, значение - прогресс)
+    var progressUpdates: [String: Int] { get }
+    
     /// Получение текущего прогресса для привычки
     func getCurrentProgress(for habitId: String) -> Int
     
@@ -26,12 +29,6 @@ protocol ProgressTrackingService: Observable {
     
     /// Сохранение всех прогрессов в базу данных SwiftData
     func persistAllCompletionsToSwiftData(modelContext: ModelContext)
-    
-    /// Асинхронный поток обновлений прогресса
-    var progressUpdatesSequence: AsyncStream<[String: Int]> { get }
-    
-    /// Асинхронный поток уведомлений об изменениях
-    var objectWillChangeSequence: AsyncStream<Void> { get }
 }
 
 /// Протокол для поставщика сервисов трекинга
@@ -43,8 +40,7 @@ protocol ProgressTrackingServiceProvider {
     static func getService(for habit: Habit) -> ProgressTrackingService
 }
 
-// Добавим определение константы для имени уведомления
+// Определение имени уведомления для обновления прогресса
 extension Notification.Name {
     static let progressUpdated = Notification.Name("ProgressUpdated")
-    static let objectWillChange = Notification.Name("ObservableObjectWillChange")
 }

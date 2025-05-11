@@ -68,13 +68,6 @@ struct HabitDetailView: View {
                     Text("goal".localized(with: viewModel.formattedGoal))
                         .font(.subheadline)
                     
-                    // Statistics section
-                    StatisticsSection(
-                        currentStreak: viewModel.currentStreak,
-                        bestStreak: viewModel.bestStreak,
-                        totalCompletions: viewModel.totalCompletions
-                    )
-                    
                     // Progress controls
                     ProgressControlSection(
                         habit: habit,

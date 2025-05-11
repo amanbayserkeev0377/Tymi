@@ -15,7 +15,7 @@ class NotificationManager: ObservableObject {
         }
     }
     
-    // Запрос разрешений на уведомления (требует async/await)
+    // Запрос разрешений на уведомления
     func requestAuthorization() async throws -> Bool {
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: options)
@@ -136,18 +136,5 @@ class NotificationManager: ObservableObject {
     func checkNotificationStatus() async -> Bool {
         let settings = await UNUserNotificationCenter.current().notificationSettings()
         return settings.authorizationStatus == .authorized
-    }
-    
-    // Проверка и обработка отключенных уведомлений
-    func handleDisabledNotifications() async {
-        // Предотвращаем лишние обновления UI
-        let isCurrentlyEnabled = notificationsEnabled
-        let isAuthorized = await checkNotificationStatus()
-        
-        if !isAuthorized && isCurrentlyEnabled {
-            await MainActor.run {
-                notificationsEnabled = false
-            }
-        }
     }
 }

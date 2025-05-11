@@ -28,20 +28,32 @@ final class HabitCounterService: ProgressTrackingService {
         
         if currentValue != newValue {
             progressUpdates[habitId] = newValue
-            notifyProgressUpdated()
             saveState()
+            
+            // Уведомляем об изменениях для обновления UI
+            NotificationCenter.default.post(
+                name: .progressUpdated,
+                object: self,
+                userInfo: ["progressUpdates": progressUpdates]
+            )
         }
     }
     
     func resetProgress(for habitId: String) {
         if progressUpdates[habitId] != nil && progressUpdates[habitId] != 0 {
             progressUpdates[habitId] = 0
-            notifyProgressUpdated()
             saveState()
+            
+            // Уведомляем об изменениях для обновления UI
+            NotificationCenter.default.post(
+                name: .progressUpdated,
+                object: self,
+                userInfo: ["progressUpdates": progressUpdates]
+            )
         }
     }
     
-    // MARK: - Методы для таймеров (заглушки)
+    // MARK: - Методы для таймеров (заглушки - не используются для счетчиков)
     
     func isTimerRunning(for habitId: String) -> Bool { return false }
     func startTimer(for habitId: String, initialProgress: Int = 0) { }
@@ -50,7 +62,6 @@ final class HabitCounterService: ProgressTrackingService {
     // MARK: - Сохранение и загрузка
     
     private func saveState() {
-        // Простое сохранение без Task.detached
         if let encodedData = try? JSONEncoder().encode(progressUpdates) {
             UserDefaults.standard.set(encodedData, forKey: "habit.counter.data")
         }
@@ -61,14 +72,6 @@ final class HabitCounterService: ProgressTrackingService {
            let decodedData = try? JSONDecoder().decode([String: Int].self, from: savedData) {
             progressUpdates = decodedData
         }
-    }
-    
-    private func notifyProgressUpdated() {
-        NotificationCenter.default.post(
-            name: .progressUpdated,
-            object: self,
-            userInfo: ["progressUpdates": progressUpdates]
-        )
     }
     
     // MARK: - SwiftData интеграция
@@ -116,46 +119,6 @@ final class HabitCounterService: ProgressTrackingService {
     func persistAllCompletionsToSwiftData(modelContext: ModelContext) {
         for (habitId, progress) in progressUpdates where progress > 0 {
             persistCompletions(for: habitId, in: modelContext, date: Date())
-        }
-    }
-    
-    // MARK: - Сохраняем для совместимости с интерфейсом
-    
-    var progressUpdatesSequence: AsyncStream<[String: Int]> {
-        AsyncStream { continuation in
-            let observer = NotificationCenter.default.addObserver(
-                forName: .progressUpdated,
-                object: self,
-                queue: .main
-            ) { [weak self] notification in
-                guard let self = self else {
-                    continuation.finish()
-                    return
-                }
-                
-                continuation.yield(self.progressUpdates)
-            }
-            
-            continuation.onTermination = { [weak self] _ in
-                NotificationCenter.default.removeObserver(observer)
-                self?.saveState()
-            }
-        }
-    }
-    
-    var objectWillChangeSequence: AsyncStream<Void> {
-        AsyncStream { continuation in
-            let observer = NotificationCenter.default.addObserver(
-                forName: .progressUpdated,
-                object: self,
-                queue: .main
-            ) { _ in
-                continuation.yield(())
-            }
-            
-            continuation.onTermination = { _ in
-                NotificationCenter.default.removeObserver(observer)
-            }
         }
     }
 }
