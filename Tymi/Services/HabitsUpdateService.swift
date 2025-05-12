@@ -9,6 +9,14 @@ final class HabitsUpdateService {
     }
     
     func triggerDelayedUpdate(delay: TimeInterval = 0.5) {
-        lastUpdateTimestamp = Date()
+        // Используем более современный подход с Task
+        Task { @MainActor in
+            do {
+                try await Task.sleep(for: .seconds(delay))
+                lastUpdateTimestamp = Date()
+            } catch {
+                // Задача отменена
+            }
+        }
     }
 }

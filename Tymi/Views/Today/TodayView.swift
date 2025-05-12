@@ -6,6 +6,7 @@ struct TodayView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
     @Query(filter: #Predicate<Habit> { !$0.isFreezed }, sort: [SortDescriptor(\Habit.createdAt)])
     private var baseHabits: [Habit]
@@ -13,8 +14,6 @@ struct TodayView: View {
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
     @State private var selectedHabit: Habit? = nil
-    @State private var isShowingSettingsSheet = false
-    @State private var habitsUpdateService = HabitsUpdateService()
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -51,8 +50,6 @@ struct TodayView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                TodayViewBackground()
-                
                 VStack {
                     ScrollView {
                         VStack(spacing: 0) {
@@ -62,7 +59,6 @@ struct TodayView: View {
                             } else {
                                 // Кольцо прогресса отображается всегда
                                 DailyProgressRing(date: selectedDate)
-                                    .environment(habitsUpdateService)
                                     .padding(.top, 16)
                                 
                                 // Список привычек для выбранной даты
@@ -91,42 +87,17 @@ struct TodayView: View {
                                             .padding(.top, 20)
                                     }
                                 }
-                                
-                                // Добавляем пространство внизу для кнопки добавления
-                                Spacer(minLength: 100)
                             }
                         }
                     }
                 }
-                
-                // AddFloatingButton - всегда в том же месте
-                VStack {
-                    Spacer()
-                    
-                    HStack {
-                        Spacer()
-                        AddFloatingButton(action: { isShowingNewHabitSheet = true })
-                    }
-                }
-                .padding(.bottom, 20)
-                .padding(.trailing, 5)
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .top, spacing: 0) {
                 WeeklyCalendarView(selectedDate: $selectedDate)
-                    .environment(habitsUpdateService)
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
-                        isShowingSettingsSheet = true
-                    }) {
-                        Image(systemName: "gearshape")
-                    }
-                    .tint(.primary)
-                }
-                
                 ToolbarItem(placement: .navigation) {
                     if !Calendar.current.isDateInToday(selectedDate) {
                         Button(action: {
@@ -152,72 +123,37 @@ struct TodayView: View {
                         )
                     }
                 }
-            }
-            .sheet(isPresented: $isShowingNewHabitSheet) {
-                NewHabitView()
-                    .environment(habitsUpdateService)
-                    .presentationBackground {
-                        ZStack {
-                            Rectangle().fill(.ultraThinMaterial)
-                            if colorScheme != .dark {
-                                Color.white.opacity(0.6)
-                            }
-                        }
-                    }
-            }
-            .sheet(isPresented: $isShowingSettingsSheet) {
-                SettingsView()
-                    .environment(habitsUpdateService)
-                    .presentationDetents([.fraction(0.8)])
-                    .presentationDragIndicator(.visible)
-                    .presentationCornerRadius(40)
-                    .presentationBackground {
-                        let cornerRadius: CGFloat = 40
-                        ZStack {
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .fill(.ultraThinMaterial)
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .stroke(
-                                    colorScheme == .dark
-                                    ? Color.white.opacity(0.1)
-                                    : Color.black.opacity(0.15),
-                                    lineWidth: 1.5
-                                )
-                        }
-                    }
-            }
-            .sheet(item: $selectedHabit) { habit in
-                HabitDetailView(
-                    habit: habit,
-                    date: selectedDate,
-                    onDelete: {
-                        selectedHabit = nil
-                    }
-                )
-                .environment(habitsUpdateService)
-                .presentationDetents([.fraction(0.8)])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(40)
-                .presentationBackground {
-                    let cornerRadius: CGFloat = 40
-                    ZStack {
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .fill(.ultraThinMaterial)
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(
-                                colorScheme == .dark
-                                ? Color.white.opacity(0.1)
-                                : Color.black.opacity(0.15),
-                                lineWidth: 1.5
-                            )
+                
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {
+                        isShowingNewHabitSheet = true
+                    }) {
+                        Image(systemName: "plus")
                     }
                 }
+            }
+            .sheet(isPresented: $isShowingNewHabitSheet) {
+                NavigationStack {
+                    NewHabitView()
+                }
+            }
+            .sheet(item: $selectedHabit) { habit in
+                NavigationStack {
+                    HabitDetailView(
+                        habit: habit,
+                        date: selectedDate,
+                        onDelete: {
+                            selectedHabit = nil
+                        }
+                    )
+                }
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
             }
             .onChange(of: selectedDate) { _, _ in
                 habitsUpdateService.triggerUpdate()
             }
         }
-        .environment(habitsUpdateService)
     }
     
     // MARK: - Helper Methods

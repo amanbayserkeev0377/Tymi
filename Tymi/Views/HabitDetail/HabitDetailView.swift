@@ -13,16 +13,14 @@ struct HabitDetailView: View {
     
     // MARK: - State Properties
     @State private var viewModel: HabitDetailViewModel?
-    // Дополнительные состояния для sheet и alerts
-    @State private var isEditSheetPresented = false
-    @State private var alertState = AlertState()
+    @State private var isContentReady = false
     
     // MARK: - Body
     var body: some View {
         ZStack {
-            if let viewModel = viewModel {
+            if let viewModel = viewModel, isContentReady {
                 VStack(spacing: 15) {
-                    // Header with close and menu buttons
+                    // Header with title and menu
                     HStack {
                         Spacer()
                         
@@ -34,7 +32,7 @@ struct HabitDetailView: View {
                         
                         Menu {
                             Button {
-                                isEditSheetPresented = true
+                                viewModel.isEditSheetPresented = true
                             } label: {
                                 Label("edit".localized, systemImage: "pencil")
                             }
@@ -46,7 +44,7 @@ struct HabitDetailView: View {
                             }
                             
                             Button(role: .destructive) {
-                                alertState.isDeleteAlertPresented = true
+                                viewModel.alertState.isDeleteAlertPresented = true
                             } label: {
                                 Label("delete".localized, systemImage: "trash")
                             }
@@ -63,7 +61,6 @@ struct HabitDetailView: View {
                         .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
                     }
                     .padding(.top)
-                    
                     // Goal header
                     Text("goal".localized(with: viewModel.formattedGoal))
                         .font(.subheadline)
@@ -78,20 +75,20 @@ struct HabitDetailView: View {
                         onDecrement: viewModel.decrementProgress
                     )
                     
-                    // Action buttons
+                    // Action buttons - одинаковые для всех дат
                     ActionButtonsSection(
                         habit: habit,
                         isTimerRunning: viewModel.isTimerRunning,
-                        onReset: { alertState.isResetAlertPresented = true },
+                        onReset: { viewModel.alertState.isResetAlertPresented = true },
                         onTimerToggle: {
                             if habit.type == .time {
                                 viewModel.toggleTimer()
                             } else {
-                                alertState.isCountAlertPresented = true
+                                viewModel.alertState.isCountAlertPresented = true
                             }
                         },
                         onManualEntry: {
-                            alertState.isTimeAlertPresented = true
+                            viewModel.alertState.isTimeAlertPresented = true
                         }
                     )
                     
@@ -123,13 +120,58 @@ struct HabitDetailView: View {
                     .padding(.bottom)
                 }
                 .padding()
-                // Используем onChange для синхронизации ViewModel -> View
-                .onChange(of: viewModel.isEditSheetPresented) { _, newValue in
-                    isEditSheetPresented = newValue
+                // РЕШЕНИЕ: Используем явные байндинги
+                .sheet(isPresented: Binding<Bool>(
+                    get: { viewModel.isEditSheetPresented },
+                    set: { viewModel.isEditSheetPresented = $0 }
+                )) {
+                    NewHabitView(habit: habit)
+                        .presentationBackground {
+                            ZStack {
+                                Rectangle().fill(.ultraThinMaterial)
+                                if colorScheme != .dark {
+                                    Color.white.opacity(0.6)
+                                }
+                            }
+                        }
                 }
-                // Это важно для синхронизации View -> ViewModel
-                .onChange(of: isEditSheetPresented) { _, newValue in
-                    viewModel.isEditSheetPresented = newValue
+                .habitAlerts(
+                    // РЕШЕНИЕ: Создаем явные байндинги для свойств viewModel
+                    alertState: Binding<AlertState>(
+                        get: { viewModel.alertState },
+                        set: { viewModel.alertState = $0 }
+                    ),
+                    habit: habit,
+                    progressService: viewModel.progressService,
+                    onReset: {
+                        viewModel.resetProgress()
+                        viewModel.alertState.isResetAlertPresented = false
+                    },
+                    onDelete: {
+                        viewModel.deleteHabit()
+                        viewModel.alertState.isDeleteAlertPresented = false
+                    }
+                )
+                .freezeHabitAlert(
+                    // РЕШЕНИЕ: Создаем явный байндинг для freezeAlert
+                    isPresented: Binding<Bool>(
+                        get: { viewModel.alertState.isFreezeAlertPresented },
+                        set: { viewModel.alertState.isFreezeAlertPresented = $0 }
+                    ),
+                    onDismiss: {
+                        viewModel.isEditSheetPresented = false
+                        viewModel.alertState.isFreezeAlertPresented = false
+                    }
+                )
+                .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
+                    if newValue {
+                        HapticManager.shared.play(.success)
+                    }
+                }
+                .onChange(of: viewModel.alertState.errorFeedbackTrigger) { _, newValue in
+                    if newValue {
+                        HapticManager.shared.play(.error)
+                    }
                 }
             } else {
                 // Показываем ProgressView, пока viewModel не создан
@@ -137,76 +179,42 @@ struct HabitDetailView: View {
             }
         }
         .onAppear {
-            if viewModel == nil {
-                // Создаем viewModel только один раз
-                let vm = HabitDetailViewModel(
-                    habit: habit,
-                    date: date,
-                    modelContext: modelContext,
-                    habitsUpdateService: habitsUpdateService
-                )
-                vm.onHabitDeleted = onDelete
-                self.viewModel = vm
-                
-                // После создания viewModel инициализируем локальные состояния
-                self.isEditSheetPresented = vm.isEditSheetPresented
-                self.alertState = vm.alertState
-            }
+            setupViewModel()
         }
-        // Используем наши локальные состояния для модификаторов
-        .sheet(isPresented: $isEditSheetPresented) {
-            NewHabitView(habit: habit)
-                .presentationBackground {
-                    ZStack {
-                        Rectangle().fill(.ultraThinMaterial)
-                        if colorScheme != .dark {
-                            Color.white.opacity(0.6)
-                        }
-                    }
-                }
-        }
-        .habitAlerts(
-            alertState: $alertState,
-            habit: habit,
-            progressService: viewModel?.progressService ?? ProgressServiceProvider.getService(for: habit), // Заменено timerService
-            onReset: {
-                viewModel?.resetProgress()
-                // Обновление локального состояния после сброса
-                alertState.isResetAlertPresented = false
-            },
-            onDelete: {
-                viewModel?.deleteHabit()
-                // Обновление локального состояния после удаления
-                alertState.isDeleteAlertPresented = false
-            }
-        )
-        .freezeHabitAlert(isPresented: $alertState.isFreezeAlertPresented) {
-            isEditSheetPresented = false
-            alertState.isFreezeAlertPresented = false
+        .onChange(of: date) { _, newDate in
+            // При изменении даты пересоздаем ViewModel
+            setupViewModel(with: newDate)
         }
         .onDisappear {
             viewModel?.cleanup(stopTimer: false)
         }
-        // Наблюдаем за изменениями в локальном состоянии alertState
-        .onChange(of: alertState.successFeedbackTrigger) { _, newValue in
-            if newValue {
-                HapticManager.shared.play(.success)
-                // Здесь же обновляем и viewModel при необходимости
-                viewModel?.alertState.successFeedbackTrigger = newValue
-            }
-        }
-        .onChange(of: alertState.errorFeedbackTrigger) { _, newValue in
-            if newValue {
-                HapticManager.shared.play(.error)
-                // Здесь же обновляем и viewModel при необходимости
-                viewModel?.alertState.errorFeedbackTrigger = newValue
-            }
-        }
-        // Синхронизация модификаторов с ViewModel
-        .onChange(of: viewModel?.alertState) { _, newAlertState in
-            if let newAlertState = newAlertState {
-                alertState = newAlertState
-            }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func setupViewModel(with newDate: Date? = nil) {
+        // Сначала делаем isContentReady = false, чтобы избежать мерцания при обновлении
+        isContentReady = false
+        
+        // Очищаем предыдущий ViewModel при необходимости
+        viewModel?.cleanup(stopTimer: true)
+        
+        // Создаем новый ViewModel с датой
+        let vm = HabitDetailViewModel(
+            habit: habit,
+            date: newDate ?? date,
+            modelContext: modelContext,
+            habitsUpdateService: habitsUpdateService
+        )
+        vm.onHabitDeleted = onDelete
+        
+        // Обновляем ViewModel и активируем контент
+        viewModel = vm
+        
+        // Небольшая задержка для плавности анимации
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(50))
+            isContentReady = true
         }
     }
 }

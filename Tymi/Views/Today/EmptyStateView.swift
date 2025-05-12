@@ -25,10 +25,3 @@ struct EmptyStateView: View {
         .frame(maxWidth: .infinity)
     }
 }
-
-#Preview {
-    ZStack {
-        TodayViewBackground()
-        EmptyStateView()
-    }
-}

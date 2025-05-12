@@ -5,18 +5,18 @@ import SwiftData
 final class HabitCounterService: ProgressTrackingService {
     static let shared = HabitCounterService()
     
-    // MARK: - Свойства
+    // MARK: - Properties
     
     /// Прогресс для всех счетчиков
     private(set) var progressUpdates: [String: Int] = [:]
     
-    // MARK: - Инициализация
+    // MARK: - Initialization
     
     private init() {
         loadState()
     }
     
-    // MARK: - Обновление прогресса
+    // MARK: - ProgressTrackingService Implementation
     
     func getCurrentProgress(for habitId: String) -> Int {
         return progressUpdates[habitId] ?? 0
@@ -29,13 +29,6 @@ final class HabitCounterService: ProgressTrackingService {
         if currentValue != newValue {
             progressUpdates[habitId] = newValue
             saveState()
-            
-            // Уведомляем об изменениях для обновления UI
-            NotificationCenter.default.post(
-                name: .progressUpdated,
-                object: self,
-                userInfo: ["progressUpdates": progressUpdates]
-            )
         }
     }
     
@@ -43,23 +36,16 @@ final class HabitCounterService: ProgressTrackingService {
         if progressUpdates[habitId] != nil && progressUpdates[habitId] != 0 {
             progressUpdates[habitId] = 0
             saveState()
-            
-            // Уведомляем об изменениях для обновления UI
-            NotificationCenter.default.post(
-                name: .progressUpdated,
-                object: self,
-                userInfo: ["progressUpdates": progressUpdates]
-            )
         }
     }
     
-    // MARK: - Методы для таймеров (заглушки - не используются для счетчиков)
+    // MARK: - Methods for Timers (stubs - not used for counters)
     
     func isTimerRunning(for habitId: String) -> Bool { return false }
     func startTimer(for habitId: String, initialProgress: Int = 0) { }
     func stopTimer(for habitId: String) { }
     
-    // MARK: - Сохранение и загрузка
+    // MARK: - Saving and Loading
     
     private func saveState() {
         if let encodedData = try? JSONEncoder().encode(progressUpdates) {
@@ -74,7 +60,7 @@ final class HabitCounterService: ProgressTrackingService {
         }
     }
     
-    // MARK: - SwiftData интеграция
+    // MARK: - SwiftData Integration
     
     func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date = .now) {
         let currentProgress = getCurrentProgress(for: habitId)

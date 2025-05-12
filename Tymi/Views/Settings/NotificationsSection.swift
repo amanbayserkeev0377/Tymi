@@ -3,35 +3,30 @@ import SwiftData
 
 struct NotificationsSection: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
     @State private var isNotificationPermissionAlertPresented = false
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        HStack {
-            Image(systemName: "bell.badge")
-                .foregroundStyle(.primary)
-                .frame(width: 24, height: 24)
-                .symbolEffect(.bounce, options: .repeat(1), value: notificationsEnabled)
-            
-            Text("notifications".localized)
-                .foregroundStyle(.primary)
-            
-            Spacer()
-            
-            Toggle("", isOn: $notificationsEnabled.animation(.easeInOut(duration: 0.3)))
-                .labelsHidden()
-                .tint(colorScheme == .dark ? Color.gray : .black)
-                .onChange(of: notificationsEnabled) { _, newValue in
-                    handleNotificationToggle(newValue)
+        Toggle(isOn: $notificationsEnabled.animation(.easeInOut(duration: 0.3))) {
+            Label(
+                title: { Text("notifications".localized) },
+                icon: {
+                    Image(systemName: "bell.badge")
+                        .symbolEffect(.bounce, options: .repeat(1), value: notificationsEnabled)
                 }
+            )
+        }
+        .tint(colorScheme == .dark ? Color.gray.opacity(0.8) : .primary)
+        .onChange(of: notificationsEnabled) { _, newValue in
+            handleNotificationToggle(newValue)
         }
         .alert("notification_permission".localized, isPresented: $isNotificationPermissionAlertPresented) {
             Button("cancel".localized, role: .cancel) { }
             Button("settings".localized) {
                 openSettings()
             }
-            
+        } message: {
             Text("permission_for_notifications".localized)
         }
     }
@@ -44,11 +39,9 @@ struct NotificationsSection: View {
                     
                     await MainActor.run {
                         if !granted {
-                            // Если пользователь отказал в разрешениях
                             notificationsEnabled = false
                             isNotificationPermissionAlertPresented = true
                         } else {
-                            // Уведомления разрешены, обновляем их
                             NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
                         }
                     }
@@ -59,7 +52,6 @@ struct NotificationsSection: View {
                     }
                 }
             } else {
-                // Уведомления отключены в приложении
                 NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
             }
         }
