@@ -2,18 +2,15 @@ import SwiftUI
 import SwiftData
 
 struct NewHabitView: View {
-    // MARK: - Environment & Presentation
+    // MARK: - Environment
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
     // MARK: - Properties
     private let habit: Habit?
     
-    // MARK: - State Properties
+    // MARK: - State
     @State private var title = ""
     @State private var selectedType: HabitType = .count
     @State private var countGoal: Int = 1
@@ -21,13 +18,11 @@ struct NewHabitView: View {
     @State private var minutes: Int = 0
     @State private var activeDays: [Bool] = Array(repeating: true, count: 7)
     @State private var isReminderEnabled = false
-    @State private var reminderTime = Date()
+    @State private var reminderTimes: [Date] = [Date()]
     @State private var startDate = Date()
     @State private var selectedIcon: String? = nil
-    @State private var isShowingIconPicker = false
     
-    @FocusState private var isNameFieldFocused: Bool
-    @FocusState private var isCountFieldFocused: Bool
+    @FocusState private var isTitleFocused: Bool
     
     // MARK: - Initialization
     init(habit: Habit? = nil) {
@@ -39,8 +34,8 @@ struct NewHabitView: View {
             _hours = State(initialValue: habit.type == .time ? habit.goal / 3600 : 1)
             _minutes = State(initialValue: habit.type == .time ? (habit.goal % 3600) / 60 : 0)
             _activeDays = State(initialValue: habit.activeDays)
-            _isReminderEnabled = State(initialValue: habit.reminderTime != nil)
-            _reminderTime = State(initialValue: habit.reminderTime ?? Date())
+            _isReminderEnabled = State(initialValue: habit.reminderTimes != nil && !habit.reminderTimes!.isEmpty)
+            _reminderTimes = State(initialValue: habit.reminderTimes ?? [Date()])
             _startDate = State(initialValue: habit.startDate)
             _selectedIcon = State(initialValue: habit.iconName)
         }
@@ -63,161 +58,85 @@ struct NewHabitView: View {
         }
     }
     
-    // Получаем адаптивные отступы в зависимости от размера экрана
-    private var adaptiveHorizontalPadding: CGFloat {
-        horizontalSizeClass == .compact ? 16 : 20
-    }
-    
-    // Максимальная ширина содержимого для лучшей читаемости на больших экранах
-    private var contentMaxWidth: CGFloat {
-        horizontalSizeClass == .compact ? UIScreen.main.bounds.width - 32 : 600
-    }
-    
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    VStack(spacing: 16) {
-                        HStack(spacing: 16) {
-                            // Icon
-                            IconSectionContent(selectedIcon: $selectedIcon)
-                            
-                            // Name
-                            NameFieldSectionContent(title: $title, isFocused: $isNameFieldFocused)
+            Form {
+                // ОСНОВНАЯ ИНФОРМАЦИЯ
+                Section {
+                    // Название привычки с иконкой
+                    HStack {
+                        // Иконка слева от названия
+                        if let iconName = selectedIcon {
+                            Image(systemName: iconName)
+                                .font(.title2)
+                                .frame(width: 30, height: 30)
+                                .foregroundStyle(.primary)
                         }
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                        .background(sectionBackground)
-                    }
-                    
-                    // Goal
-                    VStack {
-                        GoalSectionContent(
-                            selectedType: $selectedType,
-                            countGoal: $countGoal,
-                            hours: $hours,
-                            minutes: $minutes
-                        )
-                        .focused($isCountFieldFocused)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                    }
-                    .background(sectionBackground)
-                    
-                    VStack(spacing: 0) {
-                        // StartDate
-                        StartDateSectionContent(startDate: $startDate)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
                         
-                        Divider()
-                            .padding(.leading, 48)
-                        
-                        // Reminder
-                        ReminderSectionContent(
-                            isReminderEnabled: $isReminderEnabled,
-                            reminderTime: $reminderTime
-                        )
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
+                        // Поле ввода названия
+                        TextField("habit_name".localized, text: $title)
+                            .focused($isTitleFocused)
                     }
-                    .background(sectionBackground)
                     
-                    // ActiveDays
-                    VStack {
-                        ActiveDaysSectionContent(activeDays: $activeDays)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                    }
-                    .background(sectionBackground)
-                    
-                    // Save Button
-                    Button(action: {
-                        saveHabit()
-                    }) {
-                        Text("save".localized)
-                            .font(.headline)
-                            .foregroundStyle(
-                                colorScheme == .dark ? .black : .white
-                            )
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(isFormValid ? Color.primary : Color.gray)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                    .disabled(!isFormValid)
-                    .padding(.top, 8)
-                    .padding(.bottom, 20)
+                    // Выбор иконки
+                    IconSection(selectedIcon: $selectedIcon)
                 }
-                .frame(maxWidth: contentMaxWidth)
+                
+                // НАСТРОЙКИ ЦЕЛИ
+                GoalSection(
+                    selectedType: $selectedType,
+                    countGoal: $countGoal,
+                    hours: $hours,
+                    minutes: $minutes
+                )
+                
+                // РАСПИСАНИЕ
+                Section(header: Text("schedule".localized)) {
+                    // Дата начала
+                    StartDateSection(startDate: $startDate)
+                    
+                    // Активные дни
+                    ActiveDaysSection(activeDays: $activeDays)
+                }
+                
+                // НАПОМИНАНИЯ
+                Section(header: Text("notifications".localized)) {
+                    ReminderSection(
+                        isReminderEnabled: $isReminderEnabled,
+                        reminderTimes: $reminderTimes
+                    )
+                }
             }
-            .navigationTitle(habit == nil ? "create_habit".localized : "edit_habit".localized)
+            .navigationTitle(habit == nil ? "new_habit".localized : "edit_habit".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("cancel".localized) {
                         dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.footnote)
-                            .fontWeight(.bold)
-                            .foregroundStyle(
-                                colorScheme == .dark ? Color.white.opacity(0.4) : Color.black.opacity(0.4)
-                            )
-                            .frame(width: 30, height: 30)
-                            .background(
-                                Circle()
-                                    .fill(colorScheme == .dark ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1))
-                            )
                     }
                 }
                 
-                ToolbarItemGroup(placement: .keyboard) {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("save".localized) {
+                        saveHabit()
+                    }
+                    .disabled(!isFormValid)
+                }
+                
+                ToolbarItem(placement: .keyboard) {
                     Spacer()
-                    Button(action: {
-                        isNameFieldFocused = false
-                        isCountFieldFocused = false
-                    }) {
-                        Image(systemName: "keyboard.chevron.compact.down")
-                            .tint(.primary)
+                    Button("done".localized) {
+                        isTitleFocused = false
                     }
                 }
-            }
-            .background(
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        hideKeyboard()
-                    }
-            )
-            .sheet(isPresented: $isShowingIconPicker) {
-                IconPickerView(selectedIcon: $selectedIcon)
             }
         }
     }
     
-    private var sectionBackground: some View {
-        RoundedRectangle(cornerRadius: 12)
-            .fill(colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(colorScheme == .dark
-                            ? Color.white.opacity(0.1)
-                            : Color.black.opacity(0.1),
-                            lineWidth: 0.5)
-            )
-            .shadow(radius: 0.5)
-    }
-    
-    private func hideKeyboard() {
-        isNameFieldFocused = false
-        isCountFieldFocused = false
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                        to: nil, from: nil, for: nil)
-    }
-    
+    // MARK: - Methods
     private func saveHabit() {
+        // Проверка и коррекция значений
         if selectedType == .count && countGoal > 999999 {
             countGoal = 999999
         }
@@ -231,46 +150,21 @@ struct NewHabitView: View {
         }
         
         if let existingHabit = habit {
-            // Update existing habit
+            // Обновление существующей привычки
             existingHabit.update(
                 title: title,
                 type: selectedType,
                 goal: effectiveGoal,
                 iconName: selectedIcon,
                 activeDays: activeDays,
-                reminderTime: isReminderEnabled ? reminderTime : nil,
+                reminderTimes: isReminderEnabled ? reminderTimes : nil,
                 startDate: Calendar.current.startOfDay(for: startDate)
             )
             
-            if isReminderEnabled {
-                Task {
-                    do {
-                        let granted = try await NotificationManager.shared.requestAuthorization()
-                        if granted {
-                            let success = await NotificationManager.shared.scheduleNotifications(for: existingHabit)
-                            if !success {
-                                // Можно добавить обратную связь пользователю
-                                print("Не удалось запланировать уведомления")
-                            }
-                        } else {
-                            await MainActor.run {
-                                isReminderEnabled = false
-                            }
-                        }
-                    } catch {
-                        print("Ошибка при обновлении уведомлений: \(error)")
-                        await MainActor.run {
-                            isReminderEnabled = false
-                        }
-                    }
-                }
-            } else {
-                NotificationManager.shared.cancelNotifications(for: existingHabit)
-            }
-            
+            handleNotifications(for: existingHabit)
             habitsUpdateService.triggerUpdate()
         } else {
-            // Create new habit
+            // Создание новой привычки
             let newHabit = Habit(
                 title: title,
                 type: selectedType,
@@ -279,40 +173,45 @@ struct NewHabitView: View {
                 createdAt: Date(),
                 isFreezed: false,
                 activeDays: activeDays,
-                reminderTime: isReminderEnabled ? reminderTime : nil,
+                reminderTimes: isReminderEnabled ? reminderTimes : nil,
                 startDate: startDate
             )
             modelContext.insert(newHabit)
             
-            if isReminderEnabled {
-                Task {
-                    do {
-                        let granted = try await NotificationManager.shared.requestAuthorization()
-                        if granted {
-                            let success = await NotificationManager.shared.scheduleNotifications(for: newHabit)
-                            if !success {
-                                print("Не удалось запланировать уведомления для новой привычки")
-                            }
-                        } else {
-                            // Обработка отказа
-                            await MainActor.run {
-                                isReminderEnabled = false
-                            }
-                        }
-                    } catch {
-                        print("Ошибка при запросе разрешения на уведомления: \(error)")
-                    }
-                }
-            }
-            
+            handleNotifications(for: newHabit)
             habitsUpdateService.triggerUpdate()
         }
         
         dismiss()
     }
-}
-
-#Preview {
-    NewHabitView()
-        .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
+    
+    // Обработка уведомлений при сохранении
+    private func handleNotifications(for habit: Habit) {
+        if isReminderEnabled {
+            Task {
+                do {
+                    let granted = try await NotificationManager.shared.requestAuthorization()
+                    if granted {
+                        let success = await NotificationManager.shared.scheduleNotifications(for: habit)
+                        if !success {
+                            print("Не удалось запланировать уведомления")
+                        }
+                    } else {
+                        await MainActor.run {
+                            // Если пользователь отказал в разрешениях
+                            isReminderEnabled = false
+                        }
+                    }
+                } catch {
+                    print("Ошибка при обновлении уведомлений: \(error)")
+                    await MainActor.run {
+                        isReminderEnabled = false
+                    }
+                }
+            }
+        } else {
+            // Отменяем существующие уведомления
+            NotificationManager.shared.cancelNotifications(for: habit)
+        }
+    }
 }

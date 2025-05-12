@@ -58,26 +58,3 @@ struct ActionButtonsSection: View {
         .padding(.bottom, 40)
     }
 }
-
-#Preview {
-    HStack {
-        // For Count habit
-        ActionButtonsSection(
-            habit: Habit(title: "Push-ups", type: .count, goal: 20),
-            isTimerRunning: false,
-            onReset: {},
-            onTimerToggle: {},
-            onManualEntry: {}
-        )
-        
-        // For Time habit
-        ActionButtonsSection(
-            habit: Habit(title: "Meditation", type: .time, goal: 3600),
-            isTimerRunning: false,
-            onReset: {},
-            onTimerToggle: {},
-            onManualEntry: {}
-        )
-    }
-    .padding()
-}

@@ -21,7 +21,9 @@ final class Habit {
     
     // Settings for days and reminders
     var activeDaysBitmask: Int
-    var reminderTime: Date?
+    
+    // ИЗМЕНЕНИЕ: вместо одного reminderTime теперь массив
+    var reminderTimes: [Date]?
     var startDate: Date
     
     // Computed property for compatibility with existing UI
@@ -42,73 +44,27 @@ final class Habit {
         }
     }
     
-    // Helper to create active days bitmask
-    static func createDefaultActiveDaysBitMask() -> Int {
-        return 0b1111111 // All days active
-    }
+    // MARK: - Методы для работы с активными днями
     
-    // Computed property for string ID
-    var id: String {
-        return uuid.uuidString
-    }
-    
-    // Initializer with default values
-    init(
-        title: String,
-        type: HabitType = .count,
-        goal: Int = 0,
-        iconName: String? = nil,
-        createdAt: Date = .now,
-        isFreezed: Bool = false,
-        activeDays: [Bool]? = nil,
-        reminderTime: Date? = nil,
-        startDate: Date = .now
-    ) {
-        self.uuid = UUID()
-        self.title = title
-        self.type = type
-        self.goal = goal
-        self.iconName = iconName
-        self.createdAt = createdAt
-        self.isFreezed = isFreezed
-        self.completions = []
-        
-        if let days = activeDays {
-            let orderedWeekdays = Weekday.orderedByUserPreference
-            var bitmask = 0
-            for (index, isActive) in days.enumerated() where index < 7 {
-                if isActive {
-                    let weekday = orderedWeekdays[index]
-                    bitmask |= (1 << weekday.rawValue)
-                }
-            }
-            self.activeDaysBitmask = bitmask
-        } else {
-            self.activeDaysBitmask = Habit.createDefaultActiveDaysBitMask()
-        }
-        
-        self.reminderTime = reminderTime
-        self.startDate = Calendar.current.startOfDay(for: startDate)
-    }
-    
-    // Check if habit is active on specific day
+    // Проверить активен ли конкретный день недели
     func isActive(on weekday: Weekday) -> Bool {
         return (activeDaysBitmask & (1 << weekday.rawValue)) != 0
     }
-    
-    // Set activity for specific day
-    func setActive(_ isActive: Bool, for weekday: Weekday) {
-        if isActive {
+
+    // Изменить активность конкретного дня недели
+    func setActive(_ active: Bool, for weekday: Weekday) {
+        if active {
             activeDaysBitmask |= (1 << weekday.rawValue)
         } else {
             activeDaysBitmask &= ~(1 << weekday.rawValue)
         }
     }
-    
-    // Check if habit is active on specific date
+
+    // Проверить активен ли день для конкретной даты
     func isActiveOnDate(_ date: Date) -> Bool {
         let calendar = Calendar.userPreferred
         
+        // Проверяем, что дата не раньше даты начала привычки
         let dateStartOfDay = calendar.startOfDay(for: date)
         let startDateOfDay = calendar.startOfDay(for: startDate)
         
@@ -116,9 +72,56 @@ final class Habit {
             return false
         }
         
+        // Проверяем, активен ли день недели
         let weekday = Weekday.from(date: date)
         return isActive(on: weekday)
     }
+    
+    // MARK: - Методы для работы с напоминаниями
+    
+    // ОБРАТНАЯ СОВМЕСТИМОСТЬ: для поддержки старого кода
+    var reminderTime: Date? {
+        get {
+            return reminderTimes?.first
+        }
+        set {
+            if let newTime = newValue {
+                reminderTimes = [newTime]
+            } else {
+                reminderTimes = nil
+            }
+        }
+    }
+    
+    // Добавить новое напоминание
+    func addReminderTime(_ time: Date) {
+        if reminderTimes == nil {
+            reminderTimes = [time]
+        } else {
+            reminderTimes?.append(time)
+        }
+    }
+    
+    // Удалить напоминание
+    func removeReminderTime(at index: Int) {
+        guard var times = reminderTimes, times.count > index else { return }
+        times.remove(at: index)
+        reminderTimes = times.isEmpty ? nil : times
+    }
+    
+    // Обновить напоминание
+    func updateReminderTime(_ time: Date, at index: Int) {
+        guard var times = reminderTimes, times.count > index else { return }
+        times[index] = time
+        reminderTimes = times
+    }
+    
+    // Проверка наличия напоминаний
+    var hasReminders: Bool {
+        return reminderTimes != nil && !(reminderTimes?.isEmpty ?? true)
+    }
+    
+    // MARK: - Методы для работы с прогрессом
     
     // Get progress for specific date
     func progressForDate(_ date: Date) -> Int {
@@ -195,15 +198,94 @@ final class Habit {
         let completion = HabitCompletion(date: date, value: value, habit: self)
         completions.append(completion)
     }
-
-    // MARK: - Methods
+    
+    // MARK: - Инициализаторы и обновление
+    
+    // Helper to create active days bitmask
+    static func createDefaultActiveDaysBitMask() -> Int {
+        return 0b1111111 // All days active
+    }
+    
+    // Computed property for string ID
+    var id: String {
+        return uuid.uuidString
+    }
+    
+    // Initializer with default values
+    init(
+        title: String,
+        type: HabitType = .count,
+        goal: Int = 0,
+        iconName: String? = nil,
+        createdAt: Date = .now,
+        isFreezed: Bool = false,
+        activeDays: [Bool]? = nil,
+        reminderTimes: [Date]? = nil,  // ИЗМЕНЕНИЕ: теперь массив
+        startDate: Date = .now
+    ) {
+        self.uuid = UUID()
+        self.title = title
+        self.type = type
+        self.goal = goal
+        self.iconName = iconName
+        self.createdAt = createdAt
+        self.isFreezed = isFreezed
+        self.completions = []
+        
+        if let days = activeDays {
+            let orderedWeekdays = Weekday.orderedByUserPreference
+            var bitmask = 0
+            for (index, isActive) in days.enumerated() where index < 7 {
+                if isActive {
+                    let weekday = orderedWeekdays[index]
+                    bitmask |= (1 << weekday.rawValue)
+                }
+            }
+            self.activeDaysBitmask = bitmask
+        } else {
+            self.activeDaysBitmask = Habit.createDefaultActiveDaysBitMask()
+        }
+        
+        self.reminderTimes = reminderTimes
+        self.startDate = Calendar.current.startOfDay(for: startDate)
+    }
+    
+    // СОВМЕСТИМОСТЬ: конструктор с одним reminderTime
+    convenience init(
+        title: String,
+        type: HabitType = .count,
+        goal: Int = 0,
+        iconName: String? = nil,
+        createdAt: Date = .now,
+        isFreezed: Bool = false,
+        activeDays: [Bool]? = nil,
+        reminderTime: Date? = nil,  // Один reminderTime для совместимости
+        startDate: Date = .now
+    ) {
+        let reminderTimesArray: [Date]? = reminderTime != nil ? [reminderTime!] : nil
+        
+        self.init(
+            title: title,
+            type: type,
+            goal: goal,
+            iconName: iconName,
+            createdAt: createdAt,
+            isFreezed: isFreezed,
+            activeDays: activeDays,
+            reminderTimes: reminderTimesArray,
+            startDate: startDate
+        )
+    }
+    
+    // MARK: - Методы обновления свойств
+    
     func update(
         title: String,
         type: HabitType,
         goal: Int,
         iconName: String?,
         activeDays: [Bool],
-        reminderTime: Date?,
+        reminderTimes: [Date]?,  // ИЗМЕНЕНИЕ: теперь массив
         startDate: Date
     ) {
         self.title = title
@@ -211,7 +293,29 @@ final class Habit {
         self.goal = goal
         self.iconName = iconName
         self.activeDays = activeDays
-        self.reminderTime = reminderTime
+        self.reminderTimes = reminderTimes
         self.startDate = startDate
+    }
+    
+    // СОВМЕСТИМОСТЬ: обновление с одним reminderTime
+    func update(
+        title: String,
+        type: HabitType,
+        goal: Int,
+        iconName: String?,
+        activeDays: [Bool],
+        reminderTime: Date?,  // Один reminderTime для совместимости
+        startDate: Date
+    ) {
+        let reminderTimesArray: [Date]? = reminderTime != nil ? [reminderTime!] : nil
+        update(
+            title: title,
+            type: type,
+            goal: goal,
+            iconName: iconName,
+            activeDays: activeDays,
+            reminderTimes: reminderTimesArray,
+            startDate: startDate
+        )
     }
 }

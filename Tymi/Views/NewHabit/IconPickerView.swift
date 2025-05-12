@@ -1,27 +1,16 @@
 import SwiftUI
 
-struct IconCategory {
-    let name: String
-    let icons: [String]
-}
-
 struct IconPickerView: View {
     @Binding var selectedIcon: String?
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
-    @State private var tempSelectedIcon: String?
-    
-    init(selectedIcon: Binding<String?>) {
-        self._selectedIcon = selectedIcon
-        self._tempSelectedIcon = State(initialValue: selectedIcon.wrappedValue)
-    }
+    @State private var searchText = ""
     
     // Категории иконок из SF Symbols
     private let categories: [IconCategory] = [
         IconCategory(name: "icon_category_health".localized, icons: [
-            "figure.walk","figure.run", "figure.stairs", "figure.strengthtraining.traditional", "figure.cooldown", 
+            "figure.walk","figure.run", "figure.stairs", "figure.strengthtraining.traditional", "figure.cooldown",
             "figure.mind.and.body", "figure.pool.swim", "shoeprints.fill", "bicycle", "bed.double",
-            "brain", "eye", "heart", "lungs", "waterbottle", 
+            "brain", "eye", "heart", "lungs", "waterbottle",
             "pills", "testtube.2", "stethoscope", "carrot", "tree"
         ]),
         IconCategory(name: "icon_category_productivity".localized, icons: [
@@ -33,7 +22,7 @@ struct IconPickerView: View {
         IconCategory(name: "icon_category_hobbies".localized, icons: [
             "camera", "play.rectangle", "headphones", "music.note", "film",
             "paintbrush.pointed", "paintpalette", "photo", "theatermasks", "puzzlepiece.extension",
-            "pianokeys",  "guitars", "rectangle.pattern.checkered", "mountain.2", "drone",
+            "pianokeys", "guitars", "rectangle.pattern.checkered", "mountain.2", "drone",
             "playstation.logo", "xbox.logo", "formfitting.gamecontroller", "motorcycle", "scooter",
             "soccerball", "basketball", "volleyball", "tennisball", "tennis.racket"
         ]),
@@ -46,91 +35,91 @@ struct IconPickerView: View {
         ]),
     ]
     
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    ForEach(categories, id: \.name) { category in
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(category.name)
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                                .fontWeight(.medium)
-                                .padding(.leading)
-                            
-                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 60, maximum: 80))], spacing: 15) {
-                                ForEach(category.icons, id: \.self) { iconName in
-                                    Button {
-                                        tempSelectedIcon = iconName
-                                    } label: {
-                                        Image(systemName: iconName)
-                                            .font(.title)
-                                            .tint(.primary)
-                                            .frame(width: 60, height: 60)
-                                            .background(
-                                                IconButtonBackground(isSelected: tempSelectedIcon == iconName)
-                                            )
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        .padding(.bottom, 10)
-                    }
-                }
-                .padding(.top)
-            }
-            .navigationTitle("icon_picker_title".localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("icon_picker_remove_icon".localized) {
-                        selectedIcon = nil
-                        dismiss()
-                    }
-                    .foregroundStyle(.red)
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("done".localized) {
-                        selectedIcon = tempSelectedIcon
-                        dismiss()
-                    }
-                }
-            }
-            .tint(.primary)
+    private var filteredCategories: [IconCategory] {
+        if searchText.isEmpty {
+            return categories
+        } else {
+            return categories.map { category in
+                IconCategory(
+                    name: category.name,
+                    icons: category.icons.filter { $0.contains(searchText.lowercased()) }
+                )
+            }.filter { !$0.icons.isEmpty }
         }
     }
-}
-
-struct IconButtonBackground: View {
-    let isSelected: Bool
-    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        let fillColor: Color
-        if isSelected {
-            fillColor = Color.primary.opacity(0.2)
-        } else {
-            fillColor = colorScheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.9)
+        List {
+            // Опция "Без иконки"
+            Button {
+                selectedIcon = nil
+                dismiss()
+            } label: {
+                HStack {
+                    Label("no_icon".localized, systemImage: "circle.slash")
+                    Spacer()
+                    if selectedIcon == nil {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
+            
+            ForEach(filteredCategories, id: \.name) { category in
+                if !category.icons.isEmpty {
+                    Section(header: Text(category.name)) {
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 60))
+                        ], spacing: 10) {
+                            ForEach(category.icons, id: \.self) { iconName in
+                                Button {
+                                    selectedIcon = iconName
+                                    dismiss()
+                                } label: {
+                                    VStack {
+                                        Image(systemName: iconName)
+                                            .font(.title)
+                                            .frame(height: 44)
+                                            .foregroundStyle(.primary)
+                                        
+                                        if selectedIcon == iconName {
+                                            Image(systemName: "checkmark")
+                                                .font(.caption)
+                                                .foregroundStyle(.blue)
+                                        }
+                                    }
+                                    .frame(minWidth: 60, minHeight: 60)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.primary.opacity(selectedIcon == iconName ? 0.1 : 0.0))
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.vertical, 10)
+                    }
+                }
+            }
         }
-        
-        return RoundedRectangle(cornerRadius: 10)
-            .fill(fillColor)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(
-                        colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.1),
-                        lineWidth: 0.5
-                    )
-            )
-            .shadow(radius: 1)
+        .navigationTitle("choose_icon".localized)
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchText, prompt: "search_icons".localized)
     }
 }
 
-// Расширение для проверки nil или пустой строки
-extension Optional where Wrapped == String {
-    var isNilOrEmpty: Bool {
-        self == nil || self!.isEmpty
-    }
-} 
+struct IconCategory {
+    let name: String
+    let icons: [String]
+}
+
+// СТРОКИ ДЛЯ ЛОКАЛИЗАЦИИ:
+/*
+"icon" = "Иконка";
+"choose_icon" = "Выберите иконку";
+"no_icon" = "Без иконки";
+"search_icons" = "Поиск иконок";
+"icon_category_health" = "Здоровье";
+"icon_category_productivity" = "Продуктивность";
+"icon_category_hobbies" = "Хобби";
+"icon_category_lifestyle" = "Стиль жизни";
+*/

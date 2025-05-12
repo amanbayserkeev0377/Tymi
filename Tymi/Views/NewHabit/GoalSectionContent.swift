@@ -1,106 +1,165 @@
 import SwiftUI
 
-struct GoalSectionContent: View {
+struct GoalSection: View {
     @Binding var selectedType: HabitType
     @Binding var countGoal: Int
     @Binding var hours: Int
     @Binding var minutes: Int
     
-    @State private var timeDate: Date = Calendar.current.date(bySettingHour: 1, minute: 0, second: 0, of: Date()) ?? Date()
-    @State private var countText: String = ""
-    @FocusState private var isFocused: Bool
+    @State private var countText = ""
+    @FocusState private var isCountFieldFocused: Bool
+    
+    private var formattedTimeGoal: String {
+        var parts: [String] = []
+        
+        if hours > 0 {
+            parts.append("\(hours) \("hr".localized)")
+        }
+        
+        if minutes > 0 || hours == 0 {
+            parts.append("\(minutes) \("min".localized)")
+        }
+        
+        return parts.joined(separator: " ")
+    }
     
     var body: some View {
         Section {
-            VStack(spacing: 12) {
+            // Тип привычки
+            Picker("habit_type".localized, selection: $selectedType) {
+                Text("count".localized).tag(HabitType.count)
+                Text("time".localized).tag(HabitType.time)
+            }
+            
+            // Содержимое зависит от выбранного типа
+            if selectedType == .count {
+                // Для числовой привычки - прямой ввод
                 HStack {
-                    Image(systemName: "trophy")
-                        .foregroundStyle(.primary)
-                        .frame(width: 24, height: 24)
-                    
-                    Text("daily_goal".localized)
-                        .foregroundStyle(.primary)
-                    
+                    Text("goal".localized)
                     Spacer()
-                    
-                    Picker("", selection: $selectedType.animation()) {
-                        Text("count".localized)
-                            .tag(HabitType.count)
-                        
-                        Text("time".localized,)
-                            .tag(HabitType.time)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(maxWidth: 170)
-                }
-                .frame(height: 37)
-                
-                Divider()
-                .padding(.leading, 24)
-                
-                HStack {
-                    if selectedType == .count {
-                        TextField("set_daily_goal".localized, text: $countText)
-                            .keyboardType(.numberPad)
-                            .tint(.primary)
-                            .focused($isFocused)
-                            .onChange(of: countText) { _, newValue in
-                                if let number = Int(newValue) {
-                                    countGoal = min(number, 999999)
-                                } else {
-                                    countGoal = 0
-                                }
+                    TextField("count".localized, text: $countText)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                        .focused($isCountFieldFocused)
+                        .frame(width: 100)
+                        .onChange(of: countText) { _, newValue in
+                            if let value = Int(newValue), value > 0 {
+                                countGoal = min(value, 999999)
+                            } else if newValue.isEmpty {
+                                // Оставляем пустое поле, но не обнуляем цель
+                            } else {
+                                // Если введен неверный формат, восстанавливаем предыдущее значение
+                                countText = "\(countGoal)"
                             }
-                            .transition(.opacity)
-                    } else {
-                        Spacer()
-                        DatePicker("", selection: $timeDate, displayedComponents: [.hourAndMinute])
-                            .datePickerStyle(.compact)
-                            .labelsHidden()
-                            .tint(.primary)
-                            .onChange(of: timeDate) { _, newValue in
-                                updateHoursAndMinutesFromTimeDate()
-                            }
-                            .transition(.opacity.combined(with: .move(edge: .trailing)))
-                    }
+                        }
                 }
-                .frame(height: 37)
-                .padding(.leading, 28)
-                .animation(.easeInOut(duration: 0.4), value: selectedType)
-            }
-        }
-        .onAppear {
-            updateTimeDateFromHoursAndMinutes()
-            if selectedType == .count && countGoal > 0 {
-                countText = String(countGoal)
-            }
-        }
-        .onChange(of: selectedType) { _, newValue in
-            if newValue == .count {
-                if countGoal > 0 {
-                    countText = String(countGoal)
-                } else {
-                    countText = ""
-                    countGoal = 0
+                .onAppear {
+                    // Инициализируем текстовое поле при появлении
+                    countText = "\(countGoal)"
+                }
+                .onChange(of: selectedType) { _, type in
+                    if type == .count {
+                        countText = "\(countGoal)"
+                    }
                 }
             } else {
-                if hours == 0 && minutes == 0 {
-                    hours = 1
-                    minutes = 0
+                // Для привычки с временем - навигация к выбору
+                NavigationLink(destination: TimeGoalView(hours: $hours, minutes: $minutes)) {
+                    HStack {
+                        Text("goal".localized)
+                        Spacer()
+                        Text(formattedTimeGoal)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                updateTimeDateFromHoursAndMinutes()
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("done".localized) {
+                    isCountFieldFocused = false
+                }
             }
         }
     }
+}
+
+struct TimeGoalView: View {
+    @Binding var hours: Int
+    @Binding var minutes: Int
+    @Environment(\.dismiss) private var dismiss
     
-    // Helper functions to sync between timeDate and hours/minutes
-    private func updateHoursAndMinutesFromTimeDate() {
-        let components = Calendar.current.dateComponents([.hour, .minute], from: timeDate)
-        hours = components.hour ?? 0
-        minutes = components.minute ?? 0
-    }
+    // Предопределенные значения для быстрого выбора в минутах
+    private let presetValues = [
+        5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240
+    ]
     
-    private func updateTimeDateFromHoursAndMinutes() {
-        timeDate = Calendar.current.date(bySettingHour: hours, minute: minutes, second: 0, of: Date()) ?? Date()
+    var body: some View {
+        List {
+            Section(header: Text("quick_select".localized)) {
+                ForEach(presetValues, id: \.self) { value in
+                    Button {
+                        // Конвертируем минуты в часы и минуты
+                        hours = value / 60
+                        minutes = value % 60
+                        dismiss()
+                    } label: {
+                        HStack {
+                            if value < 60 {
+                                Text("\(value) \("min".localized)")
+                            } else {
+                                let hrs = value / 60
+                                let mins = value % 60
+                                
+                                if mins == 0 {
+                                    Text("\(hrs) \("hr".localized)")
+                                } else {
+                                    Text("\(hrs) \("hr".localized) \(mins) \("min".localized)")
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            // Отображаем галочку у текущего значения
+                            if hours * 60 + minutes == value {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            }
+            
+            Section(header: Text("custom_time".localized)) {
+                HStack {
+                    Picker("", selection: $hours) {
+                        ForEach(0..<25) { hour in
+                            Text("\(hour) \("hr".localized)").tag(hour)
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    
+                    Picker("", selection: $minutes) {
+                        ForEach(0..<60) { minute in
+                            Text("\(minute) \("min".localized)").tag(minute)
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                }
+                .frame(height: 150)
+                
+                Button {
+                    dismiss()
+                } label: {
+                    Text("set_custom_time".localized)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .disabled(hours == 0 && minutes == 0)
+            }
+        }
+        .navigationTitle("set_time_goal".localized)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

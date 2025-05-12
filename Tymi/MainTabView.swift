@@ -8,7 +8,7 @@ struct MainTabView: View {
         TabView(selection: $selectedTab) {
             // Вкладка "Главная"
             NavigationStack {
-                TodayView()
+                HomeView()
             }
             .tabItem {
                 Label("main_tab_home".localized, systemImage: "house")
@@ -17,10 +17,10 @@ struct MainTabView: View {
             
             // Вкладка "Привычки"
             NavigationStack {
-                HabitsListView()
+                StatisticsView()
             }
             .tabItem {
-                Label("main_tab_habits".localized, systemImage: "list.bullet")
+                Label("main_tab_statistics".localized, systemImage: "list.bullet")
             }
             .tag(1)
             

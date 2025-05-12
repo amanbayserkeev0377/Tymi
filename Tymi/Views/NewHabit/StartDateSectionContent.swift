@@ -1,39 +1,15 @@
 import SwiftUI
 
-struct StartDateSectionContent: View {
+struct StartDateSection: View {
     @Binding var startDate: Date
-
-    var body: some View {
-        Section {
-            HStack {
-                Image(systemName: "calendar")
-                    .foregroundStyle(.primary)
-                    .frame(width: 24, height: 24)
-                
-                Text("start_date".localized)
-                    .foregroundStyle(.primary)
-                
-                Spacer()
-                
-                DatePicker(
-                    "",
-                    selection: $startDate,
-                    in: ...Date(),
-                    displayedComponents: .date
-                )
-                    .datePickerStyle(.compact)
-                    .tint(.primary)
-                    .labelsHidden()
-            }
-            .frame(height: 37)
-        }
-    }
-}
-
-#Preview {
-    @Previewable @State var startDate = Date()
     
-    return Form {
-        StartDateSectionContent(startDate: $startDate)
+    var body: some View {
+        DatePicker(
+            "start_date".localized,
+            selection: $startDate,
+            in: ...Date(),
+            displayedComponents: .date
+        )
+        .datePickerStyle(.compact)
     }
 }

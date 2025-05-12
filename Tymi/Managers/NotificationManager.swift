@@ -27,7 +27,6 @@ class NotificationManager: ObservableObject {
         return granted
     }
     
-    // Планирование уведомлений для привычки с проверкой разрешений
     func scheduleNotifications(for habit: Habit) async -> Bool {
         // Проверяем, есть ли у нас разрешение на уведомления
         guard notificationsEnabled else {
@@ -41,8 +40,8 @@ class NotificationManager: ObservableObject {
             return false
         }
         
-        // Проверяем наличие времени напоминания
-        guard let reminderTime = habit.reminderTime else {
+        // Проверяем наличие времен напоминаний
+        guard let reminderTimes = habit.reminderTimes, !reminderTimes.isEmpty else {
             cancelNotifications(for: habit)
             return false
         }
@@ -50,46 +49,55 @@ class NotificationManager: ObservableObject {
         // Сначала отменяем старые уведомления
         cancelNotifications(for: habit)
         
-        let calendar = Calendar.userPreferred
-        let components = calendar.dateComponents([.hour, .minute], from: reminderTime)
-        
-        // Создаем уведомления для каждого активного дня недели
-        for (index, isActive) in habit.activeDays.enumerated() where isActive {
-            let weekday = calendar.systemWeekdayFromOrdered(index: index)
+        // Для каждого времени напоминания создаем уведомления по дням
+        for (timeIndex, reminderTime) in reminderTimes.enumerated() {
+            let calendar = Calendar.userPreferred
+            let components = calendar.dateComponents([.hour, .minute], from: reminderTime)
             
-            var dateComponents = DateComponents()
-            dateComponents.hour = components.hour
-            dateComponents.minute = components.minute
-            dateComponents.weekday = weekday
-            
-            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-            
-            let content = UNMutableNotificationContent()
-            content.title = "habit_time".localized
-            content.body = "dont_forget".localized(with: habit.title)
-            content.sound = .default
-            
-            let request = UNNotificationRequest(
-                identifier: "\(habit.uuid.uuidString)-\(weekday)",
-                content: content,
-                trigger: trigger
-            )
-            
-            do {
-                try await UNUserNotificationCenter.current().add(request)
-            } catch {
-                print("Ошибка при планировании уведомления: \(error.localizedDescription)")
-                return false
+            // Создаем уведомления для каждого активного дня недели
+            for (dayIndex, isActive) in habit.activeDays.enumerated() where isActive {
+                let weekday = calendar.systemWeekdayFromOrdered(index: dayIndex)
+                
+                var dateComponents = DateComponents()
+                dateComponents.hour = components.hour
+                dateComponents.minute = components.minute
+                dateComponents.weekday = weekday
+                
+                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+                
+                let content = UNMutableNotificationContent()
+                content.title = "habit_time".localized
+                content.body = "dont_forget".localized(with: habit.title)
+                content.sound = .default
+                
+                let request = UNNotificationRequest(
+                    identifier: "\(habit.uuid.uuidString)-\(weekday)-\(timeIndex)",
+                    content: content,
+                    trigger: trigger
+                )
+                
+                do {
+                    try await UNUserNotificationCenter.current().add(request)
+                } catch {
+                    print("Ошибка при планировании уведомления: \(error.localizedDescription)")
+                    // Продолжаем добавлять другие уведомления, если возможно
+                }
             }
         }
         
         return true
     }
-    
-    // Отмена уведомлений для привычки
+
+    // Также обновим метод отмены уведомлений
     func cancelNotifications(for habit: Habit) {
-        let identifiers = (1...7).map { weekday in
-            "\(habit.uuid.uuidString)-\(weekday)"
+        // Получаем все возможные идентификаторы
+        var identifiers: [String] = []
+        
+        // Рассчитываем до 5 возможных времен (максимум)
+        for timeIndex in 0..<5 {
+            for weekday in 1...7 {
+                identifiers.append("\(habit.uuid.uuidString)-\(weekday)-\(timeIndex)")
+            }
         }
         
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)

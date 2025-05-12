@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct TodayView: View {
+struct HomeView: View {
     // MARK: - Properties
     
     @Environment(\.modelContext) private var modelContext
