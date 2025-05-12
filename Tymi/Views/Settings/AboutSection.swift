@@ -9,7 +9,7 @@ struct AboutSection: View {
                     UIApplication.shared.open(url)
                 }
             } label: {
-                Label("rate_app".localized, systemImage: "star.fill")
+                Label("rate_app".localized, systemImage: "star")
             }
             
             // Поделиться приложением

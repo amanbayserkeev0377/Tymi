@@ -29,7 +29,12 @@ struct ActiveDaysSection: View {
     var body: some View {
         NavigationLink(destination: ActiveDaysSelectionView(activeDays: $activeDays)) {
             HStack {
-                Label("active_days".localized, systemImage: "calendar.day.timeline")
+                Image(systemName: "cloud.sun")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .accessibilityHidden(true)
+                
+                Text("active_days".localized)
                 
                 Spacer()
                 

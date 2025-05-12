@@ -20,7 +20,7 @@ struct MainTabView: View {
                 StatisticsView()
             }
             .tabItem {
-                Label("main_tab_statistics".localized, systemImage: "list.bullet")
+                Label("main_tab_statistics".localized, systemImage: "chart.bar.xaxis")
             }
             .tag(1)
             

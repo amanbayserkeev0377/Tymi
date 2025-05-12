@@ -78,7 +78,6 @@ struct IconPickerView: View {
                                     VStack {
                                         Image(systemName: iconName)
                                             .font(.title)
-                                            .frame(height: 44)
                                             .foregroundStyle(.primary)
                                         
                                         if selectedIcon == iconName {
@@ -87,7 +86,8 @@ struct IconPickerView: View {
                                                 .foregroundStyle(.blue)
                                         }
                                     }
-                                    .frame(minWidth: 60, minHeight: 60)
+                                    .aspectRatio(1, contentMode: .fit)
+                                    .padding(8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
                                             .fill(Color.primary.opacity(selectedIcon == iconName ? 0.1 : 0.0))
@@ -111,15 +111,3 @@ struct IconCategory {
     let name: String
     let icons: [String]
 }
-
-// СТРОКИ ДЛЯ ЛОКАЛИЗАЦИИ:
-/*
-"icon" = "Иконка";
-"choose_icon" = "Выберите иконку";
-"no_icon" = "Без иконки";
-"search_icons" = "Поиск иконок";
-"icon_category_health" = "Здоровье";
-"icon_category_productivity" = "Продуктивность";
-"icon_category_hobbies" = "Хобби";
-"icon_category_lifestyle" = "Стиль жизни";
-*/

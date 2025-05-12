@@ -17,26 +17,6 @@
         }
       }
     },
-    "%lld %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld %2$@"
-          }
-        }
-      }
-    },
-    "%lld %@ %lld %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld %2$@ %3$lld %4$@"
-          }
-        }
-      }
-    },
     "%lld%%" : {
       "localizations" : {
         "ky-KG" : {
@@ -348,6 +328,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отмена"
+          }
+        }
+      }
+    },
+    "choose_icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Icon"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Белги тандоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбор иконки"
           }
         }
       }
@@ -858,6 +861,46 @@
         }
       }
     },
+    "goalsection_choose_time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose time (hr:min)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите время (ч:м)"
+          }
+        }
+      }
+    },
+    "goalsection_enter_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter count"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Күнүмдүк максатыңызды коюңуз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите число"
+          }
+        }
+      }
+    },
     "habit_name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1019,48 +1062,19 @@
         }
       }
     },
-    "icon_picker_remove_icon" : {
+    "icon" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Белгисиз"
+            "value" : "Icon"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить"
-          }
-        }
-      }
-    },
-    "icon_picker_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose Icon"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Белги тандоо"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выбор иконки"
+            "value" : "Иконка"
           }
         }
       }
@@ -1088,17 +1102,6 @@
         }
       }
     },
-    "main_tab_habits" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habits"
-          }
-        }
-      }
-    },
     "main_tab_home" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1117,6 +1120,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
+    "main_tab_statistics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistics"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статистика"
           }
         }
       }
@@ -1400,6 +1426,17 @@
         }
       }
     },
+    "remove_reminder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove reminder"
+          }
+        }
+      }
+    },
     "report_bug" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1488,29 +1525,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сохранить"
-          }
-        }
-      }
-    },
-    "set_daily_goal" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set your daily goal"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Күнүмдүк максатыңызды коюңуз"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Установите ежедневную цель"
           }
         }
       }

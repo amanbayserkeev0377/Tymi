@@ -23,6 +23,7 @@ struct NewHabitView: View {
     @State private var selectedIcon: String? = nil
     
     @FocusState private var isTitleFocused: Bool
+    @FocusState private var isCountFocused: Bool
     
     // MARK: - Initialization
     init(habit: Habit? = nil) {
@@ -58,37 +59,32 @@ struct NewHabitView: View {
         }
     }
     
+    private var isKeyboardActive: Bool {
+           isTitleFocused || isCountFocused
+       }
+    
     // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
-                // ОСНОВНАЯ ИНФОРМАЦИЯ
                 Section {
-                    // Название привычки с иконкой
-                    HStack {
-                        // Иконка слева от названия
-                        if let iconName = selectedIcon {
-                            Image(systemName: iconName)
-                                .font(.title2)
-                                .frame(width: 30, height: 30)
-                                .foregroundStyle(.primary)
-                        }
-                        
-                        // Поле ввода названия
-                        TextField("habit_name".localized, text: $title)
-                            .focused($isTitleFocused)
-                    }
+                    //Name
+                    NameFieldSection(
+                        title: $title,
+                        isFocused: $isTitleFocused
+                    )
                     
-                    // Выбор иконки
+                    // Icon
                     IconSection(selectedIcon: $selectedIcon)
                 }
                 
-                // НАСТРОЙКИ ЦЕЛИ
+                // Goal
                 GoalSection(
                     selectedType: $selectedType,
                     countGoal: $countGoal,
                     hours: $hours,
-                    minutes: $minutes
+                    minutes: $minutes,
+                    isFocused: $isCountFocused
                 )
                 
                 // РАСПИСАНИЕ
@@ -108,7 +104,7 @@ struct NewHabitView: View {
                     )
                 }
             }
-            .navigationTitle(habit == nil ? "new_habit".localized : "edit_habit".localized)
+            .navigationTitle(habit == nil ? "create_habit".localized : "edit_habit".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -124,13 +120,17 @@ struct NewHabitView: View {
                     .disabled(!isFormValid)
                 }
                 
-                ToolbarItem(placement: .keyboard) {
+                ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("done".localized) {
+                    Button {
                         isTitleFocused = false
+                        isCountFocused = false
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
                     }
                 }
             }
+            .animation(.default, value: isKeyboardActive)
         }
     }
     

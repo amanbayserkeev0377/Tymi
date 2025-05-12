@@ -9,14 +9,11 @@ struct ReminderSection: View {
     
     var body: some View {
         Section {
-            // Основной тогл включения/выключения уведомлений
             Toggle(isOn: $isReminderEnabled.animation()) {
-                Label {
-                    Text("reminders".localized)
-                } icon: {
-                    Image(systemName: "bell.badge")
-                        .symbolEffect(.bounce, options: .repeat(1), value: isReminderEnabled)
-                }
+                Label(
+                    title: { Text("enable_reminders".localized) },
+                    icon: { Image(systemName: "bell.badge") }
+                )
             }
             .tint(colorScheme == .dark ? .gray.opacity(0.8) : .primary)
             
@@ -40,7 +37,9 @@ struct ReminderSection: View {
                                 reminderTimes.remove(at: index)
                             } label: {
                                 Image(systemName: "minus.circle.fill")
+                                    .font(.body)
                                     .foregroundColor(.red)
+                                    .accessibilityLabel("remove_reminder".localized)
                             }
                         }
                     }
