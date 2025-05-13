@@ -5,18 +5,18 @@ struct StartDateSection: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "calendar")
-                .font(.body)
-                .foregroundStyle(.primary)
-                .accessibilityHidden(true)
+            Label("start_date".localized, systemImage: "calendar.badge.clock")
+            
+            Spacer()
             
             DatePicker(
-                "start_date".localized,
+                "",
                 selection: $startDate,
                 in: ...Date(),
                 displayedComponents: .date
             )
             .datePickerStyle(.compact)
+            .labelsHidden()
         }
     }
 }

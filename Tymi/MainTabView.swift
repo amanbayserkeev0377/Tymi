@@ -11,7 +11,7 @@ struct MainTabView: View {
                 HomeView()
             }
             .tabItem {
-                Label("main_tab_home".localized, systemImage: "house")
+                Label("home".localized, systemImage: "house")
             }
             .tag(0)
             
@@ -20,7 +20,7 @@ struct MainTabView: View {
                 StatisticsView()
             }
             .tabItem {
-                Label("main_tab_statistics".localized, systemImage: "chart.bar.xaxis")
+                Label("statistics".localized, systemImage: "chart.bar.xaxis")
             }
             .tag(1)
             
@@ -29,7 +29,7 @@ struct MainTabView: View {
                 SettingsView()
             }
             .tabItem {
-                Label("main_tab_settings".localized, systemImage: "gearshape")
+                Label("settings".localized, systemImage: "gearshape")
             }
             .tag(2)
         }

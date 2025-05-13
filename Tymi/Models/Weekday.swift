@@ -90,6 +90,13 @@ extension Calendar {
         return (0..<7).map { allSymbols[(($0 + self.firstWeekday - 1) % 7)] }
     }
     
+    /// Возвращает форматированные полные названия дней недели (первая буква заглавная)
+    var orderedFormattedFullWeekdaySymbols: [String] {
+        orderedWeekdaySymbols.map {
+            $0.prefix(1).uppercased() + $0.dropFirst().lowercased()
+        }
+    }
+    
     /// Возвращает короткие символы дней недели (1 буква)
     var orderedWeekdayInitials: [String] {
         orderedShortWeekdaySymbols.map { $0.prefix(1).uppercased() }

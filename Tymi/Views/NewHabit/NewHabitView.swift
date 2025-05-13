@@ -87,17 +87,16 @@ struct NewHabitView: View {
                     isFocused: $isCountFocused
                 )
                 
-                // РАСПИСАНИЕ
-                Section(header: Text("schedule".localized)) {
-                    // Дата начала
+                Section {
+                    // Start Date
                     StartDateSection(startDate: $startDate)
                     
-                    // Активные дни
+                    // Active Days
                     ActiveDaysSection(activeDays: $activeDays)
                 }
                 
-                // НАПОМИНАНИЯ
-                Section(header: Text("notifications".localized)) {
+                // Reminders
+                Section {
                     ReminderSection(
                         isReminderEnabled: $isReminderEnabled,
                         reminderTimes: $reminderTimes

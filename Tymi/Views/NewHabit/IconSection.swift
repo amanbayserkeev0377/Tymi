@@ -9,17 +9,10 @@ struct IconSection: View {
             showIconPicker = true
         } label: {
             HStack {
-                Image(systemName: selectedIcon ?? "questionmark")
-                    .font(.body)
-                    .foregroundStyle(selectedIcon != nil ? .primary : .secondary)
-                    .accessibilityHidden(true)
-                
-                // Текст
-                Text("icon".localized)
+                Label("icon".localized, systemImage: selectedIcon ?? "questionmark")
                 
                 Spacer()
-                
-                // Индикатор кнопки
+                        
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -30,13 +23,6 @@ struct IconSection: View {
         .sheet(isPresented: $showIconPicker) {
             NavigationStack {
                 IconPickerView(selectedIcon: $selectedIcon)
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("done".localized) {
-                                showIconPicker = false
-                            }
-                        }
-                    }
             }
             .presentationDetents([.fraction(0.7)])
             .presentationDragIndicator(.visible)
