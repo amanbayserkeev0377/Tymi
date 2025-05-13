@@ -18,6 +18,7 @@
       }
     },
     "%lld%%" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {

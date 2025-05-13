@@ -12,7 +12,8 @@ struct DailyProgressRing: View {
     @Query(sort: \Habit.createdAt)
     private var baseHabits: [Habit]
     
-    var iconSize: CGFloat = 64
+    // Размер кольца с разумными значениями по умолчанию
+    var size: CGFloat = 180
     
     // MARK: - Computed Properties
     
@@ -34,39 +35,32 @@ struct DailyProgressRing: View {
         activeHabitsForDate.allSatisfy { $0.isCompletedForDate(date) } && !activeHabitsForDate.isEmpty
     }
     
-    private var ringColors: [Color] {
-        if isCompleted {
-            return [
-                Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1)),
-                Color(#colorLiteral(red: 0.1803921569, green: 0.5450980392, blue: 0.3411764706, alpha: 1)),
-                Color(#colorLiteral(red: 0.8196078431, green: 1, blue: 0.8352941176, alpha: 1)),
-                Color(#colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1)),
-                Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
-            ]
-        } else {
-            return [
-                Color(#colorLiteral(red: 0.9411764741, green: 0.4980392158, blue: 0.3529411852, alpha: 1)),
-                Color(#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)),
-                Color(#colorLiteral(red: 1, green: 0.8805306554, blue: 0.5692787766, alpha: 1)),
-                Color(#colorLiteral(red: 1, green: 0.6470588235, blue: 0, alpha: 1)),
-                Color(#colorLiteral(red: 0.9411764741, green: 0.4980392158, blue: 0.3529411852, alpha: 1))
-            ]
-        }
-    }
-    
-    private var textColor: Color {
-        if isCompleted {
-            return colorScheme == .dark ?
-            Color(#colorLiteral(red: 0.8196078431, green: 1, blue: 0.8352941176, alpha: 1)) :
-            Color(#colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1))
-        } else {
-            return .primary
-        }
-    }
-    
     // Проверка наличия привычек для выбранной даты
     private var hasHabitsForDate: Bool {
         return !activeHabitsForDate.isEmpty
+    }
+    
+    // Адаптивный размер для разных устройств, но с фиксированными значениями
+    private var adaptiveSize: CGFloat {
+        // Получаем ширину экрана
+        let screenWidth = UIScreen.main.bounds.width
+        
+        // Для iPhone SE и маленьких устройств
+        if screenWidth <= 320 {
+            return 150
+        }
+        // Для iPhone 8, XR, 11 и подобных
+        else if screenWidth <= 414 {
+            return 170
+        }
+        // Для больших iPhone
+        else if screenWidth <= 428 {
+            return 180
+        }
+        // Для iPad и больших устройств
+        else {
+            return 200
+        }
     }
     
     // MARK: - Body
@@ -74,42 +68,18 @@ struct DailyProgressRing: View {
     var body: some View {
         VStack(spacing: 24) {
             if hasHabitsForDate {
-                // Показываем кольцо прогресса, если есть привычки для этого дня
-                ZStack {
-                    // Фоновый круг
-                    Circle()
-                        .stroke(Color.secondary.opacity(0.1), lineWidth: 22)
-                    
-                    // Кольцо прогресса
-                    Circle()
-                        .trim(from: 0, to: completionPercentage)
-                        .stroke(
-                            AngularGradient(
-                                colors: ringColors,
-                                center: .center,
-                                startAngle: .degrees(0),
-                                endAngle: .degrees(360)
-                            ),
-                            style: StrokeStyle(
-                                lineWidth: 22,
-                                lineCap: .round
-                            )
-                        )
-                        .rotationEffect(.degrees(-90))
-                    
-                    // Текст в центре
-                    if isCompleted {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: iconSize, weight: .bold))
-                            .foregroundStyle(textColor)
-                    } else {
-                        Text("\(Int(completionPercentage * 100))%")
-                            .font(.system(size: 44, weight: .bold))
-                            .foregroundStyle(textColor)
-                    }
-                }
-                .frame(width: 180, height: 180)
-                .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+                // Используем улучшенный ProgressRing с фиксированным размером
+                ProgressRing(
+                    progress: completionPercentage,
+                    currentValue: "\(Int(completionPercentage * 100))%",
+                    isCompleted: isCompleted,
+                    isExceeded: false, // Для DailyProgressRing нет концепции "перевыполнение"
+                    size: adaptiveSize
+                )
+                .accessibilityLabel("daily_progress".localized)
+                .accessibilityValue(isCompleted
+                    ? "all_habits_completed".localized
+                    : "completion_percent".localized(with: Int(completionPercentage * 100)))
             } else {
                 // Сообщение, когда нет активных привычек
                 VStack(spacing: 12) {
@@ -129,12 +99,16 @@ struct DailyProgressRing: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 20)
                 }
-                .frame(height: 180)
+                .frame(height: adaptiveSize)
                 .padding(.horizontal, 20)
             }
         }
-        .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
-            
-        }
+        .frame(maxWidth: .infinity)
+        .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in }
     }
+}
+
+#Preview {
+    DailyProgressRing(date: Date())
+        .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
 }
