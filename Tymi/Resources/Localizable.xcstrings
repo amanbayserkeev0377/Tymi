@@ -769,75 +769,6 @@
         }
       }
     },
-    "freeze" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Freeze"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тоңдуруу"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Заморозить"
-          }
-        }
-      }
-    },
-    "freeze_instead_message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To keep your progress use ‘Freeze’ option."
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Маалыматты сактоо үчүн «Тоңдуруу» функциясын колдонуңуз."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чтобы сохранить прогресс, заморозьте привычку."
-          }
-        }
-      }
-    },
-    "freezed_count" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Freezed (%lld)"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тоңдурулган (%lld)"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Заморожено (%lld)"
-          }
-        }
-      }
-    },
     "frozen_habit_info" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1363,29 +1294,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет активных привычек"
-          }
-        }
-      }
-    },
-    "no_freezed_habits" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No freezed habits"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тоңдурулган адаттар жок"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет замороженных привычек"
           }
         }
       }
@@ -2005,29 +1913,6 @@
         }
       }
     },
-    "unfreeze" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unfreeze"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тоңдуруудан чыгаруу"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Разморозить"
-          }
-        }
-      }
-    },
     "week_start_day" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2119,6 +2004,15 @@
           }
         }
       }
+    },
+    "В следующих обновлениях здесь появится подробная статистика выполнения привычки по дням, неделям и месяцам" : {
+
+    },
+    "Здесь будет статистика привычки" : {
+
+    },
+    "Статистика для привычки %@" : {
+
     }
   },
   "version" : "1.0"

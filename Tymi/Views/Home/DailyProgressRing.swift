@@ -9,7 +9,9 @@ struct DailyProgressRing: View {
     @Environment(\.colorScheme) private var colorScheme
     
     let date: Date
-    @Query(filter: #Predicate<Habit> { !$0.isFreezed }, sort: \Habit.createdAt) private var baseHabits: [Habit]
+    @Query(sort: \Habit.createdAt)
+    private var baseHabits: [Habit]
+    
     var iconSize: CGFloat = 64
     
     // MARK: - Computed Properties

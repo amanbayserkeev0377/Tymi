@@ -13,7 +13,6 @@ final class Habit {
     
     // System properties
     var createdAt: Date
-    var isFreezed: Bool
     
     // Relationship with completions (one-to-many)
     @Relationship(deleteRule: .cascade, inverse: \HabitCompletion.habit)
@@ -218,7 +217,6 @@ final class Habit {
         goal: Int = 0,
         iconName: String? = nil,
         createdAt: Date = .now,
-        isFreezed: Bool = false,
         activeDays: [Bool]? = nil,
         reminderTimes: [Date]? = nil,  // ИЗМЕНЕНИЕ: теперь массив
         startDate: Date = .now
@@ -229,7 +227,6 @@ final class Habit {
         self.goal = goal
         self.iconName = iconName
         self.createdAt = createdAt
-        self.isFreezed = isFreezed
         self.completions = []
         
         if let days = activeDays {
@@ -257,7 +254,6 @@ final class Habit {
         goal: Int = 0,
         iconName: String? = nil,
         createdAt: Date = .now,
-        isFreezed: Bool = false,
         activeDays: [Bool]? = nil,
         reminderTime: Date? = nil,  // Один reminderTime для совместимости
         startDate: Date = .now
@@ -270,7 +266,6 @@ final class Habit {
             goal: goal,
             iconName: iconName,
             createdAt: createdAt,
-            isFreezed: isFreezed,
             activeDays: activeDays,
             reminderTimes: reminderTimesArray,
             startDate: startDate

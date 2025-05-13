@@ -8,12 +8,11 @@ struct HomeView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
-    @Query(filter: #Predicate<Habit> { !$0.isFreezed }, sort: [SortDescriptor(\Habit.createdAt)])
+    @Query(sort: [SortDescriptor(\Habit.createdAt)])
     private var baseHabits: [Habit]
     
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
-    @State private var selectedHabit: Habit? = nil
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -24,7 +23,6 @@ struct HomeView: View {
     // Вычисляемое свойство для фильтрации привычек на основе выбранной даты
     private var activeHabitsForDate: [Habit] {
         baseHabits.filter { habit in
-            !habit.isFreezed &&
             habit.isActiveOnDate(selectedDate) &&
             selectedDate >= habit.startDate
         }
@@ -65,14 +63,16 @@ struct HomeView: View {
                                 if hasHabitsForDate {
                                     VStack(spacing: 12) {
                                         ForEach(activeHabitsForDate) { habit in
-                                            HabitRowView(
-                                                habit: habit,
-                                                date: selectedDate,
-                                                onTap: {
-                                                    selectedHabit = habit
-                                                }
-                                            )
-                                            .id(habit.uuid)
+                                            // Заменяем на NavigationLink
+                                            NavigationLink(value: habit) {
+                                                HabitRowView(
+                                                    habit: habit,
+                                                    date: selectedDate,
+                                                    onTap: { } // onTap больше не нужен
+                                                )
+                                                .id(habit.uuid)
+                                            }
+                                            .buttonStyle(.plain)
                                         }
                                     }
                                     .padding(.top, 12)
@@ -94,6 +94,13 @@ struct HomeView: View {
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
             .navigationBarTitleDisplayMode(.inline)
+            // Добавляем navigationDestination для навигации к HabitDetailView
+            .navigationDestination(for: Habit.self) { habit in
+                HabitDetailView(
+                    habit: habit,
+                    date: selectedDate
+                )
+            }
             .safeAreaInset(edge: .top, spacing: 0) {
                 WeeklyCalendarView(selectedDate: $selectedDate)
             }
@@ -136,19 +143,6 @@ struct HomeView: View {
                 NavigationStack {
                     NewHabitView()
                 }
-            }
-            .sheet(item: $selectedHabit) { habit in
-                NavigationStack {
-                    HabitDetailView(
-                        habit: habit,
-                        date: selectedDate,
-                        onDelete: {
-                            selectedHabit = nil
-                        }
-                    )
-                }
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
             }
             .onChange(of: selectedDate) { _, _ in
                 habitsUpdateService.triggerUpdate()

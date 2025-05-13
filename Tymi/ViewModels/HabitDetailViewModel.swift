@@ -223,26 +223,6 @@ final class HabitDetailViewModel {
     }
     
     // MARK: - Habit Management
-    func toggleFreeze() {
-        if habit.isFreezed {
-            unfreezeHabit()
-        } else {
-            freezeHabit()
-        }
-    }
-    
-    private func freezeHabit() {
-        habit.isFreezed = true
-        alertState.isFreezeAlertPresented = true
-        updateHabit()
-        habitsUpdateService.triggerUpdate()
-    }
-    
-    private func unfreezeHabit() {
-        habit.isFreezed = false
-        updateHabit()
-        habitsUpdateService.triggerUpdate()
-    }
     
     func deleteHabit() {
         NotificationManager.shared.cancelNotifications(for: habit)
@@ -346,7 +326,7 @@ final class HabitDetailViewModel {
         }
     }
     
-    func cleanup(stopTimer: Bool = true) {
+    func cleanup(stopTimer: Bool = false) {
         // Отменяем наблюдение
         cancellables?.cancel()
         cancellables = nil
@@ -359,7 +339,7 @@ final class HabitDetailViewModel {
         // Очищаем callback
         onHabitDeleted = nil
         
-        // Останавливаем таймер если он запущен и требуется остановка
+        // Останавливаем таймер только если явно указано
         if stopTimer && isTimerRunning && Calendar.current.isDateInToday(date) {
             progressService.stopTimer(for: habitId)
         }

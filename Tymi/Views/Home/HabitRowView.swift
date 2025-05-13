@@ -3,7 +3,7 @@ import SwiftUI
 struct HabitRowView: View {
     let habit: Habit
     let date: Date
-    var onTap: () -> Void
+    var onTap: () -> Void = {} // Делаем необязательным с пустым значением по умолчанию
     
     @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false

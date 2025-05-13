@@ -6,7 +6,6 @@ struct AlertState: Equatable {
     var isCountAlertPresented: Bool = false
     var isTimeAlertPresented: Bool = false
     var isDeleteAlertPresented: Bool = false
-    var isFreezeAlertPresented: Bool = false
     
     var countInputText: String = ""
     var hoursInputText: String = ""
@@ -20,7 +19,6 @@ struct AlertState: Equatable {
         lhs.isCountAlertPresented == rhs.isCountAlertPresented &&
         lhs.isTimeAlertPresented == rhs.isTimeAlertPresented &&
         lhs.isDeleteAlertPresented == rhs.isDeleteAlertPresented &&
-        lhs.isFreezeAlertPresented == rhs.isFreezeAlertPresented &&
         lhs.countInputText == rhs.countInputText &&
         lhs.hoursInputText == rhs.hoursInputText &&
         lhs.minutesInputText == rhs.minutesInputText
@@ -146,22 +144,8 @@ struct DeleteHabitAlertModifier: ViewModifier {
                     onDelete()
                 }
             } message: {
-                Text("freeze_instead_message".localized)
+                Text("delete_message".localized)
             }
-    }
-}
-
-// Freeze Habit Alert
-struct FreezeHabitAlertModifier: ViewModifier {
-    @Binding var isPresented: Bool
-    let onDismiss: () -> Void
-    
-    func body(content: Content) -> some View {
-        content
-            .alert("frozen_habit_info".localized, isPresented: $isPresented) {
-                Button("okay".localized, action: onDismiss)
-            }
-            .tint(.primary)
     }
 }
 
@@ -214,9 +198,6 @@ extension View {
         self.modifier(DeleteHabitAlertModifier(isPresented: isPresented, onDelete: onDelete))
     }
     
-    func freezeHabitAlert(isPresented: Binding<Bool>, onDismiss: @escaping () -> Void) -> some View {
-        self.modifier(FreezeHabitAlertModifier(isPresented: isPresented, onDismiss: onDismiss))
-    }
     
     // Упрощенный комбинированный модификатор для HabitDetailView
     func habitAlerts(

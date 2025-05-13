@@ -170,7 +170,6 @@ struct NewHabitView: View {
                 goal: effectiveGoal,
                 iconName: selectedIcon,
                 createdAt: Date(),
-                isFreezed: false,
                 activeDays: activeDays,
                 reminderTimes: isReminderEnabled ? reminderTimes : nil,
                 startDate: startDate

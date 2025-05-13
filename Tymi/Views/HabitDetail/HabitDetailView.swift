@@ -10,60 +10,23 @@ struct HabitDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
+    @Environment(\.dismiss) private var dismiss
     
     // MARK: - State Properties
     @State private var viewModel: HabitDetailViewModel?
     @State private var isContentReady = false
+    @State private var isStatisticsPresented = false
+    @State private var isEditPresented = false
     
     // MARK: - Body
     var body: some View {
-        ZStack {
+        ScrollView {
             if let viewModel = viewModel, isContentReady {
                 VStack(spacing: 15) {
-                    // Header with title and menu
-                    HStack {
-                        Spacer()
-                        
-                        Text(habit.title)
-                            .font(.title)
-                            .fontWeight(.bold)
-                        
-                        Spacer()
-                        
-                        Menu {
-                            Button {
-                                viewModel.isEditSheetPresented = true
-                            } label: {
-                                Label("edit".localized, systemImage: "pencil")
-                            }
-                            
-                            Button {
-                                viewModel.toggleFreeze()
-                            } label: {
-                                Label(habit.isFreezed ? "unfreeze".localized : "freeze".localized, systemImage: habit.isFreezed ? "flame" : "snowflake")
-                            }
-                            
-                            Button(role: .destructive) {
-                                viewModel.alertState.isDeleteAlertPresented = true
-                            } label: {
-                                Label("delete".localized, systemImage: "trash")
-                            }
-                            .tint(.red)
-                        } label: {
-                            Image(systemName: "ellipsis")
-                                .font(.system(size: 16))
-                                .frame(width: 26, height: 26)
-                                .background(
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.1))
-                                )
-                        }
-                        .modifier(HapticManager.shared.sensoryFeedback(.selection, trigger: true))
-                    }
-                    .padding(.top)
                     // Goal header
                     Text("goal".localized(with: viewModel.formattedGoal))
                         .font(.subheadline)
+                        .padding(.top, 8)
                     
                     // Progress controls
                     ProgressControlSection(
@@ -92,7 +55,7 @@ struct HabitDetailView: View {
                         }
                     )
                     
-                    Spacer()
+                    Spacer(minLength: 24)
                     
                     // Complete button at the bottom
                     Button(action: {
@@ -120,23 +83,7 @@ struct HabitDetailView: View {
                     .padding(.bottom)
                 }
                 .padding()
-                // РЕШЕНИЕ: Используем явные байндинги
-                .sheet(isPresented: Binding<Bool>(
-                    get: { viewModel.isEditSheetPresented },
-                    set: { viewModel.isEditSheetPresented = $0 }
-                )) {
-                    NewHabitView(habit: habit)
-                        .presentationBackground {
-                            ZStack {
-                                Rectangle().fill(.ultraThinMaterial)
-                                if colorScheme != .dark {
-                                    Color.white.opacity(0.6)
-                                }
-                            }
-                        }
-                }
                 .habitAlerts(
-                    // РЕШЕНИЕ: Создаем явные байндинги для свойств viewModel
                     alertState: Binding<AlertState>(
                         get: { viewModel.alertState },
                         set: { viewModel.alertState = $0 }
@@ -150,17 +97,7 @@ struct HabitDetailView: View {
                     onDelete: {
                         viewModel.deleteHabit()
                         viewModel.alertState.isDeleteAlertPresented = false
-                    }
-                )
-                .freezeHabitAlert(
-                    // РЕШЕНИЕ: Создаем явный байндинг для freezeAlert
-                    isPresented: Binding<Bool>(
-                        get: { viewModel.alertState.isFreezeAlertPresented },
-                        set: { viewModel.alertState.isFreezeAlertPresented = $0 }
-                    ),
-                    onDismiss: {
-                        viewModel.isEditSheetPresented = false
-                        viewModel.alertState.isFreezeAlertPresented = false
+                        dismiss() // Возвращаемся назад при удалении
                     }
                 )
                 .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
@@ -178,6 +115,36 @@ struct HabitDetailView: View {
                 ProgressView()
             }
         }
+        .navigationTitle(habit.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    // Кнопка статистики
+                    Button {
+                        isStatisticsPresented = true
+                    } label: {
+                        Label("statistics".localized, systemImage: "chart.bar")
+                    }
+                    
+                    // Кнопка редактирования
+                    Button {
+                        isEditPresented = true
+                    } label: {
+                        Label("edit".localized, systemImage: "pencil")
+                    }
+                    
+                    // Кнопка удаления
+                    Button(role: .destructive) {
+                        viewModel?.alertState.isDeleteAlertPresented = true
+                    } label: {
+                        Label("delete".localized, systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                }
+            }
+        }
         .onAppear {
             setupViewModel()
         }
@@ -186,7 +153,29 @@ struct HabitDetailView: View {
             setupViewModel(with: newDate)
         }
         .onDisappear {
-            viewModel?.cleanup(stopTimer: false)
+            viewModel?.cleanup(stopTimer: false) // Не останавливаем таймер при уходе с экрана
+        }
+        // Добавляем sheet для статистики
+        .sheet(isPresented: $isStatisticsPresented) {
+            // Временный заглушка для статистики
+            NavigationStack {
+                Text("Здесь будет статистика привычки")
+                    .navigationTitle("habit_statistics".localized)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("close".localized) {
+                                isStatisticsPresented = false
+                            }
+                        }
+                    }
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
+        // Добавляем sheet для редактирования, используя ваш обновленный NewHabitView
+        .sheet(isPresented: $isEditPresented) {
+            NewHabitView(habit: habit)
         }
     }
     

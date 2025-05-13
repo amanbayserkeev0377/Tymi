@@ -30,9 +30,8 @@ struct WeeklyCalendarView: View {
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
         
-        let predicate = #Predicate<Habit> { !$0.isFreezed }
         let sortDescriptor = SortDescriptor<Habit>(\.createdAt, order: .forward)
-        _habits = Query(filter: predicate, sort: [sortDescriptor])
+        _habits = Query(sort: [sortDescriptor])
     }
     
     var body: some View {
