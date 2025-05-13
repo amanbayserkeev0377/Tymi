@@ -22,6 +22,9 @@ final class HabitDetailViewModel {
     // Прогресс для текущей даты
     private var habitProgress: HabitProgress
     
+    // Добавим новое свойство для локального таймера для прошлых дат
+    private var pastDateTimerService: PastDateTimerService?
+    
     // MARK: - UI State
     var isEditSheetPresented = false
     var alertState = AlertState()
@@ -114,7 +117,19 @@ final class HabitDetailViewModel {
            // Отменяем существующую задачу, если есть
            cancellables?.cancel()
            
-           // Для любой даты (включая прошлые) устанавливаем наблюдение за прогрессом
+           // Создаем локальный сервис для прошлых дат, если нужно
+           if !isTodayView && habit.type == .time {
+               pastDateTimerService = PastDateTimerService(
+                   initialProgress: habitProgress.value,
+                   habitId: habitId,
+                   onUpdate: { [weak self] in
+                       guard let self = self else { return }
+                       self.updateFromPastDateTimer()
+                   }
+               )
+           }
+           
+           // Для любой даты устанавливаем наблюдение за прогрессом
            cancellables = Task { [weak self, date] in
                guard let self = self else { return }
                
@@ -126,7 +141,7 @@ final class HabitDetailViewModel {
                        // Проверяем, что дата не изменилась
                        if self.date == observedDate {
                            if self.isTodayView && self.habit.type == .time {
-                               // Для сегодняшнего дня и таймеров обновляем прогресс из сервиса
+                               // Для сегодняшнего дня и таймеров обновляем прогресс из глобального сервиса
                                let newProgress = self.progressService.getCurrentProgress(for: self.habitId)
                                
                                // Обновляем UI только если есть изменения
@@ -148,13 +163,13 @@ final class HabitDetailViewModel {
                    }
                    
                    do {
-                       try await Task.sleep(for: .milliseconds(1000))  // Интервал 1 секунда
+                       try await Task.sleep(for: .milliseconds(1000))
                    } catch {
                        break
                    }
                }
            }
-       }
+        }
     
     // MARK: - Progress Management
     private func updateProgressMetrics() {
@@ -166,6 +181,28 @@ final class HabitDetailViewModel {
         currentProgress.formattedAsProgress(total: habit.goal) :
         currentProgress.formattedAsTime()
     }
+    
+    private func updateFromPastDateTimer() {
+            guard let pastService = pastDateTimerService else { return }
+            
+            // Получаем текущий прогресс из локального сервиса
+            let newProgress = pastService.getCurrentProgress(for: habitId)
+            
+            // Обновляем UI только если есть изменения
+            if currentProgress != newProgress {
+                currentProgress = newProgress
+                habitProgress.value = newProgress
+                habitProgress.isDirty = true
+                updateProgressMetrics()
+                hasChanges = true
+            }
+            
+            // Обновляем состояние таймера
+            let isRunning = pastService.isTimerRunning(for: habitId)
+            if isTimerRunning != isRunning {
+                isTimerRunning = isRunning
+            }
+        }
     
     func incrementProgress() {
         if habit.type == .count {
@@ -286,7 +323,7 @@ final class HabitDetailViewModel {
     // MARK: - Timer Management
     func toggleTimer() {
             if isTodayView {
-                // Для сегодняшнего дня используем реальный таймер
+                // Для сегодняшнего дня используем глобальный сервис таймера
                 if isTimerRunning {
                     isTimerRunning = false
                     progressService.stopTimer(for: habitId)
@@ -295,17 +332,22 @@ final class HabitDetailViewModel {
                     isTimerRunning = true
                     progressService.startTimer(for: habitId, initialProgress: habitProgress.value)
                 }
-            } else {
-                // Для прошлых дат симулируем работу таймера через модель HabitProgress
-                isTimerRunning = !isTimerRunning
-                
-                // Но в базу реально ничего не сохраняем, только отображаем в UI
-                // Реальные изменения будут только через addProgress
+            } else if habit.type == .time {
+                // Для прошлых дат используем локальный сервис таймера
+                if isTimerRunning {
+                    pastDateTimerService?.stopTimer(for: habitId)
+                    // isTimerRunning будет обновлен через callback
+                } else {
+                    pastDateTimerService?.startTimer(for: habitId, initialProgress: habitProgress.value)
+                    // isTimerRunning будет обновлен через callback
+                }
             }
             
             currentProgress = habitProgress.value
             habitProgress.isDirty = true
             hasChanges = true
+            
+            // Обязательно сохраняем изменения в базу
             saveProgress()
         }
     
@@ -431,53 +473,65 @@ final class HabitDetailViewModel {
     }
     
     func handleTimeInput() {
-        let hours = Int(alertState.hoursInputText) ?? 0
-        let minutes = Int(alertState.minutesInputText) ?? 0
-        
-        if hours == 0 && minutes == 0 {
-            alertState.errorFeedbackTrigger.toggle()
-            return
-        }
-        
-        let secondsToAdd = hours * 3600 + minutes * 60
-        
-        // Проверяем лимит
-        if habitProgress.value + secondsToAdd > Limits.maxTimeSeconds {
-            habitProgress.value = Limits.maxTimeSeconds
-            habitProgress.isDirty = true
-            currentProgress = Limits.maxTimeSeconds
+            let hours = Int(alertState.hoursInputText) ?? 0
+            let minutes = Int(alertState.minutesInputText) ?? 0
             
-            // Для сегодняшнего дня обновляем сервис
+            if hours == 0 && minutes == 0 {
+                alertState.errorFeedbackTrigger.toggle()
+                return
+            }
+            
+            let secondsToAdd = hours * 3600 + minutes * 60
+            
             if isTodayView {
+                // Для сегодняшнего дня используем глобальный сервис
                 if isTimerRunning {
                     progressService.stopTimer(for: habitId)
                 }
-                progressService.resetProgress(for: habitId)
-                progressService.addProgress(Limits.maxTimeSeconds, for: habitId)
+                
+                // Проверяем лимит
+                if habitProgress.value + secondsToAdd > Limits.maxTimeSeconds {
+                    habitProgress.value = Limits.maxTimeSeconds
+                    progressService.resetProgress(for: habitId)
+                    progressService.addProgress(Limits.maxTimeSeconds, for: habitId)
+                } else {
+                    habitProgress.value += secondsToAdd
+                    progressService.resetProgress(for: habitId)
+                    progressService.addProgress(habitProgress.value, for: habitId)
+                }
+            } else {
+                // Для прошлых дат используем локальный сервис или просто обновляем прогресс
+                if isTimerRunning && pastDateTimerService != nil {
+                    pastDateTimerService?.stopTimer(for: habitId)
+                }
+                
+                // Проверяем лимит
+                if habitProgress.value + secondsToAdd > Limits.maxTimeSeconds {
+                    habitProgress.value = Limits.maxTimeSeconds
+                    if pastDateTimerService != nil {
+                        pastDateTimerService?.resetProgress(for: habitId)
+                        pastDateTimerService?.addProgress(Limits.maxTimeSeconds, for: habitId)
+                    }
+                } else {
+                    habitProgress.value += secondsToAdd
+                    if pastDateTimerService != nil {
+                        pastDateTimerService?.resetProgress(for: habitId)
+                        pastDateTimerService?.addProgress(habitProgress.value, for: habitId)
+                    }
+                }
             }
-        } else {
-            habitProgress.value += secondsToAdd
-            habitProgress.isDirty = true
+            
             currentProgress = habitProgress.value
+            habitProgress.isDirty = true
             
-            // Для сегодняшнего дня обновляем сервис
-            if isTodayView {
-                if isTimerRunning {
-                    progressService.stopTimer(for: habitId)
-                }
-                progressService.resetProgress(for: habitId)
-                progressService.addProgress(currentProgress, for: habitId)
-            }
+            updateProgressMetrics()
+            hasChanges = true
+            saveProgress()
+            
+            // Сбрасываем поля ввода
+            alertState.hoursInputText = ""
+            alertState.minutesInputText = ""
         }
-        
-        updateProgressMetrics()
-        hasChanges = true
-        saveProgress()
-        
-        // Сбрасываем поля ввода
-        alertState.hoursInputText = ""
-        alertState.minutesInputText = ""
-    }
     
     // MARK: - Save Progress
     func saveProgress() {
@@ -536,22 +590,34 @@ final class HabitDetailViewModel {
         }
     }
     
-    func cleanup(stopTimer: Bool = true) { // Изменено на true по умолчанию
-        // Отменяем наблюдение
-        cancellables?.cancel()
-        cancellables = nil
-        
-        // Сохраняем прогресс если есть изменения
-        if hasChanges || habitProgress.isDirty {
-            saveProgress()
+    func cleanup(stopTimer: Bool = true) {
+            // Отменяем наблюдение
+            cancellables?.cancel()
+            cancellables = nil
+            
+            // Останавливаем локальный таймер для прошлых дат
+            if stopTimer && pastDateTimerService != nil {
+                for habitId in pastDateTimerService!.progressUpdates.keys {
+                    if pastDateTimerService!.isTimerRunning(for: habitId) {
+                        pastDateTimerService!.stopTimer(for: habitId)
+                    }
+                }
+                
+                // Обнуляем ссылку на сервис
+                pastDateTimerService = nil
+            }
+            
+            // Сохраняем прогресс если есть изменения
+            if hasChanges || habitProgress.isDirty {
+                saveProgress()
+            }
+            
+            // Очищаем callback
+            onHabitDeleted = nil
+            
+            // Останавливаем глобальный таймер при закрытии экрана (только для текущего дня)
+            if stopTimer && isTimerRunning && isTodayView {
+                progressService.stopTimer(for: habitId)
+            }
         }
-        
-        // Очищаем callback
-        onHabitDeleted = nil
-        
-        // Теперь всегда останавливаем таймер при закрытии экрана
-        if stopTimer && isTimerRunning && isTodayView {
-            progressService.stopTimer(for: habitId)
-        }
-    }
 }
