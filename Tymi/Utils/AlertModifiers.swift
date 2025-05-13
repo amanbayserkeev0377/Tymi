@@ -47,10 +47,11 @@ struct ResetProgressAlertModifier: ViewModifier {
 struct CountInputAlertModifier: ViewModifier {
     @Binding var isPresented: Bool
     @Binding var inputText: String
-    let progressService: ProgressTrackingService  // Изменено с timerService
+    let progressService: ProgressTrackingService
     let habitId: String
     @Binding var successTrigger: Bool
     @Binding var errorTrigger: Bool
+    let onCountInput: () -> Void
     
     func body(content: Content) -> some View {
         content
@@ -60,7 +61,8 @@ struct CountInputAlertModifier: ViewModifier {
                 Button("cancel".localized, role: .cancel) { }
                 Button("add".localized) {
                     if let count = Int(inputText) {
-                        progressService.addProgress(count, for: habitId)  // Используем progressService
+                        progressService.addProgress(count, for: habitId)
+                        onCountInput()
                         successTrigger.toggle()
                     } else {
                         errorTrigger.toggle()
@@ -78,10 +80,11 @@ struct TimeInputAlertModifier: ViewModifier {
     @Binding var isPresented: Bool
     @Binding var hoursText: String
     @Binding var minutesText: String
-    let progressService: ProgressTrackingService  // Изменено с timerService
+    let progressService: ProgressTrackingService
     let habitId: String
     @Binding var successTrigger: Bool
     @Binding var errorTrigger: Bool
+    let onTimeInput: () -> Void
     
     func body(content: Content) -> some View {
         content
@@ -101,21 +104,21 @@ struct TimeInputAlertModifier: ViewModifier {
                     
                     if isValidInput && totalSeconds > 0 {
                         // Вызываем метод обработки
-                        if progressService.isTimerRunning(for: habitId) {  // Используем progressService
-                            progressService.stopTimer(for: habitId)  // Используем progressService
+                        if progressService.isTimerRunning(for: habitId) {
+                            progressService.stopTimer(for: habitId)
                         }
                         
                         // Получаем текущий прогресс и проверяем лимит 24 часов
-                        let currentProgress = progressService.getCurrentProgress(for: habitId)  // Используем progressService
+                        let currentProgress = progressService.getCurrentProgress(for: habitId)
                         if currentProgress + totalSeconds > 86400 {
                             let remainingSeconds = 86400 - currentProgress
                             if remainingSeconds > 0 {
-                                progressService.addProgress(remainingSeconds, for: habitId)  // Используем progressService
+                                progressService.addProgress(remainingSeconds, for: habitId)
                             }
                         } else {
-                            progressService.addProgress(totalSeconds, for: habitId)  // Используем progressService
+                            progressService.addProgress(totalSeconds, for: habitId)
                         }
-                        
+                        onTimeInput()
                         successTrigger.toggle()
                     } else {
                         errorTrigger.toggle()
@@ -159,18 +162,20 @@ extension View {
     func countInputAlert(
         isPresented: Binding<Bool>,
         inputText: Binding<String>,
-        progressService: ProgressTrackingService,  // Изменено с timerService
+        progressService: ProgressTrackingService,
         habitId: String,
         successTrigger: Binding<Bool>,
-        errorTrigger: Binding<Bool>
+        errorTrigger: Binding<Bool>,
+        onCountInput: @escaping () -> Void
     ) -> some View {
         self.modifier(CountInputAlertModifier(
             isPresented: isPresented,
             inputText: inputText,
-            progressService: progressService,  // Изменено с timerService
+            progressService: progressService,
             habitId: habitId,
             successTrigger: successTrigger,
-            errorTrigger: errorTrigger
+            errorTrigger: errorTrigger,
+            onCountInput: onCountInput
         ))
     }
     
@@ -178,19 +183,21 @@ extension View {
         isPresented: Binding<Bool>,
         hoursText: Binding<String>,
         minutesText: Binding<String>,
-        progressService: ProgressTrackingService,  // Изменено с timerService
+        progressService: ProgressTrackingService,
         habitId: String,
         successTrigger: Binding<Bool>,
-        errorTrigger: Binding<Bool>
+        errorTrigger: Binding<Bool>,
+        onTimeInput: @escaping () -> Void
     ) -> some View {
         self.modifier(TimeInputAlertModifier(
             isPresented: isPresented,
             hoursText: hoursText,
             minutesText: minutesText,
-            progressService: progressService,  // Изменено с timerService
+            progressService: progressService,
             habitId: habitId,
             successTrigger: successTrigger,
-            errorTrigger: errorTrigger
+            errorTrigger: errorTrigger,
+            onTimeInput: onTimeInput
         ))
     }
     
@@ -203,9 +210,11 @@ extension View {
     func habitAlerts(
         alertState: Binding<AlertState>,
         habit: Habit,
-        progressService: ProgressTrackingService,  // Изменено с timerService
+        progressService: ProgressTrackingService,
         onReset: @escaping () -> Void,
-        onDelete: @escaping () -> Void
+        onDelete: @escaping () -> Void,
+        onCountInput: @escaping () -> Void,
+        onTimeInput: @escaping () -> Void
     ) -> some View {
         self
             .resetProgressAlert(isPresented: alertState.isResetAlertPresented, onReset: onReset)
@@ -213,19 +222,21 @@ extension View {
             .countInputAlert(
                 isPresented: alertState.isCountAlertPresented,
                 inputText: alertState.countInputText,
-                progressService: progressService,  // Изменено с timerService
+                progressService: progressService,
                 habitId: habit.uuid.uuidString,
                 successTrigger: alertState.successFeedbackTrigger,
-                errorTrigger: alertState.errorFeedbackTrigger
+                errorTrigger: alertState.errorFeedbackTrigger,
+                onCountInput: onCountInput
             )
             .timeInputAlert(
                 isPresented: alertState.isTimeAlertPresented,
                 hoursText: alertState.hoursInputText,
                 minutesText: alertState.minutesInputText,
-                progressService: progressService,  // Изменено с timerService
+                progressService: progressService,
                 habitId: habit.uuid.uuidString,
                 successTrigger: alertState.successFeedbackTrigger,
-                errorTrigger: alertState.errorFeedbackTrigger
+                errorTrigger: alertState.errorFeedbackTrigger,
+                onTimeInput: onTimeInput
             )
     }
 }

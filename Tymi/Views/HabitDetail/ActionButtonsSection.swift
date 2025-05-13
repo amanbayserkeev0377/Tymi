@@ -28,7 +28,11 @@ struct ActionButtonsSection: View {
             // Timer/Toggle button
             Button(action: {
                 togglePressed.toggle()
-                onTimerToggle()
+                if habit.type == .time {
+                    onTimerToggle()
+                } else {
+                    onTimerToggle()
+                }
             }) {
                 if habit.type == .time {
                     Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")

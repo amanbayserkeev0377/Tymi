@@ -125,9 +125,10 @@ final class Habit {
     // Get progress for specific date
     func progressForDate(_ date: Date) -> Int {
         let calendar = Calendar.current
-        return completions
-            .filter { calendar.isDate($0.date, inSameDayAs: date) }
-            .reduce(0) { $0 + $1.value }
+        let filteredCompletions = completions.filter { calendar.isDate($0.date, inSameDayAs: date) }
+        
+        let total = filteredCompletions.reduce(0) { $0 + $1.value }
+        return total
     }
     
     // FormattedProgress

@@ -44,22 +44,31 @@ extension ProgressTrackingService {
     func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date = .now) {
         let currentProgress = getCurrentProgress(for: habitId)
         
-        guard currentProgress > 0 else { return }
+        guard currentProgress > 0 else {
+            return
+        }
         
         // Используем отдельный Task для сохранения, чтобы не блокировать UI
         Task { @MainActor in
             do {
-                guard let uuid = UUID(uuidString: habitId) else { return }
+                guard let uuid = UUID(uuidString: habitId) else {
+                    return
+                }
                 
                 // Ищем привычку с минимальным запросом
                 let descriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.uuid == uuid })
                 let habits = try modelContext.fetch(descriptor)
                 
-                guard let habit = habits.first else { return }
+                guard let habit = habits.first else {
+                    return
+                }
                 
                 // Проверяем, изменился ли прогресс, чтобы избежать лишних обновлений
                 let existingProgress = habit.progressForDate(date)
-                if currentProgress == existingProgress { return }
+                
+                if currentProgress == existingProgress {
+                    return
+                }
                 
                 // Группируем операции удаления и добавления с try
                 try modelContext.transaction {
@@ -67,6 +76,7 @@ extension ProgressTrackingService {
                     let oldCompletions = habit.completions.filter {
                         Calendar.current.isDate($0.date, inSameDayAs: date)
                     }
+                    
                     
                     for completion in oldCompletions {
                         modelContext.delete(completion)
@@ -85,7 +95,7 @@ extension ProgressTrackingService {
                 
                 try modelContext.save()
             } catch {
-                print("Ошибка сохранения прогресса: \(error)")
+                print("DEBUG: Error persisting progress: \(error)")
             }
         }
     }

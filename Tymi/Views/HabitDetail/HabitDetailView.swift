@@ -105,6 +105,14 @@ struct HabitDetailView: View {
                         } else {
                             dismiss()
                         }
+                    },
+                    onCountInput: {
+                        viewModel.handleCountInput()
+                        viewModel.alertState.isCountAlertPresented = false
+                    },
+                    onTimeInput: {
+                        viewModel.handleTimeInput()
+                        viewModel.alertState.isTimeAlertPresented = false
                     }
                 )
                 .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
