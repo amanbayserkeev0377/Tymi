@@ -47,13 +47,15 @@ struct TymiApp: App {
             case .background:
                 // Сохраняем данные при уходе в фон
                 Task {
+                    // Таймер автоматически сохранится в handleBackground,
+                    // но на всякий случай сохраняем и в SwiftData
                     HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
                     HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
                 }
                 
             case .active:
-                // Запускаем таймер при возвращении, если он был активен
-                break
+                // При возвращении в активное состояние обновляем UI
+                habitsUpdateService.triggerUpdate()
                 
             case .inactive:
                 // Сохраняем данные при неактивном состоянии

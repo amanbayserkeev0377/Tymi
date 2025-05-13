@@ -16,8 +16,10 @@ struct HabitDetailView: View {
     // MARK: - State Properties
     @State private var viewModel: HabitDetailViewModel?
     @State private var isContentReady = false
-    @State private var navigateToStatistics = false // Вместо isStatisticsPresented
+    @State private var navigateToStatistics = false
     @State private var isEditPresented = false
+    @State private var isTimerStopAlertPresented = false
+    @State private var isManuallyDismissing = false
     
     // MARK: - Body
     var body: some View {
@@ -123,6 +125,15 @@ struct HabitDetailView: View {
         .navigationTitle(habit.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            // Кнопка "Закрыть" только если таймер активен
+            ToolbarItem(placement: .cancellationAction) {
+                if viewModel?.isTimerRunning == true {
+                    Button("close".localized) {
+                        isTimerStopAlertPresented = true
+                    }
+                }
+            }
+            
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     if let onShowStats = onShowStats {
@@ -164,14 +175,28 @@ struct HabitDetailView: View {
             setupViewModel(with: newDate)
         }
         .onDisappear {
-            // Сохраняем изменения и выполняем очистку
-            viewModel?.saveIfNeeded()
-            viewModel?.cleanup(stopTimer: false) // Не останавливаем таймер при уходе с экрана
+            if !isManuallyDismissing {
+                viewModel?.saveIfNeeded()
+                viewModel?.cleanup(stopTimer: true)
+            }
+        }
+        .alert("close_detail_view".localized, isPresented: $isTimerStopAlertPresented) {
+            Button("cancel".localized, role: .cancel) { }
+            Button("stop_and_exit".localized, role: .destructive) {
+                isManuallyDismissing = true
+                viewModel?.saveIfNeeded()
+                viewModel?.cleanup(stopTimer: true)
+                dismiss()
+            }
+        } message: {
+            Text("stop_timer_message".localized)
         }
         // Добавляем sheet для редактирования
         .sheet(isPresented: $isEditPresented) {
             NewHabitView(habit: habit)
         }
+        // Блокируем интерактивное закрытие при активном таймере
+        .interactiveDismissDisabled(viewModel?.isTimerRunning == true)
     }
     
     // MARK: - Helper Methods
