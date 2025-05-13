@@ -473,16 +473,8 @@ final class HabitDetailViewModel {
             isTimerRunning = false
         }
         
-        // Получаем текущий прогресс из базы данных и сервиса
-        let currentProgressFromDB = habit.progressForDate(date)
-        let currentProgressFromService = progressService.getCurrentProgress(for: habitId)
-        
-        // Используем большее из значений
-        var currentProgress = max(currentProgressFromDB, currentProgressFromService)
-        
-        // Обновляем локальные значения
-        habitProgress.value = currentProgress
-        self.currentProgress = currentProgress
+        // ВАЖНОЕ ИЗМЕНЕНИЕ: Не добавляем прогресс здесь напрямую,
+        // просто обновляем локальные значения
         
         // Проверяем лимит
         if habitProgress.value + secondsToAdd > Limits.maxTimeSeconds {
@@ -493,9 +485,11 @@ final class HabitDetailViewModel {
                 habitProgress.isDirty = true
                 currentProgress = Limits.maxTimeSeconds
                 
-                // Обновляем сервис
-                progressService.resetProgress(for: habitId)
-                progressService.addProgress(currentProgress, for: habitId)
+                // Обновляем сервис (здесь сбрасываем и устанавливаем новое значение)
+                if isTodayView {
+                    progressService.resetProgress(for: habitId)
+                    progressService.addProgress(Limits.maxTimeSeconds, for: habitId)
+                }
                 
                 updateProgressMetrics()
                 hasChanges = true
@@ -508,9 +502,11 @@ final class HabitDetailViewModel {
             habitProgress.isDirty = true
             currentProgress = habitProgress.value
             
-            // Обновляем сервис
-            progressService.resetProgress(for: habitId)
-            progressService.addProgress(currentProgress, for: habitId)
+            // Обновляем сервис (здесь сбрасываем и устанавливаем новое значение)
+            if isTodayView {
+                progressService.resetProgress(for: habitId)
+                progressService.addProgress(habitProgress.value, for: habitId)
+            }
             
             updateProgressMetrics()
             hasChanges = true

@@ -95,37 +95,8 @@ struct TimeInputAlertModifier: ViewModifier {
                     .keyboardType(.numberPad)
                 Button("cancel".localized, role: .cancel) { }
                 Button("add".localized) {
-                    let hours = Int(hoursText) ?? 0
-                    let minutes = Int(minutesText) ?? 0
-                    let totalSeconds = hours * 3600 + minutes * 60
-                    
-                    // Проверяем валидность ввода
-                    let isValidInput = (hours > 0 || minutes > 0) && hours < 25 && minutes < 60
-                    
-                    if isValidInput && totalSeconds > 0 {
-                        // Вызываем метод обработки
-                        if progressService.isTimerRunning(for: habitId) {
-                            progressService.stopTimer(for: habitId)
-                        }
-                        
-                        // Получаем текущий прогресс и проверяем лимит 24 часов
-                        let currentProgress = progressService.getCurrentProgress(for: habitId)
-                        if currentProgress + totalSeconds > 86400 {
-                            let remainingSeconds = 86400 - currentProgress
-                            if remainingSeconds > 0 {
-                                progressService.addProgress(remainingSeconds, for: habitId)
-                            }
-                        } else {
-                            progressService.addProgress(totalSeconds, for: habitId)
-                        }
-                        onTimeInput()
-                        successTrigger.toggle()
-                    } else {
-                        errorTrigger.toggle()
-                    }
-                    
-                    hoursText = ""
-                    minutesText = ""
+                    // Передаем управление в ViewModel, где должна быть вся логика
+                    onTimeInput()
                 }
             } message: {
                 Text("enter_time_spent".localized)
