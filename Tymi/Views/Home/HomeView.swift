@@ -13,6 +13,8 @@ struct HomeView: View {
     
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
+    @State private var selectedHabit: Habit? = nil
+    @State private var selectedHabitForStats: Habit? = nil
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -63,16 +65,14 @@ struct HomeView: View {
                                 if hasHabitsForDate {
                                     VStack(spacing: 12) {
                                         ForEach(activeHabitsForDate) { habit in
-                                            // Заменяем на NavigationLink
-                                            NavigationLink(value: habit) {
-                                                HabitRowView(
-                                                    habit: habit,
-                                                    date: selectedDate,
-                                                    onTap: { } // onTap больше не нужен
-                                                )
-                                                .id(habit.uuid)
-                                            }
-                                            .buttonStyle(.plain)
+                                            HabitRowView(
+                                                habit: habit,
+                                                date: selectedDate,
+                                                onTap: {
+                                                    selectedHabit = habit
+                                                }
+                                            )
+                                            .id(habit.uuid)
                                         }
                                     }
                                     .padding(.top, 12)
@@ -94,13 +94,6 @@ struct HomeView: View {
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
             .navigationBarTitleDisplayMode(.inline)
-            // Добавляем navigationDestination для навигации к HabitDetailView
-            .navigationDestination(for: Habit.self) { habit in
-                HabitDetailView(
-                    habit: habit,
-                    date: selectedDate
-                )
-            }
             .safeAreaInset(edge: .top, spacing: 0) {
                 WeeklyCalendarView(selectedDate: $selectedDate)
             }
@@ -143,6 +136,29 @@ struct HomeView: View {
                 NavigationStack {
                     NewHabitView()
                 }
+            }
+            .sheet(item: $selectedHabit) { habit in
+                NavigationStack {
+                    HabitDetailView(
+                        habit: habit,
+                        date: selectedDate,
+                        onDelete: {
+                            selectedHabit = nil
+                        },
+                        onShowStats: {
+                            selectedHabit = nil
+                            selectedHabitForStats = habit
+                        }
+                    )
+                }
+                .presentationDetents([.fraction(0.7)])
+                .presentationDragIndicator(.visible)
+            }
+            .sheet(item: $selectedHabitForStats) { habit in
+                NavigationStack {
+                    HabitStatisticsView(habit: habit)
+                }
+                .presentationDragIndicator(.visible)
             }
             .onChange(of: selectedDate) { _, _ in
                 habitsUpdateService.triggerUpdate()

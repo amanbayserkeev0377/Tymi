@@ -6,6 +6,7 @@ struct HabitDetailView: View {
     let habit: Habit
     let date: Date
     var onDelete: (() -> Void)?
+    var onShowStats: (() -> Void)?
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
@@ -15,7 +16,7 @@ struct HabitDetailView: View {
     // MARK: - State Properties
     @State private var viewModel: HabitDetailViewModel?
     @State private var isContentReady = false
-    @State private var isStatisticsPresented = false
+    @State private var navigateToStatistics = false // Вместо isStatisticsPresented
     @State private var isEditPresented = false
     
     // MARK: - Body
@@ -97,7 +98,11 @@ struct HabitDetailView: View {
                     onDelete: {
                         viewModel.deleteHabit()
                         viewModel.alertState.isDeleteAlertPresented = false
-                        dismiss() // Возвращаемся назад при удалении
+                        if let onDelete = onDelete {
+                            onDelete()
+                        } else {
+                            dismiss()
+                        }
                     }
                 )
                 .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
@@ -119,14 +124,18 @@ struct HabitDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    // Кнопка статистики
-                    Button {
-                        isStatisticsPresented = true
-                    } label: {
-                        Label("statistics".localized, systemImage: "chart.bar")
+                Button {
+                    if let onShowStats = onShowStats {
+                        onShowStats()
                     }
-                    
+                } label: {
+                    Image(systemName: "chart.bar")
+                }
+            }
+            
+            // Меню с действиями справа
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
                     // Кнопка редактирования
                     Button {
                         isEditPresented = true
@@ -155,25 +164,7 @@ struct HabitDetailView: View {
         .onDisappear {
             viewModel?.cleanup(stopTimer: false) // Не останавливаем таймер при уходе с экрана
         }
-        // Добавляем sheet для статистики
-        .sheet(isPresented: $isStatisticsPresented) {
-            // Временный заглушка для статистики
-            NavigationStack {
-                Text("Здесь будет статистика привычки")
-                    .navigationTitle("habit_statistics".localized)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("close".localized) {
-                                isStatisticsPresented = false
-                            }
-                        }
-                    }
-            }
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
-        }
-        // Добавляем sheet для редактирования, используя ваш обновленный NewHabitView
+        // Добавляем sheet для редактирования
         .sheet(isPresented: $isEditPresented) {
             NewHabitView(habit: habit)
         }
