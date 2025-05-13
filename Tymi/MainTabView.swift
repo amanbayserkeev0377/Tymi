@@ -6,7 +6,7 @@ struct MainTabView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            // Вкладка "Главная"
+            // Home
             NavigationStack {
                 HomeView()
             }
@@ -15,7 +15,7 @@ struct MainTabView: View {
             }
             .tag(0)
             
-            // Вкладка "Привычки"
+            // Statistics
             NavigationStack {
                 StatisticsView()
             }
@@ -24,7 +24,7 @@ struct MainTabView: View {
             }
             .tag(1)
             
-            // Вкладка "Настройки"
+            // Settings
             NavigationStack {
                 SettingsView()
             }

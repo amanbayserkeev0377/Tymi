@@ -8,10 +8,6 @@ struct DayProgressItem: View, Equatable {
     
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @AppStorage("firstDayOfWeek") private var firstDayOfWeek: Int = 0
-    
-    // Статический кэш для цветов
-    private static var colorCache: [String: [Color]] = [:]
     
     private var calendar: Calendar {
         return Calendar.userPreferred
@@ -30,53 +26,39 @@ struct DayProgressItem: View, Equatable {
     }
     
     private var isValidDate: Bool {
-        date <= Date().addingTimeInterval(86400 * 365) // Не более года в будущем
+        date <= Date().addingTimeInterval(86400 * 365)
     }
     
-    private var progressColors: [Color] {
-        // Создаем ключ кэша
-        let cacheKey = progress >= 1.0 ? "completed" : (progress > 0 ? "inprogress" : "none")
-        
-        // Проверяем кэш
-        if let cachedColors = Self.colorCache[cacheKey] {
-            return cachedColors
-        }
-        
-        // Создаем новые цвета
-        let colors: [Color]
+    private var progressColor: Color {
         if progress >= 1.0 {
-            colors = [
-                Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1)),
-                Color(#colorLiteral(red: 0.1803921569, green: 0.5450980392, blue: 0.3411764706, alpha: 1)),
-                Color(#colorLiteral(red: 0.8196078431, green: 1, blue: 0.8352941176, alpha: 1)),
-                Color(#colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1)),
-                Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
-            ]
+            return Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
         } else if progress > 0 {
-            colors = [
-                Color(#colorLiteral(red: 0.9411764741, green: 0.4980392158, blue: 0.3529411852, alpha: 1)),
-                Color(#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)),
-                Color(#colorLiteral(red: 1, green: 0.8805306554, blue: 0.5692787766, alpha: 1)),
-                Color(#colorLiteral(red: 1, green: 0.6470588235, blue: 0, alpha: 1)),
-                Color(#colorLiteral(red: 0.9411764741, green: 0.4980392158, blue: 0.3529411852, alpha: 1))
-            ]
+            return Color(#colorLiteral(red: 1, green: 0.3806057187, blue: 0.1013509959, alpha: 1))
         } else {
-            colors = [Color.gray.opacity(0.3)]
+            return Color.gray.opacity(0.3)
         }
-        
-        // Сохраняем в кэше
-        Self.colorCache[cacheKey] = colors
-        return colors
     }
     
+    // Размеры для разных значений dynamic type
     private var circleSize: CGFloat {
         switch dynamicTypeSize {
-        case .accessibility5: return 44
-        case .accessibility4: return 40
-        case .accessibility3: return 38
-        case .accessibility2: return 36
-        case .accessibility1: return 34
-        default: return 32
+        case .accessibility5: return 40
+        case .accessibility4: return 38
+        case .accessibility3: return 36
+        case .accessibility2: return 34
+        case .accessibility1: return 32
+        default: return 30
+        }
+    }
+    
+    private var lineWidth: CGFloat {
+        switch dynamicTypeSize {
+        case .accessibility5, .accessibility4, .accessibility3:
+            return 4.0
+        case .accessibility2, .accessibility1:
+            return 3.8
+        default:
+            return 3.5  // Увеличиваем с 2.5 до 3.5 для более заметных кругов
         }
     }
     
@@ -84,62 +66,69 @@ struct DayProgressItem: View, Equatable {
         switch dynamicTypeSize {
         case .accessibility5: return 17
         case .accessibility4: return 16
-        case .accessibility3: return 15.5
-        case .accessibility2: return 15
-        case .accessibility1: return 14.5
-        default: return 14
+        case .accessibility3: return 15
+        case .accessibility2: return 14
+        case .accessibility1: return 13.5
+        default: return 13
+        }
+    }
+    
+    // Цвет текста для дня
+    private var dayTextColor: Color {
+        if isToday {
+            return .orange // Сегодняшний день всегда оранжевый
+        } else if isSelected {
+            return .primary // Выбранный день primary
+        } else if isFutureDate {
+            return .secondary.opacity(0.6) // Будущие дни серые и прозрачные
+        } else {
+            return .secondary // Остальные дни серые
+        }
+    }
+    
+    // Вес шрифта
+    private var fontWeight: Font.Weight {
+        if isSelected {
+            return .bold // Выбранный день bold
+        } else {
+            return .regular // Остальные regular
         }
     }
     
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
+                // Круг прогресса и число
                 ZStack {
-                    Group {
-                        if !isFutureDate {
-                            Circle()
-                                .stroke(Color.secondary.opacity(0.1), lineWidth: 4)
-                            
-                            Circle()
-                                .trim(from: 0, to: progress)
-                                .stroke(
-                                    AngularGradient(
-                                        colors: progressColors,
-                                        center: .center,
-                                        startAngle: .degrees(0),
-                                        endAngle: .degrees(360)
-                                    ),
-                                    style: StrokeStyle(
-                                        lineWidth: 4,
-                                        lineCap: .round
-                                    )
+                    if !isFutureDate {
+                        Circle()
+                            .stroke(Color.secondary.opacity(0.15), lineWidth: lineWidth)
+                        
+                        Circle()
+                            .trim(from: 0, to: progress)
+                            .stroke(
+                                progressColor,
+                                style: StrokeStyle(
+                                    lineWidth: lineWidth,
+                                    lineCap: .round
                                 )
-                                .rotationEffect(.degrees(-90))
-                        }
+                            )
+                            .rotationEffect(.degrees(-90))
                     }
-                    .frame(width: circleSize, height: circleSize)
                     
-                    if isFutureDate {
-                        Text(dayNumber)
-                            .font(.system(size: fontSize, weight: .regular))
-                            .foregroundStyle(.secondary)
-                    } else if isToday {
-                        Text(dayNumber)
-                            .font(.system(size: fontSize, weight: .bold))
-                            .foregroundColor(Color.orange)
-                    } else {
-                        Text(dayNumber)
-                            .font(.system(size: fontSize, weight: isSelected ? .bold : .regular))
-                            .foregroundStyle(isSelected ? .primary : .secondary)
-                    }
+                    // Число дня месяца
+                    Text(dayNumber)
+                        .font(.system(size: fontSize, weight: fontWeight))
+                        .foregroundColor(dayTextColor)
                 }
+                .frame(width: circleSize, height: circleSize)
                 
+                // Индикатор выбранного дня (точка под числом)
                 Circle()
-                    .fill(isToday ? Color.orange : Color.primary)
-                    .frame(width: 5, height: 5)
-                    .opacity((isSelected && !isFutureDate) ? 1 : 0)
+                    .fill(isToday ? Color.orange : Color.primary) // Цвет точки
+                    .frame(width: 4, height: 4)
+                    .opacity(isSelected ? 1 : 0) // Показывать только для выбранного дня
             }
-            .frame(width: 44, height: circleSize + 24)
             .opacity(isFutureDate ? 0.6 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())

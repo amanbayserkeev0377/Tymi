@@ -93,7 +93,7 @@ struct HomeView: View {
                 }
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .safeAreaInset(edge: .top, spacing: 0) {
                 WeeklyCalendarView(selectedDate: $selectedDate)
             }

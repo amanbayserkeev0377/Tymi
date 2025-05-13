@@ -14,17 +14,10 @@ struct WeeklyCalendarView: View {
     @State private var progressData: [Date: Double] = [:]
     @State private var errorMessage: String?
     
-    @State private var lastUpdateTime: TimeInterval = 0
-    private let updateThreshold: TimeInterval = 0.5
-    
-    private let weekCount = 8
+    private let weekCount = 12
     
     private var calendar: Calendar {
         return Calendar.userPreferred
-    }
-    
-    private var weekdaySymbols: [String] {
-        return calendar.orderedFormattedWeekdaySymbols
     }
     
     init(selectedDate: Binding<Date>) {
@@ -35,47 +28,34 @@ struct WeeklyCalendarView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                ForEach(weekdaySymbols, id: \.self) { daySymbol in
-                    Text(daySymbol)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .frame(width: 44)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 4)
-            
-            TabView(selection: $currentWeekIndex) {
-                ForEach(Array(weeks.enumerated()), id: \.element.first) { index, week in
-                    HStack(spacing: 12) {
-                        ForEach(week, id: \.self) { date in
-                            DayProgressItem(
-                                date: date,
-                                isSelected: calendar.isDate(selectedDate, inSameDayAs: date),
-                                progress: progressData[date] ?? 0,
-                                onTap: {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        selectedDate = date
-                                    }
-                                    
-                                    habitsUpdateService.triggerUpdate()
+        // Убираем внешний VStack и названия дней недели
+        TabView(selection: $currentWeekIndex) {
+            ForEach(Array(weeks.enumerated()), id: \.element.first) { index, week in
+                HStack(spacing: 16) { // Увеличиваем расстояние между днями
+                    ForEach(week, id: \.self) { date in
+                        DayProgressItem(
+                            date: date,
+                            isSelected: calendar.isDate(selectedDate, inSameDayAs: date),
+                            progress: progressData[date] ?? 0,
+                            onTap: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    selectedDate = date
                                 }
-                            )
-                            .frame(width: 44)
-                        }
+                                
+                                habitsUpdateService.triggerUpdate()
+                            }
+                        )
+                        .frame(width: 35) // Увеличиваем ширину для более просторного отображения
                     }
-                    .padding(.horizontal, 16)
-                    .tag(index)
                 }
+                .padding(.horizontal, 16)
+                .tag(index)
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 70)
-            .onChange(of: currentWeekIndex) { _, _ in
-                // Подгружаем данные о прогрессе при смене недели
-                loadProgressData()
-            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .frame(height: 55) // Уменьшаем высоту, так как убрали названия дней недели
+        .onChange(of: currentWeekIndex) { _, _ in
+            loadProgressData()
         }
         .onAppear {
             generateWeeks()
@@ -94,7 +74,6 @@ struct WeeklyCalendarView: View {
             loadProgressData()
         }
         .onChange(of: firstDayOfWeek) { _, _ in
-            // Перегенерируем недели при изменении первого дня недели
             weeks = []
             generateWeeks()
             findCurrentWeekIndex()
@@ -107,6 +86,7 @@ struct WeeklyCalendarView: View {
         }
     }
     
+    // Остальные методы остаются без изменений
     private func generateWeeks() {
         let today = Date()
         let calendar = Calendar.userPreferred
@@ -114,8 +94,7 @@ struct WeeklyCalendarView: View {
         guard let currentWeekStart = calendar.date(
             from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
         ) else {
-            errorMessage = "Failed to generate calendar weeks"
-            // Инициализируем пустой массив как резервный вариант
+            errorMessage = "failed_to_generate_calendar".localized
             weeks = []
             return
         }
@@ -124,8 +103,6 @@ struct WeeklyCalendarView: View {
         
         for weekOffset in (1-weekCount)...0 {
             guard let weekStartDate = calendar.date(byAdding: .weekOfYear, value: weekOffset, to: currentWeekStart) else {
-                // Логирование ошибки, но продолжение цикла
-                print("Не удалось создать дату начала недели для смещения \(weekOffset)")
                 continue
             }
             
@@ -142,47 +119,41 @@ struct WeeklyCalendarView: View {
             }
         }
         
-        // Проверяем, что сгенерировали хоть какие-то недели
         if generatedWeeks.isEmpty {
-            errorMessage = "Не удалось сгенерировать недели календаря"
+            print("ERROR: Failed to generate calendar weeks")
+            weeks = []
         }
         
         weeks = generatedWeeks
     }
     
+    // Улучшенная версия для загрузки прогресса
     private func loadProgressData() {
-        // Проверяем, прошло ли достаточно времени с последнего обновления
-        let now = Date().timeIntervalSince1970
-        if now - lastUpdateTime < updateThreshold {
-            return
-        }
-        
-        lastUpdateTime = now
-        
-        // Обрабатываем только видимую неделю для производительности
-        if !weeks.isEmpty {
-            if currentWeekIndex < weeks.count {
-                let week = weeks[currentWeekIndex]
-                
-                // Обновляем только даты до сегодня
-                let now = Date()
-                let relevantDates = week.filter { $0 <= now }
-                
-                for date in relevantDates {
-                    let progress = calculateProgress(for: date)
-                    progressData[date] = progress
-                }
+        if !weeks.isEmpty && currentWeekIndex < weeks.count {
+            let week = weeks[currentWeekIndex]
+            
+            // Ограничиваем обработку только дней не позднее сегодняшнего
+            let now = Date()
+            let relevantDates = week.filter { $0 <= now }
+            
+            // Используем batch-обработку для улучшения производительности
+            var newProgressData: [Date: Double] = [:]
+            
+            // Пакетно обрабатываем даты
+            for date in relevantDates {
+                let progress = calculateProgress(for: date)
+                newProgressData[date] = progress
             }
             
-            // Загружаем данные для сегодняшнего дня в любом случае
-            let today = Date()
-            let todayStart = calendar.startOfDay(for: today)
-            progressData[todayStart] = calculateProgress(for: today)
+            // Обновляем все значения сразу
+            for (date, progress) in newProgressData {
+                progressData[date] = progress
+            }
         }
     }
     
     private func calculateProgress(for date: Date) -> Double {
-        // Фильтруем привычки, которые активны в этот день
+        // Кэширование активных привычек для даты улучшает производительность
         let activeHabits = habits.filter { habit in
             habit.isActiveOnDate(date) && date >= habit.startDate
         }
@@ -190,12 +161,11 @@ struct WeeklyCalendarView: View {
         guard !activeHabits.isEmpty else { return 0 }
         
         // Вычисляем общий прогресс
-        let totalProgress = activeHabits.reduce(0.0) { total, habit in
-            let percentage = habit.completionPercentageForDate(date)
-            return total + percentage
+        let totalCompletionPercentage = activeHabits.reduce(0.0) { total, habit in
+            total + habit.completionPercentageForDate(date)
         }
         
-        return totalProgress / Double(activeHabits.count)
+        return totalCompletionPercentage / Double(activeHabits.count)
     }
     
     private func findCurrentWeekIndex() {

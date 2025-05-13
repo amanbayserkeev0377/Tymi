@@ -769,6 +769,17 @@
         }
       }
     },
+    "failed_to_generate_calendar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to generate calendar"
+          }
+        }
+      }
+    },
     "frozen_habit_info" : {
       "extractionState" : "manual",
       "localizations" : {

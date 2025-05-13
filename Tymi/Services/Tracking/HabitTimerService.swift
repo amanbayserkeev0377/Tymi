@@ -73,39 +73,24 @@ final class HabitTimerService: ProgressTrackingService {
         // Отменяем существующую задачу, если она есть
         timerTasks[habitId]?.cancel()
         
-        // Создаем новую задачу для этого таймера
+        // Создаем новую задачу
         timerTasks[habitId] = Task { [weak self] in
             guard let self = self else { return }
             
-            do {
-                // Начальное время и прогресс
-                let startTime = self.activeTimers[habitId] ?? Date()
-                let initialProgress = self.progressUpdates[habitId] ?? 0
-                
-                // Для точного отслеживания обновлений
-                var lastElapsed = 0
-                
-                while !Task.isCancelled && self.activeTimers[habitId] != nil {
-                    // Проверяем текущее время
+            // Используем более простой подход с регулярным обновлением
+            let startTime = self.activeTimers[habitId] ?? Date()
+            let initialProgress = self.progressUpdates[habitId] ?? 0
+            
+            while !Task.isCancelled && self.activeTimers[habitId] != nil {
+                // Обновляем только на главном потоке
+                await MainActor.run {
                     let now = Date()
-                    let totalElapsed = Int(now.timeIntervalSince(startTime))
-                    
-                    // Обновляем только когда elapsed изменился
-                    if totalElapsed > lastElapsed {
-                        // Обновляем на главном потоке
-                        await MainActor.run {
-                            self.progressUpdates[habitId] = initialProgress + totalElapsed
-                        }
-                        lastElapsed = totalElapsed
-                    }
-                    
-                    // Ждем короткое время для следующей проверки
-                    // Используем более короткий интервал, чтобы не пропустить изменение секунды
-                    try await Task.sleep(for: .milliseconds(50))
+                    let elapsed = Int(now.timeIntervalSince(startTime))
+                    self.progressUpdates[habitId] = initialProgress + elapsed
                 }
-            } catch {
-                // Задача отменена или произошла ошибка
-                print("Timer task cancelled or error: \(error)")
+                
+                // Более редкие обновления для снижения нагрузки
+                try? await Task.sleep(for: .milliseconds(250))
             }
         }
     }
@@ -268,55 +253,6 @@ final class HabitTimerService: ProgressTrackingService {
             for habitId in activeTimers.keys {
                 startTimerTask(for: habitId)
             }
-        }
-    }
-    
-    // MARK: - SwiftData Integration
-    
-    func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date = .now) {
-        let currentProgress = getCurrentProgress(for: habitId)
-        
-        guard currentProgress > 0 else { return }
-        
-        do {
-            // Находим привычку по UUID
-            guard let uuid = UUID(uuidString: habitId) else { return }
-            
-            let descriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.uuid == uuid })
-            let habits = try modelContext.fetch(descriptor)
-            
-            guard let habit = habits.first else { return }
-            
-            let existingProgress = habit.progressForDate(date)
-            
-            // Если прогресс не изменился - выходим
-            if currentProgress == existingProgress { return }
-            
-            // Удаляем все старые записи за этот день
-            let oldCompletions = habit.completions.filter {
-                Calendar.current.isDate($0.date, inSameDayAs: date)
-            }
-            
-            for completion in oldCompletions {
-                modelContext.delete(completion)
-            }
-            
-            // Добавляем новую запись
-            if currentProgress > 0 {
-                let newCompletion = HabitCompletion(date: date, value: currentProgress, habit: habit)
-                habit.completions.append(newCompletion)
-            }
-            
-            try modelContext.save()
-        } catch {
-            print("Ошибка сохранения прогресса: \(error)")
-        }
-    }
-    
-    func persistAllCompletionsToSwiftData(modelContext: ModelContext) {
-        // Сохраняем все таймеры с ненулевым прогрессом
-        for (habitId, _) in progressUpdates {
-            persistCompletions(for: habitId, in: modelContext, date: Date())
         }
     }
 }

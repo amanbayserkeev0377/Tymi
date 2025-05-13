@@ -39,3 +39,61 @@ protocol ProgressTrackingServiceProvider {
     /// Получение сервиса для привычки
     static func getService(for habit: Habit) -> ProgressTrackingService
 }
+
+extension ProgressTrackingService {
+    func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date = .now) {
+        let currentProgress = getCurrentProgress(for: habitId)
+        
+        guard currentProgress > 0 else { return }
+        
+        // Используем отдельный Task для сохранения, чтобы не блокировать UI
+        Task { @MainActor in
+            do {
+                guard let uuid = UUID(uuidString: habitId) else { return }
+                
+                // Ищем привычку с минимальным запросом
+                let descriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.uuid == uuid })
+                let habits = try modelContext.fetch(descriptor)
+                
+                guard let habit = habits.first else { return }
+                
+                // Проверяем, изменился ли прогресс, чтобы избежать лишних обновлений
+                let existingProgress = habit.progressForDate(date)
+                if currentProgress == existingProgress { return }
+                
+                // Группируем операции удаления и добавления с try
+                try modelContext.transaction {
+                    // Удаляем старые записи за этот день
+                    let oldCompletions = habit.completions.filter {
+                        Calendar.current.isDate($0.date, inSameDayAs: date)
+                    }
+                    
+                    for completion in oldCompletions {
+                        modelContext.delete(completion)
+                    }
+                    
+                    // Добавляем новую запись
+                    if currentProgress > 0 {
+                        let newCompletion = HabitCompletion(
+                            date: date,
+                            value: currentProgress,
+                            habit: habit
+                        )
+                        habit.completions.append(newCompletion)
+                    }
+                }
+                
+                try modelContext.save()
+            } catch {
+                print("Ошибка сохранения прогресса: \(error)")
+            }
+        }
+    }
+    
+    func persistAllCompletionsToSwiftData(modelContext: ModelContext) {
+        // Доступ к progressUpdates предполагается через протокол
+        for (habitId, _) in progressUpdates {
+            persistCompletions(for: habitId, in: modelContext, date: Date())
+        }
+    }
+}

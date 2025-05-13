@@ -159,9 +159,13 @@ struct HabitDetailView: View {
         }
         .onChange(of: date) { _, newDate in
             // При изменении даты пересоздаем ViewModel
+            // Сохраняем текущие изменения перед созданием нового ViewModel
+            viewModel?.saveIfNeeded()
             setupViewModel(with: newDate)
         }
         .onDisappear {
+            // Сохраняем изменения и выполняем очистку
+            viewModel?.saveIfNeeded()
             viewModel?.cleanup(stopTimer: false) // Не останавливаем таймер при уходе с экрана
         }
         // Добавляем sheet для редактирования
@@ -176,8 +180,9 @@ struct HabitDetailView: View {
         // Сначала делаем isContentReady = false, чтобы избежать мерцания при обновлении
         isContentReady = false
         
-        // Очищаем предыдущий ViewModel при необходимости
-        viewModel?.cleanup(stopTimer: true)
+        // Сохраняем любые изменения и очищаем предыдущий ViewModel
+        viewModel?.saveIfNeeded()
+        viewModel?.cleanup(stopTimer: false)
         
         // Создаем новый ViewModel с датой
         let vm = HabitDetailViewModel(
