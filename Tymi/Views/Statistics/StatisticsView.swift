@@ -41,8 +41,6 @@ struct StatisticsView: View {
                             }
                         }
                     }
-                    
-                    // Здесь можно добавить общую статистику или другие разделы
                 }
             }
             .navigationTitle("statistics".localized)
