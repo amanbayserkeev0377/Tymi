@@ -3,18 +3,28 @@ import SwiftData
 
 struct HomeView: View {
     // MARK: - Properties
-    
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
-    @Query(sort: [SortDescriptor(\Habit.createdAt)])
+    @Query(sort: [SortDescriptor(\Habit.displayOrder), SortDescriptor(\Habit.createdAt)])
     private var baseHabits: [Habit]
     
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
     @State private var selectedHabit: Habit? = nil
     @State private var selectedHabitForStats: Habit? = nil
+    @State private var isReorderingSheetPresented = false
+    
+    @State private var actionService: HabitActionService
+    
+    init() {
+        let container = try! ModelContainer(for: Habit.self, HabitCompletion.self)
+        _actionService = State(initialValue: HabitActionService(
+            modelContext: container.mainContext,
+            habitsUpdateService: HabitsUpdateService()
+        ))
+    }
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -46,13 +56,12 @@ struct HomeView: View {
     }
     
     // MARK: - Body
-    
     var body: some View {
         NavigationStack {
             ZStack {
                 VStack {
                     ScrollView {
-                        VStack(spacing: 0) {
+                        LazyVStack(spacing: 0) {
                             if baseHabits.isEmpty {
                                 // Нет привычек вообще
                                 EmptyStateView()
@@ -63,22 +72,9 @@ struct HomeView: View {
                                 
                                 // Список привычек для выбранной даты
                                 if hasHabitsForDate {
-                                    VStack(spacing: 12) {
-                                        ForEach(activeHabitsForDate) { habit in
-                                            HabitRowView(
-                                                habit: habit,
-                                                date: selectedDate,
-                                                onTap: {
-                                                    selectedHabit = habit
-                                                }
-                                            )
-                                            .id(habit.uuid)
-                                        }
-                                    }
-                                    .padding(.top, 12)
+                                    habitList
                                 } else {
                                     // Специальное сообщение, если нет привычек на выбранную дату
-                                    // но при этом привычки в целом существуют
                                     if !Calendar.current.isDateInToday(selectedDate) {
                                         Text("try_selecting_today".localized)
                                             .font(.subheadline)
@@ -123,7 +119,6 @@ struct HomeView: View {
                         )
                     }
                 }
-                
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: {
                         isShowingNewHabitSheet = true
@@ -160,9 +155,92 @@ struct HomeView: View {
                 }
                 .presentationDragIndicator(.visible)
             }
+            .sheet(isPresented: $isReorderingSheetPresented) {
+                NavigationStack {
+                    ReorderHabitsView(isSheetPresentation: true)
+                }
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+            }
             .onChange(of: selectedDate) { _, _ in
                 habitsUpdateService.triggerUpdate()
             }
+            .onAppear {
+                // Обновляем сервис действий с правильными объектами
+                actionService.updateContext(modelContext)
+                actionService.updateService(habitsUpdateService)
+                actionService.setCallbacks(
+                    onHabitSelected: { habit in
+                        selectedHabit = habit
+                    },
+                    onHabitEditSelected: { habit in
+                        selectedHabit = habit
+                    },
+                    onHabitStatsSelected: { habit in
+                        selectedHabitForStats = habit
+                    }
+                )
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .calendarDayActionRequested)) { notification in
+                if let (habit, date) = notification.object as? (Habit, Date) {
+                    // При необходимости выполнить действие с привычкой и датой
+                    selectedHabit = habit
+                }
+            }
+        }
+    }
+    
+    // MARK: - Habit Views
+    
+    private var habitList: some View {
+        LazyVStack(spacing: 12) {
+            ForEach(activeHabitsForDate) { habit in
+                HabitRowView(habit: habit, date: selectedDate, onTap: {
+                    selectedHabit = habit
+                })
+                .contextMenu {
+                    Button {
+                        if !habit.isCompletedForDate(selectedDate) {
+                            actionService.completeHabit(habit, for: selectedDate)
+                        }
+                    } label: {
+                        Label("complete".localized, systemImage: "checkmark")
+                    }
+                    .disabled(habit.isCompletedForDate(selectedDate))
+                    
+                    Button {
+                        actionService.addProgress(to: habit, for: selectedDate)
+                    } label: {
+                        Label("add_progress".localized, systemImage: "plus")
+                    }
+                    
+                    Button {
+                        actionService.editHabit(habit)
+                    } label: {
+                        Label("edit".localized, systemImage: "pencil")
+                    }
+                    
+                    Button {
+                        actionService.showStatistics(for: habit)
+                    } label: {
+                        Label("statistics".localized, systemImage: "chart.bar")
+                    }
+                    
+                    Button {
+                        isReorderingSheetPresented = true
+                    } label: {
+                        Label("reorder_habits".localized, systemImage: "arrow.up.arrow.down")
+                    }
+                    
+                    Button(role: .destructive) {
+                        actionService.deleteHabit(habit)
+                    } label: {
+                        Label("delete".localized, systemImage: "trash")
+                    }
+                }
+                .id(habit.uuid)
+            }
+            .padding(.top, 12)
         }
     }
     

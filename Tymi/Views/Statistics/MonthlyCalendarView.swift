@@ -6,6 +6,11 @@ struct MonthlyCalendarView: View {
     let habit: Habit
     @Binding var selectedDate: Date
     
+    @Environment(\.modelContext) private var modelContext
+    @Environment(HabitsUpdateService.self) private var habitsUpdateService
+    @State private var selectedActionDate: Date? = nil
+    @State private var showingActionSheet = false
+    
     // MARK: - State
     @State private var months: [Date] = []
     @State private var currentMonthIndex: Int = 0
@@ -78,6 +83,25 @@ struct MonthlyCalendarView: View {
                 updateProgressCache()
             }
         }
+        .confirmationDialog(
+            Text(dateFormatter.string(from: selectedActionDate ?? Date())),
+            isPresented: $showingActionSheet,
+            titleVisibility: .visible
+        ) {
+            Button("complete".localized) {
+                if let date = selectedActionDate {
+                    completeHabit(for: date)
+                }
+            }
+            
+            Button("add_progress".localized) {
+                if let date = selectedActionDate {
+                    addProgress(for: date)
+                }
+            }
+            
+            Button("cancel".localized, role: .cancel) {}
+        }
     }
     
     // MARK: - Components
@@ -129,28 +153,19 @@ struct MonthlyCalendarView: View {
                             progress: progressCache[date] ?? 0,
                             onTap: {
                                 selectedDate = date
+                                // Показываем действия только для дат до текущей даты и активных
+                                if date <= Date() && date >= habit.startDate && habit.isActiveOnDate(date) {
+                                    selectedActionDate = date
+                                    showingActionSheet = true
+                                }
                             }
                         )
-                        .contextMenu {
-                            Button {
-                                print("Complete tapped for \(date)")
-                                // Здесь вызвать нужный callback или действие
-                            } label: {
-                                Label("Complete", systemImage: "checkmark")
-                            }
-                            Button {
-                                print("Add Progress tapped for \(date)")
-                                // Здесь вызвать нужный callback или действие
-                            } label: {
-                                Label("Add Progress", systemImage: "plus")
-                            }
-                        }
                         .frame(width: 35, height: 40)
-                        .id("\(row)-\(column)") // Добавляем уникальный id для каждой ячейки
+                        .id("\(row)-\(column)")
                     } else {
                         Color.clear
                             .frame(width: 35, height: 40)
-                            .id("\(row)-\(column)-empty") // Уникальный id для пустых ячеек
+                            .id("\(row)-\(column)-empty")
                     }
                 }
             }
@@ -168,8 +183,8 @@ struct MonthlyCalendarView: View {
         let displayedMonthComponents = calendar.dateComponents([.year, .month], from: currentMonth)
         
         return displayedMonthComponents.year! > currentMonthComponents.year! ||
-               (displayedMonthComponents.year! == currentMonthComponents.year! &&
-                displayedMonthComponents.month! >= currentMonthComponents.month!)
+        (displayedMonthComponents.year! == currentMonthComponents.year! &&
+         displayedMonthComponents.month! >= currentMonthComponents.month!)
     }
     
     // MARK: - Methods
@@ -333,12 +348,47 @@ struct MonthlyCalendarView: View {
     
     // MARK: - Formatters
     
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter
+    }()
+    
     private let monthYearFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
         return formatter
     }()
+    
+    private func completeHabit(for date: Date) {
+        // Создаем ViewModel для управления прогрессом привычки
+        let viewModel = HabitDetailViewModel(
+            habit: habit,
+            date: date,
+            modelContext: modelContext,
+            habitsUpdateService: habitsUpdateService
+        )
+        viewModel.completeHabit()
+        viewModel.saveIfNeeded()
+        updateProgressCache()
+        NotificationCenter.default.post(
+            name: .habitProgressUpdated,
+            object: habit.id
+        )
+        HapticManager.shared.play(.success)
+    }
+
+    private func addProgress(for date: Date) {
+        // Отправляем уведомление, которое может быть обработано родительским представлением
+        NotificationCenter.default.post(
+            name: .calendarDayActionRequested,
+            object: (habit, date)
+        )
+    }
+    
 }
+
+
 
 // MARK: - Extension for Swipe Gesture
 

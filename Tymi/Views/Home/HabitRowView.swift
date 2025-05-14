@@ -1,11 +1,15 @@
 import SwiftUI
 
 struct HabitRowView: View {
+    // MARK: - Properties
     let habit: Habit
     let date: Date
-    var onTap: () -> Void = {} // Делаем необязательным с пустым значением по умолчанию
+    var onTap: (() -> Void)? = nil
     
+    // MARK: - Environment
     @Environment(\.colorScheme) private var colorScheme
+    
+    // MARK: - State
     @State private var isPressed = false
     
     var body: some View {
@@ -43,15 +47,15 @@ struct HabitRowView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(colorScheme == .dark ? Color.black.opacity(0.25) : Color.white.opacity(0.8))
-                .shadow(color: colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.1),
+                .fill(colorScheme == .dark ? Color.black.opacity(0.3) : Color.white)
+                .shadow(color: colorScheme == .dark ? Color.white.opacity(0.05) : Color.black.opacity(0.1),
                         radius: isPressed ? 2 : 4, x: 0, y: isPressed ? 1 : 2)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(
                             colorScheme == .dark
-                            ? Color.gray.opacity(0.05)
-                            : Color.gray.opacity(0.1),
+                            ? Color.gray.opacity(0.1)
+                            : Color.gray.opacity(0.2),
                             lineWidth: 1
                         )
                 )
@@ -73,7 +77,7 @@ struct HabitRowView: View {
                         withAnimation {
                             isPressed = false
                         }
-                        onTap()
+                        onTap?()
                     }
                 }
             }

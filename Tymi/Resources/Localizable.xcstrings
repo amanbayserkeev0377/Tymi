@@ -129,9 +129,6 @@
         }
       }
     },
-    "Add Progress" : {
-
-    },
     "add_count" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -410,9 +407,6 @@
           }
         }
       }
-    },
-    "Complete" : {
-
     },
     "completed" : {
       "extractionState" : "manual",

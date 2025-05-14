@@ -8,13 +8,21 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(header: Text("interface".localized)) {
+                Section {
+                    NavigationLink {
+                        ReorderHabitsView()
+                    } label: {
+                        Label("manage_habits".localized, systemImage: "arrow.up.arrow.down")
+                    }
+                }
+                
+                Section {
                     AppearanceSection()
                     WeekStartSection()
                     LanguageSection()
                 }
                 
-                Section(header: Text("notifications_feedback".localized)) {
+                Section {
                     NotificationsSection()
                     HapticsSection()
                 }
