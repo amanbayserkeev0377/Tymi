@@ -14,7 +14,7 @@ struct ActionButtonsSection: View {
     
     var body: some View {
         HStack(spacing: 32) {
-            // Reset button
+            // Reset button - используем .error
             Button(action: {
                 resetPressed.toggle()
                 onReset()
@@ -23,16 +23,12 @@ struct ActionButtonsSection: View {
                     .font(.system(size: 24))
                     .tint(.primary)
             }
-            .hapticFeedback(.impact(weight: .medium), trigger: resetPressed)
+            .errorHaptic(trigger: resetPressed)
             
             // Timer/Toggle button
             Button(action: {
                 togglePressed.toggle()
-                if habit.type == .time {
-                    onTimerToggle()
-                } else {
-                    onTimerToggle()
-                }
+                onTimerToggle()
             }) {
                 if habit.type == .time {
                     Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")
@@ -44,6 +40,7 @@ struct ActionButtonsSection: View {
                         .tint(.primary)
                 }
             }
+            // Используем medium impact для обоих типов (более приятный хаптик)
             .hapticFeedback(.impact(weight: .medium), trigger: togglePressed)
             
             // Manual entry button (only for Time habits)

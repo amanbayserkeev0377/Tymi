@@ -16,7 +16,7 @@ class HabitStatsViewModel: Observable {
     
     func calculateStats() {
         let calendar = Calendar.current
-        let now = Date()
+        _ = Date()
         
         // Получаем все даты завершения
         var completedDates: [Date] = []

@@ -13,6 +13,8 @@ struct HabitStatisticsView: View {
     @State private var viewModel: HabitStatsViewModel
     @State private var detailViewModel: HabitDetailViewModel?
     @State private var showingResetAlert = false
+    @State private var alertState = AlertState()
+    @State private var calendarActionManager = CalendarActionManager()
     
     // MARK: - Initialization
     init(habit: Habit) {
@@ -23,18 +25,15 @@ struct HabitStatisticsView: View {
     // MARK: - Body
     var body: some View {
         List {
-            
             // Основные метрики
             StreaksView(viewModel: viewModel)
-            
             
             // Календарь месяца
             Section {
                 MonthlyCalendarView(habit: habit, selectedDate: $selectedDate)
                     .listRowInsets(EdgeInsets())
+                    .environment(\.calendarActionManager, calendarActionManager)
             }
-            
-            
             
             // Информация о привычке
             Section {
@@ -69,24 +68,67 @@ struct HabitStatisticsView: View {
         .navigationTitle(habit.title)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Закрыть") {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("done".localized) {
                     dismiss()
                 }
             }
         }
-        .onChange(of: selectedDate) { oldDate, newDate in
-            // Теперь обработка выбора даты происходит через contextMenu в MonthlyCalendarView
-        }
         .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
             viewModel.calculateStats()
             
-            // Отправляем уведомление об обновлении прогресса привычки через DispatchQueue.main
-            // чтобы убедиться, что оно обрабатывается в главном потоке
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .habitProgressUpdated, object: habit.id)
+            habitsUpdateService.triggerUpdate()
+
+        }
+        // Добавляем обработчик для CalendarActionManager
+        .onChange(of: calendarActionManager.actionType) { _, newValue in
+            guard let actionType = newValue,
+                  let habit = calendarActionManager.habit,
+                  let date = calendarActionManager.date else { return }
+            
+            // Проверяем, что это наша привычка
+            guard habit.id == self.habit.id else { return }
+            
+            // Обрабатываем действие
+            switch actionType {
+            case .complete:
+                completeHabitDirectly(for: date)
+            case .addProgress:
+                // Показываем соответствующий алерт в зависимости от типа привычки
+                if habit.type == .count {
+                    alertState.isCountAlertPresented = true
+                } else {
+                    alertState.isTimeAlertPresented = true
+                }
+            }
+            
+            // Очищаем действие после обработки
+            calendarActionManager.clear()
+        }
+        // Обработчики успеха/ошибки для хаптической обратной связи
+        .onChange(of: alertState.successFeedbackTrigger) { _, newValue in
+            if newValue {
+                HapticManager.shared.play(.success)
             }
         }
+        .onChange(of: alertState.errorFeedbackTrigger) { _, newValue in
+            if newValue {
+                    HapticManager.shared.play(.error)
+            }
+        }
+        // Добавляем алерты для ввода прогресса
+        .habitAlerts(
+            alertState: $alertState,
+            habit: habit,
+            progressService: ProgressServiceProvider.getService(for: habit),
+            onDelete: { /* Не используется */ },
+            onCountInput: {
+                handleCountInput()
+            },
+            onTimeInput: {
+                handleTimeInput()
+            }
+        )
         .alert("Сбросить историю?", isPresented: $showingResetAlert) {
             Button("Отмена", role: .cancel) { }
             Button("Сбросить", role: .destructive) {
@@ -128,18 +170,88 @@ struct HabitStatisticsView: View {
         )
     }
     
-    private func completeHabit() {
-        if detailViewModel == nil {
-            createDetailViewModel(for: selectedDate)
-        }
+    // Метод для прямого завершения привычки
+    private func completeHabitDirectly(for date: Date) {
+        // Создаем временный ViewModel для управления прогрессом привычки
+        let tempViewModel = HabitDetailViewModel(
+            habit: habit,
+            date: date,
+            modelContext: modelContext,
+            habitsUpdateService: habitsUpdateService
+        )
         
-        detailViewModel?.completeHabit()
+        tempViewModel.completeHabit()
+        tempViewModel.saveIfNeeded()
         viewModel.calculateStats()
         
-        // Отправляем уведомление об обновлении прогресса привычки
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .habitProgressUpdated, object: habit.id)
+        habitsUpdateService.triggerUpdate()
+
+        HapticManager.shared.play(.success)
+    }
+    
+    // Методы для обработки ввода
+    // В HabitStatisticsView.swift
+    private func handleCountInput() {
+        guard let date = calendarActionManager.date else { return }
+        guard let count = Int(alertState.countInputText), count > 0 else {
+            alertState.errorFeedbackTrigger.toggle()
+            alertState.countInputText = ""
+            return
         }
+        
+        // Создаем временный ViewModel
+        let tempViewModel = HabitDetailViewModel(
+            habit: habit,
+            date: date,
+            modelContext: modelContext,
+            habitsUpdateService: habitsUpdateService
+        )
+        
+        tempViewModel.alertState.countInputText = alertState.countInputText
+        tempViewModel.handleCountInput()
+        viewModel.calculateStats()
+        
+        // Вызываем обновление UI через сервис
+        habitsUpdateService.triggerUpdate()
+        
+        // Очищаем поле ввода
+        alertState.countInputText = ""
+    }
+    
+    private func handleTimeInput() {
+        guard let date = calendarActionManager.date else { return }
+        let hours = Int(alertState.hoursInputText) ?? 0
+        let minutes = Int(alertState.minutesInputText) ?? 0
+        
+        if hours == 0 && minutes == 0 {
+            alertState.errorFeedbackTrigger.toggle()
+            return
+        }
+        
+        // Создаем временный ViewModel
+        let tempViewModel = HabitDetailViewModel(
+            habit: habit,
+            date: date,
+            modelContext: modelContext,
+            habitsUpdateService: habitsUpdateService
+        )
+        
+        // Копируем данные из alertState
+        tempViewModel.alertState.hoursInputText = alertState.hoursInputText
+        tempViewModel.alertState.minutesInputText = alertState.minutesInputText
+        
+        // Обрабатываем ввод
+        tempViewModel.handleTimeInput()
+        
+        // Обновляем статистику
+        viewModel.calculateStats()
+        
+        // Вызываем обновление UI через сервис
+        habitsUpdateService.triggerUpdate()
+        
+        // Очищаем поля ввода
+        alertState.hoursInputText = ""
+        alertState.minutesInputText = ""
     }
     
     private func resetHabitHistory() {
@@ -155,10 +267,6 @@ struct HabitStatisticsView: View {
         viewModel.calculateStats()
         habitsUpdateService.triggerUpdate()
         
-        // Отправляем уведомление об обновлении прогресса привычки
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .habitProgressUpdated, object: habit.id)
-        }
     }
     
     // MARK: - Форматтеры

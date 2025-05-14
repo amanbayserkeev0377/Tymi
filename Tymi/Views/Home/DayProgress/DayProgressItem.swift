@@ -5,6 +5,7 @@ struct DayProgressItem: View, Equatable {
     let isSelected: Bool
     let progress: Double
     let onTap: () -> Void
+    var showProgressRing: Bool = true
     
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -100,7 +101,7 @@ struct DayProgressItem: View, Equatable {
             VStack(spacing: 6) {
                 // Круг прогресса и число
                 ZStack {
-                    if !isFutureDate {
+                    if showProgressRing && !isFutureDate {
                         Circle()
                             .stroke(Color.secondary.opacity(0.15), lineWidth: lineWidth)
                         
@@ -129,16 +130,17 @@ struct DayProgressItem: View, Equatable {
                     .frame(width: 4, height: 4)
                     .opacity(isSelected ? 1 : 0) // Показывать только для выбранного дня
             }
-            .opacity(isFutureDate ? 0.6 : 1.0)
+            .opacity(isFutureDate || !showProgressRing ? 0.6 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
         .disabled(isFutureDate || !isValidDate)
     }
     
-    // Реализация Equatable для оптимизации перерисовки
+    // Обновить Equatable чтобы учитывать новый параметр
     static func == (lhs: DayProgressItem, rhs: DayProgressItem) -> Bool {
         return Calendar.current.isDate(lhs.date, inSameDayAs: rhs.date) &&
-               lhs.isSelected == rhs.isSelected &&
-               abs(lhs.progress - rhs.progress) < 0.01
+        lhs.isSelected == rhs.isSelected &&
+        abs(lhs.progress - rhs.progress) < 0.01 &&
+        lhs.showProgressRing == rhs.showProgressRing
     }
 }

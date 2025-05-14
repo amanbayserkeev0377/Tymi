@@ -385,6 +385,29 @@
         }
       }
     },
+    "close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жабуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть"
+          }
+        }
+      }
+    },
     "complete" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -534,13 +557,13 @@
         },
         "ky-KG" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Максат"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Цель"
           }
         }
@@ -1572,52 +1595,6 @@
         }
       }
     },
-    "reset" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reset"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Баштапкы абалга келтирүү"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сбросить"
-          }
-        }
-      }
-    },
-    "reset_progress_confirmation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reset progress?"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Прогрессти баштапкы абалга келтирүүнү каалайсызбы?"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сбросить прогресс?"
-          }
-        }
-      }
-    },
     "save" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2036,9 +2013,6 @@
 
     },
     "Загрузка календаря..." : {
-
-    },
-    "Закрыть" : {
 
     },
     "Информация о привычке" : {

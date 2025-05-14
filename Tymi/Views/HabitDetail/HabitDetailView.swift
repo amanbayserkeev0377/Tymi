@@ -45,7 +45,10 @@ struct HabitDetailView: View {
                     ActionButtonsSection(
                         habit: habit,
                         isTimerRunning: viewModel.isTimerRunning,
-                        onReset: { viewModel.alertState.isResetAlertPresented = true },
+                        onReset: {
+                            viewModel.resetProgress()
+                            viewModel.alertState.errorFeedbackTrigger.toggle()
+                        },
                         onTimerToggle: {
                             if habit.type == .time {
                                 viewModel.toggleTimer()
@@ -86,6 +89,16 @@ struct HabitDetailView: View {
                     .padding(.bottom)
                 }
                 .padding()
+                .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
+                    if newValue {
+                        HapticManager.shared.play(.success)
+                    }
+                }
+                .onChange(of: viewModel.alertState.errorFeedbackTrigger) { _, newValue in
+                    if newValue {
+                        HapticManager.shared.play(.error)
+                    }
+                }
                 .habitAlerts(
                     alertState: Binding<AlertState>(
                         get: { viewModel.alertState },
@@ -93,10 +106,6 @@ struct HabitDetailView: View {
                     ),
                     habit: habit,
                     progressService: viewModel.progressService,
-                    onReset: {
-                        viewModel.resetProgress()
-                        viewModel.alertState.isResetAlertPresented = false
-                    },
                     onDelete: {
                         viewModel.deleteHabit()
                         viewModel.alertState.isDeleteAlertPresented = false
@@ -115,16 +124,6 @@ struct HabitDetailView: View {
                         viewModel.alertState.isTimeAlertPresented = false
                     }
                 )
-                .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
-                    if newValue {
-                        HapticManager.shared.play(.success)
-                    }
-                }
-                .onChange(of: viewModel.alertState.errorFeedbackTrigger) { _, newValue in
-                    if newValue {
-                        HapticManager.shared.play(.error)
-                    }
-                }
             } else {
                 // Показываем ProgressView, пока viewModel не создан
                 ProgressView()
@@ -177,8 +176,6 @@ struct HabitDetailView: View {
             setupViewModel()
         }
         .onChange(of: date) { _, newDate in
-            // При изменении даты пересоздаем ViewModel
-            // Сохраняем текущие изменения перед созданием нового ViewModel
             viewModel?.saveIfNeeded()
             setupViewModel(with: newDate)
         }

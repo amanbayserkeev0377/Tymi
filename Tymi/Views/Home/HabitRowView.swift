@@ -47,15 +47,15 @@ struct HabitRowView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(colorScheme == .dark ? Color.black.opacity(0.3) : Color.white)
-                .shadow(color: colorScheme == .dark ? Color.white.opacity(0.05) : Color.black.opacity(0.1),
+                .fill(colorScheme == .dark ? Color.white.opacity(0.1) : Color.white)
+                .shadow(color: colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.2),
                         radius: isPressed ? 2 : 4, x: 0, y: isPressed ? 1 : 2)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(
                             colorScheme == .dark
-                            ? Color.gray.opacity(0.1)
-                            : Color.gray.opacity(0.2),
+                            ? Color.white.opacity(0.1)
+                            : Color.gray.opacity(0.1),
                             lineWidth: 1
                         )
                 )

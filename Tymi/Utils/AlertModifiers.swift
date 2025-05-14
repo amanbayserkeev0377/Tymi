@@ -2,7 +2,6 @@ import SwiftUI
 
 // MARK: - Common AlertState
 struct AlertState: Equatable {
-    var isResetAlertPresented: Bool = false
     var isCountAlertPresented: Bool = false
     var isTimeAlertPresented: Bool = false
     var isDeleteAlertPresented: Bool = false
@@ -15,8 +14,7 @@ struct AlertState: Equatable {
     var errorFeedbackTrigger: Bool = false
     
     static func == (lhs: AlertState, rhs: AlertState) -> Bool {
-        return lhs.isResetAlertPresented == rhs.isResetAlertPresented &&
-        lhs.isCountAlertPresented == rhs.isCountAlertPresented &&
+        return lhs.isCountAlertPresented == rhs.isCountAlertPresented &&
         lhs.isTimeAlertPresented == rhs.isTimeAlertPresented &&
         lhs.isDeleteAlertPresented == rhs.isDeleteAlertPresented &&
         lhs.countInputText == rhs.countInputText &&
@@ -27,21 +25,6 @@ struct AlertState: Equatable {
 
 // MARK: - Alert Modifiers
 
-// Reset Progress Alert
-struct ResetProgressAlertModifier: ViewModifier {
-    @Binding var isPresented: Bool
-    let onReset: () -> Void
-    
-    func body(content: Content) -> some View {
-        content
-            .alert("reset_progress_confirmation".localized, isPresented: $isPresented) {
-                Button("cancel".localized, role: .cancel) { }
-                Button("reset".localized, role: .destructive) {
-                    onReset()
-                }
-            }
-    }
-}
 
 // Count Input Alert
 struct CountInputAlertModifier: ViewModifier {
@@ -104,7 +87,6 @@ struct TimeInputAlertModifier: ViewModifier {
     }
 }
 
-
 // Delete Habit Alert
 struct DeleteHabitAlertModifier: ViewModifier {
     @Binding var isPresented: Bool
@@ -126,9 +108,7 @@ struct DeleteHabitAlertModifier: ViewModifier {
 // MARK: - View Extensions
 
 extension View {
-    func resetProgressAlert(isPresented: Binding<Bool>, onReset: @escaping () -> Void) -> some View {
-        self.modifier(ResetProgressAlertModifier(isPresented: isPresented, onReset: onReset))
-    }
+    // Удаляем метод resetProgressAlert
     
     func countInputAlert(
         isPresented: Binding<Bool>,
@@ -176,19 +156,17 @@ extension View {
         self.modifier(DeleteHabitAlertModifier(isPresented: isPresented, onDelete: onDelete))
     }
     
-    
-    // Упрощенный комбинированный модификатор для HabitDetailView
+    // Упрощенный комбинированный модификатор для HabitDetailView - удаляем параметр onReset
     func habitAlerts(
         alertState: Binding<AlertState>,
         habit: Habit,
         progressService: ProgressTrackingService,
-        onReset: @escaping () -> Void,
         onDelete: @escaping () -> Void,
         onCountInput: @escaping () -> Void,
         onTimeInput: @escaping () -> Void
     ) -> some View {
         self
-            .resetProgressAlert(isPresented: alertState.isResetAlertPresented, onReset: onReset)
+            // Удаляем вызов resetProgressAlert
             .deleteHabitAlert(isPresented: alertState.isDeleteAlertPresented, onDelete: onDelete)
             .countInputAlert(
                 isPresented: alertState.isCountAlertPresented,

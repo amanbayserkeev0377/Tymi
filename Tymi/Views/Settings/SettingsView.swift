@@ -12,7 +12,7 @@ struct SettingsView: View {
                     NavigationLink {
                         ReorderHabitsView()
                     } label: {
-                        Label("manage_habits".localized, systemImage: "arrow.up.arrow.down")
+                        Label("manage_habits".localized, systemImage: "list.number")
                     }
                 }
                 
