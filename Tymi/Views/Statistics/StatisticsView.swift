@@ -45,12 +45,11 @@ struct StatisticsView: View {
                     // Здесь можно добавить общую статистику или другие разделы
                 }
             }
-            .navigationTitle("Статистика")
+            .navigationTitle("statistics".localized)
             .sheet(item: $selectedHabitForStats) { habit in
                 NavigationStack {
                     HabitStatisticsView(habit: habit)
                 }
-                // Без presentationDetents для полноэкранного режима
                 .presentationDragIndicator(.visible)
             }
         }
