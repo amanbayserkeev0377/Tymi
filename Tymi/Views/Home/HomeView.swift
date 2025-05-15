@@ -45,16 +45,6 @@ struct HomeView: View {
         return !activeHabitsForDate.isEmpty
     }
     
-    func formattedDate(_ date: Date) -> String {
-        let weekday = DateFormatter.weekday.string(from: date).prefix(1).uppercased()
-        + DateFormatter.weekday.string(from: date).dropFirst().lowercased()
-        let day = DateFormatter.dayOfMonth.string(from: date)
-        let month = DateFormatter.shortMonth.string(from: date).prefix(1).uppercased()
-        + DateFormatter.shortMonth.string(from: date).dropFirst().lowercased()
-        
-        return "\(weekday), \(day) \(month)"
-    }
-    
     // MARK: - Body
     var body: some View {
         NavigationStack {
@@ -254,7 +244,7 @@ struct HomeView: View {
         } else if isYesterday(date) {
             return "yesterday".localized
         } else {
-            return formattedDate(date)
+            return DateFormatter.dayAndCapitalizedMonth(from: date)
         }
     }
 }

@@ -51,15 +51,15 @@ struct MonthlyCalendarView: View {
             // Заголовок месяца и кнопки навигации в улучшенном макете (название слева, кнопки справа)
             HStack {
                 // Название месяца слева
-                Text(monthYearFormatter.string(from: currentMonth))
+                Text(DateFormatter.capitalizedNominativeMonthYear(from: currentMonth))
                     .font(.headline)
                     .fontWeight(.medium)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Spacer()
                 
                 // Кнопки справа
                 HStack(spacing: 16) {
                     Button {
-                        // Без анимации для повышения производительности
                         if currentMonthIndex > 0 {
                             currentMonthIndex -= 1
                             generateCalendarDays()
@@ -112,6 +112,7 @@ struct MonthlyCalendarView: View {
                 .background(Color.clear)
             }
         }
+        .padding(.vertical)
         .padding(.horizontal, 5)
         .onAppear {
             isLoading = true
@@ -385,15 +386,4 @@ struct MonthlyCalendarView: View {
         return formatter
     }()
     
-    private let monthYearFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        
-        // Делаем первую букву заглавной для месяца
-        let original = formatter.string(from: Date())
-        let capitalized = original.prefix(1).uppercased() + original.dropFirst()
-        let _ = formatter.string(from: Date()) // Убеждаемся, что все работает
-        
-        return formatter
-    }()
 }

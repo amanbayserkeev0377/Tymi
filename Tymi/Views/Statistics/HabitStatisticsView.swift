@@ -25,10 +25,10 @@ struct HabitStatisticsView: View {
     // MARK: - Body
     var body: some View {
         List {
-            // Основные метрики
+            // Streaks
             StreaksView(viewModel: viewModel)
             
-            // Календарь месяца
+            // Monthly Calendar
             Section {
                 MonthlyCalendarView(
                     habit: habit,
@@ -37,37 +37,70 @@ struct HabitStatisticsView: View {
                     onActionRequested: handleCalendarAction
                 )
                 .listRowInsets(EdgeInsets())
-                .frame(maxWidth: .infinity) 
+                .frame(maxWidth: .infinity)
             }
             .listSectionSeparator(.hidden)
             
-            // Информация о привычке
             Section {
-                // Дата начала
-                LabeledContent("Дата начала") {
+                // Start date
+                HStack {
+                    Label(
+                        title: { Text("start_date".localized) },
+                        icon: { Image(systemName: "calendar.badge.clock") }
+                    )
+                    
+                    Spacer()
+                    
                     Text(dateFormatter.string(from: habit.startDate))
+                        .foregroundStyle(.secondary)
                 }
                 
-                // Цель
-                LabeledContent("Цель") {
+                // Goal
+                HStack {
+                    Label(
+                        title: { Text("daily_goal".localized) },
+                        icon: { Image(systemName: "trophy") }
+                    )
+                    
+                    Spacer()
+                    
                     Text(habit.formattedGoal)
+                        .foregroundStyle(.secondary)
                 }
                 
-                // Активные дни
-                LabeledContent("Активные дни") {
+                // Active days
+                HStack {
+                    Label(
+                        title: { Text("active_days".localized) },
+                        icon: { Image(systemName: "cloud.sun") }
+                    )
+                    
+                    Spacer()
+                    
                     Text(formattedActiveDays)
+                        .foregroundStyle(.secondary)
                 }
-            } header: {
-                Text("Информация о привычке")
             }
             
-            // Кнопка сброса истории
+            // Reset history
             Section {
-                Button(role: .destructive) {
+                Button {
                     showingResetAlert = true
                 } label: {
-                    Text("Сбросить историю привычки")
-                        .frame(maxWidth: .infinity, alignment: .center)
+                    Label("reset_all_history".localized,
+                          systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                }
+                
+                Button(role: .destructive) {
+                    alertState.isDeleteAlertPresented = true
+                } label: {
+                    Label {
+                        Text("delete_habit".localized)
+                        // Текст автоматически получит красный цвет от role: .destructive
+                    } icon: {
+                        Image(systemName: "trash")
+                            .foregroundStyle(.red) // Явно устанавливаем красный цвет для иконки
+                    }
                 }
             }
         }
@@ -100,7 +133,7 @@ struct HabitStatisticsView: View {
             alertState: $alertState,
             habit: habit,
             progressService: ProgressServiceProvider.getService(for: habit),
-            onDelete: { /* Не используется */ },
+            onDelete: deleteHabit,
             onCountInput: {
                 handleCountInput()
             },
@@ -121,20 +154,20 @@ struct HabitStatisticsView: View {
     // MARK: - Обработка действий календаря
     private func handleCalendarAction(_ action: CalendarAction, date: Date) {
         switch action {
-            case .complete:
-                completeHabitDirectly(for: date)
-            case .addProgress:
-                // Сохраняем дату для обработки в алертах
-                alertState.date = date
-                
-                // Показываем соответствующий алерт в зависимости от типа привычки
-                if habit.type == .count {
-                    alertState.isCountAlertPresented = true
-                } else {
-                    alertState.isTimeAlertPresented = true
-                }
-            case .resetProgress:
-                resetProgressDirectly(for: date)
+        case .complete:
+            completeHabitDirectly(for: date)
+        case .addProgress:
+            // Сохраняем дату для обработки в алертах
+            alertState.date = date
+            
+            // Показываем соответствующий алерт в зависимости от типа привычки
+            if habit.type == .count {
+                alertState.isCountAlertPresented = true
+            } else {
+                alertState.isTimeAlertPresented = true
+            }
+        case .resetProgress:
+            resetProgressDirectly(for: date)
         }
     }
     
@@ -315,6 +348,14 @@ struct HabitStatisticsView: View {
         
         // Обновляем UI календаря
         updateCounter += 1
+    }
+    
+    private func deleteHabit() {
+        NotificationManager.shared.cancelNotifications(for: habit)
+        modelContext.delete(habit)
+        HapticManager.shared.play(.error)
+        habitsUpdateService.triggerUpdate()
+        dismiss()
     }
     
     // MARK: - Форматтеры

@@ -101,8 +101,6 @@ struct DeleteHabitAlertModifier: ViewModifier {
                 Button("delete".localized, role: .destructive) {
                     onDelete()
                 }
-            } message: {
-                Text("delete_message".localized)
             }
     }
 }

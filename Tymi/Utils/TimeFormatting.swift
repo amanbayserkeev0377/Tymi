@@ -106,4 +106,37 @@ extension DateFormatter {
         formatter.dateFormat = "EEEE"
         return formatter
     }()
+    
+    // Добавляем форматтер для месяца в именительном падеже
+    static let nominativeMonthYear: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "LLLL yyyy"  // LLLL для именительного падежа
+        return formatter
+    }()
+    
+    // Метод для даты в формате "число Месяц" с заглавной буквы месяца
+    static func dayAndCapitalizedMonth(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMMM"
+        let dateString = formatter.string(from: date)
+        
+        if let spaceIndex = dateString.firstIndex(of: " "),
+           let firstMonthCharIndex = dateString.index(spaceIndex, offsetBy: 1, limitedBy: dateString.endIndex) {
+            let prefix = dateString[..<dateString.index(after: spaceIndex)]
+            let firstChar = String(dateString[firstMonthCharIndex]).uppercased()
+            let suffix = dateString[dateString.index(after: firstMonthCharIndex)...]
+            
+            return prefix + firstChar + suffix
+        }
+        
+        return dateString
+    }
+    
+    // Метод для "Месяц год" в именительном падеже с заглавной буквы
+    static func capitalizedNominativeMonthYear(from date: Date) -> String {
+        let dateString = nominativeMonthYear.string(from: date)
+        guard let firstChar = dateString.first else { return dateString }
+        
+        return String(firstChar).uppercased() + dateString.dropFirst()
+    }
 }

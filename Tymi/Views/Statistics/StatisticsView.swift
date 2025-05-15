@@ -13,12 +13,12 @@ struct StatisticsView: View {
         NavigationStack {
             List {
                 if habits.isEmpty {
-                    Text("У вас пока нет привычек")
+                    Text("no_habits".localized)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
                 } else {
-                    Section(header: Text("Ваши привычки")) {
+                    Section {
                         ForEach(habits) { habit in
                             Button {
                                 selectedHabitForStats = habit

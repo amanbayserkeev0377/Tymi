@@ -20,24 +20,6 @@
     "%lld" : {
 
     },
-    "%lld%%" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
     "about" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -90,7 +72,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Active Days"
+            "value" : "Active days"
           }
         },
         "ky-KG" : {
@@ -160,6 +142,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Add progress"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогрессти кошуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить прогресс"
           }
         }
       }
@@ -326,7 +320,20 @@
       }
     },
     "Best" : {
-
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рекорд"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рекорд"
+          }
+        }
+      }
     },
     "best_streak" : {
       "extractionState" : "manual",
@@ -604,25 +611,48 @@
         }
       }
     },
+    "delete_habit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete habit"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адатты өчүрүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить привычку"
+          }
+        }
+      }
+    },
     "delete_habit_confirmation" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This will permanently delete all data for this habit."
+            "value" : "Are you sure you want to delete this habit? This action cannot be undone."
           }
         },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бардык маалыматтар өчүрүлөт."
+            "value" : "Бул адатты жоёбуз деп ишенесизби? Бул аракетти кайтарууга болбойт"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Все данные будут удалены."
+            "value" : "Вы уверены, что хотите удалить эту привычку? Это действие нельзя отменить."
           }
         }
       }
@@ -691,7 +721,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Изм."
+            "value" : "Изменить"
           }
         }
       }
@@ -714,7 +744,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Редактировать привычку"
+            "value" : "Редактировать"
           }
         }
       }
@@ -1233,6 +1263,18 @@
             "state" : "translated",
             "value" : "Loading calendar…"
           }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь жүктөлүүдө…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь загружается…"
+          }
         }
       }
     },
@@ -1396,9 +1438,6 @@
           }
         }
       }
-    },
-    "OK" : {
-
     },
     "okay" : {
       "extractionState" : "manual",
@@ -1607,6 +1646,29 @@
         }
       }
     },
+    "reset_all_history" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset history"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тарыхты өчүрүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить историю"
+          }
+        }
+      }
+    },
     "reset_history" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1620,6 +1682,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тарыхты өчүрөсүзбү?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить историю?"
           }
         }
       }
@@ -1636,7 +1704,7 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бул аракет көнүмүш тарыхын толугу менен өчүрөт. Бул аракетти артка кайтарууга болбойт."
+            "value" : "Адат тарыхы өчүрүлөт. Бул чечимди кайтара албайсыз."
           }
         },
         "ru" : {
@@ -1654,6 +1722,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete progress"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогрессти өчүрүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить прогресс"
           }
         }
       }
@@ -1779,7 +1859,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start Date"
+            "value" : "Start date"
           }
         },
         "ky-KG" : {
@@ -1820,7 +1900,20 @@
       }
     },
     "Streak" : {
-
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Үзгүлтүксүз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подряд"
+          }
+        }
+      }
     },
     "terms_of_service" : {
       "extractionState" : "manual",
@@ -1915,7 +2008,20 @@
       }
     },
     "Total" : {
-
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жалпы"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всего"
+          }
+        }
+      }
     },
     "total_completions" : {
       "extractionState" : "manual",
@@ -2066,41 +2172,17 @@
         }
       }
     },
-    "Активные дни" : {
-
-    },
-    "Ваши привычки" : {
-
-    },
-    "Дата начала" : {
-
-    },
-    "Загрузка календаря..." : {
-
-    },
-    "Информация о привычке" : {
-
-    },
-    "Отмена" : {
-
-    },
-    "Сбросить" : {
-
-    },
-    "Сбросить историю привычки" : {
-
-    },
-    "Сбросить историю?" : {
-
-    },
-    "У вас пока нет привычек" : {
-
-    },
-    "Цель" : {
-
-    },
     "Это действие удалит всю историю выполнения привычки. Это действие нельзя отменить." : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Это действие удалит всю историю выполнения привычки. Это действие нельзя отменить."
+          }
+        }
+      },
+      "shouldTranslate" : false
     }
   },
   "version" : "1.0"
