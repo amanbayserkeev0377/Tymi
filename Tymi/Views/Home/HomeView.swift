@@ -92,7 +92,6 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.large)
             .safeAreaInset(edge: .top, spacing: 0) {
                 WeeklyCalendarView(selectedDate: $selectedDate)
-                    .environment(\.calendarActionManager, CalendarActionManager())
             }
             .toolbar {
                 ToolbarItem(placement: .navigation) {
@@ -181,12 +180,6 @@ struct HomeView: View {
                         selectedHabitForStats = habit
                     }
                 )
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .calendarDayActionRequested)) { notification in
-                if let (habit, _) = notification.object as? (Habit, Date) {
-                    // При необходимости выполнить действие с привычкой и датой
-                    selectedHabit = habit
-                }
             }
         }
     }

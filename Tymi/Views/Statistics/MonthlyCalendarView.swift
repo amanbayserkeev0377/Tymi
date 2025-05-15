@@ -1,13 +1,19 @@
 import SwiftUI
 import SwiftData
 
+enum CalendarAction {
+    case complete, addProgress
+}
+
 struct MonthlyCalendarView: View {
     // MARK: - Properties
     let habit: Habit
     @Binding var selectedDate: Date
     
+    var updateCounter: Int = 0
+    var onActionRequested: (CalendarAction, Date) -> Void = { _, _ in }
+    
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.calendarActionManager) private var actionManager
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
     // MARK: - State
@@ -18,9 +24,6 @@ struct MonthlyCalendarView: View {
     @State private var calendarDays: [[Date?]] = []
     @State private var isLoading: Bool = false
     
-    // Используем CalendarViewModel для управления данными
-    @State private var viewModel: CalendarViewModel
-    
     // Отслеживаем обновления через @Query
     @Query private var completions: [HabitCompletion]
     
@@ -29,16 +32,11 @@ struct MonthlyCalendarView: View {
     }
     
     // MARK: - Initialization
-    init(habit: Habit, selectedDate: Binding<Date>) {
+    init(habit: Habit, selectedDate: Binding<Date>, updateCounter: Int = 0, onActionRequested: @escaping (CalendarAction, Date) -> Void = { _, _ in }) {
         self.habit = habit
         self._selectedDate = selectedDate
-        
-        // Инициализируем ViewModel
-        let container = try! ModelContainer(for: Habit.self, HabitCompletion.self)
-        self._viewModel = State(initialValue: CalendarViewModel(
-            habit: habit,
-            modelContext: container.mainContext
-        ))
+        self.updateCounter = updateCounter
+        self.onActionRequested = onActionRequested
         
         // Настраиваем @Query для отслеживания завершений этой привычки
         let habitId = habit.id
@@ -84,20 +82,7 @@ struct MonthlyCalendarView: View {
                 generateMonths()
                 findCurrentMonthIndex()
                 generateCalendarDays()
-                viewModel.updateProgressData(in: modelContext)
                 isLoading = false
-            }
-        }
-        // Реактивно обновляем данные при изменении завершений
-        .onChange(of: completions) { _, _ in
-            Task { @MainActor in
-                viewModel.updateProgressData(in: modelContext)
-            }
-        }
-        // Обновляем при изменении сервиса
-        .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
-            Task { @MainActor in
-                viewModel.updateProgressData(in: modelContext)
             }
         }
         // Обновляем при смене выбранной даты
@@ -107,6 +92,11 @@ struct MonthlyCalendarView: View {
                 generateCalendarDays()
             }
         }
+        // Учитываем внешний счётчик обновлений
+        .onChange(of: updateCounter) { _, _ in
+            // Принудительно обновляем интерфейс
+            generateCalendarDays()
+        }
         // Диалог для действий с датой
         .confirmationDialog(
             Text(dateFormatter.string(from: selectedActionDate ?? Date())),
@@ -115,13 +105,13 @@ struct MonthlyCalendarView: View {
         ) {
             Button("complete".localized) {
                 if let date = selectedActionDate {
-                    completeHabit(for: date)
+                    onActionRequested(.complete, date)
                 }
             }
             
             Button("add_progress".localized) {
                 if let date = selectedActionDate {
-                    addProgress(for: date)
+                    onActionRequested(.addProgress, date)
                 }
             }
             
@@ -174,8 +164,7 @@ struct MonthlyCalendarView: View {
                     if let date = calendarDays[row][column] {
                         // Проверяем, активна ли дата
                         let isActiveDate = date <= Date() && date >= habit.startDate && habit.isActiveOnDate(date)
-                        // Получаем прогресс из ViewModel
-                        let progress = viewModel.getProgress(for: date)
+                        let progress = habit.completionPercentageForDate(date)
                         
                         DayProgressItem(
                             date: date,
@@ -193,11 +182,10 @@ struct MonthlyCalendarView: View {
                         )
                         .frame(width: 35, height: 40)
                         // Уникальный ID, включающий прогресс для обновления
-                        .id("\(row)-\(column)-\(progress)-\(isActiveDate)")
+                        .id("\(row)-\(column)-\(progress)-\(updateCounter)")
                     } else {
                         Color.clear
                             .frame(width: 35, height: 40)
-                            .id("\(row)-\(column)-empty")
                     }
                 }
             }
@@ -350,28 +338,6 @@ struct MonthlyCalendarView: View {
         }
     }
     
-    // MARK: - Actions
-    
-    private func completeHabit(for date: Date) {
-        let detailVM = HabitDetailViewModel(
-            habit: habit,
-            date: date,
-            modelContext: modelContext,
-            habitsUpdateService: habitsUpdateService
-        )
-        detailVM.completeHabit()
-        detailVM.saveIfNeeded()
-        
-        // Обновление UI через сервис
-        habitsUpdateService.triggerUpdate()
-        HapticManager.shared.play(.success)
-    }
-
-    private func addProgress(for date: Date) {
-        // Использование CalendarActionManager для передачи действия родительскому представлению
-        actionManager.requestAction(.addProgress, habit: habit, date: date)
-    }
-    
     // MARK: - Formatters
     
     private let dateFormatter: DateFormatter = {
@@ -385,16 +351,4 @@ struct MonthlyCalendarView: View {
         formatter.dateFormat = "MMMM yyyy"
         return formatter
     }()
-}
-
-// Environment key для CalendarActionManager
-private struct CalendarActionManagerKey: EnvironmentKey {
-    static let defaultValue: CalendarActionManager = CalendarActionManager()
-}
-
-extension EnvironmentValues {
-    var calendarActionManager: CalendarActionManager {
-        get { self[CalendarActionManagerKey.self] }
-        set { self[CalendarActionManagerKey.self] = newValue }
-    }
 }

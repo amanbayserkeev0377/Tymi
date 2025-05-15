@@ -5,6 +5,7 @@ struct AlertState: Equatable {
     var isCountAlertPresented: Bool = false
     var isTimeAlertPresented: Bool = false
     var isDeleteAlertPresented: Bool = false
+    var date: Date? = nil
     
     var countInputText: String = ""
     var hoursInputText: String = ""
@@ -19,7 +20,8 @@ struct AlertState: Equatable {
         lhs.isDeleteAlertPresented == rhs.isDeleteAlertPresented &&
         lhs.countInputText == rhs.countInputText &&
         lhs.hoursInputText == rhs.hoursInputText &&
-        lhs.minutesInputText == rhs.minutesInputText
+        lhs.minutesInputText == rhs.minutesInputText &&
+        lhs.date?.timeIntervalSince1970 == rhs.date?.timeIntervalSince1970
     }
 }
 
@@ -166,7 +168,7 @@ extension View {
         onTimeInput: @escaping () -> Void
     ) -> some View {
         self
-            // Удаляем вызов resetProgressAlert
+        // Удаляем вызов resetProgressAlert
             .deleteHabitAlert(isPresented: alertState.isDeleteAlertPresented, onDelete: onDelete)
             .countInputAlert(
                 isPresented: alertState.isCountAlertPresented,

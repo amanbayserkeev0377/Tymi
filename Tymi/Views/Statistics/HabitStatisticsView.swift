@@ -14,7 +14,7 @@ struct HabitStatisticsView: View {
     @State private var detailViewModel: HabitDetailViewModel?
     @State private var showingResetAlert = false
     @State private var alertState = AlertState()
-    @State private var calendarActionManager = CalendarActionManager()
+    @State private var updateCounter = 0 // Счётчик обновлений для UI
     
     // MARK: - Initialization
     init(habit: Habit) {
@@ -30,9 +30,13 @@ struct HabitStatisticsView: View {
             
             // Календарь месяца
             Section {
-                MonthlyCalendarView(habit: habit, selectedDate: $selectedDate)
-                    .listRowInsets(EdgeInsets())
-                    .environment(\.calendarActionManager, calendarActionManager)
+                MonthlyCalendarView(
+                    habit: habit,
+                    selectedDate: $selectedDate,
+                    updateCounter: updateCounter,
+                    onActionRequested: handleCalendarAction
+                )
+                .listRowInsets(EdgeInsets())
             }
             
             // Информация о привычке
@@ -76,34 +80,6 @@ struct HabitStatisticsView: View {
         }
         .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
             viewModel.calculateStats()
-            
-            habitsUpdateService.triggerUpdate()
-
-        }
-        // Добавляем обработчик для CalendarActionManager
-        .onChange(of: calendarActionManager.actionType) { _, newValue in
-            guard let actionType = newValue,
-                  let habit = calendarActionManager.habit,
-                  let date = calendarActionManager.date else { return }
-            
-            // Проверяем, что это наша привычка
-            guard habit.id == self.habit.id else { return }
-            
-            // Обрабатываем действие
-            switch actionType {
-            case .complete:
-                completeHabitDirectly(for: date)
-            case .addProgress:
-                // Показываем соответствующий алерт в зависимости от типа привычки
-                if habit.type == .count {
-                    alertState.isCountAlertPresented = true
-                } else {
-                    alertState.isTimeAlertPresented = true
-                }
-            }
-            
-            // Очищаем действие после обработки
-            calendarActionManager.clear()
         }
         // Обработчики успеха/ошибки для хаптической обратной связи
         .onChange(of: alertState.successFeedbackTrigger) { _, newValue in
@@ -113,7 +89,7 @@ struct HabitStatisticsView: View {
         }
         .onChange(of: alertState.errorFeedbackTrigger) { _, newValue in
             if newValue {
-                    HapticManager.shared.play(.error)
+                HapticManager.shared.play(.error)
             }
         }
         // Добавляем алерты для ввода прогресса
@@ -136,6 +112,24 @@ struct HabitStatisticsView: View {
             }
         } message: {
             Text("Это действие удалит всю историю выполнения привычки. Это действие нельзя отменить.")
+        }
+    }
+    
+    // MARK: - Обработка действий календаря
+    private func handleCalendarAction(_ action: CalendarAction, date: Date) {
+        switch action {
+            case .complete:
+                completeHabitDirectly(for: date)
+            case .addProgress:
+                // Сохраняем дату для обработки в алертах
+                alertState.date = date
+                
+                // Показываем соответствующий алерт в зависимости от типа привычки
+                if habit.type == .count {
+                    alertState.isCountAlertPresented = true
+                } else {
+                    alertState.isTimeAlertPresented = true
+                }
         }
     }
     
@@ -185,21 +179,22 @@ struct HabitStatisticsView: View {
         viewModel.calculateStats()
         
         habitsUpdateService.triggerUpdate()
-
+        
         HapticManager.shared.play(.success)
+        
+        updateCounter += 1
     }
     
     // Методы для обработки ввода
-    // В HabitStatisticsView.swift
     private func handleCountInput() {
-        guard let date = calendarActionManager.date else { return }
-        guard let count = Int(alertState.countInputText), count > 0 else {
+        // Получаем дату из alertState
+        guard let date = alertState.date, let count = Int(alertState.countInputText), count > 0 else {
             alertState.errorFeedbackTrigger.toggle()
             alertState.countInputText = ""
             return
         }
         
-        // Создаем временный ViewModel
+        // Создаем временный ViewModel для обновления данных
         let tempViewModel = HabitDetailViewModel(
             habit: habit,
             date: date,
@@ -209,17 +204,23 @@ struct HabitStatisticsView: View {
         
         tempViewModel.alertState.countInputText = alertState.countInputText
         tempViewModel.handleCountInput()
+        tempViewModel.saveIfNeeded()
+        
+        // Обновляем статистику
         viewModel.calculateStats()
         
-        // Вызываем обновление UI через сервис
+        // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()
+        
+        // Принудительно обновляем UI календаря
+        updateCounter += 1
         
         // Очищаем поле ввода
         alertState.countInputText = ""
     }
     
     private func handleTimeInput() {
-        guard let date = calendarActionManager.date else { return }
+        guard let date = alertState.date else { return }
         let hours = Int(alertState.hoursInputText) ?? 0
         let minutes = Int(alertState.minutesInputText) ?? 0
         
@@ -242,12 +243,16 @@ struct HabitStatisticsView: View {
         
         // Обрабатываем ввод
         tempViewModel.handleTimeInput()
+        tempViewModel.saveIfNeeded()
         
         // Обновляем статистику
         viewModel.calculateStats()
         
-        // Вызываем обновление UI через сервис
+        // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()
+        
+        // Принудительно обновляем UI календаря
+        updateCounter += 1
         
         // Очищаем поля ввода
         alertState.hoursInputText = ""
@@ -265,8 +270,12 @@ struct HabitStatisticsView: View {
         
         // Обновляем статистику
         viewModel.calculateStats()
+        
+        // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()
         
+        // Обновляем UI календаря
+        updateCounter += 1
     }
     
     // MARK: - Форматтеры
