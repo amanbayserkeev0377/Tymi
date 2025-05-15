@@ -69,18 +69,15 @@ struct HabitRowView: View {
             withAnimation {
                 isPressed = true
             }
-            
+
             Task {
-                try? await Task.sleep(for: .seconds(0.1))
-                if !Task.isCancelled {
-                    await MainActor.run {
-                        withAnimation {
-                            isPressed = false
-                        }
-                        onTap?()
-                    }
+                try? await Task.sleep(for: .milliseconds(100))
+                withAnimation {
+                    isPressed = false
                 }
+                onTap?()
             }
         }
+
     }
 }

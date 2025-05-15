@@ -96,10 +96,9 @@ struct HabitStatisticsView: View {
                 } label: {
                     Label {
                         Text("delete_habit".localized)
-                        // Текст автоматически получит красный цвет от role: .destructive
                     } icon: {
                         Image(systemName: "trash")
-                            .foregroundStyle(.red) // Явно устанавливаем красный цвет для иконки
+                            .foregroundStyle(.red)
                     }
                 }
             }

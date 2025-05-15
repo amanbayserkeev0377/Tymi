@@ -78,7 +78,7 @@ struct HabitDetailView: View {
                                 viewModel.isAlreadyCompleted
                                 ? Color.gray
                                 : (colorScheme == .dark
-                                   ? Color.white.opacity(0.7)
+                                   ? Color.white.opacity(0.8)
                                    : Color.black)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -147,7 +147,7 @@ struct HabitDetailView: View {
                         onShowStats()
                     }
                 } label: {
-                    Image(systemName: "chart.bar")
+                    Image(systemName: "chart.pie.fill")
                 }
             }
             
@@ -167,8 +167,9 @@ struct HabitDetailView: View {
                     } label: {
                         Label("delete".localized, systemImage: "trash")
                     }
+                    .tint(.red)
                 } label: {
-                    Image(systemName: "ellipsis")
+                    Image(systemName: "ellipsis.circle.fill")
                 }
             }
         }
@@ -225,11 +226,6 @@ struct HabitDetailView: View {
         
         // Обновляем ViewModel и активируем контент
         viewModel = vm
-        
-        // Небольшая задержка для плавности анимации
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(50))
-            isContentReady = true
-        }
+        isContentReady = true
     }
 }

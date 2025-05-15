@@ -51,7 +51,10 @@ struct HomeView: View {
             ZStack {
                 VStack {
                     ScrollView {
-                        LazyVStack(spacing: 0) {
+                        VStack(spacing: 0) {
+                            
+                            WeeklyCalendarView(selectedDate: $selectedDate)
+                            
                             if baseHabits.isEmpty {
                                 // Нет привычек вообще
                                 EmptyStateView()
@@ -63,15 +66,6 @@ struct HomeView: View {
                                 // Список привычек для выбранной даты
                                 if hasHabitsForDate {
                                     habitList
-                                } else {
-                                    // Специальное сообщение, если нет привычек на выбранную дату
-                                    if !Calendar.current.isDateInToday(selectedDate) {
-                                        Text("try_selecting_today".localized)
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                            .multilineTextAlignment(.center)
-                                            .padding(.top, 20)
-                                    }
                                 }
                             }
                         }
@@ -80,11 +74,8 @@ struct HomeView: View {
             }
             .navigationTitle(formattedNavigationTitle(for: selectedDate))
             .navigationBarTitleDisplayMode(.large)
-            .safeAreaInset(edge: .top, spacing: 0) {
-                WeeklyCalendarView(selectedDate: $selectedDate)
-            }
             .toolbar {
-                ToolbarItem(placement: .navigation) {
+                ToolbarItem(placement: .primaryAction) {
                     if !Calendar.current.isDateInToday(selectedDate) {
                         Button(action: {
                             withAnimation {
@@ -95,7 +86,7 @@ struct HomeView: View {
                                 Text("today".localized)
                                     .font(.footnote)
                                     .foregroundStyle(Color.gray.opacity(0.7))
-                                Image(systemName: "arrow.right")
+                                Image(systemName: "arrow.uturn.left")
                                     .font(.system(size: 9))
                                     .foregroundStyle(Color.gray.opacity(0.7))
                             }
@@ -113,7 +104,8 @@ struct HomeView: View {
                     Button(action: {
                         isShowingNewHabitSheet = true
                     }) {
-                        Image(systemName: "plus")
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 24))
                     }
                 }
             }
@@ -138,6 +130,7 @@ struct HomeView: View {
                 }
                 .presentationDetents([.fraction(0.7)])
                 .presentationDragIndicator(.visible)
+                .presentationCornerRadius(35)
             }
             .sheet(item: $selectedHabitForStats) { habit in
                 NavigationStack {
@@ -177,7 +170,7 @@ struct HomeView: View {
     // MARK: - Habit Views
     
     private var habitList: some View {
-        LazyVStack(spacing: 12) {
+        LazyVStack(spacing: 4) {
             ForEach(activeHabitsForDate) { habit in
                 HabitRowView(habit: habit, date: selectedDate, onTap: {
                     selectedHabit = habit
@@ -213,7 +206,7 @@ struct HomeView: View {
                     Button {
                         isReorderingSheetPresented = true
                     } label: {
-                        Label("reorder_habits".localized, systemImage: "list.number")
+                        Label("reorder_habits".localized, systemImage: "list.bullet")
                     }
                     
                     Button(role: .destructive) {
@@ -221,10 +214,10 @@ struct HomeView: View {
                     } label: {
                         Label("delete".localized, systemImage: "trash")
                     }
+                    .tint(.red)
                 }
                 .id(habit.uuid)
             }
-            .padding(.top, 12)
         }
     }
     

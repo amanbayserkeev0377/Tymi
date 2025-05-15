@@ -1370,6 +1370,29 @@
         }
       }
     },
+    "no_habits_for_date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No habits for this date"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бул күнү сизде адаттар жок окшойт\n"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этот день у вас нет привычек"
+          }
+        }
+      }
+    },
     "no_icon" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2052,30 +2075,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Try selecting a different date or add a new habit"
+            "value" : "Try selecting a different date"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Башка күндү тандап көрүңүз"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Попробуйте выбрать другую дату или добавить новую привычку"
-          }
-        }
-      }
-    },
-    "try_selecting_today" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No habits for this date. Try selecting today or add a new habit"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет привычек на эту дату. Попробуйте выбрать сегодня или добавить новую привычку"
+            "value" : "Попробуйте выбрать другую дату"
           }
         }
       }

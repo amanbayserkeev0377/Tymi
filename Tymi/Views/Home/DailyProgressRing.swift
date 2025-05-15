@@ -107,8 +107,3 @@ struct DailyProgressRing: View {
         .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in }
     }
 }
-
-#Preview {
-    DailyProgressRing(date: Date())
-        .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
-}
