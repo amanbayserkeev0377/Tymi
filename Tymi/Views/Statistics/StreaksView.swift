@@ -40,5 +40,6 @@ struct StreaksView: View {
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 8)
+        .id("streaks-\(viewModel.currentStreak)-\(viewModel.bestStreak)-\(viewModel.totalValue)")
     }
 } 

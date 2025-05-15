@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 enum CalendarAction {
-    case complete, addProgress
+    case complete, addProgress, resetProgress
 }
 
 struct MonthlyCalendarView: View {
@@ -48,11 +48,49 @@ struct MonthlyCalendarView: View {
     
     var body: some View {
         VStack(spacing: 10) {
-            Text(monthYearFormatter.string(from: currentMonth))
-                .font(.title3)
-                .fontWeight(.bold)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 5)
+            // Заголовок месяца и кнопки навигации в улучшенном макете (название слева, кнопки справа)
+            HStack {
+                // Название месяца слева
+                Text(monthYearFormatter.string(from: currentMonth))
+                    .font(.headline)
+                    .fontWeight(.medium)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Кнопки справа
+                HStack(spacing: 16) {
+                    Button {
+                        // Без анимации для повышения производительности
+                        if currentMonthIndex > 0 {
+                            currentMonthIndex -= 1
+                            generateCalendarDays()
+                        }
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(currentMonthIndex > 0 ? .primary : .gray.opacity(0.5))
+                            .contentShape(Rectangle())
+                            .frame(width: 30, height: 30)
+                    }
+                    .disabled(currentMonthIndex <= 0)
+                    .buttonStyle(BorderlessButtonStyle())
+                    
+                    Button {
+                        // Без анимации для повышения производительности
+                        if currentMonthIndex < months.count - 1 && !isNextMonthDisabled {
+                            currentMonthIndex += 1
+                            generateCalendarDays()
+                        }
+                    } label: {
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(isNextMonthDisabled ? .gray.opacity(0.5) : .primary)
+                            .contentShape(Rectangle())
+                            .frame(width: 30, height: 30)
+                    }
+                    .disabled(isNextMonthDisabled)
+                    .buttonStyle(BorderlessButtonStyle())
+                }
+            }
+            .padding(.horizontal)
+            .zIndex(1)
             
             // Дни недели
             weekdayHeader
@@ -60,23 +98,18 @@ struct MonthlyCalendarView: View {
             // Месячный календарь
             if isLoading {
                 ProgressView()
-                    .frame(height: 250) // Увеличиваем размер для лучшего вида
+                    .frame(height: 250)
             } else if months.isEmpty || calendarDays.isEmpty {
-                Text("Загрузка календаря...")
+                Text("loading_calendar".localized)
                     .frame(height: 250)
             } else {
-                // Используем PageTabViewStyle для более нативного опыта переключения
-                TabView(selection: $currentMonthIndex) {
-                    ForEach(Array(months.enumerated()), id: \.element) { index, month in
-                        monthGrid(forMonth: month)
-                            .tag(index)
-                    }
+                // Месячная сетка
+                VStack {
+                    monthGrid(forMonth: currentMonth)
+                        .frame(height: min(CGFloat(calendarDays.count) * 55, 300))
+                        .id("month-\(currentMonthIndex)-\(updateCounter)") // Уникальный ID обновляет контент
                 }
-                .tabViewStyle(.page(indexDisplayMode: .always)) // Показываем индикатор страниц внизу
-                .frame(height: min(CGFloat(calendarDays.count) * 55, 300)) // Увеличиваем высоту
-                .onChange(of: currentMonthIndex) { _, _ in
-                    generateCalendarDays()
-                }
+                .background(Color.clear)
             }
         }
         .padding(.horizontal, 5)
@@ -89,11 +122,13 @@ struct MonthlyCalendarView: View {
                 isLoading = false
             }
         }
-        // Обновляем при смене выбранной даты
+        // Обновляем при смене выбранной даты (без анимации)
         .onChange(of: selectedDate) { _, newDate in
             if let monthIndex = findMonthIndex(for: newDate) {
-                currentMonthIndex = monthIndex
-                generateCalendarDays()
+                if monthIndex != currentMonthIndex {
+                    currentMonthIndex = monthIndex
+                    generateCalendarDays()
+                }
             }
         }
         // Учитываем внешний счётчик обновлений
@@ -117,6 +152,14 @@ struct MonthlyCalendarView: View {
                 if let date = selectedActionDate {
                     onActionRequested(.addProgress, date)
                 }
+            }
+            
+            Button(role: .destructive) {
+                if let date = selectedActionDate {
+                    onActionRequested(.resetProgress, date)
+                }
+            } label: {
+                Text("reset_progress".localized)
             }
             
             Button("cancel".localized, role: .cancel) {}
@@ -162,9 +205,10 @@ struct MonthlyCalendarView: View {
                             },
                             showProgressRing: isActiveDate // Показываем кольцо только для активных дней
                         )
-                        .frame(width: 40, height: 40) // Увеличиваем размер для лучшей видимости
-                        // Уникальный ID, включающий прогресс для обновления
-                        .id("\(row)-\(column)-\(progress)-\(updateCounter)")
+                        .frame(width: 40, height: 40)
+                        // Уникальный ID для элемента дня
+                        .id("\(row)-\(column)-\(date.timeIntervalSince1970)-\(progress)-\(updateCounter)")
+                        .buttonStyle(BorderlessButtonStyle())
                     } else {
                         Color.clear
                             .frame(width: 40, height: 40)
@@ -193,24 +237,35 @@ struct MonthlyCalendarView: View {
     // MARK: - Methods
     
     private func generateMonths() {
-        let startDate = habit.startDate
         let today = Date()
         
-        // Создаем массив дат для месяцев
-        var dateComponents = calendar.dateComponents([.year, .month], from: startDate)
-        let startMonth = calendar.date(from: dateComponents)!
+        // Ограничиваем startDate не более чем 1 годом назад
+        let oneYearAgo = calendar.date(byAdding: .year, value: -1, to: today) ?? today
+        let effectiveStartDate = max(habit.startDate, oneYearAgo)
         
-        dateComponents = calendar.dateComponents([.year, .month], from: today)
-        let currentMonth = calendar.date(from: dateComponents)!
+        // Создаем массив дат для месяцев - сначала получаем компоненты
+        let startComponents = calendar.dateComponents([.year, .month], from: effectiveStartDate)
+        let todayComponents = calendar.dateComponents([.year, .month], from: today)
         
-        var month = startMonth
+        // Гарантируем, что у нас есть корректные начальные даты
+        guard let startMonth = calendar.date(from: startComponents),
+              let currentMonth = calendar.date(from: todayComponents) else {
+            months = [today] // Дефолтное значение если что-то пошло не так
+            return
+        }
+        
         var generatedMonths: [Date] = []
+        var currentDate = startMonth
         
         // Генерируем месяцы от начала привычки до текущего месяца
-        while month <= currentMonth {
-            generatedMonths.append(month)
-            guard let nextMonth = calendar.date(byAdding: .month, value: 1, to: month) else { break }
-            month = nextMonth
+        while currentDate <= currentMonth {
+            generatedMonths.append(currentDate)
+            
+            // Добавляем месяц безопасным способом
+            guard let nextMonth = calendar.date(byAdding: DateComponents(month: 1), to: currentDate) else {
+                break
+            }
+            currentDate = nextMonth
         }
         
         // Если нет месяцев или слишком мало, генерируем хотя бы текущий
@@ -309,6 +364,7 @@ struct MonthlyCalendarView: View {
         }
     }
     
+    // Эти методы теперь вызываются напрямую из кнопок
     private func showPreviousMonth() {
         if currentMonthIndex > 0 {
             currentMonthIndex -= 1

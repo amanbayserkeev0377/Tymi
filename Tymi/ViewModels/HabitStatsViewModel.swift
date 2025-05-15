@@ -1,13 +1,16 @@
 import SwiftUI
 import SwiftData
 
-class HabitStatsViewModel: Observable {
+@Observable
+class HabitStatsViewModel {
     let habit: Habit
     
     // Основные метрики, которые мы отслеживаем
-    private(set) var currentStreak: Int = 0
-    private(set) var bestStreak: Int = 0
-    private(set) var totalValue: Int = 0
+    var currentStreak: Int = 0
+    var bestStreak: Int = 0
+    var totalValue: Int = 0
+    
+    private var updateCounter: Int = 0
     
     init(habit: Habit) {
         self.habit = habit
@@ -35,79 +38,117 @@ class HabitStatsViewModel: Observable {
             }
         }
         
-        // totalValue теперь Int
-        totalValue = completedDaysSet.count
+        // Сохраняем предыдущие значения
+        let oldCurrentStreak = currentStreak
+        let oldBestStreak = bestStreak
+        let oldTotalValue = totalValue
         
-        // Вычисляем серии
+        // Обновляем значения
+        totalValue = completedDaysSet.count
         currentStreak = calculateCurrentStreak(completedDates: completedDates)
         bestStreak = calculateBestStreak(completedDates: completedDates)
+        
+        // Если значения изменились, увеличиваем счетчик для триггера обновления UI
+        if oldCurrentStreak != currentStreak || oldBestStreak != bestStreak || oldTotalValue != totalValue {
+            updateCounter += 1
+        }
     }
     
     // Вычисление текущей серии
     private func calculateCurrentStreak(completedDates: [Date]) -> Int {
         let calendar = Calendar.current
-        let today = Date()
-        var currentStreakCount = 0
+        let today = calendar.startOfDay(for: Date())
+        
+        // Преобразуем даты в начало дня и сортируем по убыванию
+        let sortedDates = completedDates
+            .map { calendar.startOfDay(for: $0) }
+            .sorted(by: >)
+        
+        // Если нет выполненных дат, возвращаем 0
+        guard !sortedDates.isEmpty else { return 0 }
         
         // Проверяем, выполнена ли привычка сегодня
-        let isCompletedToday = habit.isCompletedForDate(today)
+        let isCompletedToday = sortedDates.contains { calendar.isDate($0, inSameDayAs: today) }
         
-        // Начинаем с сегодняшнего дня или вчерашнего, если сегодня не выполнено
-        var checkDate = isCompletedToday ? today : calendar.date(byAdding: .day, value: -1, to: today)!
-        
-        // Идем назад по дням
-        while true {
-            // Проверяем только активные дни
-            if habit.isActiveOnDate(checkDate) {
-                // Проверяем, выполнена ли привычка
-                let isCompleted = completedDates.contains { calendar.isDate($0, inSameDayAs: checkDate) }
-                
-                if isCompleted {
-                    currentStreakCount += 1
-                } else {
-                    break // Серия прервана
-                }
-            }
-            
-            // Переходим к предыдущему дню
-            guard let previousDate = calendar.date(byAdding: .day, value: -1, to: checkDate),
-                  previousDate >= habit.startDate else { break }
-            
-            checkDate = previousDate
+        // Если сегодня активный день для привычки и привычка не выполнена
+        // (и время позднее, например, 23:00), стрик прерывается
+        if habit.isActiveOnDate(today) && !isCompletedToday && calendar.component(.hour, from: Date()) >= 23 {
+            return 0
         }
         
-        return currentStreakCount
+        // Считаем стрик с последней выполненной даты
+        var streak = 0
+        var currentDate = isCompletedToday ? today : calendar.date(byAdding: .day, value: -1, to: today)!
+        
+        // Двигаемся назад по дням и проверяем выполнения
+        while true {
+            // Если день не активен, пропускаем его
+            if !habit.isActiveOnDate(currentDate) {
+                currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate)!
+                // Прекращаем если вышли за пределы начальной даты
+                if currentDate < habit.startDate {
+                    break
+                }
+                continue
+            }
+            
+            // Проверяем, выполнена ли привычка в этот день
+            let isCompletedOnDate = sortedDates.contains { calendar.isDate($0, inSameDayAs: currentDate) }
+            
+            if isCompletedOnDate {
+                // Увеличиваем счетчик стрика
+                streak += 1
+                // Двигаемся к предыдущему дню
+                currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate)!
+                
+                // Прекращаем если вышли за пределы начальной даты
+                if currentDate < habit.startDate {
+                    break
+                }
+            } else {
+                // Стрик прерван при первом невыполненном активном дне
+                break
+            }
+        }
+        
+        return streak
     }
     
     // Вычисление лучшей серии
     private func calculateBestStreak(completedDates: [Date]) -> Int {
         let calendar = Calendar.current
-        let now = Date()
-        var bestStreakCount = 0
-        var tempStreak = 0
+        let today = calendar.startOfDay(for: Date())
         
-        // Проходим все дни от начала до сегодня
-        var checkDate = habit.startDate
+        // Преобразуем даты в начало дня
+        let completedDays = completedDates
+            .map { calendar.startOfDay(for: $0) }
+            .reduce(into: Set<Date>()) { result, date in
+                result.insert(date)
+            }
         
-        while checkDate <= now {
-            // Проверяем только активные дни
+        var bestStreak = 0
+        var currentStreak = 0
+        var checkDate = calendar.startOfDay(for: habit.startDate)
+        
+        // Проходим все дни от начала привычки до сегодня
+        while checkDate <= today {
+            // Если день активен для привычки
             if habit.isActiveOnDate(checkDate) {
-                // Проверяем, выполнена ли привычка
-                let isCompleted = completedDates.contains { calendar.isDate($0, inSameDayAs: checkDate) }
-                
-                if isCompleted {
-                    tempStreak += 1
-                    bestStreakCount = max(bestStreakCount, tempStreak)
+                // Проверяем, выполнена ли привычка в этот день
+                if completedDays.contains(checkDate) {
+                    currentStreak += 1
+                    // Обновляем лучший стрик, если текущий больше
+                    bestStreak = max(bestStreak, currentStreak)
                 } else {
-                    tempStreak = 0
+                    // Стрик прерван
+                    currentStreak = 0
                 }
             }
             
             // Переходим к следующему дню
-            guard let nextDate = calendar.date(byAdding: .day, value: 1, to: checkDate) else { break }
-            checkDate = nextDate
+            checkDate = calendar.date(byAdding: .day, value: 1, to: checkDate)!
         }
         
-        return bestStreakCount
+        return bestStreak
     }
 }

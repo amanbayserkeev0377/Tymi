@@ -35,7 +35,8 @@
             "value" : "%lld%%"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "about" : {
       "extractionState" : "manual",
@@ -148,6 +149,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Добавить количество"
+          }
+        }
+      }
+    },
+    "add_progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add progress"
           }
         }
       }
@@ -799,40 +811,6 @@
         }
       }
     },
-    "failed_to_generate_calendar" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to generate calendar"
-          }
-        }
-      }
-    },
-    "frozen_habit_info" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You can find your frozen habit in Settings → Habits."
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Жөндөөлөрдө тоңдурулган адаттарды таба аласыз → Адаттар."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вы можете найти замороженные привычки в Настройках → Привычки."
-          }
-        }
-      }
-    },
     "future_self_thank_you" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1247,6 +1225,17 @@
         }
       }
     },
+    "loading_calendar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading calendar…"
+          }
+        }
+      }
+    },
     "minutes" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1591,6 +1580,80 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сообщить об ошибке"
+          }
+        }
+      }
+    },
+    "reset" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Өчүрүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить"
+          }
+        }
+      }
+    },
+    "reset_history" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset history?"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тарыхты өчүрөсүзбү?"
+          }
+        }
+      }
+    },
+    "reset_history_alert" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This action will delete the entire habit history. This action cannot be undone."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бул аракет көнүмүш тарыхын толугу менен өчүрөт. Бул аракетти артка кайтарууга болбойт."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это действие удалит всю историю выполнения привычки. Это действие нельзя отменить."
+          }
+        }
+      }
+    },
+    "reset_progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete progress"
           }
         }
       }

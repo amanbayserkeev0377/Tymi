@@ -80,8 +80,9 @@ struct HabitStatisticsView: View {
                 }
             }
         }
-        .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
-            viewModel.calculateStats()
+        .onChange(of: updateCounter) { _, _ in
+            // Пересоздаем viewModel для гарантированного обновления
+            viewModel = HabitStatsViewModel(habit: habit)
         }
         // Обработчики успеха/ошибки для хаптической обратной связи
         .onChange(of: alertState.successFeedbackTrigger) { _, newValue in
@@ -107,13 +108,13 @@ struct HabitStatisticsView: View {
                 handleTimeInput()
             }
         )
-        .alert("Сбросить историю?", isPresented: $showingResetAlert) {
-            Button("Отмена", role: .cancel) { }
-            Button("Сбросить", role: .destructive) {
+        .alert("reset_history", isPresented: $showingResetAlert) {
+            Button("cancel".localized, role: .cancel) { }
+            Button("reset".localized, role: .destructive) {
                 resetHabitHistory()
             }
         } message: {
-            Text("Это действие удалит всю историю выполнения привычки. Это действие нельзя отменить.")
+            Text("reset_history_alert".localized)
         }
     }
     
@@ -132,6 +133,8 @@ struct HabitStatisticsView: View {
                 } else {
                     alertState.isTimeAlertPresented = true
                 }
+            case .resetProgress:
+                resetProgressDirectly(for: date)
         }
     }
     
@@ -184,6 +187,8 @@ struct HabitStatisticsView: View {
         
         HapticManager.shared.play(.success)
         
+        viewModel = HabitStatsViewModel(habit: habit)
+        
         updateCounter += 1
     }
     
@@ -213,6 +218,8 @@ struct HabitStatisticsView: View {
         
         // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()
+        
+        viewModel = HabitStatsViewModel(habit: habit)
         
         // Принудительно обновляем UI календаря
         updateCounter += 1
@@ -253,12 +260,42 @@ struct HabitStatisticsView: View {
         // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()
         
+        viewModel = HabitStatsViewModel(habit: habit)
+        
         // Принудительно обновляем UI календаря
         updateCounter += 1
         
         // Очищаем поля ввода
         alertState.hoursInputText = ""
         alertState.minutesInputText = ""
+    }
+    
+    private func resetProgressDirectly(for date: Date) {
+        // Создаем временный ViewModel для управления прогрессом привычки
+        let tempViewModel = HabitDetailViewModel(
+            habit: habit,
+            date: date,
+            modelContext: modelContext,
+            habitsUpdateService: habitsUpdateService
+        )
+        
+        // Сбрасываем прогресс
+        tempViewModel.resetProgress()
+        tempViewModel.saveIfNeeded()
+        
+        // Обновляем статистику
+        viewModel.calculateStats()
+        
+        // Триггерим обновление UI через сервис
+        habitsUpdateService.triggerUpdate()
+        
+        // Воспроизводим хаптик ошибки, как это делается в HabitDetailView
+        HapticManager.shared.play(.error)
+        
+        viewModel = HabitStatsViewModel(habit: habit)
+        
+        // Принудительно обновляем UI календаря
+        updateCounter += 1
     }
     
     private func resetHabitHistory() {
@@ -270,8 +307,8 @@ struct HabitStatisticsView: View {
         // Сохраняем изменения
         try? modelContext.save()
         
-        // Обновляем статистику
-        viewModel.calculateStats()
+        // Пересоздаем viewModel для гарантированного обновления
+        viewModel = HabitStatsViewModel(habit: habit)
         
         // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()

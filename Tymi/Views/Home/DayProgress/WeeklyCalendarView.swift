@@ -12,7 +12,6 @@ struct WeeklyCalendarView: View {
     @State private var weeks: [[Date]] = []
     @State private var currentWeekIndex: Int = 0
     @State private var progressData: [Date: Double] = [:]
-    @State private var errorMessage: String?
     
     private let weekCount = 12
     
@@ -79,11 +78,6 @@ struct WeeklyCalendarView: View {
             findCurrentWeekIndex()
             loadProgressData()
         }
-        .alert(errorMessage ?? "Error", isPresented: .constant(errorMessage != nil)) {
-            Button("OK") {
-                errorMessage = nil
-            }
-        }
     }
     
     // Остальные методы остаются без изменений
@@ -94,7 +88,7 @@ struct WeeklyCalendarView: View {
         guard let currentWeekStart = calendar.date(
             from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
         ) else {
-            errorMessage = "failed_to_generate_calendar".localized
+            print("ERROR: Failed to generate calendar weeks")
             weeks = []
             return
         }

@@ -110,7 +110,6 @@ struct DeleteHabitAlertModifier: ViewModifier {
 // MARK: - View Extensions
 
 extension View {
-    // Удаляем метод resetProgressAlert
     
     func countInputAlert(
         isPresented: Binding<Bool>,
