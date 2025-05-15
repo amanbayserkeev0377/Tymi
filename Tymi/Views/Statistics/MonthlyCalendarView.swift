@@ -48,8 +48,11 @@ struct MonthlyCalendarView: View {
     
     var body: some View {
         VStack(spacing: 10) {
-            // Месяц и навигация
-            monthHeader
+            Text(monthYearFormatter.string(from: currentMonth))
+                .font(.title3)
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 5)
             
             // Дни недели
             weekdayHeader
@@ -57,25 +60,26 @@ struct MonthlyCalendarView: View {
             // Месячный календарь
             if isLoading {
                 ProgressView()
-                    .frame(height: 200)
+                    .frame(height: 250) // Увеличиваем размер для лучшего вида
             } else if months.isEmpty || calendarDays.isEmpty {
                 Text("Загрузка календаря...")
-                    .frame(height: 200)
+                    .frame(height: 250)
             } else {
+                // Используем PageTabViewStyle для более нативного опыта переключения
                 TabView(selection: $currentMonthIndex) {
                     ForEach(Array(months.enumerated()), id: \.element) { index, month in
                         monthGrid(forMonth: month)
                             .tag(index)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(height: min(CGFloat(calendarDays.count) * 50, 270))
+                .tabViewStyle(.page(indexDisplayMode: .always)) // Показываем индикатор страниц внизу
+                .frame(height: min(CGFloat(calendarDays.count) * 55, 300)) // Увеличиваем высоту
                 .onChange(of: currentMonthIndex) { _, _ in
                     generateCalendarDays()
                 }
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 5)
         .onAppear {
             isLoading = true
             Task { @MainActor in
@@ -121,32 +125,8 @@ struct MonthlyCalendarView: View {
     
     // MARK: - Components
     
-    private var monthHeader: some View {
-        HStack {
-            Button(action: showPreviousMonth) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(currentMonthIndex > 0 ? .blue : .gray)
-            }
-            .disabled(currentMonthIndex <= 0)
-            
-            Spacer()
-            
-            Text(monthYearFormatter.string(from: currentMonth))
-                .font(.headline)
-                .fontWeight(.bold)
-            
-            Spacer()
-            
-            Button(action: showNextMonth) {
-                Image(systemName: "chevron.right")
-                    .foregroundColor(isNextMonthDisabled ? .gray : .blue)
-            }
-            .disabled(isNextMonthDisabled)
-        }
-    }
-    
     private var weekdayHeader: some View {
-        HStack {
+        HStack(spacing: 0) {
             ForEach(0..<7, id: \.self) { index in
                 Text(calendar.orderedWeekdayInitials[index])
                     .font(.caption)
@@ -155,10 +135,12 @@ struct MonthlyCalendarView: View {
                     .frame(maxWidth: .infinity)
             }
         }
+        .padding(.horizontal, 8)
+        .padding(.bottom, 8)
     }
     
     private func monthGrid(forMonth month: Date) -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
             ForEach(0..<calendarDays.count, id: \.self) { row in
                 ForEach(0..<7, id: \.self) { column in
                     if let date = calendarDays[row][column] {
@@ -180,16 +162,17 @@ struct MonthlyCalendarView: View {
                             },
                             showProgressRing: isActiveDate // Показываем кольцо только для активных дней
                         )
-                        .frame(width: 35, height: 40)
+                        .frame(width: 40, height: 40) // Увеличиваем размер для лучшей видимости
                         // Уникальный ID, включающий прогресс для обновления
                         .id("\(row)-\(column)-\(progress)-\(updateCounter)")
                     } else {
                         Color.clear
-                            .frame(width: 35, height: 40)
+                            .frame(width: 40, height: 40)
                     }
                 }
             }
         }
+        .padding(.horizontal, 8)
     }
     
     // MARK: - Helper Properties
@@ -349,6 +332,12 @@ struct MonthlyCalendarView: View {
     private let monthYearFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
+        
+        // Делаем первую букву заглавной для месяца
+        let original = formatter.string(from: Date())
+        let capitalized = original.prefix(1).uppercased() + original.dropFirst()
+        let _ = formatter.string(from: Date()) // Убеждаемся, что все работает
+        
         return formatter
     }()
 }

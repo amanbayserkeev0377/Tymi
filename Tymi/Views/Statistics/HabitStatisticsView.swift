@@ -37,7 +37,9 @@ struct HabitStatisticsView: View {
                     onActionRequested: handleCalendarAction
                 )
                 .listRowInsets(EdgeInsets())
+                .frame(maxWidth: .infinity) 
             }
+            .listSectionSeparator(.hidden)
             
             // Информация о привычке
             Section {
