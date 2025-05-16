@@ -1216,6 +1216,29 @@
         }
       }
     },
+    "legal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legal"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Юридикалык маалымат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правовая информация"
+          }
+        }
+      }
+    },
     "lifestyle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2131,7 +2154,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Политика Конфиденциальности"
+            "value" : "Конфиденциальность"
           }
         }
       }
@@ -3006,6 +3029,328 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сегодня"
+          }
+        }
+      }
+    },
+    "tos_contact_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you have any questions, feel free to contact me."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Суроолоруңуз болсо, мен менен байланышуудан тартынбаңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если у вас есть вопросы, не стесняйтесь связаться со мной."
+          }
+        }
+      }
+    },
+    "tos_contact_email_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Электрондук почта"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Электронная почта"
+          }
+        }
+      }
+    },
+    "tos_contact_telegram_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Телеграм"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Телеграм"
+          }
+        }
+      }
+    },
+    "tos_contact_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contact Me"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мен менен байланыш"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связь со мной"
+          }
+        }
+      }
+    },
+    "tos_intro_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This app is created for personal use to help you track your habits. By using Tymi, you agree to the following terms:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бул колдонмо жеке колдонууга арналган жана сизге адаттарыңызды көзөмөлдөөгө жардам берет. Tymi колдонуп, төмөнкү шарттарга макул болосуз:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это приложение создано для личного использования, чтобы помочь вам отслеживать свои привычки. Используя Tymi, вы соглашаетесь с следующими условиями:"
+          }
+        }
+      }
+    },
+    "tos_intro_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank you for choosing Tymi!"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi тандаганыңыз үчүн рахмат!"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спасибо, что выбрали Tymi!"
+          }
+        }
+      }
+    },
+    "tos_privacy_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app does not collect or transmit personal data."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонмо жеке маалыматтарды чогултпайт жана өткөрбөйт."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение не собирает и не передаёт личные данные."
+          }
+        }
+      }
+    },
+    "tos_privacy_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жеке маалыматтар"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Конфиденциальность"
+          }
+        }
+      }
+    },
+    "tos_risk_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You use the app at your own risk - I am not responsible for data loss or other possible issues."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонмону өзүңүздүн тобокелчилигиңизде колдонуп жатасыз - маалымат жоготуу же башка көйгөйлөр үчүн жоопкерчилик албайм."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы используете приложение на свой страх и риск - я не несу ответственности за потерю данных или другие возможные проблемы."
+          }
+        }
+      }
+    },
+    "tos_risk_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use at Your Own Risk"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонуу өз тобокелчилигиңизде"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использование на ваш страх и риск"
+          }
+        }
+      }
+    },
+    "tos_updates_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From time to time, I may update the app and terms to make it better."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кээде колдонмо жана шарттар жакшыртуу үчүн жаңыртылышы мүмкүн."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время от времени я могу обновлять приложение и условия, чтобы сделать его лучше."
+          }
+        }
+      }
+    },
+    "tos_updates_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updates"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жаңыртуулар"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновления"
+          }
+        }
+      }
+    },
+    "tos_warranty_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app is provided without any warranties - I try to make everything work well but cannot guarantee perfect accuracy."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонмо эч кандай кепилдиктерсиз берилет - баары жакшы иштеши үчүн аракет кылам, бирок толук тактыкты кепилдей албайм."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение предоставляется без гарантий - я стараюсь, чтобы всё работало хорошо, но не могу обещать идеальную точность."
+          }
+        }
+      }
+    },
+    "tos_warranty_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Warranty"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кепилдик жок"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отсутствие гарантий"
           }
         }
       }
