@@ -1170,6 +1170,742 @@
         }
       }
     },
+    "how_to_use" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to use"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кантип колдонуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как использовать"
+          }
+        }
+      }
+    },
+    "howto_calendar_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The weekly calendar at the top of the Home screen allows you to navigate between days and see your progress. Tap on any date to view and update habits for that day."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Башкы экрандын жогорку бөлүгүндөгү жумалык календар күндөрдүн арасында жүрүүгө жана прогрессиңизди көрүүгө мүмкүндүк берет. Каалаган күндү басып, ошол күн үчүн адаттарды көрүп жана жаңыртыңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недельный календарь в верхней части главного экрана позволяет перемещаться между днями и просматривать ваш прогресс. Нажмите на любую дату, чтобы просмотреть и обновить привычки для этого дня."
+          }
+        }
+      }
+    },
+    "howto_calendar_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Using the Calendar"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарды колдонуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использование календаря"
+          }
+        }
+      }
+    },
+    "howto_count_type_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For habits with a specific number goal (e.g., drinking 8 glasses of water)."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Белгилүү сандагы максаттары бар адаттар үчүн (мисалы, 8 стакан суу ичүү)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для привычек с конкретной числовой целью (например, выпить 8 стаканов воды)."
+          }
+        }
+      }
+    },
+    "howto_count_type_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Count"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сан"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество"
+          }
+        }
+      }
+    },
+    "howto_create_habit_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start by creating a habit you want to track. Give it a name, set a goal, and choose a tracking type."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Көзөмөлдөгүңүз келген адатты түзүүдөн баштаңыз. Ага ат коюңуз, максат коюңуз жана көзөмөлдөө түрүн тандаңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начните с создания привычки, которую хотите отслеживать. Дайте ей название, установите цель и выберите тип отслеживания."
+          }
+        }
+      }
+    },
+    "howto_create_habit_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Your First Habit"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Биринчи адатыңызды түзүңүз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создайте свою первую привычку"
+          }
+        }
+      }
+    },
+    "howto_daily_tracking_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap on a habit to record your progress. For count habits, use + or - buttons. For time habits, use the timer or manually add time."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогрессиңизди жазуу үчүн адатты басыңыз. Сан боюнча адаттар үчүн + же - баскычтарын колдонуңуз. Убакыт боюнча адаттар үчүн таймерди колдонуңуз же убакытты кол менен кошуп коюңуз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите на привычку, чтобы записать свой прогресс. Для привычек по количеству используйте кнопки + или -. Для привычек по времени используйте таймер или добавляйте время вручную."
+          }
+        }
+      }
+    },
+    "howto_daily_tracking_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Tracking"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Күнүмдүк көзөмөлдөө"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежедневное отслеживание"
+          }
+        }
+      }
+    },
+    "howto_habit_types_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi offers two types of habits to track different activities:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi ар кандай иш-аракеттерди көзөмөлдөө үчүн эки түрдүү адатты сунуштайт:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi предлагает два типа привычек для отслеживания различных активностей:"
+          }
+        }
+      }
+    },
+    "howto_habit_types_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a Habit Type"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адаттын түрүн тандаңыз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите тип привычки"
+          }
+        }
+      }
+    },
+    "howto_notifications_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don't forget your habits! Set up reminders when creating or editing a habit to get notifications at your specified times."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адаттарыңызды унутпаңыз! Адатты түзүүдө же түзөтүүдө эскертмелерди орнотуп, сиз каалаган убакта билдирүүлөрдү алыңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не забывайте о своих привычках! Настройте напоминания при создании или редактировании привычки, чтобы получать уведомления в указанное время."
+          }
+        }
+      }
+    },
+    "howto_notifications_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setting Reminders"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эскертмелерди орнотуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройка напоминаний"
+          }
+        }
+      }
+    },
+    "howto_personalization_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Customize the app appearance, set your preferred starting day of the week, and manage your habits from the Settings tab."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонмонун сырткы көрүнүшүн ыңгайлаштырыңыз, жуманын башталуучу күнүн тандаңыз жана Орнотуулар бөлүмүндө адаттарыңызды башкарыңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройте внешний вид приложения, выберите предпочтительный первый день недели и управляйте своими привычками в разделе Настройки."
+          }
+        }
+      }
+    },
+    "howto_personalization_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalize Your Experience"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Өз тажрыйбаңызды жекелештириңиз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Персонализируйте свой опыт"
+          }
+        }
+      }
+    },
+    "howto_settings_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings and Customization"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Орнотуулар жана жекелештирүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки и персонализация"
+          }
+        }
+      }
+    },
+    "howto_start_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi helps you build and maintain habits by tracking your daily progress. Here's how to get started:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi күнүмдүк прогрессиңизди көзөмөлдөө аркылуу адаттарды калыптандырууга жана сактоого жардам берет. Баштоо үчүн:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi помогает формировать и поддерживать привычки, отслеживая ваш ежедневный прогресс. Вот как начать:"
+          }
+        }
+      }
+    },
+    "howto_start_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting Started"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Баштоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начало работы"
+          }
+        }
+      }
+    },
+    "howto_statistics_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Understanding Statistics"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статистиканы түшүнүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Понимание статистики"
+          }
+        }
+      }
+    },
+    "howto_stats_detail_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To see detailed stats for a habit, tap on the habit and select the Statistics option. Here you'll find your performance over time."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адат боюнча толук статистиканы көрүү үчүн адатты басып, Статистика опциясын тандаңыз. Бул жерде сиздин бардык убакыттагы көрсөткүчтөрүңүздү таба аласыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтобы увидеть подробную статистику по привычке, нажмите на привычку и выберите опцию Статистика. Здесь вы найдете данные о вашей производительности за всё время."
+          }
+        }
+      }
+    },
+    "howto_stats_detail_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detailed Statistics"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Толук статистика"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Детальная статистика"
+          }
+        }
+      }
+    },
+    "howto_streaks_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A streak is the number of consecutive days you've completed a habit. Maintain your streak by hitting your goal every day."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Үзгүлтүксүз” — бул сиз адатты аткарган катары менен кеткен күндөрдүн саны. Күн сайын максатыңызга жетүү менен ырааттуулукту сактаңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Подряд” — это количество последовательных дней, когда вы выполняли привычку. Поддерживайте серию, достигая своей цели каждый день."
+          }
+        }
+      }
+    },
+    "howto_streaks_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Building Streaks"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ырааттуулукту калыптандыруу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создание серий"
+          }
+        }
+      }
+    },
+    "howto_tap_plus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the + button in the top right corner of the Home screen."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Башкы экрандын оң жактагы жогорку бурчундагы + баскычын басыңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите на кнопку + в правом верхнем углу главного экрана."
+          }
+        }
+      }
+    },
+    "howto_time_type_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For habits measured by duration (e.g., reading for 30 minutes)."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Узактыгы боюнча өлчөнгөн адаттар үчүн (мисалы, 30 мүнөт китеп окуу)."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для привычек, измеряемых по длительности (например, чтение в течение 30 минут)."
+          }
+        }
+      }
+    },
+    "howto_time_type_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убакыт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время"
+          }
+        }
+      }
+    },
+    "howto_tip_1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start with just a few habits and gradually add more as they become automatic."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бир нече адаттан баштаңыз жана алар автоматтык болуп калганда акырындык менен жаңыларын кошуңуз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начните с нескольких привычек и постепенно добавляйте новые, когда они станут автоматическими."
+          }
+        }
+      }
+    },
+    "howto_tip_2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Be realistic with your goals - it's better to consistently achieve smaller goals than fail at larger ones."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Максаттарыңызда реалдуу болуңуз — чоң максаттарга жетише албай калгандан көрө, кичине максаттарды ырааттуу аткарган жакшы."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте реалистичны в своих целях — лучше стабильно достигать небольших целей, чем не справляться с большими."
+          }
+        }
+      }
+    },
+    "howto_tip_3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the statistics view to identify patterns and make adjustments to your habits."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статистиканы көрүү менен үлгүлөрдү аныктап, адаттарыңызды оңдоңуз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Используйте просмотр статистики, чтобы выявить закономерности и скорректировать свои привычки."
+          }
+        }
+      }
+    },
+    "howto_tip_4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Even if you miss a day, don't give up! Just pick up where you left off."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эгер бир күн өткөрүп жиберсеңиз да, багынбаңыз! Жөн гана токтогон жериңизден улантыңыз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Даже если вы пропустите день, не сдавайтесь! Просто продолжайте с того места, где остановились."
+          }
+        }
+      }
+    },
+    "howto_tips_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips for Success"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ийгиликке жетүү үчүн кеңештер"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Советы"
+          }
+        }
+      }
+    },
+    "howto_tracking_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tracking Your Progress"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогрессти көзөмөлдөө"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отслеживание прогресса"
+          }
+        }
+      }
+    },
     "icon" : {
       "extractionState" : "manual",
       "localizations" : {

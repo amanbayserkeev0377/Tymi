@@ -3,7 +3,7 @@ import SwiftUI
 struct AboutSection: View {
     var body: some View {
         Section(header: Text("about".localized)) {
-            // Оценить приложение
+            // Rate App
             Button {
                 if let url = URL(string: "https://apps.apple.com/app/idXXXXXXXXXX") {
                     UIApplication.shared.open(url)
@@ -12,7 +12,7 @@ struct AboutSection: View {
                 Label("rate_app".localized, systemImage: "star")
             }
             
-            // Поделиться приложением
+            // Share App
             Button {
                 let activityVC = UIActivityViewController(
                     activityItems: ["Check out Tymi app!"],
@@ -28,7 +28,7 @@ struct AboutSection: View {
                 Label("share_app".localized, systemImage: "square.and.arrow.up")
             }
             
-            // Связаться с разработчиком
+            // Contact Developer
             Button {
                 if let url = URL(string: "https://t.me/amanbayserkeev0377") {
                     UIApplication.shared.open(url)
@@ -37,7 +37,7 @@ struct AboutSection: View {
                 Label("contact_developer".localized, systemImage: "ellipsis.message")
             }
             
-            // Сообщить о проблеме
+            // Report a Bug
             Button {
                 if let url = URL(string: "mailto:amanbayserkeev0377@gmail.com?subject=Bug%20Report") {
                     UIApplication.shared.open(url)
@@ -45,15 +45,22 @@ struct AboutSection: View {
             } label: {
                 Label("report_bug".localized, systemImage: "ladybug")
             }
+            
+            // How to Use
+            NavigationLink(destination: HowToUseView()) {
+                Label("how_to_use".localized, systemImage: "questionmark.app")
+            }
         }
         
+        // MARK: - Legal
+        
+        // Terms of Service
         Section(header: Text("legal".localized)) {
-            // Условия использования - теперь NavigationLink
             NavigationLink(destination: TermsOfServiceView()) {
                 Label("terms_of_service".localized, systemImage: "text.document")
             }
             
-            // Политика конфиденциальности - теперь NavigationLink
+            // Privacy Policy
             NavigationLink(destination: PrivacyPolicyView()) {
                 Label("privacy_policy".localized, systemImage: "lock")
             }
