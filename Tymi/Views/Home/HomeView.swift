@@ -18,6 +18,18 @@ struct HomeView: View {
     
     @State private var actionService: HabitActionService
     
+    private let dayOfWeekFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        return formatter
+    }()
+    
+    private let dayMonthFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMMM"
+        return formatter
+    }()
+    
     init() {
         let container = try! ModelContainer(for: Habit.self, HabitCompletion.self)
         _actionService = State(initialValue: HabitActionService(
@@ -26,11 +38,6 @@ struct HomeView: View {
         ))
     }
     
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("EEEE d MMM")
-        return formatter
-    }()
     
     // Вычисляемое свойство для фильтрации привычек на основе выбранной даты
     private var activeHabitsForDate: [Habit] {
@@ -72,10 +79,17 @@ struct HomeView: View {
                     }
                 }
             }
-            .navigationTitle(formattedNavigationTitle(for: selectedDate))
-            .navigationBarTitleDisplayMode(.large)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text(formattedNavigationTitle(for: selectedDate))
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     if !Calendar.current.isDateInToday(selectedDate) {
                         Button(action: {
                             withAnimation {
@@ -233,11 +247,13 @@ struct HomeView: View {
     
     private func formattedNavigationTitle(for date: Date) -> String {
         if isToday(date) {
-            return "today".localized
+            return "today".localized.uppercased()
         } else if isYesterday(date) {
-            return "yesterday".localized
+            return "yesterday".localized.uppercased()
         } else {
-            return DateFormatter.dayAndCapitalizedMonth(from: date)
+            let weekday = dayOfWeekFormatter.string(from: date).uppercased()
+            let dayMonth = dayMonthFormatter.string(from: date).uppercased()
+            return "\(weekday), \(dayMonth)"
         }
     }
 }

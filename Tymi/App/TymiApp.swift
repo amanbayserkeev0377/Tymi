@@ -9,6 +9,8 @@ struct TymiApp: App {
     let container: ModelContainer
     let habitsUpdateService = HabitsUpdateService()
     
+    @State private var weekdayPrefs = WeekdayPreferences.shared
+    
     init() {
         do {
             // Инициализация базы данных
@@ -25,6 +27,7 @@ struct TymiApp: App {
         WindowGroup {
             MainTabView()
                 .environment(habitsUpdateService)
+                .environment(weekdayPrefs)
                 .tint(.primary)
         }
         .modelContainer(container)

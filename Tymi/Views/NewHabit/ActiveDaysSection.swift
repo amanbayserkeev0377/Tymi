@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ActiveDaysSection: View {
     @Binding var activeDays: [Bool]
-    @AppStorage("firstDayOfWeek") private var firstDayOfWeek: Int = 0
+    @Environment(WeekdayPreferences.self) private var weekdayPrefs
     
     private var calendar: Calendar {
         return Calendar.userPreferred
@@ -37,6 +37,7 @@ struct ActiveDaysSection: View {
 struct ActiveDaysSelectionView: View {
     @Binding var activeDays: [Bool]
     @Environment(\.dismiss) private var dismiss
+    @Environment(WeekdayPreferences.self) private var weekdayPrefs
     
     private var calendar: Calendar {
         Calendar.userPreferred

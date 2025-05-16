@@ -11,7 +11,7 @@
 import SwiftUI
 import SwiftData
 
-@Observable
+@Observable @MainActor
 final class HabitDetailViewModel {
     // MARK: - Dependencies
     private let habit: Habit
@@ -121,20 +121,18 @@ final class HabitDetailViewModel {
             let observedDate = date
             
             while !Task.isCancelled {
-                await MainActor.run {
-                    if self.date == observedDate && self.habit.type == .time && self.isTimerRunning {
-                        let newProgress = self.progressService.getCurrentProgress(for: self.habitId)
-                        if self.currentProgress != newProgress {
-                            self.currentProgress = newProgress
-                            self.habitProgress.value = newProgress
-                            self.habitProgress.isDirty = true
-                            self.updateProgressMetrics()
-                            self.hasChanges = true
-                        }
-                        let isRunning = self.progressService.isTimerRunning(for: self.habitId)
-                        if self.isTimerRunning != isRunning {
-                            self.isTimerRunning = isRunning
-                        }
+                if self.date == observedDate && self.habit.type == .time && self.isTimerRunning {
+                    let newProgress = self.progressService.getCurrentProgress(for: self.habitId)
+                    if self.currentProgress != newProgress {
+                        self.currentProgress = newProgress
+                        self.habitProgress.value = newProgress
+                        self.habitProgress.isDirty = true
+                        self.updateProgressMetrics()
+                        self.hasChanges = true
+                    }
+                    let isRunning = self.progressService.isTimerRunning(for: self.habitId)
+                    if self.isTimerRunning != isRunning {
+                        self.isTimerRunning = isRunning
                     }
                 }
                 do {
@@ -150,8 +148,8 @@ final class HabitDetailViewModel {
     private func updateProgressMetrics() {
         completionPercentage = habit.goal > 0 ? Double(currentProgress) / Double(habit.goal) : 0
         formattedProgress = habit.type == .count ?
-            currentProgress.formattedAsProgress(total: habit.goal) :
-            currentProgress.formattedAsTime()
+        currentProgress.formattedAsProgress(total: habit.goal) :
+        currentProgress.formattedAsTime()
     }
     
     private func updateFromService() {
@@ -330,7 +328,7 @@ final class HabitDetailViewModel {
         }
         saveProgress()
     }
-
+    
     func resetProgress() {
         if isTimerRunning {
             progressService.stopTimer(for: habitId)
@@ -347,9 +345,7 @@ final class HabitDetailViewModel {
             let serviceProgress = progressService.getCurrentProgress(for: habitId)
             if serviceProgress > 0 {
                 progressService.resetProgress(for: habitId)
-                Task { @MainActor in
-                    saveProgress()
-                }
+                saveProgress()
             }
         }
     }

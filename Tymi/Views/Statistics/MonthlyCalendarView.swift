@@ -15,6 +15,7 @@ struct MonthlyCalendarView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
+    @Environment(WeekdayPreferences.self) private var weekdayPrefs
     
     // MARK: - State
     @State private var selectedActionDate: Date? = nil
@@ -116,12 +117,10 @@ struct MonthlyCalendarView: View {
         .padding(.horizontal, 5)
         .onAppear {
             isLoading = true
-            Task { @MainActor in
-                generateMonths()
-                findCurrentMonthIndex()
-                generateCalendarDays()
-                isLoading = false
-            }
+            generateMonths()
+            findCurrentMonthIndex()
+            generateCalendarDays()
+            isLoading = false
         }
         // Обновляем при смене выбранной даты (без анимации)
         .onChange(of: selectedDate) { _, newDate in
@@ -135,6 +134,9 @@ struct MonthlyCalendarView: View {
         // Учитываем внешний счётчик обновлений
         .onChange(of: updateCounter) { _, _ in
             // Принудительно обновляем интерфейс
+            generateCalendarDays()
+        }
+        .onChange(of: weekdayPrefs.firstDayOfWeek) { _, _ in
             generateCalendarDays()
         }
         // Диалог для действий с датой

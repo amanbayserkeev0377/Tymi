@@ -119,28 +119,22 @@ struct ProgressRing: View {
             Circle()
                 .stroke(Color.secondary.opacity(0.1), lineWidth: adaptiveLineWidth)
             
-            // Кольцо прогресса
-            Circle()
-                .trim(from: 0, to: min(progress, 1.0)) // Ограничиваем до 100%
-                .stroke(
-                    AngularGradient(
-                        colors: ringColors,
-                        center: .center,
-                        startAngle: .degrees(0),
-                        endAngle: .degrees(360)
-                    ),
-                    style: StrokeStyle(
-                        lineWidth: adaptiveLineWidth,
-                        lineCap: .round
-                    )
-                )
-                .rotationEffect(.degrees(-90))
+            // Кольцо прогресса с анимацией
+            ProgressRingCircle(
+                progress: progress,
+                ringColors: ringColors,
+                lineWidth: adaptiveLineWidth
+            )
+            .animation(.easeInOut(duration: 0.3), value: progress)
             
-            // Текст в центре или галочка для выполненных привычек
+            // Текст в центре или галочка для выполненных привычек БЕЗ анимации
             if isCompleted && !isExceeded {
                 Image(systemName: "checkmark")
                     .font(.system(size: adaptedIconSize, weight: .bold))
                     .foregroundStyle(textColor)
+                    .transaction { transaction in
+                        transaction.animation = nil // Отключаем анимацию для текста
+                    }
             } else {
                 Text(currentValue)
                     .font(.system(size: adaptedFontSize, weight: .bold))
@@ -148,10 +142,14 @@ struct ProgressRing: View {
                     .foregroundStyle(textColor)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
+                    .transaction { transaction in
+                        transaction.animation = nil // Отключаем анимацию для текста
+                    }
             }
         }
         .frame(width: size, height: size)
-        .animation(.easeInOut(duration: 0.3), value: progress)
+        // Удаляем анимацию отсюда, чтобы не влияла на весь ZStack
+        // .animation(.easeInOut(duration: 0.3), value: progress)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityValue(accessibilityValue)
@@ -177,5 +175,30 @@ struct ProgressRing: View {
         } else {
             return "completion_percent".localized(with: Int(progress * 100))
         }
+    }
+}
+
+// Выделяем круг прогресса в отдельную структуру для более ясного контроля анимации
+struct ProgressRingCircle: View {
+    let progress: Double
+    let ringColors: [Color]
+    let lineWidth: CGFloat
+    
+    var body: some View {
+        Circle()
+            .trim(from: 0, to: min(progress, 1.0)) // Ограничиваем до 100%
+            .stroke(
+                AngularGradient(
+                    colors: ringColors,
+                    center: .center,
+                    startAngle: .degrees(0),
+                    endAngle: .degrees(360)
+                ),
+                style: StrokeStyle(
+                    lineWidth: lineWidth,
+                    lineCap: .round
+                )
+            )
+            .rotationEffect(.degrees(-90))
     }
 }

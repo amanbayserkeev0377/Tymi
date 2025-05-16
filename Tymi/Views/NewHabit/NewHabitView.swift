@@ -196,10 +196,8 @@ struct NewHabitView: View {
                         print("Не удалось запланировать уведомления")
                     }
                 } else {
-                    await MainActor.run {
                         // Если пользователь отказал в разрешениях
                         isReminderEnabled = false
-                    }
                 }
             }
         } else {

@@ -5,13 +5,13 @@ struct WeeklyCalendarView: View {
     @Binding var selectedDate: Date
     @Environment(\.modelContext) private var modelContext
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
+    @Environment(WeekdayPreferences.self) private var weekdayPrefs
     
     @Query private var habits: [Habit]
     
     @State private var weeks: [[Date]] = []
     @State private var currentWeekIndex: Int = 0
     @State private var progressData: [Date: Double] = [:]
-    @State private var weekdayPrefs = WeekdayPreferences.shared
 
     
     private let weekCount = 12

@@ -4,16 +4,19 @@ import Foundation
 class WeekdayPreferences {
     static let shared = WeekdayPreferences()
     
-    var firstDayOfWeek: Int {
-        get {
-            UserDefaults.standard.integer(forKey: "firstDayOfWeek")
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "firstDayOfWeek")
-        }
+    // Хранение непосредственно в классе для Observable
+    private(set) var firstDayOfWeek: Int
+    
+    // Приватный инициализатор для синглтона
+    private init() {
+        self.firstDayOfWeek = UserDefaults.standard.integer(forKey: "firstDayOfWeek")
     }
     
-    private init() {}
+    // Метод изменения значения
+    func updateFirstDayOfWeek(_ value: Int) {
+        self.firstDayOfWeek = value
+        UserDefaults.standard.set(value, forKey: "firstDayOfWeek")
+    }
 }
 
 enum Weekday: Int, CaseIterable, Hashable, Sendable {
@@ -47,10 +50,6 @@ enum Weekday: Int, CaseIterable, Hashable, Sendable {
     
     var previous: Weekday {
         Weekday(rawValue: self.rawValue == 1 ? 7 : self.rawValue - 1) ?? .sunday
-    }
-    
-    static func updateFirstDayOfWeek(_ day: Int) {
-        WeekdayPreferences.shared.firstDayOfWeek = day
     }
 }
 
@@ -103,9 +102,7 @@ extension Calendar {
     
     /// Возвращает форматированные полные названия дней недели (первая буква заглавная)
     var orderedFormattedFullWeekdaySymbols: [String] {
-        orderedWeekdaySymbols.map {
-            $0.prefix(1).uppercased() + $0.dropFirst().lowercased()
-        }
+        orderedWeekdaySymbols.map { $0.capitalized }
     }
     
     /// Возвращает короткие символы дней недели (1 буква)
@@ -121,9 +118,7 @@ extension Calendar {
     
     /// Возвращает стилизованные короткие названия дней (первая буква заглавная)
     var orderedFormattedWeekdaySymbols: [String] {
-        orderedShortWeekdaySymbols.map {
-            $0.prefix(1).uppercased() + $0.dropFirst().lowercased()
-        }
+        orderedShortWeekdaySymbols.map { $0.capitalized }
     }
     
     /// Преобразует индекс в массиве упорядоченных дней в системный индекс дня недели

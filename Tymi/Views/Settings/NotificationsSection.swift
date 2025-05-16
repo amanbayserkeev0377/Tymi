@@ -19,7 +19,9 @@ struct NotificationsSection: View {
         }
         .tint(colorScheme == .dark ? Color.gray.opacity(0.8) : .primary)
         .onChange(of: notificationsEnabled) { _, newValue in
-            handleNotificationToggle(newValue)
+            Task {
+                handleNotificationToggle(newValue)
+            }
         }
         .alert("notification_permission".localized, isPresented: $isNotificationPermissionAlertPresented) {
             Button("cancel".localized, role: .cancel) { }
@@ -31,26 +33,22 @@ struct NotificationsSection: View {
         }
     }
     
-    private func handleNotificationToggle(_ isEnabled: Bool) {
-        Task {
-            if isEnabled {
-                // Пытаемся получить разрешения
-                let isAuthorized = await NotificationManager.shared.ensureAuthorization()
-                
-                await MainActor.run {
-                    // Если нет разрешений, показываем диалог
-                    if !isAuthorized {
-                        notificationsEnabled = false
-                        isNotificationPermissionAlertPresented = true
-                    } else {
-                        // Обновляем уведомления
-                        NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
-                    }
-                }
+    private func handleNotificationToggle(_ isEnabled: Bool) async {
+        if isEnabled {
+            // Пытаемся получить разрешения
+            let isAuthorized = await NotificationManager.shared.ensureAuthorization()
+            
+            // Если нет разрешений, показываем диалог
+            if !isAuthorized {
+                notificationsEnabled = false
+                isNotificationPermissionAlertPresented = true
             } else {
-                // Просто обновляем настройки (что удалит все уведомления)
+                // Обновляем уведомления
                 NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
             }
+        } else {
+            // Просто обновляем настройки (что удалит все уведомления)
+            NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
         }
     }
     

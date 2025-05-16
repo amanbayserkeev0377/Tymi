@@ -3,7 +3,7 @@ import UserNotifications
 import SwiftUI
 import SwiftData
 
-@Observable
+@Observable @MainActor
 class NotificationManager {
     static let shared = NotificationManager()
     
@@ -35,10 +35,7 @@ class NotificationManager {
         // Проверяем текущий статус
         let settings = await UNUserNotificationCenter.current().notificationSettings()
         if settings.authorizationStatus == .authorized {
-            // Обновляем UI-статус на главном потоке
-            await MainActor.run {
                 permissionStatus = true
-            }
             return true
         }
         
@@ -49,15 +46,11 @@ class NotificationManager {
                 let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: options)
                 
                 // Обновляем UI-статус на главном потоке
-                await MainActor.run {
                     permissionStatus = granted
-                }
                 return granted
             } catch {
                 print("Ошибка запроса разрешений: \(error)")
-                await MainActor.run {
                     permissionStatus = false
-                }
                 return false
             }
         }
@@ -146,9 +139,7 @@ class NotificationManager {
             
             if !isAuthorized {
                 // Если разрешения отсутствуют, обновляем состояние приложения
-                await MainActor.run {
                     notificationsEnabled = false
-                }
                 UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
                 return
             }
