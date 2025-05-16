@@ -319,23 +319,7 @@
         }
       }
     },
-    "Best" : {
-      "localizations" : {
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Рекорд"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Рекорд"
-          }
-        }
-      }
-    },
-    "best_streak" : {
+    "best" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -348,6 +332,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Эң мыкты"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рекорд"
+          }
+        }
+      }
+    },
+    "Best" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рекорд"
           }
         },
         "ru" : {
@@ -538,29 +539,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Создать привычку"
-          }
-        }
-      }
-    },
-    "current_streak" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Streak"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тизмек"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подряд"
           }
         }
       }
@@ -1922,7 +1900,31 @@
         }
       }
     },
+    "streak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streak"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Үзгүлтүксүз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подряд"
+          }
+        }
+      }
+    },
     "Streak" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
@@ -2030,8 +2032,15 @@
         }
       }
     },
-    "Total" : {
+    "total" : {
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total"
+          }
+        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2046,15 +2055,9 @@
         }
       }
     },
-    "total_completions" : {
-      "extractionState" : "manual",
+    "Total" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Total"
-          }
-        },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",

@@ -12,7 +12,7 @@ struct StreaksView: View {
                 Text("\(viewModel.currentStreak)")
                     .font(.system(size: 26, weight: .bold))
                     .foregroundColor(.primary)
-                Text("Streak")
+                Text("streak".localized)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -21,7 +21,7 @@ struct StreaksView: View {
                 Text("\(viewModel.bestStreak)")
                     .font(.system(size: 26, weight: .bold))
                     .foregroundColor(.primary)
-                Text("Best")
+                Text("best".localized)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -30,7 +30,7 @@ struct StreaksView: View {
                 Text("\(viewModel.totalValue)")
                     .font(.system(size: 26, weight: .bold))
                     .foregroundColor(.primary)
-                Text("Total")
+                Text("total".localized)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }

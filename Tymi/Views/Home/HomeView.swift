@@ -61,7 +61,7 @@ struct HomeView: View {
                             } else {
                                 // Кольцо прогресса отображается всегда
                                 DailyProgressRing(date: selectedDate)
-                                    .padding(.top, 16)
+                                    .padding()
                                 
                                 // Список привычек для выбранной даты
                                 if hasHabitsForDate {
