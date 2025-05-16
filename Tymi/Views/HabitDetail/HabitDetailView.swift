@@ -186,16 +186,14 @@ struct HabitDetailView: View {
                 viewModel?.cleanup(stopTimer: true)
             }
         }
-        .alert("close_detail_view".localized, isPresented: $isTimerStopAlertPresented) {
+        .alert("close_habit_detail".localized, isPresented: $isTimerStopAlertPresented) {
             Button("cancel".localized, role: .cancel) { }
-            Button("stop_and_exit".localized, role: .destructive) {
+            Button("close".localized, role: .destructive) {
                 isManuallyDismissing = true
                 viewModel?.saveIfNeeded()
                 viewModel?.cleanup(stopTimer: true)
                 dismiss()
             }
-        } message: {
-            Text("stop_timer_message".localized)
         }
         // Добавляем sheet для редактирования
         .sheet(isPresented: $isEditPresented) {

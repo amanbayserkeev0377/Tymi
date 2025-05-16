@@ -46,19 +46,35 @@ struct WeekStartSection: View {
     }
     
     var body: some View {
-        Picker(selection: $selection, label:
+        HStack {
             Label(
                 title: { Text("week_start_day".localized) },
                 icon: { Image(systemName: "calendar") }
             )
-        ) {
-            ForEach(localizedWeekdays, id: \.value) { weekday in
-                Text(weekday.name).tag(weekday.value)
+            
+            Spacer()
+            
+            // Показываем текущий выбор дня начала недели с меню
+            Menu {
+                ForEach(localizedWeekdays, id: \.value) { weekday in
+                    Button {
+                        selection = weekday.value
+                        weekdayPrefs.updateFirstDayOfWeek(weekday.value)
+                    } label: {
+                        Text(weekday.name)
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    // Показываем текущий выбранный день
+                    Text(localizedWeekdays.first(where: { $0.value == selection })?.name ?? "")
+                        .foregroundStyle(.secondary)
+                    
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
-        }
-        .onChange(of: selection) { _, newValue in
-            // Обновляем значение в общем observable объекте
-            weekdayPrefs.updateFirstDayOfWeek(newValue)
         }
     }
 }

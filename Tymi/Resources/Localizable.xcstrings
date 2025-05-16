@@ -239,13 +239,13 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сырткы көрүнүш"
+            "value" : "Көрүнүш"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оформление"
+            "value" : "Внешний вид"
           }
         }
       }
@@ -262,13 +262,13 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Түнкү"
+            "value" : "Түн"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Темное"
+            "value" : "Тёмный"
           }
         }
       }
@@ -285,13 +285,13 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Күндүзгү"
+            "value" : "Күндүз"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Светлое"
+            "value" : "Светлый"
           }
         }
       }
@@ -308,13 +308,13 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тутумдагыдай"
+            "value" : "Тутумдук"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Как в системе"
+            "value" : "Системный"
           }
         }
       }
@@ -407,6 +407,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Закрыть"
+          }
+        }
+      }
+    },
+    "close_habit_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closing will stop the timer. Continue?\n"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жабуу таймерди токтотот. Улантасыңбы?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрытие остановит таймер. Продолжить?"
           }
         }
       }
