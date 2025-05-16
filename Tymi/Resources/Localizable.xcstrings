@@ -417,7 +417,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Closing will stop the timer. Continue?\n"
+            "value" : "Closing will stop the timer. Continue?"
           }
         },
         "ky-KG" : {
@@ -1515,6 +1515,604 @@
         }
       }
     },
+    "privacy_changes_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The policy may be updated. It is recommended to periodically check this page. Updates take effect upon publication."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Саясат жаңыртылышы мүмкүн. Бул баракчаны мезгил-мезгили менен текшерүү сунушталат. Жаңыртуулар жарыялангандан кийин күчүнө кирет."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Политика может обновляться. Рекомендуется периодически проверять эту страницу. Обновления вступают в силу после публикации."
+          }
+        }
+      }
+    },
+    "privacy_changes_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Policy Updates"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Саясатты жаңыртуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменения в политике"
+          }
+        }
+      }
+    },
+    "privacy_children_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app is not specifically designed for children under 13, but it is safe for users of all ages."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонмо 13 жашка чейинки балдар үчүн атайын иштелип чыккан эмес, бирок бардык курактагы колдонуучулар үчүн коопсуз."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение не предназначено специально для детей младше 13 лет, но безопасно для пользователей любого возраста."
+          }
+        }
+      }
+    },
+    "privacy_children_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Children's Privacy"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Балдардын купуялыгы"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Детская конфиденциальность"
+          }
+        }
+      }
+    },
+    "privacy_collection_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app does not collect or share data with third parties:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонмо маалыматтарды чогултпайт жана үчүнчү тараптар менен бөлүшпөйт:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение не собирает данные и не передаёт их третьим лицам:"
+          }
+        }
+      }
+    },
+    "privacy_collection_item_1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• No usage analytics"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Колдонуу аналитикасы жок"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Отсутствует аналитика использования"
+          }
+        }
+      }
+    },
+    "privacy_collection_item_2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• No behavior tracking"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Жүрүм-турумду көзөмөлдөө жок"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Нет отслеживания поведения"
+          }
+        }
+      }
+    },
+    "privacy_collection_item_3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• No data sharing with third parties"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Үчүнчү тараптар менен маалымат бөлүшүү жок"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Нет передачи данных третьим сторонам"
+          }
+        }
+      }
+    },
+    "privacy_collection_item_4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• No advertising trackers or SDKs"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Жарнама трекерлери же SDK жок"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Нет рекламных трекеров или SDK"
+          }
+        }
+      }
+    },
+    "privacy_collection_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data Collection and Sharing"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Маалымат чогултуу жана бөлүшүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбор и передача данных"
+          }
+        }
+      }
+    },
+    "privacy_contact_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For questions or suggestions regarding privacy, you can contact:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Купуялык боюнча суроолор же сунуштар үчүн байланышсаңыз болот:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По вопросам или предложениям по поводу конфиденциальности можно связаться:"
+          }
+        }
+      }
+    },
+    "privacy_contact_email_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Электрондук почта"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Электронная почта"
+          }
+        }
+      }
+    },
+    "privacy_contact_telegram_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Телеграм"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Телеграм"
+          }
+        }
+      }
+    },
+    "privacy_contact_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contact Information"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Байланыш маалыматы"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Контактная информация"
+          }
+        }
+      }
+    },
+    "privacy_data_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app uses the following information:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонмо төмөнкү маалыматтарды колдонот:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение использует следующую информацию:"
+          }
+        }
+      }
+    },
+    "privacy_data_item_1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Habit data — names, goals, progress, and user-defined parameters"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Адаттар тууралуу маалымат — аталыштар, максаттар, прогресс жана колдонуучу тарабынан коюлган параметрлер"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Данные о привычках — названия, цели, прогресс и параметры, заданные пользователем"
+          }
+        }
+      }
+    },
+    "privacy_data_item_2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• App settings — theme, week start, and other preferences"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Колдонмо жөндөөлөрү — тема, жуманын башталышы жана башка артыкчылыктар"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Настройки приложения — тема оформления, начало недели и другие предпочтения"
+          }
+        }
+      }
+    },
+    "privacy_data_item_3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Performance statistics — dates, times, and habit progress trends"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Аткаруу статистикасы — даталар, убакыт жана адаттардын прогрессинин динамикасы"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Статистика выполнения — даты, время и динамика выполнения привычек"
+          }
+        }
+      }
+    },
+    "privacy_data_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collected Information"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чогултулган маалымат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Собираемая информация"
+          }
+        }
+      }
+    },
+    "privacy_intro_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Tymi habit tracking app respects user privacy. This section describes what data is used, where it is stored, and how it is processed."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi адаттарды көзөмөлдөө колдонмосу колдонуучулардын купуялыгын сыйлайт. Бул бөлүмдө кандай маалыматтар колдонулганы, кайда сакталганы жана кантип иштетилгени сүрөттөлөт."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение Tymi для отслеживания привычек уважает конфиденциальность пользователей. В этом разделе описано, какие данные используются, где они хранятся и как обрабатываются."
+          }
+        }
+      }
+    },
+    "privacy_intro_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduction"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Киришүү"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введение"
+          }
+        }
+      }
+    },
+    "privacy_notifications_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If permitted, the app may send local habit reminders:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эгер уруксат берилсе, колдонмо жергиликтүү адат эскертмелерин жөнөтүшү мүмкүн:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При наличии разрешения приложение может отправлять локальные напоминания о привычках:"
+          }
+        }
+      }
+    },
+    "privacy_notifications_item_1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Notifications are configured by the user"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Эскертмелер колдонуучу тарабынан жөндөлөт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Уведомления настраиваются пользователем"
+          }
+        }
+      }
+    },
+    "privacy_notifications_item_2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Can be disabled at any time through settings"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Каалаган убакта жөндөөлөр аркылуу өчүрүлүшү мүмкүн"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Можно отключить в любое время через настройки"
+          }
+        }
+      }
+    },
+    "privacy_notifications_item_3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Processed locally and not shared with third-party services"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Жергиликтүү иштетилет жана үчүнчү тарап кызматтары менен бөлүшүлбөйт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Обрабатываются локально и не передаются сторонним сервисам"
+          }
+        }
+      }
+    },
+    "privacy_notifications_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эскертмелер"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления"
+          }
+        }
+      }
+    },
     "privacy_policy" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1533,7 +2131,329 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Политика конфиденциальности"
+            "value" : "Политика Конфиденциальности"
+          }
+        }
+      }
+    },
+    "privacy_security_item_1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Data is stored in secure iOS containers"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Маалыматтар коопсуз iOS контейнерлеринде сакталат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Данные хранятся в защищённых контейнерах iOS"
+          }
+        }
+      }
+    },
+    "privacy_security_item_2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Deleting the app removes all associated data"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Колдонмону жок кылуу бардык байланышкан маалыматтарды жок кылат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• При удалении приложения удаляются все связанные данные"
+          }
+        }
+      }
+    },
+    "privacy_security_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коопсуздук"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Безопасность"
+          }
+        }
+      }
+    },
+    "privacy_storage_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All data is stored locally on the device using the following technologies:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бардык маалыматтар төмөнкү технологияларды колдонуу менен жергиликтүү түрдө түзмөктө сакталат:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все данные хранятся только локально на устройстве с помощью следующих технологий:"
+          }
+        }
+      }
+    },
+    "privacy_storage_implication" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This means that:"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бул дегенди билдирет:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это означает, что:"
+          }
+        }
+      }
+    },
+    "privacy_storage_implication_1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Data does not leave the device"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Маалыматтар түзмөктөн чыкпайт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Данные не покидают пределы устройства"
+          }
+        }
+      }
+    },
+    "privacy_storage_implication_2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• No cloud services are used"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Булут кызматтары колдонулбайт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Отсутствует использование облачных сервисов"
+          }
+        }
+      }
+    },
+    "privacy_storage_implication_3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• The user has full control over their data"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Колдонуучу өз маалыматтарын толук көзөмөлдөйт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Пользователь полностью контролирует свои данные"
+          }
+        }
+      }
+    },
+    "privacy_storage_implication_4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Deleting the app will delete all data"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Колдонмону жок кылуу бардык маалыматтарды жок кылат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Удаление приложения приведёт к удалению всех данных"
+          }
+        }
+      }
+    },
+    "privacy_storage_item_1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• SwiftData — used for storing habits and history"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• SwiftData — адаттарды жана тарыхты сактоо үчүн колдонулат"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• SwiftData — используется для хранения привычек и истории"
+          }
+        }
+      }
+    },
+    "privacy_storage_item_2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• UserDefaults — storage of user settings"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• UserDefaults — колдонуучунун жөндөөлөрүн сактоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• UserDefaults — хранение пользовательских настроек"
+          }
+        }
+      }
+    },
+    "privacy_storage_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local Data Storage"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жергиликтүү маалымат сактоо"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Местное хранение данных"
+          }
+        }
+      }
+    },
+    "privacy_updated_date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last updated: May 16, 2025"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Акыркы жаңыртуу: 16-май, 2025-жыл"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последнее обновление: 16 мая 2025 г."
+          }
+        }
+      }
+    },
+    "privacy_updated_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last Updated"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Акыркы жаңыртуу"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дата последнего обновления"
           }
         }
       }
@@ -1774,19 +2694,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This action will delete the entire habit history. This action cannot be undone."
+            "value" : "This will permanently delete all habit data."
           }
         },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Адат тарыхы өчүрүлөт. Бул чечимди кайтара албайсыз."
+            "value" : "Бул адат боюнча бардык маалыматты кайтарылгыс өчүрөт."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Это действие удалит всю историю выполнения привычки. Это действие нельзя отменить."
+            "value" : "Это безвозвратно удалит все данные о привычке."
           }
         }
       }

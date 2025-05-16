@@ -39,7 +39,7 @@ struct AboutSection: View {
             
             // Сообщить о проблеме
             Button {
-                if let url = URL(string: "mailto:support@tymi.app?subject=Bug%20Report") {
+                if let url = URL(string: "mailto:amanbayserkeev0377@gmail.com?subject=Bug%20Report") {
                     UIApplication.shared.open(url)
                 }
             } label: {
@@ -48,21 +48,13 @@ struct AboutSection: View {
         }
         
         Section(header: Text("legal".localized)) {
-            // Условия использования
-            Button {
-                if let url = URL(string: "https://tymi.app/terms") {
-                    UIApplication.shared.open(url)
-                }
-            } label: {
+            // Условия использования - теперь NavigationLink
+            NavigationLink(destination: TermsOfServiceView()) {
                 Label("terms_of_service".localized, systemImage: "text.document")
             }
             
-            // Политика конфиденциальности
-            Button {
-                if let url = URL(string: "https://tymi.app/privacy") {
-                    UIApplication.shared.open(url)
-                }
-            } label: {
+            // Политика конфиденциальности - теперь NavigationLink
+            NavigationLink(destination: PrivacyPolicyView()) {
                 Label("privacy_policy".localized, systemImage: "lock")
             }
         }
