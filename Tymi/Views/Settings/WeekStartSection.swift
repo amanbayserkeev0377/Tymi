@@ -32,10 +32,10 @@ struct WeekStartOption: Identifiable {
 }
 
 struct WeekStartSection: View {
-    @AppStorage("firstDayOfWeek") private var firstDayOfWeek: Int = 0
+    @State private var weekdayPrefs = WeekdayPreferences.shared
     
     var body: some View {
-        Picker(selection: $firstDayOfWeek, label:
+        Picker(selection: $weekdayPrefs.firstDayOfWeek, label:
             Label(
                 title: { Text("week_start_day".localized) },
                 icon: { Image(systemName: "calendar")
@@ -45,9 +45,6 @@ struct WeekStartSection: View {
             ForEach(WeekStartOption.allOptions) { option in
                 Text(option.name).tag(option.value)
             }
-        }
-        .onChange(of: firstDayOfWeek) { _, _ in
-            Weekday.updateFirstWeekdayNotification()
         }
     }
 }

@@ -15,20 +15,6 @@ struct TymiApp: App {
             let schema = Schema([Habit.self, HabitCompletion.self])
             let modelConfiguration = ModelConfiguration(schema: schema)
             container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            
-            // Запрашиваем разрешения на уведомления с использованием Task
-            Task {
-                do {
-                    let options: UNAuthorizationOptions = [.alert, .sound, .badge]
-                    let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: options)
-                    
-                    await MainActor.run {
-                        UserDefaults.standard.set(granted, forKey: "notificationsEnabled")
-                    }
-                } catch {
-                    print("Ошибка запроса разрешений: \(error)")
-                }
-            }
         } catch {
             print("Ошибка инициализации: \(error)")
             fatalError("Не удалось создать ModelContainer: \(error)")

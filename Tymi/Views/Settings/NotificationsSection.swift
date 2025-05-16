@@ -34,24 +34,21 @@ struct NotificationsSection: View {
     private func handleNotificationToggle(_ isEnabled: Bool) {
         Task {
             if isEnabled {
-                do {
-                    let granted = try await NotificationManager.shared.requestAuthorization()
-                    
-                    await MainActor.run {
-                        if !granted {
-                            notificationsEnabled = false
-                            isNotificationPermissionAlertPresented = true
-                        } else {
-                            NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
-                        }
-                    }
-                } catch {
-                    await MainActor.run {
+                // Пытаемся получить разрешения
+                let isAuthorized = await NotificationManager.shared.ensureAuthorization()
+                
+                await MainActor.run {
+                    // Если нет разрешений, показываем диалог
+                    if !isAuthorized {
                         notificationsEnabled = false
                         isNotificationPermissionAlertPresented = true
+                    } else {
+                        // Обновляем уведомления
+                        NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
                     }
                 }
             } else {
+                // Просто обновляем настройки (что удалит все уведомления)
                 NotificationManager.shared.updateAllNotifications(modelContext: modelContext)
             }
         }

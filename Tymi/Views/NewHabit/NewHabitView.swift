@@ -187,22 +187,17 @@ struct NewHabitView: View {
     private func handleNotifications(for habit: Habit) {
         if isReminderEnabled {
             Task {
-                do {
-                    let granted = try await NotificationManager.shared.requestAuthorization()
-                    if granted {
-                        let success = await NotificationManager.shared.scheduleNotifications(for: habit)
-                        if !success {
-                            print("Не удалось запланировать уведомления")
-                        }
-                    } else {
-                        await MainActor.run {
-                            // Если пользователь отказал в разрешениях
-                            isReminderEnabled = false
-                        }
+                // Проверяем разрешения с помощью ensureAuthorization
+                let isAuthorized = await NotificationManager.shared.ensureAuthorization()
+                
+                if isAuthorized {
+                    let success = await NotificationManager.shared.scheduleNotifications(for: habit)
+                    if !success {
+                        print("Не удалось запланировать уведомления")
                     }
-                } catch {
-                    print("Ошибка при обновлении уведомлений: \(error)")
+                } else {
                     await MainActor.run {
+                        // Если пользователь отказал в разрешениях
                         isReminderEnabled = false
                     }
                 }

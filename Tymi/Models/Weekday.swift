@@ -1,5 +1,21 @@
 import Foundation
 
+@Observable
+class WeekdayPreferences {
+    static let shared = WeekdayPreferences()
+    
+    var firstDayOfWeek: Int {
+        get {
+            UserDefaults.standard.integer(forKey: "firstDayOfWeek")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "firstDayOfWeek")
+        }
+    }
+    
+    private init() {}
+}
+
 enum Weekday: Int, CaseIterable, Hashable, Sendable {
     case sunday = 1, monday = 2, tuesday = 3, wednesday = 4, thursday = 5, friday = 6, saturday = 7
     
@@ -33,13 +49,8 @@ enum Weekday: Int, CaseIterable, Hashable, Sendable {
         Weekday(rawValue: self.rawValue == 1 ? 7 : self.rawValue - 1) ?? .sunday
     }
     
-    // Используем новый API для уведомлений в iOS 17+
-    static func updateFirstWeekdayNotification() {
-        NotificationCenter.default.post(
-            name: .firstDayOfWeekChanged,
-            object: nil,
-            userInfo: ["firstDayOfWeek": UserDefaults.standard.integer(forKey: "firstDayOfWeek")]
-        )
+    static func updateFirstDayOfWeek(_ day: Int) {
+        WeekdayPreferences.shared.firstDayOfWeek = day
     }
 }
 
@@ -54,7 +65,7 @@ extension Notification.Name {
 extension Calendar {
     /// Создает календарь с учетом пользовательских настроек
     static var userPreferred: Calendar {
-        let firstDayOfWeek = UserDefaults.standard.integer(forKey: "firstDayOfWeek")
+        let firstDayOfWeek = WeekdayPreferences.shared.firstDayOfWeek
         
         var calendar = Calendar.current
         // Явно устанавливаем часовой пояс пользователя
