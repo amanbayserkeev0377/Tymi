@@ -18,7 +18,7 @@
       }
     },
     "%lld" : {
-
+      "shouldTranslate" : false
     },
     "about" : {
       "extractionState" : "manual",
@@ -332,23 +332,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Эң мыкты"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Рекорд"
-          }
-        }
-      }
-    },
-    "Best" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Рекорд"
           }
         },
         "ru" : {
@@ -1348,6 +1331,29 @@
         }
       }
     },
+    "no_habits" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You don't have any habits yet."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Азырынча адаттар жок."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас пока нет привычек."
+          }
+        }
+      }
+    },
     "no_habits_for_date" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1597,6 +1603,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Напоминания"
+          }
+        }
+      }
+    },
+    "reorder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reorder"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иреттөө"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упорядочить"
+          }
+        }
+      }
+    },
+    "reorder_habits" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reorder habits"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адаттарды иреттөө"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упорядочить привычки"
           }
         }
       }
@@ -1923,23 +1975,6 @@
         }
       }
     },
-    "Streak" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Үзгүлтүксүз"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подряд"
-          }
-        }
-      }
-    },
     "terms_of_service" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2041,23 +2076,6 @@
             "value" : "Total"
           }
         },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Жалпы"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Всего"
-          }
-        }
-      }
-    },
-    "Total" : {
-      "extractionState" : "stale",
-      "localizations" : {
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2186,18 +2204,6 @@
           }
         }
       }
-    },
-    "Это действие удалит всю историю выполнения привычки. Это действие нельзя отменить." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Это действие удалит всю историю выполнения привычки. Это действие нельзя отменить."
-          }
-        }
-      },
-      "shouldTranslate" : false
     }
   },
   "version" : "1.0"

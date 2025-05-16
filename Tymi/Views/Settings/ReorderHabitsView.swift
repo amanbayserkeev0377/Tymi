@@ -61,7 +61,7 @@ struct ReorderHabitsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("manage_habits".localized)
+        .navigationTitle("reorder_habits".localized)
         .navigationBarTitleDisplayMode(.inline)
         .environment(\.editMode, $editMode)
     }

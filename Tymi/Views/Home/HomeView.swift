@@ -220,7 +220,7 @@ struct HomeView: View {
                     Button {
                         isReorderingSheetPresented = true
                     } label: {
-                        Label("reorder_habits".localized, systemImage: "list.bullet")
+                        Label("reorder".localized, systemImage: "list.bullet")
                     }
                     
                     Button(role: .destructive) {

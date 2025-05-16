@@ -20,7 +20,7 @@ struct NotificationsSection: View {
         .tint(colorScheme == .dark ? Color.gray.opacity(0.8) : .primary)
         .onChange(of: notificationsEnabled) { _, newValue in
             Task {
-                handleNotificationToggle(newValue)
+                await handleNotificationToggle(newValue)
             }
         }
         .alert("notification_permission".localized, isPresented: $isNotificationPermissionAlertPresented) {

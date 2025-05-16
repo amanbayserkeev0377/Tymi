@@ -85,7 +85,9 @@ final class HabitDetailViewModel {
                 date: date,
                 initialProgress: initialProgress,
                 onUpdate: { [weak self] in
-                    self?.updateFromService()
+                    Task { @MainActor [weak self] in
+                        self?.updateFromService()
+                    }
                 }
             )
         }
@@ -110,7 +112,6 @@ final class HabitDetailViewModel {
     }
     
     deinit {
-        cancellables?.cancel()
     }
     
     // MARK: - Observer Setup
@@ -152,6 +153,7 @@ final class HabitDetailViewModel {
         currentProgress.formattedAsTime()
     }
     
+    @MainActor
     private func updateFromService() {
         let newProgress = progressService.getCurrentProgress(for: habitId)
         if currentProgress != newProgress {
@@ -479,7 +481,9 @@ final class HabitDetailViewModel {
                 try modelContext.save()
                 habitProgress.isDirty = false
                 hasChanges = false
-                habitsUpdateService.triggerDelayedUpdate(delay: 0.3)
+                Task {
+                    await habitsUpdateService.triggerDelayedUpdate(delay: 0.3)
+                }
             } catch {
                 print("Failed to save progress: \(error)")
             }

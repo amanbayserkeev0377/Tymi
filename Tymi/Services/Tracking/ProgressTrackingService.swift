@@ -41,7 +41,7 @@ protocol ProgressTrackingServiceProvider {
 }
 
 extension ProgressTrackingService {
-    func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date = .now) async {
+    func persistCompletions(for habitId: String, in modelContext: ModelContext, date: Date = .now) {
         let currentProgress = getCurrentProgress(for: habitId)
         
         guard currentProgress > 0 else {
@@ -97,9 +97,9 @@ extension ProgressTrackingService {
     }
     
     // И соответственно изменить persistAllCompletionsToSwiftData
-    func persistAllCompletionsToSwiftData(modelContext: ModelContext) async {
+    func persistAllCompletionsToSwiftData(modelContext: ModelContext) {
         for (habitId, _) in progressUpdates {
-            await persistCompletions(for: habitId, in: modelContext, date: Date())
+            persistCompletions(for: habitId, in: modelContext, date: Date())
         }
     }
 }

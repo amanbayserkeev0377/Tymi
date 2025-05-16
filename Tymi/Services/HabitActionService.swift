@@ -11,7 +11,7 @@ protocol HabitActionHandler {
 }
 
 // Класс для обработки действий с привычками
-@Observable
+@Observable @MainActor
 class HabitActionService {
     private var modelContext: ModelContext
     private var habitsUpdateService: HabitsUpdateService
