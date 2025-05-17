@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct ProgressRing: View {
     // MARK: - Properties
@@ -10,13 +9,9 @@ struct ProgressRing: View {
     
     // Размеры и стили
     var size: CGFloat = 180
-    var lineWidth: CGFloat = 22
-    var fontSize: CGFloat = 36
-    var iconSize: CGFloat = 64
-    
-    // Окружение
-    @Environment(\.colorScheme) var colorScheme
-    @Environment(\.dynamicTypeSize) var dynamicTypeSize
+    var lineWidth: CGFloat? = nil
+    var fontSize: CGFloat? = nil
+    var iconSize: CGFloat? = nil
     
     // MARK: - Computed Properties
     
@@ -41,7 +36,6 @@ struct ProgressRing: View {
         }
     }
     
-    // Упрощаем - всегда зеленый для выполненных и перевыполненных
     private var textColor: Color {
         if isCompleted || isExceeded {
             return Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
@@ -52,55 +46,31 @@ struct ProgressRing: View {
     
     // Адаптивная толщина линии кольца с фиксированным соотношением
     private var adaptiveLineWidth: CGFloat {
-        // Фиксированное соотношение к размеру кольца
-        let ratio: CGFloat
-        
-        if size <= 55 {
-            ratio = 0.13 // Для маленьких колец (HabitRowView)
-        } else if size <= 120 {
-            ratio = 0.12 // Для средних колец
-        } else {
-            ratio = 0.11 // Для больших колец
-        }
-        
-        return size * ratio
+        return lineWidth ?? (size * 0.11)
     }
     
     // Адаптивный размер шрифта для текста значения
     private var adaptedFontSize: CGFloat {
-        // Базовый случай - маленькие кольца (HabitRowView)
-        if size <= 55 {
-            // Базовый размер для маленьких колец
-            let baseSize = size * 0.32
-            
-            // Адаптация к длине текста
-            let factor: CGFloat
-            if currentValue.contains(":") {
-                factor = 0.85 // Время с двоеточием
-            } else if currentValue.count >= 5 {
-                factor = 0.7  // Длинные числа
-            } else if currentValue.count >= 3 {
-                factor = 0.85 // Средние числа
-            } else {
-                factor = 1.0  // Короткие числа
-            }
-            
-            return baseSize * factor
+        if let customFontSize = fontSize {
+            return customFontSize
         }
         
-        // Для больших колец - адаптация к размеру и длине текста
-        let baseSize = size * 0.25 // Базовый размер пропорционален кольцу
+        let baseSize = size * 0.25
         
-        // Адаптация к длине текста
+        let digitsCount = currentValue.filter { $0.isNumber }.count
+        
         let factor: CGFloat
-        if currentValue.contains(":") {
-            factor = 0.8 // Время с двоеточием
-        } else if currentValue.count >= 5 {
-            factor = 0.7 // Длинные числа
-        } else if currentValue.count >= 3 {
-            factor = 0.9 // Средние числа
-        } else {
-            factor = 1.0 // Короткие числа
+        switch digitsCount {
+        case 0...3: // 1, 12, 123, 999
+            factor = 1.0
+        case 4: // 1000, 1 000, 9999
+            factor = 0.9
+        case 5: // 10000, 10 000, 99999
+            factor = 0.85
+        case 6: // 100000, 100 000, 999999
+            factor = 0.75
+        default: // Более длинные строки
+            factor = 0.65
         }
         
         return baseSize * factor
@@ -108,11 +78,10 @@ struct ProgressRing: View {
     
     // Адаптивный размер иконки галочки
     private var adaptedIconSize: CGFloat {
-        return size * 0.35 // Размер иконки пропорционален размеру кольца
+        return iconSize ?? (size * 0.4)
     }
     
     // MARK: - Body
-    
     var body: some View {
         ZStack {
             // Фоновый круг
@@ -133,7 +102,7 @@ struct ProgressRing: View {
                     .font(.system(size: adaptedIconSize, weight: .bold))
                     .foregroundStyle(textColor)
                     .transaction { transaction in
-                        transaction.animation = nil // Отключаем анимацию для текста
+                        transaction.animation = nil
                     }
             } else {
                 Text(currentValue)
@@ -143,13 +112,11 @@ struct ProgressRing: View {
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .transaction { transaction in
-                        transaction.animation = nil // Отключаем анимацию для текста
+                        transaction.animation = nil
                     }
             }
         }
         .frame(width: size, height: size)
-        // Удаляем анимацию отсюда, чтобы не влияла на весь ZStack
-        // .animation(.easeInOut(duration: 0.3), value: progress)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityValue(accessibilityValue)

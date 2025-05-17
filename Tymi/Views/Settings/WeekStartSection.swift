@@ -71,7 +71,8 @@ struct WeekStartSection: View {
                         .foregroundStyle(.secondary)
                     
                     Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption)
+                        .font(.footnote)
+                        .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
                 }
             }

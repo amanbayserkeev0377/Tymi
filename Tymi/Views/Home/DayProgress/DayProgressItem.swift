@@ -30,15 +30,26 @@ struct DayProgressItem: View, Equatable {
         date <= Date().addingTimeInterval(86400 * 365)
     }
     
-    private var progressColor: Color {
+    private var progressMainColor: Color {
         if progress >= 1.0 {
             return Color(#colorLiteral(red: 0.2980392157, green: 0.7333333333, blue: 0.09019607843, alpha: 1))
         } else if progress > 0 {
-            return Color(#colorLiteral(red: 1, green: 0.3806057187, blue: 0.1013509959, alpha: 1))
+            return Color(#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1))
         } else {
             return Color.gray.opacity(0.3)
         }
     }
+    
+    private var progressSecondaryColor: Color {
+        if progress >= 1.0 {
+            return Color(#colorLiteral(red: 0.1803921569, green: 0.5450980392, blue: 0.3411764706, alpha: 1))
+        } else if progress > 0 {
+            return Color(#colorLiteral(red: 1, green: 0.6470588235, blue: 0, alpha: 1))
+        } else {
+            return Color.gray.opacity(0.2)
+        }
+    }
+    
     
     // Размеры для разных значений dynamic type
     private var circleSize: CGFloat {
@@ -108,7 +119,11 @@ struct DayProgressItem: View, Equatable {
                         Circle()
                             .trim(from: 0, to: progress)
                             .stroke(
-                                progressColor,
+                                LinearGradient(
+                                    colors: [progressMainColor, progressSecondaryColor],
+                                    startPoint: .trailing,
+                                    endPoint: .leading
+                                ),
                                 style: StrokeStyle(
                                     lineWidth: lineWidth,
                                     lineCap: .round

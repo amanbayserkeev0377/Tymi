@@ -176,15 +176,12 @@ struct HabitStatisticsView: View {
         let weekdays = Calendar.userPreferred.orderedFormattedWeekdaySymbols
         
         let activeDaysWithIndex = zip(habit.activeDays.indices, habit.activeDays)
-            .filter { $0.1 } // Фильтруем только активные дни
-            .map { (weekdays[$0.0], $0.0) } // Берем имена дней и их индексы
+            .filter { $0.1 }
+            .map { (weekdays[$0.0], $0.0) }
         
         if activeDaysWithIndex.count == 7 {
-            return "Ежедневно"
-        } else if activeDaysWithIndex.isEmpty {
-            return "Нет активных дней"
+            return "everyday".localized
         } else {
-            // Сортируем дни по их индексу в неделе для более понятного отображения
             let sortedDays = activeDaysWithIndex.sorted { $0.1 < $1.1 }
             return sortedDays.map { $0.0 }.joined(separator: ", ")
         }

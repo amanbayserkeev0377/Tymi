@@ -21,39 +21,50 @@ struct ProgressControlSection: View {
     }
     
     var body: some View {
-        HStack(spacing: 40) {
-            // minus
+        HStack {
+            // Контейнер для кнопки минус
             Button(action: {
                 decrementTrigger.toggle()
                 onDecrement()
             }) {
                 Image(systemName: "minus")
-                    .font(.system(size: 30))
-                    .tint(.primary)
-                    .frame(width: 44, height: 44)
+                    .font(.system(size: 24))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .background(
+                        Circle()
+                            .fill(Color.gray.opacity(0.1))
+                    )
             }
             .decreaseHaptic(trigger: decrementTrigger)
             
-            // Progress Ring
+            Spacer()
+            
+            // Центральный элемент - кольцо прогресса
             ProgressRing(
                 progress: completionPercentage,
                 currentValue: formattedProgress,
                 isCompleted: isCompleted,
                 isExceeded: isExceeded
             )
+            .aspectRatio(1, contentMode: .fit)
             
-            // plus
+            Spacer()
+            
+            // Контейнер для кнопки плюс
             Button(action: {
                 incrementTrigger.toggle()
                 onIncrement()
             }) {
                 Image(systemName: "plus")
-                    .font(.system(size: 30))
-                    .tint(.primary)
-                    .frame(width: 44, height: 44)
+                    .font(.system(size: 24))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .background(
+                        Circle()
+                            .fill(Color.gray.opacity(0.1))
+                    )
             }
             .increaseHaptic(trigger: incrementTrigger)
         }
-        .padding()
+        .padding(.horizontal)
     }
 }

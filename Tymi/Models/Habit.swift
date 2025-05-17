@@ -153,8 +153,13 @@ final class Habit {
         case .time:
             let hours = goal / 3600
             let minutes = (goal % 3600) / 60
+            
             if hours > 0 {
-                return "hours_minutes_format".localized(with: hours, minutes)
+                if minutes > 0 {
+                    return "hours_minutes_format".localized(with: hours, minutes)
+                } else {
+                    return "hours_format".localized(with: hours)
+                }
             } else {
                 return "minutes_format".localized(with: minutes)
             }

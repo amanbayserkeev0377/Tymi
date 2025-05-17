@@ -12,6 +12,35 @@ struct HabitRowView: View {
     // MARK: - State
     @State private var isPressed = false
     
+    // MARK: - Computed Properties
+    // Базовые размеры
+    private let ringSize: CGFloat = 50
+    private let lineWidth: CGFloat = 6.5
+    private let iconSize: CGFloat = 22
+    
+    private var adaptedFontSize: CGFloat {
+        let value = habit.formattedProgressValue(for: date)
+        let baseSize = ringSize * 0.3
+        
+        let digitsCount = value.filter { $0.isNumber }.count
+        
+        let factor: CGFloat
+        switch digitsCount {
+        case 0...3: // 1, 12, 123, 999
+            factor = 1.0
+        case 4: // 1000, 1 000, 9999
+            factor = 0.9
+        case 5: // 10000, 10 000, 99999
+            factor = 0.75
+        case 6: // 100000, 100 000, 999999
+            factor = 0.60
+        default: // Более длинные строки
+            factor = 0.5
+        }
+        
+        return baseSize * factor
+    }
+    
     var body: some View {
         HStack {
             if let iconName = habit.iconName {
@@ -25,6 +54,7 @@ struct HabitRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(habit.title)
                     .font(.headline)
+                    .lineLimit(1)
                 
                 Text("goal_format".localized(with: habit.formattedGoal))
                     .font(.subheadline)
@@ -38,10 +68,10 @@ struct HabitRowView: View {
                 currentValue: habit.formattedProgressValue(for: date),
                 isCompleted: habit.isCompletedForDate(date),
                 isExceeded: habit.isExceededForDate(date),
-                size: 50,
-                lineWidth: 6.5,
-                fontSize: 16,
-                iconSize: 22
+                size: ringSize,
+                lineWidth: lineWidth,
+                fontSize: adaptedFontSize,
+                iconSize: iconSize
             )
         }
         .padding()
@@ -78,6 +108,5 @@ struct HabitRowView: View {
                 onTap?()
             }
         }
-
     }
 }

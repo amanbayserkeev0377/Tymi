@@ -11,7 +11,6 @@ struct ReorderHabitsView: View {
     
     @State private var editMode: EditMode = .active
     
-    // Свойство, чтобы определить, как было открыто представление
     var isSheetPresentation: Bool = false
     
     var body: some View {

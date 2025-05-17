@@ -32,7 +32,11 @@ extension Int {
         let minutes = (self % 3600) / 60
         
         if hours > 0 {
-            return "\(hours) hr \(minutes) min"
+            if minutes > 0 {
+                return "\(hours) hr \(minutes) min"
+            } else {
+                return "\(hours) hr"
+            }
         } else {
             return "\(minutes) min"
         }
@@ -40,16 +44,20 @@ extension Int {
     
     /// Formats current value and total value to display progress, e.g. "10/20"
     func formattedAsProgress(total: Int) -> String {
-        return "\(self)"
+        return formattedAsProgressForRing()
     }
     
     /// Formats current value for progress ring
     func formattedAsProgressForRing() -> String {
-        if self >= 100000 {
-            return "\(self / 1000)K"
-        } else if self >= 10000 {
-            return "\(self)"
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = " " // Пробел в качестве разделителя тысяч
+        
+        if self >= 1000 {
+            // Форматируем числа >= 1000 с разделителем
+            return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
         } else {
+            // Числа меньше 1000 показываем без разделителя
             return "\(self)"
         }
     }

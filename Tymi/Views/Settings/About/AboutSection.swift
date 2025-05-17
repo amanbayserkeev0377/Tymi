@@ -1,8 +1,32 @@
 import SwiftUI
 
+struct ExternalLinkModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        HStack {
+            content
+            Spacer()
+            Image(systemName: "arrow.up.right")
+                .font(.footnote)
+                .fontWeight(.bold)
+                .foregroundStyle(.tertiary)
+        }
+    }
+}
+
+extension View {
+    func withExternalLinkIcon() -> some View {
+        self.modifier(ExternalLinkModifier())
+    }
+}
+
 struct AboutSection: View {
     var body: some View {
-        Section(header: Text("about".localized)) {
+        Section {
+            // How to Use
+            NavigationLink(destination: HowToUseView()) {
+                Label("how_to_use".localized, systemImage: "questionmark.app")
+            }
+            
             // Rate App
             Button {
                 if let url = URL(string: "https://apps.apple.com/app/idXXXXXXXXXX") {
@@ -10,6 +34,7 @@ struct AboutSection: View {
                 }
             } label: {
                 Label("rate_app".localized, systemImage: "star")
+                    .withExternalLinkIcon()
             }
             
             // Share App
@@ -26,6 +51,7 @@ struct AboutSection: View {
                 }
             } label: {
                 Label("share_app".localized, systemImage: "square.and.arrow.up")
+                    .withExternalLinkIcon()
             }
             
             // Contact Developer
@@ -35,6 +61,7 @@ struct AboutSection: View {
                 }
             } label: {
                 Label("contact_developer".localized, systemImage: "ellipsis.message")
+                    .withExternalLinkIcon()
             }
             
             // Report a Bug
@@ -44,18 +71,14 @@ struct AboutSection: View {
                 }
             } label: {
                 Label("report_bug".localized, systemImage: "ladybug")
-            }
-            
-            // How to Use
-            NavigationLink(destination: HowToUseView()) {
-                Label("how_to_use".localized, systemImage: "questionmark.app")
+                    .withExternalLinkIcon()
             }
         }
         
         // MARK: - Legal
         
         // Terms of Service
-        Section(header: Text("legal".localized)) {
+        Section {
             NavigationLink(destination: TermsOfServiceView()) {
                 Label("terms_of_service".localized, systemImage: "text.document")
             }
@@ -63,15 +86,6 @@ struct AboutSection: View {
             // Privacy Policy
             NavigationLink(destination: PrivacyPolicyView()) {
                 Label("privacy_policy".localized, systemImage: "lock")
-            }
-        }
-        
-        Section {
-            HStack {
-                Text("app_version".localized)
-                Spacer()
-                Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
-                    .foregroundStyle(.secondary)
             }
         }
     }

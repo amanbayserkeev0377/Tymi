@@ -20,6 +20,9 @@
     "%lld" : {
       "shouldTranslate" : false
     },
+    "🇰🇬" : {
+      "shouldTranslate" : false
+    },
     "about" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -200,29 +203,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Добавить время"
-          }
-        }
-      }
-    },
-    "app_version" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version"
-          }
-        },
-        "ky-KG" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Версия"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Версия"
           }
         }
       }
@@ -1124,6 +1104,29 @@
         }
       }
     },
+    "hours_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d hr"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d с"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d ч"
+          }
+        }
+      }
+    },
     "hours_less_than_24" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1153,19 +1156,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%dh %dm"
+            "value" : "%d hr %d m"
           }
         },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%dс %dм"
+            "value" : "%d с %d м"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%dч %dм"
+            "value" : "%d ч %d м"
           }
         }
       }
@@ -1929,6 +1932,29 @@
         }
       }
     },
+    "in_kyrgyzstan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in Kyrgyzstan"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "менен жасалган"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "в Кыргызстане"
+          }
+        }
+      }
+    },
     "language" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2021,6 +2047,45 @@
         }
       }
     },
+    "made_with" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Made with"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кыргызстанда"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделано с"
+          }
+        }
+      }
+    },
+    "Manual Entry" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual Entry"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual Entry"
+          }
+        }
+      }
+    },
     "minutes" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2050,19 +2115,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%dm"
+            "value" : "%d m"
           }
         },
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%dм"
+            "value" : "%d м"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%dм"
+            "value" : "%d м"
           }
         }
       }
@@ -2251,6 +2316,22 @@
         }
       }
     },
+    "Pause" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause"
+          }
+        }
+      }
+    },
     "permission_for_notifications" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2270,6 +2351,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Для получения уведомлений необходимо предоставить разрешение в настройках системы"
+          }
+        }
+      }
+    },
+    "Play" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
           }
         }
       }
@@ -3401,6 +3498,22 @@
         }
       }
     },
+    "Reset" : {
+      "localizations" : {
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset"
+          }
+        }
+      }
+    },
     "reset_all_history" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4133,6 +4246,51 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Попробуйте выбрать другую дату"
+          }
+        }
+      }
+    },
+    "Tymi – %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Tymi – %1$@ %2$@"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi – %1$@ %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi – %1$@ %2$@"
+          }
+        }
+      }
+    },
+    "version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "version"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "версия"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "версия"
           }
         }
       }

@@ -7,10 +7,8 @@ struct LanguageSection: View {
                 UIApplication.shared.open(url)
             }
         } label: {
-            Label(
-                title: { Text("language".localized) },
-                icon: { Image(systemName: "translate") }
-            )
+            Label("language".localized, systemImage: "translate")
+                .withExternalLinkIcon()
         }
     }
 }

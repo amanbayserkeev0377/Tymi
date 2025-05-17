@@ -6,37 +6,37 @@ struct StreaksView: View {
     var body: some View {
         HStack {
             Image(systemName: "laurel.leading")
-                .font(.system(size: 38))
+                .font(.system(size: 42))
                 .foregroundColor(.secondary)
             VStack {
                 Text("\(viewModel.currentStreak)")
-                    .font(.system(size: 26, weight: .bold))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.primary)
                 Text("streak".localized)
-                    .font(.subheadline)
+                    .font(.footnote)
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity)
             VStack {
                 Text("\(viewModel.bestStreak)")
-                    .font(.system(size: 26, weight: .bold))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.primary)
                 Text("best".localized)
-                    .font(.subheadline)
+                    .font(.footnote)
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity)
             VStack {
                 Text("\(viewModel.totalValue)")
-                    .font(.system(size: 26, weight: .bold))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.primary)
                 Text("total".localized)
-                    .font(.subheadline)
+                    .font(.footnote)
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity)
             Image(systemName: "laurel.trailing")
-                .font(.system(size: 38))
+                .font(.system(size: 42))
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 8)

@@ -144,7 +144,7 @@ struct HomeView: View {
                 }
                 .presentationDetents([.fraction(0.7)])
                 .presentationDragIndicator(.visible)
-                .presentationCornerRadius(35)
+                .presentationCornerRadius(30)
             }
             .sheet(item: $selectedHabitForStats) { habit in
                 NavigationStack {
