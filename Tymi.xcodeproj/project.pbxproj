@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXContainerItemProxy section */
@@ -22,7 +22,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		07EBAFDC2D9D32FB000C7DA9 /* Exceptions for "Tymi" folder in "Tymi" target */ = {
+		0730E7192DDB5E710036FAF3 /* Exceptions for "Tymi" folder in "Tymi" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -35,7 +35,7 @@
 		07A95EFC2D9849F300044A7A /* Tymi */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				07EBAFDC2D9D32FB000C7DA9 /* Exceptions for "Tymi" folder in "Tymi" target */,
+				0730E7192DDB5E710036FAF3 /* Exceptions for "Tymi" folder in "Tymi" target */,
 			);
 			path = Tymi;
 			sourceTree = "<group>";
@@ -50,17 +50,13 @@
 /* Begin PBXFrameworksBuildPhase section */
 		07A95EF72D9849F300044A7A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		07D772F32DC7DE5A00DD9757 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -96,14 +92,10 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			fileSystemSynchronizedGroups = (
 				07A95EFC2D9849F300044A7A /* Tymi */,
 			);
 			name = Tymi;
-			packageProductDependencies = (
-			);
 			productName = Tymi;
 			productReference = 07A95EFA2D9849F300044A7A /* Tymi.app */;
 			productType = "com.apple.product-type.application";
@@ -125,8 +117,6 @@
 				07D772F72DC7DE5A00DD9757 /* TymiTests */,
 			);
 			name = TymiTests;
-			packageProductDependencies = (
-			);
 			productName = TymiTests;
 			productReference = 07D772F62DC7DE5A00DD9757 /* TymiTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -163,7 +153,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 07A95EFB2D9849F300044A7A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -177,34 +167,26 @@
 /* Begin PBXResourcesBuildPhase section */
 		07A95EF82D9849F300044A7A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		07D772F42DC7DE5A00DD9757 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		07A95EF62D9849F300044A7A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		07D772F22DC7DE5A00DD9757 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
@@ -217,7 +199,7 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		07A95F062D9849F400044A7A /* Debug */ = {
+		07A95F062D9849F400044A7A /* Debug configuration for PBXProject "Tymi" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -283,7 +265,7 @@
 			};
 			name = Debug;
 		};
-		07A95F072D9849F400044A7A /* Release */ = {
+		07A95F072D9849F400044A7A /* Release configuration for PBXProject "Tymi" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -342,11 +324,13 @@
 			};
 			name = Release;
 		};
-		07A95F092D9849F400044A7A /* Debug */ = {
+		07A95F092D9849F400044A7A /* Debug configuration for PBXNativeTarget "Tymi" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIconTymiDark,AppIconNight,AppIconNeon,AppIconPaper,AppIconPurple,AppIconSilverBlue,AppIconSunrise";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = Tymi/Resources;
@@ -358,6 +342,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -365,17 +350,23 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amanbayserkeev.Tymi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
-		07A95F0A2D9849F400044A7A /* Release */ = {
+		07A95F0A2D9849F400044A7A /* Release configuration for PBXNativeTarget "Tymi" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIconTymiDark,AppIconNight,AppIconNeon,AppIconPaper,AppIconPurple,AppIconSilverBlue,AppIconSunrise";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = Tymi/Resources;
@@ -387,6 +378,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -394,13 +386,17 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amanbayserkeev.Tymi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
-		07D772FD2DC7DE5A00DD9757 /* Debug */ = {
+		07D772FD2DC7DE5A00DD9757 /* Debug configuration for PBXNativeTarget "TymiTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -419,7 +415,7 @@
 			};
 			name = Debug;
 		};
-		07D772FE2DC7DE5A00DD9757 /* Release */ = {
+		07D772FE2DC7DE5A00DD9757 /* Release configuration for PBXNativeTarget "TymiTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -444,28 +440,25 @@
 		07A95EF52D9849F300044A7A /* Build configuration list for PBXProject "Tymi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				07A95F062D9849F400044A7A /* Debug */,
-				07A95F072D9849F400044A7A /* Release */,
+				07A95F062D9849F400044A7A /* Debug configuration for PBXProject "Tymi" */,
+				07A95F072D9849F400044A7A /* Release configuration for PBXProject "Tymi" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		07A95F082D9849F400044A7A /* Build configuration list for PBXNativeTarget "Tymi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				07A95F092D9849F400044A7A /* Debug */,
-				07A95F0A2D9849F400044A7A /* Release */,
+				07A95F092D9849F400044A7A /* Debug configuration for PBXNativeTarget "Tymi" */,
+				07A95F0A2D9849F400044A7A /* Release configuration for PBXNativeTarget "Tymi" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		07D772FC2DC7DE5A00DD9757 /* Build configuration list for PBXNativeTarget "TymiTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				07D772FD2DC7DE5A00DD9757 /* Debug */,
-				07D772FE2DC7DE5A00DD9757 /* Release */,
+				07D772FD2DC7DE5A00DD9757 /* Debug configuration for PBXNativeTarget "TymiTests" */,
+				07D772FE2DC7DE5A00DD9757 /* Release configuration for PBXNativeTarget "TymiTests" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

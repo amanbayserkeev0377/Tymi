@@ -13,7 +13,7 @@ struct ActionButtonsSection: View {
     @State private var manualEntryPressed = false
     
     var body: some View {
-        HStack(spacing: 18) { // Увеличиваем spacing для стиля Apple Music
+        HStack(spacing: 18) {
             // 1. Reset
             Button {
                 resetPressed.toggle()
@@ -23,8 +23,8 @@ struct ActionButtonsSection: View {
                     .font(.system(size: 24))
                     .foregroundStyle(.primary)
                     .frame(minWidth: 44, minHeight: 44)
+                    .rotateResetAnimation(isActive: resetPressed)
             }
-            .symbolEffect(.rotate, options: .speed(4.5), value: resetPressed)
             .errorHaptic(trigger: resetPressed)
             .accessibilityLabel("Reset")
             
@@ -61,5 +61,17 @@ struct ActionButtonsSection: View {
         .frame(maxWidth: .infinity)
         .frame(height: 80)
     }
-    
+}
+
+// MARK: - iOS Version Specific Modifiers
+
+extension View {
+    @ViewBuilder
+    func rotateResetAnimation(isActive: Bool) -> some View {
+        if #available(iOS 18.0, *) {
+            self.symbolEffect(.rotate, options: .speed(4.5), value: isActive)
+        } else {
+            self.symbolEffect(.bounce.byLayer, options: .speed(2), value: isActive)
+        }
+    }
 }

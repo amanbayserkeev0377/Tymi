@@ -5,6 +5,7 @@ import UserNotifications
 @main
 struct TymiApp: App {
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorScheme) private var colorScheme  // Оставляем для отслеживания изменений темы
     
     let container: ModelContainer
     let habitsUpdateService = HabitsUpdateService()
@@ -59,4 +60,3 @@ struct TymiApp: App {
         }
     }
 }
-

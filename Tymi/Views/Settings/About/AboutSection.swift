@@ -1,10 +1,18 @@
 import SwiftUI
 
 struct ExternalLinkModifier: ViewModifier {
+    var trailingText: String? = nil
+    
     func body(content: Content) -> some View {
         HStack {
             content
             Spacer()
+            
+            if let text = trailingText {
+                Text(text)
+                    .foregroundStyle(.secondary)
+            }
+            
             Image(systemName: "arrow.up.right")
                 .font(.footnote)
                 .fontWeight(.bold)
@@ -14,8 +22,8 @@ struct ExternalLinkModifier: ViewModifier {
 }
 
 extension View {
-    func withExternalLinkIcon() -> some View {
-        self.modifier(ExternalLinkModifier())
+    func withExternalLinkIcon(trailingText: String? = nil) -> some View {
+        self.modifier(ExternalLinkModifier(trailingText: trailingText))
     }
 }
 

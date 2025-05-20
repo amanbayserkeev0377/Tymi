@@ -207,6 +207,328 @@
         }
       }
     },
+    "app_icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Icon"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колдонмо белгиси"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иконка приложения"
+          }
+        }
+      }
+    },
+    "app_icon_aura_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aura"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аура"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аура"
+          }
+        }
+      }
+    },
+    "app_icon_blaze_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blaze"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жалын"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пламя"
+          }
+        }
+      }
+    },
+    "app_icon_bliss_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bliss"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бакыт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Блаженство"
+          }
+        }
+      }
+    },
+    "app_icon_chill_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chill"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Салкын"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спокойствие"
+          }
+        }
+      }
+    },
+    "app_icon_dark_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Түн"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тёмная"
+          }
+        }
+      }
+    },
+    "app_icon_dream_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dream"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Үмүт"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мечта"
+          }
+        }
+      }
+    },
+    "app_icon_light_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Күн"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Светлая"
+          }
+        }
+      }
+    },
+    "app_icon_main_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Main"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Негизги"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Основная"
+          }
+        }
+      }
+    },
+    "app_icon_minimal_dark_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimal Dark"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Түнкү Минимализм"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тёмный минимализм"
+          }
+        }
+      }
+    },
+    "app_icon_minimal_light_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimal Light"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Күндүзгү Минимализм"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Светлый минимализм"
+          }
+        }
+      }
+    },
+    "app_icon_paper_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paper"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кагаз"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бумага"
+          }
+        }
+      }
+    },
+    "app_icon_silver_blue_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silver Blue"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Көк Күмүш"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Металлик Блюз"
+          }
+        }
+      }
+    },
+    "app_icon_sunrise_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sunrise"
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Таң"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восход"
+          }
+        }
+      }
+    },
     "appearance" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -363,7 +685,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выбор иконки"
+            "value" : "Выбрать иконку"
           }
         }
       }
@@ -3802,7 +4124,7 @@
         "ky-KG" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Кызмат көрсөтүү шарттары"
+            "value" : "Кызмат шарттары"
           }
         },
         "ru" : {

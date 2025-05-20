@@ -14,9 +14,10 @@ struct SettingsView: View {
                     } label: {
                         Label("reorder_habits".localized, systemImage: "list.bullet")
                     }
-                    LanguageSection()
+                    AppIconSection()
                     AppearanceSection()
                     WeekStartSection()
+                    LanguageSection()
                 }
 
                 Section {
@@ -31,7 +32,7 @@ struct SettingsView: View {
                     VStack(spacing: 4) {
                         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
                         
-                        Image("Tymi_blank")
+                        Image("TymiBlank")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 80)

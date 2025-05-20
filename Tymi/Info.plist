@@ -2,51 +2,39 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleIcons</key>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
 	<dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string>AppIcon</string>
-			</array>
-			<key>CFBundleIconName</key>
-			<string></string>
-			<key>UIPrerenderedIcon</key>
-			<false/>
-		</dict>
-		<key>UINewsstandIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string></string>
-			</array>
-			<key>UINewsstandBindingEdge</key>
-			<string>UINewsstandBindingEdgeLeft</string>
-			<key>UINewsstandBindingType</key>
-			<string>UINewsstandBindingTypeMagazine</string>
-		</dict>
-		<key>Alternate Icons</key>
-		<dict>
-			<key>Tymi_light</key>
-			<dict>
-				<key>UIPrerenderedIcon</key>
-				<true/>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>Tymi_light</string>
-				</array>
-			</dict>
-			<key>Tymi_dark</key>
-			<dict>
-				<key>UIPrerenderedIcon</key>
-				<true/>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>Tymi_dark</string>
-				</array>
-			</dict>
-		</dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
 	</dict>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>MinimumOSVersion</key>
+	<string>17.0</string>
 </dict>
 </plist>

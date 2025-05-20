@@ -8,7 +8,7 @@ struct EmptyStateView: View {
             Spacer()
             
             // App Icon
-            Image("Tymi_blank")
+            Image("TymiBlank")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 120, height: 120)
