@@ -15,20 +15,12 @@ struct HomeView: View {
     @State private var selectedHabit: Habit? = nil
     @State private var selectedHabitForStats: Habit? = nil
     @State private var isReorderingSheetPresented = false
-    
     @State private var actionService: HabitActionService
-    
-    private let dayOfWeekFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE"
-        return formatter
-    }()
-    
-    private let dayMonthFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd MMMM"
-        return formatter
-    }()
+    @State private var habitToEdit: Habit? = nil
+    @State private var isDeleteAlertPresented = false
+    @State private var habitToDelete: Habit? = nil
+    @State private var alertState = AlertState()
+    @State private var habitForProgress: Habit? = nil
     
     init() {
         let container = try! ModelContainer(for: Habit.self, HabitCompletion.self)
@@ -37,7 +29,6 @@ struct HomeView: View {
             habitsUpdateService: HabitsUpdateService()
         ))
     }
-    
     
     // Вычисляемое свойство для фильтрации привычек на основе выбранной даты
     private var activeHabitsForDate: [Habit] {
@@ -54,135 +45,165 @@ struct HomeView: View {
     
     // MARK: - Body
     var body: some View {
+        // Используем уже конкретный BuilderAPI View вместо BodyBuilder
         NavigationStack {
-            ZStack {
-                VStack {
-                    ScrollView {
-                        VStack(spacing: 0) {
+            contentView
+        }
+    }
+    
+    // Перемещаем содержимое в отдельное свойство
+    private var contentView: some View {
+        ZStack {
+            VStack {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        WeeklyCalendarView(selectedDate: $selectedDate)
+                        
+                        if baseHabits.isEmpty {
+                            // Нет привычек вообще
+                            EmptyStateView()
+                        } else {
+                            // Кольцо прогресса отображается всегда
+                            DailyProgressRing(date: selectedDate)
+                                .padding()
                             
-                            WeeklyCalendarView(selectedDate: $selectedDate)
-                            
-                            if baseHabits.isEmpty {
-                                // Нет привычек вообще
-                                EmptyStateView()
-                            } else {
-                                // Кольцо прогресса отображается всегда
-                                DailyProgressRing(date: selectedDate)
-                                    .padding()
-                                
-                                // Список привычек для выбранной даты
-                                if hasHabitsForDate {
-                                    habitList
-                                }
+                            // Список привычек для выбранной даты
+                            if hasHabitsForDate {
+                                habitList
                             }
                         }
                     }
                 }
             }
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Text(formattedNavigationTitle(for: selectedDate))
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !Calendar.current.isDateInToday(selectedDate) {
-                        Button(action: {
-                            withAnimation {
-                                selectedDate = Date()
-                            }
-                        }) {
-                            HStack(spacing: 2) {
-                                Text("today".localized)
-                                    .font(.footnote)
-                                    .foregroundStyle(Color.gray.opacity(0.7))
-                                Image(systemName: "arrow.uturn.left")
-                                    .font(.system(size: 9))
-                                    .foregroundStyle(Color.gray.opacity(0.7))
-                            }
-                            .padding(.vertical, 2)
-                            .padding(.horizontal, 6)
-                        }
-                        .buttonStyle(.plain)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .strokeBorder(Color.gray.opacity(0.7), lineWidth: 1)
-                        )
-                    }
-                }
-                ToolbarItem(placement: .primaryAction) {
+        }
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        // Используем типизированную функцию toolbar вместо generic
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text(formattedNavigationTitle(for: selectedDate))
+                    .font(.headline.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                if !Calendar.current.isDateInToday(selectedDate) {
                     Button(action: {
-                        isShowingNewHabitSheet = true
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 24))
-                    }
-                }
-            }
-            .sheet(isPresented: $isShowingNewHabitSheet) {
-                NavigationStack {
-                    NewHabitView()
-                }
-            }
-            .sheet(item: $selectedHabit) { habit in
-                NavigationStack {
-                    HabitDetailView(
-                        habit: habit,
-                        date: selectedDate,
-                        onDelete: {
-                            selectedHabit = nil
-                        },
-                        onShowStats: {
-                            selectedHabit = nil
-                            selectedHabitForStats = habit
+                        withAnimation {
+                            selectedDate = Date()
                         }
+                    }) {
+                        HStack(spacing: 2) {
+                            Text("today".localized)
+                                .font(.footnote)
+                                .foregroundStyle(Color.gray.opacity(0.7))
+                            Image(systemName: "arrow.uturn.left")
+                                .font(.system(size: 9))
+                                .foregroundStyle(Color.gray.opacity(0.7))
+                        }
+                        .padding(.vertical, 2)
+                        .padding(.horizontal, 6)
+                    }
+                    .buttonStyle(.plain)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(Color.gray.opacity(0.7), lineWidth: 1)
                     )
                 }
-                .presentationDetents([.fraction(0.7)])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(30)
             }
-            .sheet(item: $selectedHabitForStats) { habit in
-                NavigationStack {
-                    HabitStatisticsView(habit: habit)
+            
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: {
+                    isShowingNewHabitSheet = true
+                }) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16))
+                        .frame(width: 36, height: 36)
+                        .background(
+                            Circle()
+                                .fill(Color.gray.opacity(0.1))
+                        )
+                        .padding(4)
                 }
-                .presentationDragIndicator(.visible)
             }
-            .sheet(isPresented: $isReorderingSheetPresented) {
-                NavigationStack {
-                    ReorderHabitsView(isSheetPresentation: true)
-                }
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
+        }
+        // Применяем остальные модификаторы
+        .sheet(isPresented: $isShowingNewHabitSheet) {
+            NavigationStack {
+                NewHabitView()
             }
-            .onChange(of: selectedDate) { _, _ in
-                habitsUpdateService.triggerUpdate()
-            }
-            .onAppear {
-                // Обновляем сервис действий с правильными объектами
-                actionService.updateContext(modelContext)
-                actionService.updateService(habitsUpdateService)
-                actionService.setCallbacks(
-                    onHabitSelected: { habit in
-                        selectedHabit = habit
+        }
+        .sheet(item: $selectedHabit) { habit in
+            NavigationStack {
+                HabitDetailView(
+                    habit: habit,
+                    date: selectedDate,
+                    onDelete: {
+                        selectedHabit = nil
                     },
-                    onHabitEditSelected: { habit in
-                        selectedHabit = habit
-                    },
-                    onHabitStatsSelected: { habit in
+                    onShowStats: {
+                        selectedHabit = nil
                         selectedHabitForStats = habit
                     }
                 )
+            }
+            .presentationDetents([
+                .fraction(UIScreen.main.bounds.width <= 375 ? 0.85 : 0.7)
+            ])
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(30)
+        }
+        .sheet(item: $selectedHabitForStats) { habit in
+            NavigationStack {
+                HabitStatisticsView(habit: habit)
+            }
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $habitToEdit) { habit in
+            NavigationStack {
+                NewHabitView(habit: habit)
+            }
+        }
+        .sheet(isPresented: $isReorderingSheetPresented) {
+            NavigationStack {
+                ReorderHabitsView(isSheetPresentation: true)
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
+        .onChange(of: selectedDate) { _, _ in
+            habitsUpdateService.triggerUpdate()
+        }
+        .onAppear {
+            actionService.updateContext(modelContext)
+            actionService.updateService(habitsUpdateService)
+            actionService.setCallbacks(
+                onHabitSelected: { habit in
+                    selectedHabit = habit
+                },
+                onHabitEditSelected: { habit in
+                    habitToEdit = habit
+                },
+                onHabitStatsSelected: { habit in
+                    selectedHabitForStats = habit
+                }
+            )
+        }
+        .alert("delete_habit_confirmation".localized, isPresented: $alertState.isDeleteAlertPresented) {
+            Button("cancel".localized, role: .cancel) {
+                habitForProgress = nil
+            }
+            Button("delete".localized, role: .destructive) {
+                if let habit = habitForProgress {
+                    actionService.deleteHabit(habit)
+                }
+                habitForProgress = nil
             }
         }
     }
     
     // MARK: - Habit Views
-    
     private var habitList: some View {
         LazyVStack(spacing: 4) {
             ForEach(activeHabitsForDate) { habit in
@@ -200,12 +221,6 @@ struct HomeView: View {
                     .disabled(habit.isCompletedForDate(selectedDate))
                     
                     Button {
-                        actionService.addProgress(to: habit, for: selectedDate)
-                    } label: {
-                        Label("add_progress".localized, systemImage: "plus")
-                    }
-                    
-                    Button {
                         actionService.editHabit(habit)
                     } label: {
                         Label("edit".localized, systemImage: "pencil")
@@ -214,7 +229,7 @@ struct HomeView: View {
                     Button {
                         actionService.showStatistics(for: habit)
                     } label: {
-                        Label("statistics".localized, systemImage: "chart.bar")
+                        Label("statistics".localized, systemImage: "chart.line.text.clipboard")
                     }
                     
                     Button {
@@ -224,7 +239,8 @@ struct HomeView: View {
                     }
                     
                     Button(role: .destructive) {
-                        actionService.deleteHabit(habit)
+                        habitForProgress = habit
+                        alertState.isDeleteAlertPresented = true
                     } label: {
                         Label("delete".localized, systemImage: "trash")
                     }
@@ -236,7 +252,6 @@ struct HomeView: View {
     }
     
     // MARK: - Helper Methods
-    
     private func isToday(_ date: Date) -> Bool {
         return Calendar.current.isDateInToday(date)
     }
@@ -251,9 +266,9 @@ struct HomeView: View {
         } else if isYesterday(date) {
             return "yesterday".localized.uppercased()
         } else {
-            let weekday = dayOfWeekFormatter.string(from: date).uppercased()
-            let dayMonth = dayMonthFormatter.string(from: date).uppercased()
-            return "\(weekday), \(dayMonth)"
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE, d MMM"
+            return formatter.string(from: date).uppercased()
         }
     }
 }

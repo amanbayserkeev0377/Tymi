@@ -18,17 +18,20 @@ class HabitActionService {
     private var onHabitSelected: ((Habit) -> Void)?
     private var onHabitEditSelected: ((Habit) -> Void)?
     private var onHabitStatsSelected: ((Habit) -> Void)?
+    private var onHabitProgressAdd: ((Habit, Date) -> Void)?
     
     init(modelContext: ModelContext,
          habitsUpdateService: HabitsUpdateService,
          onHabitSelected: ((Habit) -> Void)? = nil,
          onHabitEditSelected: ((Habit) -> Void)? = nil,
-         onHabitStatsSelected: ((Habit) -> Void)? = nil) {
+         onHabitStatsSelected: ((Habit) -> Void)? = nil,
+         onHabitProgressAdd: ((Habit, Date) -> Void)? = nil) {
         self.modelContext = modelContext
         self.habitsUpdateService = habitsUpdateService
         self.onHabitSelected = onHabitSelected
         self.onHabitEditSelected = onHabitEditSelected
         self.onHabitStatsSelected = onHabitStatsSelected
+        self.onHabitProgressAdd = onHabitProgressAdd
     }
     
     // Действия с привычками
@@ -46,9 +49,12 @@ class HabitActionService {
     }
     
     func addProgress(to habit: Habit, for date: Date) {
-        // Показать привычку в детальном просмотре
-        if let onHabitSelected = onHabitSelected {
-            onHabitSelected(habit)
+        if let onHabitProgressAdd = onHabitProgressAdd {
+            onHabitProgressAdd(habit, date)
+        } else {
+            if let onHabitSelected = onHabitSelected {
+                onHabitSelected(habit)
+            }
         }
     }
     
@@ -75,18 +81,20 @@ class HabitActionService {
         // Придётся сделать свойство изменяемым private var modelContext
         self.modelContext = context
     }
-
+    
     func updateService(_ service: HabitsUpdateService) {
         self.habitsUpdateService = service
     }
-
+    
     func setCallbacks(
         onHabitSelected: ((Habit) -> Void)? = nil,
         onHabitEditSelected: ((Habit) -> Void)? = nil,
-        onHabitStatsSelected: ((Habit) -> Void)? = nil
+        onHabitStatsSelected: ((Habit) -> Void)? = nil,
+        onHabitProgressAdd: ((Habit, Date) -> Void)? = nil
     ) {
         self.onHabitSelected = onHabitSelected
         self.onHabitEditSelected = onHabitEditSelected
         self.onHabitStatsSelected = onHabitStatsSelected
+        self.onHabitProgressAdd = onHabitProgressAdd
     }
 }

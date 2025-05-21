@@ -13,7 +13,6 @@ struct HabitRowView: View {
     @State private var isPressed = false
     
     // MARK: - Computed Properties
-    // Базовые размеры
     private let ringSize: CGFloat = 50
     private let lineWidth: CGFloat = 6.5
     private let iconSize: CGFloat = 22

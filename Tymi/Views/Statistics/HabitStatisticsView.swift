@@ -107,7 +107,7 @@ struct HabitStatisticsView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("done".localized) {
+                XmarkView {
                     dismiss()
                 }
             }

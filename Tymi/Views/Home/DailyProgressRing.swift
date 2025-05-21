@@ -82,9 +82,9 @@ struct DailyProgressRing: View {
                     : "completion_percent".localized(with: Int(completionPercentage * 100)))
             } else {
                 // Сообщение, когда нет активных привычек
-                VStack(spacing: 12) {
+                VStack(spacing: 16) {
                     Image(systemName: "calendar.badge.exclamationmark")
-                        .font(.system(size: 48))
+                        .font(.system(size: 42))
                         .foregroundStyle(.secondary)
                     
                     Text("no_habits_for_date".localized)
@@ -92,15 +92,21 @@ struct DailyProgressRing: View {
                         .fontWeight(.medium)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                        .padding(.horizontal, 24)
                     
                     Text("try_different_date".localized)
                         .font(.subheadline)
                         .foregroundStyle(.tertiary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 20)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7)
+                        .padding(.horizontal, 24)
                 }
-                .frame(height: adaptiveSize)
+                .frame(minHeight: adaptiveSize)
                 .padding(.horizontal, 20)
+                .accessibilityElement(children: .combine)
             }
         }
         .frame(maxWidth: .infinity)

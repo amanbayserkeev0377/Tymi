@@ -33,7 +33,7 @@ struct ReminderSection: View {
                                     reminderTimes.remove(at: index)
                                 }
                             } label: {
-                                Image(systemName: "minus.circle.fill")
+                                Image(systemName: "trash")
                                     .foregroundColor(.red)
                             }
                         }

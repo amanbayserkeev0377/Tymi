@@ -23,10 +23,10 @@ struct ActionButtonsSection: View {
                     .font(.system(size: 24))
                     .foregroundStyle(.primary)
                     .frame(minWidth: 44, minHeight: 44)
-                    .rotateResetAnimation(isActive: resetPressed)
+                    .symbolEffect(.rotate, options: .speed(4.5), value: resetPressed)
             }
             .errorHaptic(trigger: resetPressed)
-            .accessibilityLabel("Reset")
+            .accessibilityLabel("reset_button_label".localized)
             
             if habit.type == .time {
                 // 2. Play/Pause
@@ -41,7 +41,7 @@ struct ActionButtonsSection: View {
                         .frame(minWidth: 52, minHeight: 52)
                 }
                 .hapticFeedback(.impact(weight: .medium), trigger: togglePressed)
-                .accessibilityLabel(isTimerRunning ? "Pause" : "Play")
+                .accessibilityLabel(isTimerRunning ? "pause_button_label".localized : "play_button_label".localized)
             }
             
             // 3. Manual Entry
@@ -55,23 +55,10 @@ struct ActionButtonsSection: View {
                     .frame(minWidth: 44, minHeight: 44)
             }
             .hapticFeedback(.impact(weight: .medium), trigger: manualEntryPressed)
-            .accessibilityLabel("Manual Entry")
+            .accessibilityLabel("manual_entry_button_label".localized)
         }
         .frame(maxWidth: 300)
         .frame(maxWidth: .infinity)
         .frame(height: 80)
-    }
-}
-
-// MARK: - iOS Version Specific Modifiers
-
-extension View {
-    @ViewBuilder
-    func rotateResetAnimation(isActive: Bool) -> some View {
-        if #available(iOS 18.0, *) {
-            self.symbolEffect(.rotate, options: .speed(4.5), value: isActive)
-        } else {
-            self.symbolEffect(.bounce.byLayer, options: .speed(2), value: isActive)
-        }
     }
 }

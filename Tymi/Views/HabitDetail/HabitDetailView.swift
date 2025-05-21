@@ -13,6 +13,10 @@ struct HabitDetailView: View {
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     @Environment(\.dismiss) private var dismiss
     
+    private var isSmallDevice: Bool {
+        UIScreen.main.bounds.width <= 375
+    }
+    
     // MARK: - State Properties
     @State private var viewModel: HabitDetailViewModel?
     @State private var isContentReady = false
@@ -25,172 +29,13 @@ struct HabitDetailView: View {
     var body: some View {
         ZStack {
             if let viewModel = viewModel, isContentReady {
-                // Основной контейнер с фиксированной структурой
-                VStack(spacing: 0) {
-                    // Заголовок и информация о цели
-                    VStack(spacing: 4) {
-                        Text(habit.title)
-                            .font(.title2.bold())
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                            .padding(.horizontal)
-                            .padding(.top, 10)
-                        
-                        Text("goal".localized(with: viewModel.formattedGoal))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.bottom, 10)
-                    
-                    ProgressControlSection(
-                        habit: habit,
-                        currentProgress: .constant(viewModel.currentProgress),
-                        completionPercentage: viewModel.completionPercentage,
-                        formattedProgress: viewModel.formattedProgress,
-                        onIncrement: viewModel.incrementProgress,
-                        onDecrement: viewModel.decrementProgress
-                    )
-                    .padding(.vertical, 5)
-
-                    ActionButtonsSection(
-                        habit: habit,
-                        isTimerRunning: viewModel.isTimerRunning,
-                        onReset: {
-                            viewModel.resetProgress()
-                            viewModel.alertState.errorFeedbackTrigger.toggle()
-                        },
-                        onTimerToggle: {
-                            // Только для таймера
-                            viewModel.toggleTimer()
-                        },
-                        onManualEntry: {
-                            // Разная логика в зависимости от типа привычки
-                            if habit.type == .time {
-                                viewModel.alertState.isTimeAlertPresented = true
-                            } else {
-                                viewModel.alertState.isCountAlertPresented = true
-                            }
-                        }
-                    )
-                    
-                    Spacer(minLength: 16)
-                    
-                    // Кнопка "Завершить" внизу экрана
-                    Button(action: {
-                        viewModel.completeHabit()
-                    }) {
-                        Text(viewModel.isAlreadyCompleted ? "completed".localized : "complete".localized)
-                            .font(.headline)
-                            .foregroundStyle(
-                                colorScheme == .dark ? .black : .white
-                            )
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(
-                                viewModel.isAlreadyCompleted
-                                ? Color.gray
-                                : (colorScheme == .dark
-                                   ? Color.white.opacity(0.8)
-                                   : Color.black)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-                    .disabled(viewModel.isAlreadyCompleted)
-                    .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: !viewModel.isAlreadyCompleted))
-                    .padding(.horizontal)
-                    .padding(.bottom, 16)
-                }
-                .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
-                    if newValue {
-                        HapticManager.shared.play(.success)
-                    }
-                }
-                .onChange(of: viewModel.alertState.errorFeedbackTrigger) { _, newValue in
-                    if newValue {
-                        HapticManager.shared.play(.error)
-                    }
-                }
-                .habitAlerts(
-                    alertState: Binding<AlertState>(
-                        get: { viewModel.alertState },
-                        set: { viewModel.alertState = $0 }
-                    ),
-                    habit: habit,
-                    progressService: viewModel.progressService,
-                    onDelete: {
-                        viewModel.deleteHabit()
-                        viewModel.alertState.isDeleteAlertPresented = false
-                        if let onDelete = onDelete {
-                            onDelete()
-                        } else {
-                            dismiss()
-                        }
-                    },
-                    onCountInput: {
-                        viewModel.handleCountInput()
-                        viewModel.alertState.isCountAlertPresented = false
-                    },
-                    onTimeInput: {
-                        viewModel.handleTimeInput()
-                        viewModel.alertState.isTimeAlertPresented = false
-                    }
-                )
+                habitDetailContent(viewModel: viewModel)
             } else {
-                // Индикатор загрузки по центру
-                VStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
-                }
+                loadingView
             }
         }
-        // Модификаторы применяем к родительскому ZStack
         .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("") // Пустой заголовок
-        .toolbar {
-            // Кнопка "Закрыть" только если таймер активен
-            ToolbarItem(placement: .cancellationAction) {
-                if viewModel?.isTimerRunning == true {
-                    Button("close".localized) {
-                        isTimerStopAlertPresented = true
-                    }
-                }
-            }
-            
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    if let onShowStats = onShowStats {
-                        onShowStats()
-                    }
-                } label: {
-                    Image(systemName: "chart.pie")
-                        .foregroundStyle(.secondary)
-                }
-            }
-            
-            // Меню с действиями справа
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    // Кнопка редактирования
-                    Button {
-                        isEditPresented = true
-                    } label: {
-                        Label("edit".localized, systemImage: "pencil")
-                    }
-                    
-                    // Кнопка удаления
-                    Button(role: .destructive) {
-                        viewModel?.alertState.isDeleteAlertPresented = true
-                    } label: {
-                        Label("delete".localized, systemImage: "trash")
-                    }
-                    .tint(.red)
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
+        .toolbar { habitDetailToolbar }
         .onAppear {
             setupViewModel()
         }
@@ -217,6 +62,219 @@ struct HabitDetailView: View {
             NewHabitView(habit: habit)
         }
         .interactiveDismissDisabled(viewModel?.isTimerRunning == true)
+    }
+    
+    // MARK: - Subviews
+    
+    @ViewBuilder
+    private func habitDetailContent(viewModel: HabitDetailViewModel) -> some View {
+        VStack(spacing: 0) {
+            Text(habit.title)
+                .font(.largeTitle.bold())
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .padding(.horizontal)
+                .padding(.top, 0)
+                .padding(.bottom, 4)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .accessibilityHeading(.h1)
+            
+            goalInfoView(viewModel: viewModel)
+            
+            Spacer().frame(height: isSmallDevice ? 20 : 30)
+            
+            ProgressControlSection(
+                habit: habit,
+                currentProgress: .constant(viewModel.currentProgress),
+                completionPercentage: viewModel.completionPercentage,
+                formattedProgress: viewModel.formattedProgress,
+                onIncrement: viewModel.incrementProgress,
+                onDecrement: viewModel.decrementProgress
+            )
+            
+            Spacer().frame(height: isSmallDevice ? 16 : 24)
+            
+            actionButtonsView(viewModel: viewModel)
+            
+            if isSmallDevice {
+                        Spacer().frame(height: 20)
+                    } else {
+                        Spacer()
+                    }
+        }
+        .safeAreaInset(edge: .bottom) {
+            completeButtonView(viewModel: viewModel)
+                .padding(.bottom, isSmallDevice ? 0 : 8)
+                .padding(.vertical, isSmallDevice ? 4 : 8)
+        }
+        .onChange(of: viewModel.alertState.successFeedbackTrigger) { _, newValue in
+            if newValue {
+                HapticManager.shared.play(.success)
+            }
+        }
+        .onChange(of: viewModel.alertState.errorFeedbackTrigger) { _, newValue in
+            if newValue {
+                HapticManager.shared.play(.error)
+            }
+        }
+        .habitAlerts(
+            alertState: Binding<AlertState>(
+                get: { viewModel.alertState },
+                set: { viewModel.alertState = $0 }
+            ),
+            habit: habit,
+            progressService: viewModel.progressService,
+            onDelete: {
+                viewModel.deleteHabit()
+                viewModel.alertState.isDeleteAlertPresented = false
+                if let onDelete = onDelete {
+                    onDelete()
+                } else {
+                    dismiss()
+                }
+            },
+            onCountInput: {
+                viewModel.handleCountInput()
+                viewModel.alertState.isCountAlertPresented = false
+            },
+            onTimeInput: {
+                viewModel.handleTimeInput()
+                viewModel.alertState.isTimeAlertPresented = false
+            }
+        )
+    }
+    
+    // Информация о цели привычки - центрированная с иконкой
+    private func goalInfoView(viewModel: HabitDetailViewModel) -> some View {
+        // Центрированный контейнер с иконкой (если она есть) и текстом
+        HStack(spacing: 8) {
+            // Иконка слева от текста Goal (если она установлена)
+            if let iconName = habit.iconName {
+                Image(systemName: iconName)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            
+            // Текст goal по центру
+            Text("goal".localized(with: viewModel.formattedGoal))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.vertical, 8)
+    }
+    
+    // Секция с кнопками действий
+    private func actionButtonsView(viewModel: HabitDetailViewModel) -> some View {
+        ActionButtonsSection(
+            habit: habit,
+            isTimerRunning: viewModel.isTimerRunning,
+            onReset: {
+                viewModel.resetProgress()
+                viewModel.alertState.errorFeedbackTrigger.toggle()
+            },
+            onTimerToggle: {
+                // Только для таймера
+                viewModel.toggleTimer()
+            },
+            onManualEntry: {
+                // Разная логика в зависимости от типа привычки
+                if habit.type == .time {
+                    viewModel.alertState.isTimeAlertPresented = true
+                } else {
+                    viewModel.alertState.isCountAlertPresented = true
+                }
+            }
+        )
+    }
+    
+    // Complete
+    private func completeButtonView(viewModel: HabitDetailViewModel) -> some View {
+        Button(action: {
+            viewModel.completeHabit()
+        }) {
+            Text(viewModel.isAlreadyCompleted ? "completed".localized : "complete".localized)
+                .font(.headline)
+                .foregroundStyle(
+                    colorScheme == .dark ? .black : .white
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    viewModel.isAlreadyCompleted
+                    ? Color(uiColor: .systemGray)
+                    : Color.primary.opacity(0.8)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .disabled(viewModel.isAlreadyCompleted)
+        .modifier(HapticManager.shared.sensoryFeedback(.impact(weight: .medium), trigger: !viewModel.isAlreadyCompleted))
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(uiColor: .systemBackground))
+    }
+    
+    // Индикатор загрузки
+    private var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
+    }
+    
+    // Toolbar
+    @ToolbarContentBuilder
+    private var habitDetailToolbar: some ToolbarContent {
+        // Кнопка "Закрыть" только если таймер активен
+        ToolbarItem(placement: .cancellationAction) {
+            if viewModel?.isTimerRunning == true {
+                XmarkView {
+                    isTimerStopAlertPresented = true
+                }
+            }
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                if let onShowStats = onShowStats {
+                    onShowStats()
+                }
+            } label: {
+                Image(systemName: "chart.line.text.clipboard")
+                    .font(.system(size: 16))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        
+        // Меню с действиями справа
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                // Кнопка редактирования
+                Button {
+                    isEditPresented = true
+                } label: {
+                    Label("edit".localized, systemImage: "pencil")
+                }
+                
+                // Кнопка удаления
+                Button(role: .destructive) {
+                    viewModel?.alertState.isDeleteAlertPresented = true
+                } label: {
+                    Label("delete".localized, systemImage: "trash")
+                }
+                .tint(.red)
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 28, height: 28)
+                    .background(
+                        Circle()
+                            .fill(Color.gray.opacity(0.1))
+                    )
+            }
+        }
     }
     
     // MARK: - Helper Methods
