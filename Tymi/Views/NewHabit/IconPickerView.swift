@@ -2,9 +2,16 @@ import SwiftUI
 
 struct IconPickerView: View {
     @Binding var selectedIcon: String?
+    @Binding var selectedColor: HabitIconColor
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     
-    // SF Symbols
+    // Дефолтная иконка
+    private let defaultIcon = "checkmark"
+    
+    // Состояние для пользовательского цвета
+    @State private var customColor = Color.gray
+    
     private let categories: [IconCategory] = [
         IconCategory(name: "health".localized, icons: [
             "figure.walk","figure.run", "figure.stairs", "figure.strengthtraining.traditional", "figure.cooldown",
@@ -34,53 +41,95 @@ struct IconPickerView: View {
         ]),
     ]
     
+    private let colorColumns = Array(repeating: GridItem(.flexible()), count: 7)
+    
     var body: some View {
-        List {
-            Button {
-                selectedIcon = nil
-                dismiss()
-            } label: {
-                HStack {
-                    Label("no_icon".localized, systemImage: "square.slash")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    if selectedIcon == nil {
-                        Image(systemName: "checkmark")
-                    }
-                }
-            }
-            
-            ForEach(categories, id: \.name) { category in
-                Section(header: Text(category.name)) {
-                    LazyVGrid(columns: [
-                        GridItem(.adaptive(minimum: 60))
-                    ], spacing: 10) {
-                        ForEach(category.icons, id: \.self) { iconName in
-                            Button {
-                                selectedIcon = iconName
-                                dismiss()
-                            } label: {
-                                VStack {
-                                    Image(systemName: iconName)
-                                        .font(.title)
-                                        .foregroundStyle(.primary)
-                                }
-                                .aspectRatio(1, contentMode: .fit)
-                                .padding(8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.primary.opacity(selectedIcon == iconName ? 0.1 : 0.0))
-                                )
-                            }
-                            .buttonStyle(.plain)
+        VStack(spacing: 0) {
+            // Color selection section - всегда вверху
+            VStack(spacing: 16) {
+                // Color picker grid
+                LazyVGrid(columns: colorColumns, spacing: 12) {
+                    // ColorPicker в начале
+                    ColorPicker("", selection: $customColor)
+                        .labelsHidden()
+                        .onChange(of: customColor) { _, newColor in
+                            HabitIconColor.customColor = newColor
+                            selectedColor = .colorPicker
                         }
+                        .frame(width: 28, height: 28)
+                        .clipShape(Circle())
+                    
+                    // Остальные цвета
+                    ForEach(HabitIconColor.allCases.filter { $0 != .colorPicker }, id: \.self) { color in
+                        Button {
+                            selectedColor = color
+                        } label: {
+                            Circle()
+                                .fill(color.color)
+                                .frame(width: 28, height: 28)
+                                .overlay(
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(color == .primary && colorScheme == .dark ? .black : .white)
+                                        .opacity(selectedColor == color ? 1 : 0)
+                                )
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .padding(.vertical, 10)
                 }
             }
+            .padding()
+            .padding(.horizontal)
+            .padding(.top)
+            
+            // Icon selection list
+            List {
+                ForEach(categories, id: \.name) { category in
+                    Section(header: Text(category.name)) {
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 60))
+                        ], spacing: 10) {
+                            ForEach(category.icons, id: \.self) { iconName in
+                                Button {
+                                    selectedIcon = iconName
+                                    dismiss()
+                                } label: {
+                                    VStack {
+                                        Image(systemName: iconName)
+                                            .font(.title)
+                                            .foregroundStyle(iconName == defaultIcon ? .accentColor : (selectedColor == .colorPicker ? customColor : selectedColor.color))
+                                    }
+                                    .frame(width: 60, height: 60)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color(UIColor.systemBackground))
+                                            .shadow(color: Color.primary.opacity(0.1), radius: 2, x: 0, y: 1)
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.primary.opacity(selectedIcon == iconName ? 0.3 : 0.1), lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.vertical, 10)
+                    }
+                    .listSectionSeparator(.hidden)
+                    .listRowBackground(Color(UIColor.systemGroupedBackground))
+                }
+            }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
         }
+        .background(Color(UIColor.systemGroupedBackground))
         .navigationTitle("choose_icon".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            if selectedIcon == nil {
+                selectedIcon = defaultIcon
+            }
+        }
     }
 }
 

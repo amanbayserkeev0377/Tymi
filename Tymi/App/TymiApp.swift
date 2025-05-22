@@ -29,7 +29,6 @@ struct TymiApp: App {
             MainTabView()
                 .environment(habitsUpdateService)
                 .environment(weekdayPrefs)
-                .tint(.primary)
         }
         .modelContainer(container)
         .onChange(of: scenePhase) { _, newPhase in

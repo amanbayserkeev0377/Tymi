@@ -2,30 +2,25 @@ import SwiftUI
 
 struct IconSection: View {
     @Binding var selectedIcon: String?
-    @State private var showIconPicker = false
+    @Binding var selectedColor: HabitIconColor
+    
+    private let defaultIcon = "checkmark"
     
     var body: some View {
-        Button {
-            showIconPicker = true
+        NavigationLink {
+            IconPickerView(
+                selectedIcon: $selectedIcon,
+                selectedColor: $selectedColor
+            )
         } label: {
             HStack {
-                Label("icon".localized, systemImage: selectedIcon ?? "questionmark")
-                
-                Spacer()
-                        
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .accessibilityHidden(true)
+                Label {
+                    Text("icon".localized)
+                } icon: {
+                    Image(systemName: selectedIcon ?? defaultIcon)
+                        .foregroundStyle(selectedIcon == nil ? .accentColor : selectedColor.color)
+                }
             }
-        }
-        .buttonStyle(.plain)
-        .sheet(isPresented: $showIconPicker) {
-            NavigationStack {
-                IconPickerView(selectedIcon: $selectedIcon)
-            }
-            .presentationDetents([.fraction(0.7)])
-            .presentationDragIndicator(.visible)
         }
     }
 }

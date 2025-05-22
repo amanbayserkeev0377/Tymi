@@ -736,7 +736,8 @@
             "value" : "Close"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "close_button_label" : {
       "extractionState" : "manual",
@@ -2455,7 +2456,8 @@
             "value" : "Manual Entry"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "manual_entry_button_label" : {
       "extractionState" : "manual",
@@ -2687,6 +2689,29 @@
         }
       }
     },
+    "notifications.permission.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi sends notifications to remind you about your habits at scheduled times."
+          }
+        },
+        "ky-KG" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi сизге белгиленген убакта адаттарыңызды аткарууну эскертип туруу үчүн билдирүүлөрдү жөнөтөт."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tymi отправляет уведомления, чтобы напоминать вам о выполнении привычек в запланированное время."
+          }
+        }
+      }
+    },
     "okay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2725,7 +2750,8 @@
             "value" : "Pause"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "pause_button_label" : {
       "extractionState" : "manual",
@@ -2788,7 +2814,8 @@
             "value" : "Play"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "play_button_label" : {
       "extractionState" : "manual",
@@ -3955,7 +3982,8 @@
             "value" : "Reset"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "reset_all_history" : {
       "extractionState" : "manual",

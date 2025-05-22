@@ -10,6 +10,7 @@ final class Habit {
     var type: HabitType
     var goal: Int // Target value (count or seconds for time)
     var iconName: String? // Иконка привычки
+    var iconColor: HabitIconColor = HabitIconColor.primary
     
     // System properties
     var createdAt: Date
@@ -224,9 +225,10 @@ final class Habit {
         type: HabitType = .count,
         goal: Int = 0,
         iconName: String? = nil,
+        iconColor: HabitIconColor = .primary,
         createdAt: Date = .now,
         activeDays: [Bool]? = nil,
-        reminderTimes: [Date]? = nil,  // ИЗМЕНЕНИЕ: теперь массив
+        reminderTimes: [Date]? = nil,
         startDate: Date = .now
     ) {
         self.uuid = UUID()
@@ -234,6 +236,7 @@ final class Habit {
         self.type = type
         self.goal = goal
         self.iconName = iconName
+        self.iconColor = iconColor
         self.createdAt = createdAt
         self.completions = []
         
@@ -287,14 +290,16 @@ final class Habit {
         type: HabitType,
         goal: Int,
         iconName: String?,
+        iconColor: HabitIconColor = .primary,
         activeDays: [Bool],
-        reminderTimes: [Date]?,  // ИЗМЕНЕНИЕ: теперь массив
+        reminderTimes: [Date]?,
         startDate: Date
     ) {
         self.title = title
         self.type = type
         self.goal = goal
         self.iconName = iconName
+        self.iconColor = iconColor
         self.activeDays = activeDays
         self.reminderTimes = reminderTimes
         self.startDate = startDate
@@ -306,6 +311,7 @@ final class Habit {
         type: HabitType,
         goal: Int,
         iconName: String?,
+        iconColor: HabitIconColor = .primary,
         activeDays: [Bool],
         reminderTime: Date?,  // Один reminderTime для совместимости
         startDate: Date
@@ -316,6 +322,7 @@ final class Habit {
             type: type,
             goal: goal,
             iconName: iconName,
+            iconColor: iconColor,
             activeDays: activeDays,
             reminderTimes: reminderTimesArray,
             startDate: startDate

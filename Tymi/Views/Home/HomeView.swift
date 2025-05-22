@@ -45,13 +45,11 @@ struct HomeView: View {
     
     // MARK: - Body
     var body: some View {
-        // Используем уже конкретный BuilderAPI View вместо BodyBuilder
         NavigationStack {
             contentView
         }
     }
     
-    // Перемещаем содержимое в отдельное свойство
     private var contentView: some View {
         ZStack {
             VStack {
@@ -60,14 +58,11 @@ struct HomeView: View {
                         WeeklyCalendarView(selectedDate: $selectedDate)
                         
                         if baseHabits.isEmpty {
-                            // Нет привычек вообще
                             EmptyStateView()
                         } else {
-                            // Кольцо прогресса отображается всегда
                             DailyProgressRing(date: selectedDate)
                                 .padding()
                             
-                            // Список привычек для выбранной даты
                             if hasHabitsForDate {
                                 habitList
                             }
@@ -78,7 +73,6 @@ struct HomeView: View {
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        // Используем типизированную функцию toolbar вместо generic
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Text(formattedNavigationTitle(for: selectedDate))
@@ -128,7 +122,6 @@ struct HomeView: View {
                 }
             }
         }
-        // Применяем остальные модификаторы
         .sheet(isPresented: $isShowingNewHabitSheet) {
             NavigationStack {
                 NewHabitView()
@@ -221,12 +214,6 @@ struct HomeView: View {
                     .disabled(habit.isCompletedForDate(selectedDate))
                     
                     Button {
-                        actionService.editHabit(habit)
-                    } label: {
-                        Label("edit".localized, systemImage: "pencil")
-                    }
-                    
-                    Button {
                         actionService.showStatistics(for: habit)
                     } label: {
                         Label("statistics".localized, systemImage: "chart.line.text.clipboard")
@@ -236,6 +223,12 @@ struct HomeView: View {
                         isReorderingSheetPresented = true
                     } label: {
                         Label("reorder".localized, systemImage: "list.bullet")
+                    }
+                    
+                    Button {
+                        actionService.editHabit(habit)
+                    } label: {
+                        Label("edit".localized, systemImage: "pencil")
                     }
                     
                     Button(role: .destructive) {

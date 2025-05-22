@@ -42,13 +42,11 @@ struct HabitRowView: View {
     
     var body: some View {
         HStack {
-            if let iconName = habit.iconName {
-                Image(systemName: iconName)
+                Image(systemName: habit.iconName ?? "checkmark")
                     .font(.title2)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(habit.iconName == nil ? .accentColor : habit.iconColor.color)
                     .frame(width: 30, height: 30)
                     .padding(.trailing, 8)
-            }
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(habit.title)

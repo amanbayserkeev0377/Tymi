@@ -20,7 +20,8 @@ struct NewHabitView: View {
     @State private var isReminderEnabled = false
     @State private var reminderTimes: [Date] = [Date()]
     @State private var startDate = Date()
-    @State private var selectedIcon: String? = nil
+    @State private var selectedIcon: String? = "checkmark" // Дефолтная иконка
+    @State private var selectedIconColor: HabitIconColor = .primary
     
     @FocusState private var isTitleFocused: Bool
     @FocusState private var isCountFocused: Bool
@@ -38,7 +39,8 @@ struct NewHabitView: View {
             _isReminderEnabled = State(initialValue: habit.reminderTimes != nil && !habit.reminderTimes!.isEmpty)
             _reminderTimes = State(initialValue: habit.reminderTimes ?? [Date()])
             _startDate = State(initialValue: habit.startDate)
-            _selectedIcon = State(initialValue: habit.iconName)
+            _selectedIcon = State(initialValue: habit.iconName ?? "checkmark")
+            _selectedIconColor = State(initialValue: habit.iconColor)
         }
     }
     
@@ -75,7 +77,7 @@ struct NewHabitView: View {
                     )
                     
                     // Icon
-                    IconSection(selectedIcon: $selectedIcon)
+                    IconSection(selectedIcon: $selectedIcon, selectedColor: $selectedIconColor)
                 }
                 
                 // Goal
@@ -155,8 +157,9 @@ struct NewHabitView: View {
                 type: selectedType,
                 goal: effectiveGoal,
                 iconName: selectedIcon,
+                iconColor: selectedIconColor,
                 activeDays: activeDays,
-                reminderTimes: isReminderEnabled ? reminderTimes : nil,
+                reminderTime: isReminderEnabled ? reminderTimes.first : nil,
                 startDate: Calendar.current.startOfDay(for: startDate)
             )
             
@@ -169,6 +172,7 @@ struct NewHabitView: View {
                 type: selectedType,
                 goal: effectiveGoal,
                 iconName: selectedIcon,
+                iconColor: selectedIconColor,
                 createdAt: Date(),
                 activeDays: activeDays,
                 reminderTimes: isReminderEnabled ? reminderTimes : nil,

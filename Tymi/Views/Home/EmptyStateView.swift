@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct EmptyStateView: View {
-    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack(spacing: 24) {
@@ -16,7 +15,6 @@ struct EmptyStateView: View {
             Text("future_self_thank_you".localized)
                 .font(.headline)
                 .fontWeight(.medium)
-                .foregroundStyle(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.8))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
             
