@@ -19,12 +19,18 @@ struct SettingsView: View {
                     WeekStartSection()
                     LanguageSection()
                 }
-
+                
                 Section {
+                    NavigationLink {
+                        CloudKitSyncView()
+                    } label: {
+                        Label("icloud_sync".localized, systemImage: "icloud")
+                    }
+                    
                     NotificationsSection()
                     HapticsSection()
                 }
-
+                
                 AboutSection()
                 
                 // Tymi - version ...

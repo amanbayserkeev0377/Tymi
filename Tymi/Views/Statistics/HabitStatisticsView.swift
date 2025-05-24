@@ -328,10 +328,15 @@ struct HabitStatisticsView: View {
     }
     
     private func resetHabitHistory() {
+        
+        guard let completions = habit.completions else { return }
+        
         // Удаляем все записи о выполнении привычки
-        for completion in habit.completions {
+        for completion in completions {
             modelContext.delete(completion)
         }
+        
+        habit.completions = []
         
         // Сохраняем изменения
         try? modelContext.save()

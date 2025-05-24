@@ -464,19 +464,27 @@ final class HabitDetailViewModel {
                     return
                 }
                 let targetDate = habitProgress.date
-                let oldCompletions = habit.completions.filter {
-                    Calendar.current.isDate($0.date, inSameDayAs: targetDate)
+                
+                // ИСПРАВЛЕНО: добавляем проверку на nil
+                if let completions = habit.completions {
+                    let oldCompletions = completions.filter {
+                        Calendar.current.isDate($0.date, inSameDayAs: targetDate)
+                    }
+                    for completion in oldCompletions {
+                        modelContext.delete(completion)
+                    }
+                } else {
+                    // Если completions == nil, создаем пустой массив
+                    habit.completions = []
                 }
-                for completion in oldCompletions {
-                    modelContext.delete(completion)
-                }
+                
                 if habitProgress.value > 0 {
                     let newCompletion = HabitCompletion(
                         date: targetDate,
                         value: habitProgress.value,
                         habit: habit
                     )
-                    habit.completions.append(newCompletion)
+                    habit.completions?.append(newCompletion)
                 }
                 try modelContext.save()
                 habitProgress.isDirty = false

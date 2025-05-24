@@ -141,9 +141,6 @@ struct HomeView: View {
                     }
                 )
             }
-            .presentationDetents([
-                .fraction(UIScreen.main.bounds.width <= 375 ? 0.85 : 0.7)
-            ])
             .presentationDragIndicator(.visible)
             .presentationCornerRadius(30)
         }

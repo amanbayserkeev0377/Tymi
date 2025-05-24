@@ -3,15 +3,15 @@ import SwiftData
 
 @Model
 final class HabitCompletion {
-    var date: Date
-    var value: Int // Count - number of times | Time - seconds
+    var date: Date = Date()
+    var value: Int = 0
     
     // Relationship with Habit
     var habit: Habit?
     
     // MARK: - Initializers
     
-    init(date: Date = .now, value: Int = 0, habit: Habit? = nil) {
+    init(date: Date = Date(), value: Int = 0, habit: Habit? = nil) {
         self.date = date
         self.value = value
         self.habit = habit

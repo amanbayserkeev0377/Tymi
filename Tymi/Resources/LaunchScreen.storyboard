@@ -31,18 +31,11 @@
                                     <constraint firstAttribute="width" constant="150" id="Onw-M2-QYZ"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tymi" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
-                                <rect key="frame" x="181.66666666666666" y="451" width="50.666666666666657" height="28.666666666666686"/>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="24"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="E5u-fy-fJe" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="C2q-3E-pMt"/>
-                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="top" secondItem="E5u-fy-fJe" secondAttribute="bottom" constant="8" id="LXB-ee-Rvs"/>
-                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Qc1-Dm-rmr"/>
                             <constraint firstItem="E5u-fy-fJe" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="TUT-3L-Lgl"/>
                         </constraints>
                     </view>

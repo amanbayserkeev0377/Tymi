@@ -5,7 +5,7 @@ import UserNotifications
 @main
 struct TymiApp: App {
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.colorScheme) private var colorScheme  // Оставляем для отслеживания изменений темы
+    @Environment(\.colorScheme) private var colorScheme
     
     let container: ModelContainer
     let habitsUpdateService = HabitsUpdateService()
@@ -14,13 +14,22 @@ struct TymiApp: App {
     
     init() {
         do {
-            // Инициализация базы данных
             let schema = Schema([Habit.self, HabitCompletion.self])
-            let modelConfiguration = ModelConfiguration(schema: schema)
-            container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            
+            let modelConfiguration = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                cloudKitDatabase: .private("iCloud.com.amanbayserkeev.tymi")
+            )
+            container = try ModelContainer(
+                for: schema,
+                configurations: [modelConfiguration]
+            )
+            
+            print("✅ CloudKit container initialized successfully")
         } catch {
-            print("Ошибка инициализации: \(error)")
-            fatalError("Не удалось создать ModelContainer: \(error)")
+            print("❌ CloudKit initialization error: \(error)")
+            fatalError("Не удалось создать ModelContainer с CloudKit: \(error)")
         }
     }
     
@@ -34,20 +43,27 @@ struct TymiApp: App {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .background:
-                // Сохраняем данные при уходе в фон
+                // Сохраняем данные при уходе в фон для лучшей синхронизации
+                do {
+                    try container.mainContext.save()
+                    print("✅ Data saved on background")
+                } catch {
+                    print("❌ Failed to save on background: \(error)")
+                }
+                
+                // Сохраняем данные из сервисов
                 Task {
-                    // Таймер автоматически сохранится в handleBackground,
-                    // но на всякий случай сохраняем и в SwiftData
                     HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
                     HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
                 }
                 
             case .active:
-                // При возвращении в активное состояние обновляем UI
+                // При возвращении обновляем UI для получения изменений с других устройств
                 habitsUpdateService.triggerUpdate()
+                print("✅ App became active, triggering UI update")
                 
             case .inactive:
-                // Сохраняем данные при неактивном состоянии
+                // Сохраняем при неактивном состоянии
                 Task {
                     HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
                     HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)

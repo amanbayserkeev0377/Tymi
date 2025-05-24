@@ -68,10 +68,27 @@ extension ProgressTrackingService {
                 return
             }
             
+            // ИСПРАВЛЕНО: добавляем проверку на nil
+            guard let completions = habit.completions else {
+                // Если completions == nil, создаем новый массив
+                habit.completions = []
+                
+                if currentProgress > 0 {
+                    let newCompletion = HabitCompletion(
+                        date: date,
+                        value: currentProgress,
+                        habit: habit
+                    )
+                    habit.completions?.append(newCompletion)
+                }
+                try modelContext.save()
+                return
+            }
+            
             // Группируем операции удаления и добавления с try
             try modelContext.transaction {
-                // Удаляем старые записи за этот день
-                let oldCompletions = habit.completions.filter {
+                // ИСПРАВЛЕНО: используем проверенную переменную completions
+                let oldCompletions = completions.filter {
                     Calendar.current.isDate($0.date, inSameDayAs: date)
                 }
                 
@@ -86,7 +103,7 @@ extension ProgressTrackingService {
                         value: currentProgress,
                         habit: habit
                     )
-                    habit.completions.append(newCompletion)
+                    habit.completions?.append(newCompletion)
                 }
             }
             

@@ -25,8 +25,10 @@ class HabitStatsViewModel {
         var completedDates: [Date] = []
         var completedDaysSet = Set<Date>()
         
+        guard let completions = habit.completions else { return }
+        
         // Собираем данные о завершениях
-        for completion in habit.completions {
+        for completion in completions {
             let dayStart = calendar.startOfDay(for: completion.date)
             
             // Отслеживание завершенных дней
