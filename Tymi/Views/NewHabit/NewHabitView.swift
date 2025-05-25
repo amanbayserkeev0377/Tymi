@@ -7,8 +7,13 @@ struct NewHabitView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
+    // Query for folders
+    @Query(sort: [SortDescriptor(\HabitFolder.displayOrder)])
+    private var allFolders: [HabitFolder]
+    
     // MARK: - Properties
     private let habit: Habit?
+    private let initialFolder: HabitFolder?
     
     // MARK: - State
     @State private var title = ""
@@ -20,15 +25,18 @@ struct NewHabitView: View {
     @State private var isReminderEnabled = false
     @State private var reminderTimes: [Date] = [Date()]
     @State private var startDate = Date()
-    @State private var selectedIcon: String? = "checkmark" // Дефолтная иконка
+    @State private var selectedIcon: String? = "checkmark"
     @State private var selectedIconColor: HabitIconColor = .primary
+    @State private var selectedFolders: Set<HabitFolder> = []
     
     @FocusState private var isTitleFocused: Bool
     @FocusState private var isCountFocused: Bool
     
     // MARK: - Initialization
-    init(habit: Habit? = nil) {
+    init(habit: Habit? = nil, initialFolder: HabitFolder? = nil) {
         self.habit = habit
+        self.initialFolder = initialFolder
+        
         if let habit = habit {
             _title = State(initialValue: habit.title)
             _selectedType = State(initialValue: habit.type)
@@ -41,6 +49,9 @@ struct NewHabitView: View {
             _startDate = State(initialValue: habit.startDate)
             _selectedIcon = State(initialValue: habit.iconName ?? "checkmark")
             _selectedIconColor = State(initialValue: habit.iconColor)
+            _selectedFolders = State(initialValue: Set(habit.folders ?? []))
+        } else if let initialFolder = initialFolder {
+            _selectedFolders = State(initialValue: Set([initialFolder]))
         }
     }
     
@@ -56,21 +67,20 @@ struct NewHabitView: View {
             return countGoal
         case .time:
             let totalSeconds = (hours * 3600) + (minutes * 60)
-            // Ограничиваем максимум 24 часами
             return min(totalSeconds, 86400)
         }
     }
     
     private var isKeyboardActive: Bool {
-           isTitleFocused || isCountFocused
-       }
+        isTitleFocused || isCountFocused
+    }
     
     // MARK: - Body
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    //Name
+                    // Name
                     NameFieldSection(
                         title: $title,
                         isFocused: $isTitleFocused
@@ -78,6 +88,9 @@ struct NewHabitView: View {
                     
                     // Icon
                     IconSection(selectedIcon: $selectedIcon, selectedColor: $selectedIconColor)
+                    
+                    // Folders selection - always show
+                    FolderSection(selectedFolders: $selectedFolders, allFolders: allFolders)
                 }
                 
                 // Goal
@@ -137,7 +150,7 @@ struct NewHabitView: View {
     
     // MARK: - Methods
     private func saveHabit() {
-        // Проверка и коррекция значений
+        // Validation and correction
         if selectedType == .count && countGoal > 999999 {
             countGoal = 999999
         }
@@ -151,7 +164,7 @@ struct NewHabitView: View {
         }
         
         if let existingHabit = habit {
-            // Обновление существующей привычки
+            // Update existing habit
             existingHabit.update(
                 title: title,
                 type: selectedType,
@@ -163,10 +176,16 @@ struct NewHabitView: View {
                 startDate: Calendar.current.startOfDay(for: startDate)
             )
             
+            // Update folders
+            existingHabit.removeFromAllFolders()
+            for folder in selectedFolders {
+                existingHabit.addToFolder(folder)
+            }
+            
             handleNotifications(for: existingHabit)
             habitsUpdateService.triggerUpdate()
         } else {
-            // Создание новой привычки
+            // Create new habit
             let newHabit = Habit(
                 title: title,
                 type: selectedType,
@@ -178,6 +197,12 @@ struct NewHabitView: View {
                 reminderTimes: isReminderEnabled ? reminderTimes : nil,
                 startDate: startDate
             )
+            
+            // Assign to folders
+            for folder in selectedFolders {
+                newHabit.addToFolder(folder)
+            }
+            
             modelContext.insert(newHabit)
             
             handleNotifications(for: newHabit)
@@ -187,25 +212,25 @@ struct NewHabitView: View {
         dismiss()
     }
     
-    // Обработка уведомлений при сохранении
+    // Handle notifications when saving
     private func handleNotifications(for habit: Habit) {
         if isReminderEnabled {
             Task {
-                // Проверяем разрешения с помощью ensureAuthorization
+                // Check permissions using ensureAuthorization
                 let isAuthorized = await NotificationManager.shared.ensureAuthorization()
                 
                 if isAuthorized {
                     let success = await NotificationManager.shared.scheduleNotifications(for: habit)
                     if !success {
-                        print("Не удалось запланировать уведомления")
+                        print("Failed to schedule notifications")
                     }
                 } else {
-                        // Если пользователь отказал в разрешениях
-                        isReminderEnabled = false
+                    // If user denied permissions
+                    isReminderEnabled = false
                 }
             }
         } else {
-            // Отменяем существующие уведомления
+            // Cancel existing notifications
             NotificationManager.shared.cancelNotifications(for: habit)
         }
     }

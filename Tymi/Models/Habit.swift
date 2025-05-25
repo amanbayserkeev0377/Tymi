@@ -6,6 +6,10 @@ final class Habit {
     
     var uuid: UUID = UUID()
     
+    // Multiple folders support
+    @Relationship(deleteRule: .nullify)
+    var folders: [HabitFolder]? = []
+    
     // Basic properties
     var title: String = ""
     var type: HabitType = HabitType.count
@@ -13,13 +17,12 @@ final class Habit {
     var iconName: String? = "checkmark"
     var iconColor: HabitIconColor = HabitIconColor.primary
     
-    // NEW
+    // Archive and pin functionality
     var isArchived: Bool = false
     var isPinned: Bool = false
     
     // System properties
     var createdAt: Date = Date()
-    
     
     @Relationship(deleteRule: .cascade, inverse: \HabitCompletion.habit)
     var completions: [HabitCompletion]?
@@ -48,6 +51,62 @@ final class Habit {
         }
     }
     
+    // MARK: - Pin Methods
+    
+    /// Pin the habit to the top
+    func pin() {
+        isPinned = true
+    }
+    
+    /// Unpin the habit
+    func unpin() {
+        isPinned = false
+    }
+    
+    /// Toggle pin status
+    func togglePin() {
+        isPinned.toggle()
+    }
+    
+    // MARK: - Folder Methods
+
+    /// Add habit to a folder
+    func addToFolder(_ folder: HabitFolder) {
+        if folders == nil {
+            folders = []
+        }
+        if !folders!.contains(where: { $0.uuid == folder.uuid }) {
+            folders!.append(folder)
+        }
+    }
+    
+    /// Remove habit from a folder
+    func removeFromFolder(_ folder: HabitFolder) {
+        folders?.removeAll { $0.uuid == folder.uuid }
+    }
+
+    /// Remove from all folders
+    func removeFromAllFolders() {
+        folders?.removeAll()
+    }
+    
+    /// Check if habit belongs to a specific folder
+    func belongsToFolder(_ folder: HabitFolder) -> Bool {
+        return folders?.contains(where: { $0.uuid == folder.uuid }) ?? false
+    }
+    
+    /// Get all folder names as comma-separated string
+    var folderNamesString: String {
+        guard let folders = folders, !folders.isEmpty else {
+            return "no_folder".localized
+        }
+        return folders.map { $0.name }.joined(separator: ", ")
+    }
+    
+    /// Check if habit has any folders
+    var hasFolders: Bool {
+        return !(folders?.isEmpty ?? true)
+    }
     
     // MARK: - Методы для работы с активными днями
     
@@ -208,13 +267,13 @@ final class Habit {
     
     // Add progress value
     func addProgress(_ value: Int, for date: Date = .now) {
-            let completion = HabitCompletion(date: date, value: value, habit: self)
-            
-            if completions == nil {
-                completions = []
-            }
-            completions?.append(completion)
+        let completion = HabitCompletion(date: date, value: value, habit: self)
+        
+        if completions == nil {
+            completions = []
         }
+        completions?.append(completion)
+    }
     
     // MARK: - Инициализаторы и обновление
     
@@ -248,6 +307,7 @@ final class Habit {
         self.iconColor = iconColor
         self.createdAt = createdAt
         self.completions = []
+        self.folders = []
         
         if let days = activeDays {
             let orderedWeekdays = Weekday.orderedByUserPreference

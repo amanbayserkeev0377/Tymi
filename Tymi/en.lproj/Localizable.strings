@@ -1,6 +1,15 @@
+// Settings - Archived habits
 
-//Settings - Reorder_habits
-"reorder_habits" = "Reorder habits";
+"archive" = "Archive";
+"archived_habits" = "Archived Habits";
+"no_archived_habits" = "No Archived Habits";
+"archived_habits_empty_description" = "Archived habits will appear here";
+"unarchive" = "Unarchive";
+"delete_permanently" = "Delete Permanently";
+"delete_permanently_confirmation" = "Delete Permanently?";
+"delete_permanently_description" = "This habit and all its history will be permanently deleted. This action cannot be undone.";
+"archived_habits_footer" = "Swipe left to unarchive or delete";
+"archived_date_format" = "Archived %@";
 
 // Settings - App Icon
 "app_icon" = "App Icon";

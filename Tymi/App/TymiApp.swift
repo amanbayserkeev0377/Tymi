@@ -14,7 +14,7 @@ struct TymiApp: App {
     
     init() {
         do {
-            let schema = Schema([Habit.self, HabitCompletion.self])
+            let schema = Schema([Habit.self, HabitCompletion.self, HabitFolder.self])
             
             let modelConfiguration = ModelConfiguration(
                 schema: schema,

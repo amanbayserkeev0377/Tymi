@@ -7,20 +7,52 @@ struct HomeView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     
-    @Query(sort: [SortDescriptor(\Habit.displayOrder), SortDescriptor(\Habit.createdAt)])
-    private var baseHabits: [Habit]
+    // Query for all habit folders
+    @Query(sort: [SortDescriptor(\HabitFolder.displayOrder)])
+    private var allFolders: [HabitFolder]
+    
+    @Query(
+        filter: #Predicate<Habit> { habit in
+            !habit.isArchived
+        },
+        sort: [SortDescriptor(\Habit.displayOrder), SortDescriptor(\Habit.createdAt)]
+    )
+    private var allBaseHabits: [Habit]
+
+    private var baseHabits: [Habit] {
+        let filteredHabits: [Habit]
+        
+        if let selectedFolder = selectedFolder {
+            // Show habits from selected folder
+            filteredHabits = allBaseHabits.filter { habit in
+                habit.folders?.contains(where: { $0.uuid == selectedFolder.uuid }) ?? false
+            }
+        } else {
+            // Show all habits
+            filteredHabits = allBaseHabits
+        }
+        
+        return filteredHabits.sorted { first, second in
+            if first.isPinned != second.isPinned {
+                return first.isPinned && !second.isPinned
+            }
+            if first.displayOrder != second.displayOrder {
+                return first.displayOrder < second.displayOrder
+            }
+            return first.createdAt < second.createdAt
+        }
+    }
     
     @State private var selectedDate: Date = .now
     @State private var isShowingNewHabitSheet = false
     @State private var selectedHabit: Habit? = nil
     @State private var selectedHabitForStats: Habit? = nil
-    @State private var isReorderingSheetPresented = false
     @State private var actionService: HabitActionService
     @State private var habitToEdit: Habit? = nil
-    @State private var isDeleteAlertPresented = false
-    @State private var habitToDelete: Habit? = nil
     @State private var alertState = AlertState()
     @State private var habitForProgress: Habit? = nil
+    @State private var selectedFolder: HabitFolder? = nil
+
     
     init() {
         let container = try! ModelContainer(for: Habit.self, HabitCompletion.self)
@@ -30,7 +62,7 @@ struct HomeView: View {
         ))
     }
     
-    // Вычисляемое свойство для фильтрации привычек на основе выбранной даты
+    // Computed property for filtering habits based on selected date
     private var activeHabitsForDate: [Habit] {
         baseHabits.filter { habit in
             habit.isActiveOnDate(selectedDate) &&
@@ -38,7 +70,7 @@ struct HomeView: View {
         }
     }
     
-    // Имеются ли привычки для выбранной даты
+    // Whether there are habits for selected date
     private var hasHabitsForDate: Bool {
         return !activeHabitsForDate.isEmpty
     }
@@ -51,23 +83,45 @@ struct HomeView: View {
     }
     
     private var contentView: some View {
-        ZStack {
-            VStack {
+        VStack(spacing: 0) {
+            // Calendar at the top
+            WeeklyCalendarView(selectedDate: $selectedDate)
+            
+            // Folder picker section - after calendar
+            if !allFolders.isEmpty {
+                folderPickerSection
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+            }
+            
+            if baseHabits.isEmpty {
                 ScrollView {
-                    VStack(spacing: 0) {
-                        WeeklyCalendarView(selectedDate: $selectedDate)
-                        
-                        if baseHabits.isEmpty {
-                            EmptyStateView()
-                        } else {
-                            DailyProgressRing(date: selectedDate)
-                                .padding()
-                            
-                            if hasHabitsForDate {
-                                habitList
-                            }
+                    if selectedFolder != nil {
+                        // Empty state for selected folder
+                        VStack(spacing: 20) {
+                            Spacer()
+                            Image(systemName: "folder")
+                                .font(.system(size: 60))
+                                .foregroundStyle(.secondary)
+                            Text("no_habits_in_folder".localized)
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                            Text("create_first_habit_in_folder".localized)
+                                .font(.subheadline)
+                                .foregroundStyle(.tertiary)
+                                .multilineTextAlignment(.center)
+                            Spacer()
                         }
+                    } else {
+                        EmptyStateView()
                     }
+                }
+            } else {
+                // Habits list
+                if hasHabitsForDate {
+                    habitList
+                } else {
+                    Spacer()
                 }
             }
         }
@@ -75,10 +129,20 @@ struct HomeView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text(formattedNavigationTitle(for: selectedDate))
-                    .font(.headline.bold())
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                HStack {
+                    Text(formattedNavigationTitle(for: selectedDate))
+                        .font(.headline.bold())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    
+                    // Folder indicator if selected
+                    if let selectedFolder = selectedFolder {
+                        Text("• \(selectedFolder.name)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
             }
             
             ToolbarItem(placement: .topBarTrailing) {
@@ -124,7 +188,7 @@ struct HomeView: View {
         }
         .sheet(isPresented: $isShowingNewHabitSheet) {
             NavigationStack {
-                NewHabitView()
+                NewHabitView(initialFolder: selectedFolder)
             }
         }
         .sheet(item: $selectedHabit) { habit in
@@ -154,13 +218,6 @@ struct HomeView: View {
             NavigationStack {
                 NewHabitView(habit: habit)
             }
-        }
-        .sheet(isPresented: $isReorderingSheetPresented) {
-            NavigationStack {
-                ReorderHabitsView(isSheetPresentation: true)
-            }
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
         }
         .onChange(of: selectedDate) { _, _ in
             habitsUpdateService.triggerUpdate()
@@ -193,14 +250,77 @@ struct HomeView: View {
         }
     }
     
-    // MARK: - Habit Views
+    // MARK: - Folder Picker Section
+    private var folderPickerSection: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                // "All" button
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedFolder = nil
+                    }
+                } label: {
+                    Text("all".localized)
+                        .font(.subheadline)
+                        .fontWeight(selectedFolder == nil ? .semibold : .regular)
+                        .foregroundStyle(selectedFolder == nil ? .primary : .secondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule()
+                                .fill(selectedFolder == nil ? Color.primary.opacity(0.1) : Color.clear)
+                        )
+                        .overlay(
+                            Capsule()
+                                .stroke(selectedFolder == nil ? Color.primary.opacity(0.3) : Color.clear, lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
+                
+                // Folder buttons
+                ForEach(allFolders) { folder in
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedFolder = selectedFolder?.uuid == folder.uuid ? nil : folder
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            if let iconName = folder.iconName {
+                                Image(systemName: iconName)
+                                    .font(.caption)
+                            }
+                            Text(folder.name)
+                        }
+                        .font(.subheadline)
+                        .fontWeight(selectedFolder?.uuid == folder.uuid ? .semibold : .regular)
+                        .foregroundStyle(selectedFolder?.uuid == folder.uuid ? .primary : .secondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule()
+                                .fill(selectedFolder?.uuid == folder.uuid ? folder.color.color.opacity(0.1) : Color.clear)
+                        )
+                        .overlay(
+                            Capsule()
+                                .stroke(selectedFolder?.uuid == folder.uuid ? folder.color.color.opacity(0.3) : Color.clear, lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+    
+    // MARK: - Habit Views (Native List)
     private var habitList: some View {
-        LazyVStack(spacing: 4) {
+        List {
             ForEach(activeHabitsForDate) { habit in
-                HabitRowView(habit: habit, date: selectedDate, onTap: {
+                HabitRowNative(habit: habit, date: selectedDate) {
                     selectedHabit = habit
-                })
-                .contextMenu {
+                }
+                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                    // Complete action (green)
                     Button {
                         if !habit.isCompletedForDate(selectedDate) {
                             actionService.completeHabit(habit, for: selectedDate)
@@ -208,37 +328,138 @@ struct HomeView: View {
                     } label: {
                         Label("complete".localized, systemImage: "checkmark")
                     }
+                    .tint(.green)
                     .disabled(habit.isCompletedForDate(selectedDate))
-                    
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    // Pin/Unpin (blue)
                     Button {
-                        actionService.showStatistics(for: habit)
+                        pinHabit(habit)
                     } label: {
-                        Label("statistics".localized, systemImage: "chart.line.text.clipboard")
+                        Label(
+                            habit.isPinned ? "unpin".localized : "pin".localized,
+                            systemImage: habit.isPinned ? "pin.slash" : "pin"
+                        )
                     }
+                    .tint(.blue)
                     
+                    // Archive (orange)
                     Button {
-                        isReorderingSheetPresented = true
+                        archiveHabit(habit)
                     } label: {
-                        Label("reorder".localized, systemImage: "list.bullet")
+                        Label("archive".localized, systemImage: "archivebox")
                     }
+                    .tint(.orange)
                     
-                    Button {
-                        actionService.editHabit(habit)
-                    } label: {
-                        Label("edit".localized, systemImage: "pencil")
-                    }
-                    
+                    // Delete (red)
                     Button(role: .destructive) {
                         habitForProgress = habit
                         alertState.isDeleteAlertPresented = true
                     } label: {
                         Label("delete".localized, systemImage: "trash")
                     }
-                    .tint(.red)
                 }
-                .id(habit.uuid)
+                .contextMenu {
+                    // Complete
+                    Button {
+                        if !habit.isCompletedForDate(selectedDate) {
+                            actionService.completeHabit(habit, for: selectedDate)
+                        }
+                    } label: {
+                        Label("complete".localized, systemImage: "checkmarks")
+                    }
+                    .disabled(habit.isCompletedForDate(selectedDate))
+                    
+                    Divider()
+                    
+                    // Move to Folder - Submenu
+                    if !allFolders.isEmpty {
+                        Menu {
+                            // Remove from all folders
+                            Button {
+                                moveHabitToFolders(habit, folders: [])
+                            } label: {
+                                Label("no_folder".localized, systemImage: "minus.circle")
+                            }
+                            
+                            Divider()
+                            
+                            // Individual folders
+                            ForEach(allFolders) { folder in
+                                Button {
+                                    // Toggle folder membership
+                                    var currentFolders = Set(habit.folders ?? [])
+                                    if currentFolders.contains(folder) {
+                                        currentFolders.remove(folder)
+                                    } else {
+                                        currentFolders.insert(folder)
+                                    }
+                                    moveHabitToFolders(habit, folders: Array(currentFolders))
+                                } label: {
+                                    HStack {
+                                        if let iconName = folder.iconName {
+                                            Image(systemName: iconName)
+                                        }
+                                        Text(folder.name)
+                                        Spacer()
+                                        if habit.belongsToFolder(folder) {
+                                            Image(systemName: "checkmark")
+                                        }
+                                    }
+                                }
+                            }
+                        } label: {
+                            Label("move_to_folder".localized, systemImage: "folder")
+                        }
+                    }
+                    
+                    // Statistics
+                    Button {
+                        selectedHabitForStats = habit
+                    } label: {
+                        Label("statistics".localized, systemImage: "chart.line.text.clipboard")
+                    }
+                    
+                    // Edit
+                    Button {
+                        habitToEdit = habit
+                    } label: {
+                        Label("edit".localized, systemImage: "pencil")
+                    }
+                    
+                    Divider()
+                    
+                    // Pin/Unpin
+                    Button {
+                        pinHabit(habit)
+                    } label: {
+                        Label(
+                            habit.isPinned ? "unpin".localized : "pin".localized,
+                            systemImage: habit.isPinned ? "pin.slash" : "pin"
+                        )
+                    }
+                    
+                    // Archive
+                    Button {
+                        archiveHabit(habit)
+                    } label: {
+                        Label("archive".localized, systemImage: "archivebox")
+                    }
+                    
+                    Divider()
+                    
+                    // Delete
+                    Button(role: .destructive) {
+                        habitForProgress = habit
+                        alertState.isDeleteAlertPresented = true
+                    } label: {
+                        Label("delete".localized, systemImage: "trash")
+                    }
+                }
             }
+            .onMove(perform: moveHabits) // Add reorder functionality
         }
+        .listStyle(.plain)
     }
     
     // MARK: - Helper Methods
@@ -260,5 +481,47 @@ struct HomeView: View {
             formatter.dateFormat = "EEEE, d MMM"
             return formatter.string(from: date).uppercased()
         }
+    }
+    
+    // MARK: - Move to Folders Method
+    private func moveHabitToFolders(_ habit: Habit, folders: [HabitFolder]) {
+        habit.removeFromAllFolders()
+        for folder in folders {
+            habit.addToFolder(folder)
+        }
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.playSelection()
+    }
+    
+    // MARK: - Pin Method
+    private func pinHabit(_ habit: Habit) {
+        habit.togglePin()
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.playSelection()
+    }
+    
+    // MARK: - Archive Method
+    private func archiveHabit(_ habit: Habit) {
+        habit.isArchived = true
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.play(.success)
+    }
+    
+    // MARK: - Reorder Method
+    private func moveHabits(from source: IndexSet, to destination: Int) {
+        var habits = activeHabitsForDate
+        habits.move(fromOffsets: source, toOffset: destination)
+        
+        // Update display order for all moved habits
+        for (index, habit) in habits.enumerated() {
+            habit.displayOrder = index
+        }
+        
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.playSelection()
     }
 }

@@ -9,11 +9,24 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 Section {
+                    // Archived habits section
                     NavigationLink {
-                        ReorderHabitsView()
+                        ArchivedHabitsView()
                     } label: {
-                        Label("reorder_habits".localized, systemImage: "list.bullet")
+                        HStack {
+                            Label("archived_habits".localized, systemImage: "archivebox")
+                            Spacer()
+                            ArchivedHabitsCountBadge()
+                        }
                     }
+                    
+                    // Groups management
+                    NavigationLink {
+                        UnifiedFolderPickerView()
+                    } label: {
+                        Label("groups".localized, systemImage: "folder")
+                    }
+                    
                     AppIconSection()
                     AppearanceSection()
                     WeekStartSection()

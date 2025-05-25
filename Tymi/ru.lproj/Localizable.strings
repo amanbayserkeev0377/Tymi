@@ -1,3 +1,14 @@
+"archive" = "Архивировать";
+"archived_habits" = "Архивированные привычки";
+"no_archived_habits" = "Нет архивированных привычек";
+"archived_habits_empty_description" = "Архивированные привычки будут показаны здесь";
+"unarchive" = "Разархивировать";
+"delete_permanently" = "Удалить навсегда";
+"delete_permanently_confirmation" = "Удалить навсегда?";
+"delete_permanently_description" = "Эта привычка и вся её история будут удалены навсегда. Это действие нельзя отменить.";
+"archived_habits_footer" = "Смахните влево для разархивирования или удаления";
+"archived_date_format" = "Архивировано %@";
+
 "active_days" = "Активные дни";
 "add" = "Добавить";
 "add_count" = "Добавить количество";
@@ -161,7 +172,6 @@
 "reminder" = "Напоминание";
 "reminders" = "Напоминания";
 "reorder" = "Упорядочить";
-"reorder_habits" = "Упорядочить привычки";
 "report_bug" = "Сообщить об ошибке";
 "reset" = "Сбросить";
 "reset_all_history" = "Сбросить историю";
