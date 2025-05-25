@@ -12,7 +12,7 @@ struct ThemeOption {
 }
 
 struct AppearanceSection: View {
-    @AppStorage("themeMode") private var themeMode: Int = 0 // 0 - System, 1 - Light, 2 - Dark
+    @AppStorage("themeMode") private var themeMode: ThemeMode = .system
     
     var body: some View {
         HStack {
@@ -25,15 +25,15 @@ struct AppearanceSection: View {
             
             // Показываем текущую выбранную тему с меню
             Menu {
-                ForEach(0..<ThemeOption.allOptions.count, id: \.self) { index in
+                ForEach(ThemeMode.allCases, id: \.self) { mode in
                     Button {
-                        themeMode = index
+                        themeMode = mode
                     } label: {
                         HStack {
-                            Image(systemName: ThemeOption.allOptions[index].iconName)
+                            Image(systemName: ThemeOption.allOptions[mode.rawValue].iconName)
                                 .frame(width: 24, alignment: .leading)
                             
-                            Text(ThemeOption.allOptions[index].name)
+                            Text(ThemeOption.allOptions[mode.rawValue].name)
                             
                             Spacer()
                         }
@@ -41,7 +41,7 @@ struct AppearanceSection: View {
                 }
             } label: {
                 HStack(spacing: 4) {
-                    Text(ThemeOption.allOptions[themeMode].name)
+                    Text(ThemeOption.allOptions[themeMode.rawValue].name)
                         .foregroundStyle(.secondary)
                     
                     Image(systemName: "chevron.up.chevron.down")

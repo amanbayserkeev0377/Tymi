@@ -5,12 +5,13 @@ struct IconPickerView: View {
     @Binding var selectedColor: HabitIconColor
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var colorManager = AppColorManager.shared
     
     // Дефолтная иконка
     private let defaultIcon = "checkmark"
     
     // Состояние для пользовательского цвета
-    @State private var customColor = Color.gray
+    @State private var customColor = HabitIconColor.customColor
     
     private let categories: [IconCategory] = [
         IconCategory(name: "health".localized, icons: [
@@ -45,43 +46,6 @@ struct IconPickerView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Color selection section - всегда вверху
-            VStack(spacing: 16) {
-                // Color picker grid
-                LazyVGrid(columns: colorColumns, spacing: 12) {
-                    // ColorPicker в начале
-                    ColorPicker("", selection: $customColor)
-                        .labelsHidden()
-                        .onChange(of: customColor) { _, newColor in
-                            HabitIconColor.customColor = newColor
-                            selectedColor = .colorPicker
-                        }
-                        .frame(width: 28, height: 28)
-                        .clipShape(Circle())
-                    
-                    // Остальные цвета
-                    ForEach(HabitIconColor.allCases.filter { $0 != .colorPicker }, id: \.self) { color in
-                        Button {
-                            selectedColor = color
-                        } label: {
-                            Circle()
-                                .fill(color.color)
-                                .frame(width: 28, height: 28)
-                                .overlay(
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 12, weight: .bold))
-                                        .foregroundColor(color == .primary && colorScheme == .dark ? .black : .white)
-                                        .opacity(selectedColor == color ? 1 : 0)
-                                )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-            .padding()
-            .padding(.horizontal)
-            .padding(.top)
-            
             // Icon selection list
             List {
                 ForEach(categories, id: \.name) { category in
@@ -97,7 +61,7 @@ struct IconPickerView: View {
                                     VStack {
                                         Image(systemName: iconName)
                                             .font(.title)
-                                            .foregroundStyle(iconName == defaultIcon ? .accentColor : (selectedColor == .colorPicker ? customColor : selectedColor.color))
+                                            .foregroundStyle(iconName == defaultIcon ? colorManager.selectedColor.color : (selectedColor == .colorPicker ? customColor : selectedColor.color))
                                     }
                                     .frame(width: 60, height: 60)
                                     .background(
@@ -121,8 +85,44 @@ struct IconPickerView: View {
             }
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
+            .background(Color(UIColor.systemGroupedBackground))
+            
+            // Color selection section - теперь внизу
+            VStack(spacing: 16) {
+                // Color picker grid
+                LazyVGrid(columns: colorColumns, spacing: 12) {
+                    // Остальные цвета
+                    ForEach(colorManager.getAvailableColors().filter { $0 != .colorPicker }, id: \.self) { color in
+                        Button {
+                            selectedColor = color
+                        } label: {
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(color.color)
+                                .frame(width: 28, height: 28)
+                                .overlay(
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(color == .primary && colorScheme == .dark ? .black : .white)
+                                        .opacity(selectedColor == color ? 1 : 0)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    
+                    ColorPicker("", selection: $customColor)
+                        .labelsHidden()
+                        .onChange(of: customColor) { _, newColor in
+                            HabitIconColor.customColor = newColor
+                            selectedColor = .colorPicker
+                        }
+                        .frame(width: 28, height: 28)
+                        .clipShape(Circle())
+                }
+            }
+            .padding()
+            .padding(.horizontal)
+            .background(Color(UIColor.systemGroupedBackground))
         }
-        .background(Color(UIColor.systemGroupedBackground))
         .navigationTitle("choose_icon".localized)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {

@@ -37,7 +37,7 @@ struct HabitRowNative: View {
                 // Icon
                 Image(systemName: habit.iconName ?? "checkmark")
                     .font(.title3)
-                    .foregroundStyle(habit.iconName == nil ? .accentColor : habit.iconColor.color)
+                    .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
                     .frame(width: 28, height: 28)
                 
                 // Title and goal

@@ -3,6 +3,7 @@ import SwiftUI
 struct IconSection: View {
     @Binding var selectedIcon: String?
     @Binding var selectedColor: HabitIconColor
+    @ObservedObject private var colorManager = AppColorManager.shared
     
     private let defaultIcon = "checkmark"
     
@@ -18,7 +19,7 @@ struct IconSection: View {
                     Text("icon".localized)
                 } icon: {
                     Image(systemName: selectedIcon ?? defaultIcon)
-                        .foregroundStyle(selectedIcon == nil ? .accentColor : selectedColor.color)
+                        .foregroundStyle(selectedIcon == nil ? colorManager.selectedColor.color : selectedColor.color)
                 }
             }
         }

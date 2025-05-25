@@ -18,18 +18,21 @@ struct TymiApp: App {
             
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
-                isStoredInMemoryOnly: false,
-                cloudKitDatabase: .private("iCloud.com.amanbayserkeev.tymi")
+                isStoredInMemoryOnly: false
+                // cloudKitDatabase: .private("iCloud.com.amanbayserkeev.tymi")
             )
             container = try ModelContainer(
                 for: schema,
                 configurations: [modelConfiguration]
             )
             
-            print("✅ CloudKit container initialized successfully")
+            print("✅ Local storage initialized successfully")
+            // print("✅ CloudKit container initialized successfully")
         } catch {
-            print("❌ CloudKit initialization error: \(error)")
-            fatalError("Не удалось создать ModelContainer с CloudKit: \(error)")
+            print("❌ Local storage initialization error: \(error)")
+            // print("❌ CloudKit initialization error: \(error)")
+            fatalError("Не удалось создать ModelContainer с локальным хранилищем: \(error)")
+            // fatalError("Не удалось создать ModelContainer с CloudKit: \(error)")
         }
     }
     

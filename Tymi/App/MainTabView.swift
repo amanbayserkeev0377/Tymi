@@ -1,39 +1,48 @@
 import SwiftUI
 
+enum ThemeMode: Int, CaseIterable {
+    case system = 0
+    case light = 1
+    case dark = 2
+    
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+}
+
 struct MainTabView: View {
-    @State private var selectedTab = 0
-    @AppStorage("themeMode") private var themeMode: Int = 0 // 0 - System, 1 - Light, 2 - Dark
+    @Environment(\.colorScheme) private var colorScheme
+    @AppStorage("themeMode") private var themeMode: ThemeMode = .system
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            // Home
+        TabView {
             NavigationStack {
                 HomeView()
             }
             .tabItem {
                 Label("home".localized, systemImage: "house")
             }
-            .tag(0)
             
-            // Statistics
             NavigationStack {
                 StatisticsView()
             }
             .tabItem {
-                Label("statistics".localized, systemImage: "chart.bar.xaxis")
+                Label("statistics".localized, systemImage: "chart.bar")
             }
-            .tag(1)
             
-            // Settings
             NavigationStack {
                 SettingsView()
             }
             .tabItem {
-                Label("settings".localized, systemImage: "gearshape")
+                Label("settings".localized, systemImage: "gear")
             }
-            .tag(2)
         }
-        .preferredColorScheme(ThemeHelper.colorSchemeFromThemeMode(themeMode))
+        .preferredColorScheme(themeMode.colorScheme)
+        .withAppColor()
     }
 }
 

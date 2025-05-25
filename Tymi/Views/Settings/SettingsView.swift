@@ -3,7 +3,7 @@ import SwiftData
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
-    @AppStorage("themeMode") private var themeMode: Int = 0
+    @AppStorage("themeMode") private var themeMode: ThemeMode = .system
 
     var body: some View {
         NavigationStack {
@@ -20,25 +20,26 @@ struct SettingsView: View {
                         }
                     }
                     
-                    // Groups management
+                    // Folders management
                     NavigationLink {
                         UnifiedFolderPickerView()
                     } label: {
-                        Label("groups".localized, systemImage: "folder")
+                        Label("folders".localized, systemImage: "folder")
                     }
                     
                     AppIconSection()
                     AppearanceSection()
+                    AppColorSection()
                     WeekStartSection()
                     LanguageSection()
                 }
                 
                 Section {
-                    NavigationLink {
-                        CloudKitSyncView()
-                    } label: {
-                        Label("icloud_sync".localized, systemImage: "icloud")
-                    }
+//                    NavigationLink {
+//                        CloudKitSyncView()
+//                    } label: {
+//                        Label("icloud_sync".localized, systemImage: "icloud")
+//                    }
                     
                     NotificationsSection()
                     HapticsSection()
@@ -78,6 +79,6 @@ struct SettingsView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("settings".localized)
         }
-        .preferredColorScheme(ThemeHelper.colorSchemeFromThemeMode(themeMode))
+        .preferredColorScheme(themeMode.colorScheme)
     }
 }

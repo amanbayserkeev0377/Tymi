@@ -5,6 +5,7 @@ struct ArchivedHabitsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
+    @ObservedObject private var colorManager = AppColorManager.shared
     
     // Query only archived habits
     @Query(
@@ -120,13 +121,14 @@ struct ArchivedHabitRow: View {
     let onUnarchive: () -> Void
     
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var colorManager = AppColorManager.shared
     
     var body: some View {
         HStack {
             // Icon
             Image(systemName: habit.iconName ?? "checkmark")
                 .font(.title2)
-                .foregroundStyle(habit.iconName == nil ? .accentColor : habit.iconColor.color)
+                .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
                 .frame(width: 30, height: 30)
                 .padding(.trailing, 8)
             

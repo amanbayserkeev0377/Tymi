@@ -44,24 +44,14 @@ struct HomeView: View {
     }
     
     @State private var selectedDate: Date = .now
-    @State private var isShowingNewHabitSheet = false
+    @State private var showingNewHabit = false
     @State private var selectedHabit: Habit? = nil
     @State private var selectedHabitForStats: Habit? = nil
-    @State private var actionService: HabitActionService
     @State private var habitToEdit: Habit? = nil
     @State private var alertState = AlertState()
     @State private var habitForProgress: Habit? = nil
     @State private var selectedFolder: HabitFolder? = nil
 
-    
-    init() {
-        let container = try! ModelContainer(for: Habit.self, HabitCompletion.self)
-        _actionService = State(initialValue: HabitActionService(
-            modelContext: container.mainContext,
-            habitsUpdateService: HabitsUpdateService()
-        ))
-    }
-    
     // Computed property for filtering habits based on selected date
     private var activeHabitsForDate: [Habit] {
         baseHabits.filter { habit in
@@ -77,12 +67,20 @@ struct HomeView: View {
     
     // MARK: - Body
     var body: some View {
+        let actionService = HabitActionService(
+            modelContext: modelContext,
+            habitsUpdateService: habitsUpdateService,
+            onHabitSelected: { habit in selectedHabit = habit },
+            onHabitEditSelected: { habit in habitToEdit = habit },
+            onHabitStatsSelected: { habit in selectedHabitForStats = habit }
+        )
+        
         NavigationStack {
-            contentView
+            contentView(actionService: actionService)
         }
     }
     
-    private var contentView: some View {
+    private func contentView(actionService: HabitActionService) -> some View {
         VStack(spacing: 0) {
             // Calendar at the top
             WeeklyCalendarView(selectedDate: $selectedDate)
@@ -119,7 +117,7 @@ struct HomeView: View {
             } else {
                 // Habits list
                 if hasHabitsForDate {
-                    habitList
+                    habitList(actionService: actionService)
                 } else {
                     Spacer()
                 }
@@ -173,23 +171,17 @@ struct HomeView: View {
             
             ToolbarItem(placement: .primaryAction) {
                 Button(action: {
-                    isShowingNewHabitSheet = true
+                    showingNewHabit = true
                 }) {
                     Image(systemName: "plus")
                         .font(.system(size: 16))
                         .frame(width: 36, height: 36)
-                        .background(
-                            Circle()
-                                .fill(Color.gray.opacity(0.1))
-                        )
                         .padding(4)
                 }
             }
         }
-        .sheet(isPresented: $isShowingNewHabitSheet) {
-            NavigationStack {
-                NewHabitView(initialFolder: selectedFolder)
-            }
+        .sheet(isPresented: $showingNewHabit) {
+            NewHabitView(initialFolder: selectedFolder)
         }
         .sheet(item: $selectedHabit) { habit in
             NavigationStack {
@@ -215,27 +207,10 @@ struct HomeView: View {
             .presentationDragIndicator(.visible)
         }
         .sheet(item: $habitToEdit) { habit in
-            NavigationStack {
-                NewHabitView(habit: habit)
-            }
+            NewHabitView(habit: habit)
         }
         .onChange(of: selectedDate) { _, _ in
             habitsUpdateService.triggerUpdate()
-        }
-        .onAppear {
-            actionService.updateContext(modelContext)
-            actionService.updateService(habitsUpdateService)
-            actionService.setCallbacks(
-                onHabitSelected: { habit in
-                    selectedHabit = habit
-                },
-                onHabitEditSelected: { habit in
-                    habitToEdit = habit
-                },
-                onHabitStatsSelected: { habit in
-                    selectedHabitForStats = habit
-                }
-            )
         }
         .alert("delete_habit_confirmation".localized, isPresented: $alertState.isDeleteAlertPresented) {
             Button("cancel".localized, role: .cancel) {
@@ -313,7 +288,7 @@ struct HomeView: View {
     }
     
     // MARK: - Habit Views (Native List)
-    private var habitList: some View {
+    private func habitList(actionService: HabitActionService) -> some View {
         List {
             ForEach(activeHabitsForDate) { habit in
                 HabitRowNative(habit: habit, date: selectedDate) {
