@@ -88,10 +88,10 @@ struct NewHabitView: View {
                     
                     // Icon
                     IconSection(selectedIcon: $selectedIcon, selectedColor: $selectedIconColor)
-                    
-                    // Folders selection - always show
-                    FolderSection(selectedFolders: $selectedFolders, allFolders: allFolders)
                 }
+                
+                // Folders
+                FolderSection(selectedFolders: $selectedFolders, allFolders: allFolders)
                 
                 // Goal
                 GoalSection(

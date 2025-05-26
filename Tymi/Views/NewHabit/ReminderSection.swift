@@ -9,10 +9,10 @@ struct ReminderSection: View {
     var body: some View {
         Section {
             Toggle(isOn: $isReminderEnabled.animation()) {
-                Label("reminders".localized, systemImage: "bell.badge.fill")
+                Label("reminders".localized, systemImage: "bell.badge")
                     .symbolEffect(.bounce, options: .repeat(1), value: isReminderEnabled)
             }
-            .tint(colorManager.selectedColor == .primary && colorScheme == .dark ? .gray.opacity(0.8) : colorManager.selectedColor.color)
+            .withToggleColor()
             
             if isReminderEnabled {
                 ForEach(Array(reminderTimes.indices), id: \.self) { index in

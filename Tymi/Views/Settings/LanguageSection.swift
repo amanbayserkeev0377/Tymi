@@ -21,5 +21,6 @@ struct LanguageSection: View {
             Label("language".localized, systemImage: "translate")
                 .withExternalLinkIcon(trailingText: currentLanguage)
         }
+        .tint(.primary)
     }
 }

@@ -17,7 +17,7 @@ struct NotificationsSection: View {
                 }
             )
         }
-        .tint(colorScheme == .dark ? Color.gray.opacity(0.8) : .primary)
+        .withToggleColor()
         .onChange(of: notificationsEnabled) { _, newValue in
             Task {
                 await handleNotificationToggle(newValue)

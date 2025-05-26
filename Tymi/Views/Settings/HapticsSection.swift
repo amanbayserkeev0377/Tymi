@@ -14,6 +14,6 @@ struct HapticsSection: View {
                 }
             )
         }
-        .tint(colorScheme == .dark ? Color.gray.opacity(0.8) : .primary)
+        .withToggleColor()
     }
 }

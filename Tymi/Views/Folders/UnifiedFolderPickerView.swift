@@ -172,7 +172,6 @@ struct UnifiedFolderPickerView: View {
                 if editMode?.wrappedValue != .active {
                     Image(systemName: "chevron.right")
                         .foregroundStyle(Color(.systemGray2))
-                        .font(.caption)
                 }
             }
         }

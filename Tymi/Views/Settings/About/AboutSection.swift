@@ -44,6 +44,7 @@ struct AboutSection: View {
                 Label("rate_app".localized, systemImage: "star")
                     .withExternalLinkIcon()
             }
+            .tint(.primary)
             
             // Share App
             Button {
@@ -61,6 +62,7 @@ struct AboutSection: View {
                 Label("share_app".localized, systemImage: "square.and.arrow.up")
                     .withExternalLinkIcon()
             }
+            .tint(.primary)
             
             // Contact Developer
             Button {
@@ -71,6 +73,7 @@ struct AboutSection: View {
                 Label("contact_developer".localized, systemImage: "ellipsis.message")
                     .withExternalLinkIcon()
             }
+            .tint(.primary)
             
             // Report a Bug
             Button {
@@ -81,6 +84,7 @@ struct AboutSection: View {
                 Label("report_bug".localized, systemImage: "ladybug")
                     .withExternalLinkIcon()
             }
+            .tint(.primary)
         }
         
         // MARK: - Legal

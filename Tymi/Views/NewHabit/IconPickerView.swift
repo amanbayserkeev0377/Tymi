@@ -16,33 +16,32 @@ struct IconPickerView: View {
     private let categories: [IconCategory] = [
         IconCategory(name: "health".localized, icons: [
             "figure.walk","figure.run", "figure.stairs", "figure.strengthtraining.traditional", "figure.cooldown",
-            "figure.mind.and.body", "figure.pool.swim", "shoeprints.fill", "bicycle", "bed.double",
-            "brain", "eye", "heart", "lungs", "waterbottle",
-            "pills", "testtube.2", "stethoscope", "carrot", "tree"
+            "figure.mind.and.body", "figure.pool.swim", "shoeprints.fill", "bicycle", "bed.double.fill",
+            "brain.fill", "eye.fill", "heart.fill", "lungs.fill", "waterbottle.fill",
+            "pills.fill", "testtube.2", "stethoscope", "carrot.fill", "tree.fill"
         ]),
         IconCategory(name: "productivity".localized, icons: [
-            "brain.head.profile", "clock", "hourglass", "pencil.and.list.clipboard", "pencil.and.scribble",
-            "book", "graduationcap", "translate", "function", "chart.pie",
-            "checklist", "calendar.badge.clock", "person.2.wave.2", "bubble.left.and.bubble.right", "globe.americas",
-            "medal", "macbook", "keyboard", "lightbulb.max", "atom"
+            "brain.head.profile.fill", "clock.fill", "hourglass", "pencil.and.list.clipboard", "pencil.and.scribble",
+            "book.fill", "graduationcap.fill", "translate", "function", "chart.pie.fill",
+            "checklist", "calendar.badge.clock", "person.2.wave.2.fill", "bubble.left.and.bubble.right.fill", "globe.americas.fill",
+            "medal.fill", "macbook", "keyboard.fill", "lightbulb.max.fill", "atom"
         ]),
         IconCategory(name: "hobbies".localized, icons: [
-            "camera", "play.rectangle", "headphones", "music.note", "film",
-            "paintbrush.pointed", "paintpalette", "photo", "theatermasks", "puzzlepiece.extension",
-            "pianokeys", "guitars", "rectangle.pattern.checkered", "mountain.2", "drone",
-            "playstation.logo", "xbox.logo", "formfitting.gamecontroller", "motorcycle", "scooter",
-            "soccerball", "basketball", "volleyball", "tennisball", "tennis.racket"
+            "camera.fill", "play.rectangle.fill", "headphones", "music.note", "film.fill",
+            "paintbrush.pointed.fill", "paintpalette.fill", "photo.fill", "theatermasks.fill", "puzzlepiece.extension.fill",
+            "pianokeys", "guitars.fill", "rectangle.pattern.checkered", "mountain.2.fill", "drone.fill",
+            "playstation.logo", "xbox.logo", "formfitting.gamecontroller.fill", "motorcycle.fill", "scooter",
+            "soccerball.inverse", "basketball.fill", "volleyball.fill", "tennisball.fill", "tennis.racket"
         ]),
         IconCategory(name: "lifestyle".localized, icons: [
-            "shower", "bathtub", "sink", "hands.and.sparkles", "washer",
-            "fork.knife", "frying.pan", "popcorn", "cup.and.heat.waves", "birthday.cake",
-            "cart", "takeoutbag.and.cup.and.straw", "gift", "hanger", "stroller",
-            "face.smiling", "envelope", "phone", "beach.umbrella", "pawprint",
-            "creditcard", "banknote", "location", "hand.palm.facing", "steeringwheel.and.hands"
+            "shower.fill", "bathtub.fill", "sink.fill", "hands.and.sparkles.fill", "washer.fill",
+            "fork.knife", "frying.pan.fill", "popcorn.fill", "cup.and.heat.waves.fill", "birthday.cake.fill",
+            "cart.fill", "takeoutbag.and.cup.and.straw.fill", "gift.fill", "hanger", "stroller.fill",
+            "face.smiling.inverse", "envelope.fill", "phone.fill", "beach.umbrella.fill", "pawprint.fill",
+            "creditcard.fill", "banknote.fill", "location.fill", "hand.palm.facing.fill", "steeringwheel.and.hands"
         ]),
         IconCategory(name: "pro".localized, icons: [
-            "icon_instagram"
-            // сюда будете добавлять новые Pro иконки
+            "icon_instagram",
         ], isCustom: true)
     ]
     

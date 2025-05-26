@@ -46,8 +46,3 @@ struct MainTabView: View {
     }
 }
 
-#Preview {
-    MainTabView()
-        .modelContainer(for: [Habit.self, HabitCompletion.self], inMemory: true)
-        .environment(HabitsUpdateService())
-}

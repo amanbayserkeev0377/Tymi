@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "icon_instagram.svg",
+      "filename" : "instagram-logo-fill.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -19,6 +19,7 @@
     "version" : 1
   },
   "properties" : {
+    "preserves-vector-representation" : true,
     "template-rendering-intent" : "template"
   }
 }

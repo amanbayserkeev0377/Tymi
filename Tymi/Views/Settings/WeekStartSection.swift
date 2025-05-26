@@ -76,6 +76,7 @@ struct WeekStartSection: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .tint(.primary)
         }
     }
 }

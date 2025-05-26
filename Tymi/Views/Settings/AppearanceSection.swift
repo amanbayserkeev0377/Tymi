@@ -50,6 +50,7 @@ struct AppearanceSection: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .tint(.primary)
         }
     }
 }

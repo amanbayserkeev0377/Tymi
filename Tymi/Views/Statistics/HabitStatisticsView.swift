@@ -72,7 +72,7 @@ struct HabitStatisticsView: View {
                 HStack {
                     Label(
                         title: { Text("active_days".localized) },
-                        icon: { Image(systemName: "cloud.sun.fill") }
+                        icon: { Image(systemName: "cloud.sun") }
                     )
                     
                     Spacer()
