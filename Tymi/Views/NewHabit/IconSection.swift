@@ -7,6 +7,11 @@ struct IconSection: View {
     
     private let defaultIcon = "checkmark"
     
+    // Добавь эту функцию
+    private func isCustomIcon(_ iconName: String) -> Bool {
+        return iconName.hasPrefix("icon_")
+    }
+    
     var body: some View {
         NavigationLink {
             IconPickerView(
@@ -18,8 +23,19 @@ struct IconSection: View {
                 Label {
                     Text("icon".localized)
                 } icon: {
-                    Image(systemName: selectedIcon ?? defaultIcon)
-                        .foregroundStyle(selectedIcon == nil ? colorManager.selectedColor.color : selectedColor.color)
+                    let iconName = selectedIcon ?? defaultIcon
+                    
+                    // Проверяем тип иконки
+                    if isCustomIcon(iconName) {
+                        Image(iconName) // Кастомная из Assets
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(selectedColor.color)
+                    } else {
+                        Image(systemName: iconName) // SF Symbol
+                            .foregroundStyle(selectedIcon == nil ? colorManager.selectedColor.color : selectedColor.color)
+                    }
                 }
             }
         }

@@ -34,11 +34,23 @@ struct HabitRowNative: View {
                         .frame(width: 12)
                 }
                 
-                // Icon
-                Image(systemName: habit.iconName ?? "checkmark")
-                    .font(.title3)
-                    .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
-                    .frame(width: 28, height: 28)
+                // Icon - ИСПРАВЛЕННАЯ ВЕРСИЯ
+                let iconName = habit.iconName ?? "checkmark"
+                
+                if iconName.hasPrefix("icon_") {
+                    // Кастомная иконка
+                    Image(iconName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 28, height: 28)
+                        .foregroundStyle(habit.iconColor.color)
+                } else {
+                    // SF Symbol
+                    Image(systemName: iconName)
+                        .font(.title3)
+                        .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
+                        .frame(width: 28, height: 28)
+                }
                 
                 // Title and goal
                 VStack(alignment: .leading, spacing: 2) {

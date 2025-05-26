@@ -126,11 +126,24 @@ struct ArchivedHabitRow: View {
     var body: some View {
         HStack {
             // Icon
-            Image(systemName: habit.iconName ?? "checkmark")
-                .font(.title2)
-                .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
-                .frame(width: 30, height: 30)
-                .padding(.trailing, 8)
+            let iconName = habit.iconName ?? "checkmark"
+
+            if iconName.hasPrefix("icon_") {
+                // Кастомная иконка
+                Image(iconName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 30, height: 30)
+                    .foregroundStyle(habit.iconColor.color)
+                    .padding(.trailing, 8)
+            } else {
+                // SF Symbol
+                Image(systemName: iconName)
+                    .font(.title2)
+                    .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
+                    .frame(width: 30, height: 30)
+                    .padding(.trailing, 8)
+            }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(habit.title)

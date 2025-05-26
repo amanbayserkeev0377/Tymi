@@ -336,7 +336,7 @@ struct HomeView: View {
                             actionService.completeHabit(habit, for: selectedDate)
                         }
                     } label: {
-                        Label("complete".localized, systemImage: "checkmarks")
+                        Label("complete".localized, systemImage: "checkmark")
                     }
                     .disabled(habit.isCompletedForDate(selectedDate))
                     

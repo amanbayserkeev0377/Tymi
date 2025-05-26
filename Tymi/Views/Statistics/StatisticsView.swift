@@ -11,7 +11,7 @@ struct StatisticsView: View {
         sort: [SortDescriptor(\Habit.createdAt)]
     )
     private var allHabits: [Habit]
-
+    
     // Computed property для правильной сортировки с isPinned
     private var habits: [Habit] {
         allHabits.sorted { first, second in
@@ -42,9 +42,19 @@ struct StatisticsView: View {
                             } label: {
                                 HStack {
                                     if let iconName = habit.iconName {
-                                        Image(systemName: iconName)
-                                            .foregroundStyle(.primary)
-                                            .frame(width: 30)
+                                        if iconName.hasPrefix("icon_") {
+                                            // Кастомная иконка
+                                            Image(iconName)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 30, height: 30)
+                                                .foregroundStyle(.primary)
+                                        } else {
+                                            // SF Symbol
+                                            Image(systemName: iconName)
+                                                .foregroundStyle(.primary)
+                                                .frame(width: 30)
+                                        }
                                     }
                                     
                                     Text(habit.title)
