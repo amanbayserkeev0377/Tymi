@@ -11,7 +11,7 @@ enum HabitIconColor: String, CaseIterable, Codable {
     case purple = "purple"
     case softLavender = "softLavender"
     case pink = "pink"
-    case nord = "nord"
+    case sky = "sky"
     case brown = "brown"
     case gray = "gray"
     case colorPicker = "colorPicker"
@@ -35,14 +35,14 @@ enum HabitIconColor: String, CaseIterable, Codable {
         case .orange:
             return Color(uiColor: UIColor { traitCollection in
                 traitCollection.userInterfaceStyle == .dark
-                    ? #colorLiteral(red: 0.9882352941, green: 0.6862745098, blue: 0.3058823529, alpha: 1)
-                    : #colorLiteral(red: 0.9176470588, green: 0.5019607843, blue: 0.137254902, alpha: 1)
+                    ? #colorLiteral(red: 1, green: 0.6235294118, blue: 0.03921568627, alpha: 1)
+                    : #colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1)
             })
         case .yellow:
             return Color(uiColor: UIColor { traitCollection in
                 traitCollection.userInterfaceStyle == .dark
-                    ? #colorLiteral(red: 0.9764705882, green: 0.8549019608, blue: 0.4, alpha: 1)
-                    : #colorLiteral(red: 0.8117647059, green: 0.631372549, blue: 0.09411764706, alpha: 1)
+                    ? #colorLiteral(red: 1, green: 0.8392156863, blue: 0.03921568627, alpha: 1)
+                    : #colorLiteral(red: 0.8509803922, green: 0.6509803922, blue: 0, alpha: 1)
             })
         case .mint:
             return Color(uiColor: UIColor { traitCollection in
@@ -80,11 +80,11 @@ enum HabitIconColor: String, CaseIterable, Codable {
                     ? #colorLiteral(red: 0.9882352941, green: 0.6705882353, blue: 0.8196078431, alpha: 1)
                     : #colorLiteral(red: 0.8705882353, green: 0.4, blue: 0.6117647059, alpha: 1)
             })
-        case .nord:
+        case .sky:
             return Color(uiColor: UIColor { traitCollection in
                 traitCollection.userInterfaceStyle == .dark
-                    ? #colorLiteral(red: 0.529, green: 0.682, blue: 0.827, alpha: 1)
-                    : #colorLiteral(red: 0.373, green: 0.58, blue: 0.722, alpha: 1)
+                    ? #colorLiteral(red: 0.3882352941, green: 0.8235294118, blue: 1, alpha: 1)
+                    : #colorLiteral(red: 0.2509803922, green: 0.6823529412, blue: 0.8784313725, alpha: 1)
             })
         case .brown:
             return Color(uiColor: UIColor { traitCollection in

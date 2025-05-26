@@ -4,14 +4,15 @@ struct ReminderSection: View {
     @Binding var isReminderEnabled: Bool
     @Binding var reminderTimes: [Date]
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var colorManager = AppColorManager.shared
     
     var body: some View {
         Section {
             Toggle(isOn: $isReminderEnabled.animation()) {
-                Label("reminders".localized, systemImage: "bell.badge")
+                Label("reminders".localized, systemImage: "bell.badge.fill")
                     .symbolEffect(.bounce, options: .repeat(1), value: isReminderEnabled)
             }
-            .tint(colorScheme == .dark ? .gray.opacity(0.8) : .primary)
+            .tint(colorManager.selectedColor == .primary && colorScheme == .dark ? .gray.opacity(0.8) : colorManager.selectedColor.color)
             
             if isReminderEnabled {
                 ForEach(Array(reminderTimes.indices), id: \.self) { index in

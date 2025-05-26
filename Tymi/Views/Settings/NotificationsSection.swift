@@ -12,7 +12,7 @@ struct NotificationsSection: View {
             Label(
                 title: { Text("notifications".localized) },
                 icon: {
-                    Image(systemName: "bell.badge")
+                    Image(systemName: "bell.badge.fill")
                         .symbolEffect(.bounce, options: .repeat(1), value: notificationsEnabled)
                 }
             )

@@ -13,6 +13,7 @@ struct NewFolderView: View {
     @State private var selectedColor: HabitIconColor = .primary
     @State private var selectedIcon: String? = "folder"
     
+    
     @FocusState private var isNameFocused: Bool
     
     init(folder: HabitFolder? = nil, onFolderCreated: ((HabitFolder) -> Void)? = nil) {
@@ -34,7 +35,6 @@ struct NewFolderView: View {
         NavigationStack {
             Form {
                 Section {
-                    // Name
                     HStack {
                         Label {
                             TextField("folder_name".localized, text: $name)
@@ -42,23 +42,6 @@ struct NewFolderView: View {
                                 .focused($isNameFocused)
                         } icon: {
                             Image(systemName: "pencil")
-                        }
-                    }
-                    
-                    // Icon
-                    NavigationLink {
-                        IconPickerView(
-                            selectedIcon: $selectedIcon,
-                            selectedColor: $selectedColor
-                        )
-                    } label: {
-                        HStack {
-                            Label {
-                                Text("icon".localized)
-                            } icon: {
-                                Image(systemName: selectedIcon ?? "folder")
-                                    .foregroundStyle(selectedColor.color)
-                            }
                         }
                     }
                 }
@@ -98,23 +81,23 @@ struct NewFolderView: View {
     
     private func saveFolder() {
         if let existingFolder = folder {
-            // Update existing folder
+            // Update existing folder - только имя
             existingFolder.update(
                 name: name,
-                color: selectedColor,
-                iconName: selectedIcon
+                color: .primary, // дефолтный цвет
+                iconName: "folder" // дефолтная иконка
             )
             
             try? modelContext.save()
             habitsUpdateService.triggerUpdate()
             dismiss()
         } else {
-            // Create new folder
+            // Create new folder - только имя
             let newFolder = HabitFolder(
                 name: name,
-                color: selectedColor,
-                iconName: selectedIcon,
-                displayOrder: 999 // Will be at the end
+                color: .primary, // дефолтный цвет
+                iconName: "folder", // дефолтная иконка
+                displayOrder: 999
             )
             modelContext.insert(newFolder)
             
@@ -122,7 +105,6 @@ struct NewFolderView: View {
                 try modelContext.save()
                 habitsUpdateService.triggerUpdate()
                 
-                // Call completion callback with the new folder
                 onFolderCreated?(newFolder)
                 dismiss()
             } catch {

@@ -40,6 +40,10 @@ struct IconPickerView: View {
             "face.smiling", "envelope", "phone", "beach.umbrella", "pawprint",
             "creditcard", "banknote", "location", "hand.palm.facing", "steeringwheel.and.hands"
         ]),
+        IconCategory(name: "pro".localized, icons: [
+            "icon_instagram"
+            // сюда будете добавлять новые Pro иконки
+        ], isCustom: true)
     ]
     
     private let colorColumns = Array(repeating: GridItem(.flexible()), count: 7)
@@ -48,7 +52,7 @@ struct IconPickerView: View {
         VStack(spacing: 0) {
             // Icon selection list
             List {
-                ForEach(categories, id: \.name) { category in
+                ForEach(categories, id: \.name) { category in // ИСПРАВЛЕНО: добавлен categories
                     Section(header: Text(category.name)) {
                         LazyVGrid(columns: [
                             GridItem(.adaptive(minimum: 60))
@@ -59,9 +63,18 @@ struct IconPickerView: View {
                                     dismiss()
                                 } label: {
                                     VStack {
-                                        Image(systemName: iconName)
-                                            .font(.title)
-                                            .foregroundStyle(iconName == defaultIcon ? colorManager.selectedColor.color : (selectedColor == .colorPicker ? customColor : selectedColor.color))
+                                        // Проверяем тип иконки
+                                        if category.isCustom {
+                                            Image(iconName) // Пользовательские иконки из Assets
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 30, height: 30)
+                                                .foregroundStyle(selectedColor == .colorPicker ? customColor : selectedColor.color)
+                                        } else {
+                                            Image(systemName: iconName) // SF Symbols
+                                                .font(.title)
+                                                .foregroundStyle(iconName == defaultIcon ? colorManager.selectedColor.color : (selectedColor == .colorPicker ? customColor : selectedColor.color))
+                                        }
                                     }
                                     .frame(width: 60, height: 60)
                                     .background(
@@ -102,7 +115,7 @@ struct IconPickerView: View {
                                 .overlay(
                                     Image(systemName: "checkmark")
                                         .font(.system(size: 12, weight: .bold))
-                                        .foregroundColor(color == .primary && colorScheme == .dark ? .black : .white)
+                                        .foregroundColor(colorScheme == .dark ? .black : .white)
                                         .opacity(selectedColor == color ? 1 : 0)
                                 )
                         }
@@ -136,4 +149,11 @@ struct IconPickerView: View {
 struct IconCategory {
     let name: String
     let icons: [String]
+    let isCustom: Bool
+    
+    init(name: String, icons: [String], isCustom: Bool = false) {
+        self.name = name
+        self.icons = icons
+        self.isCustom = isCustom
+    }
 }

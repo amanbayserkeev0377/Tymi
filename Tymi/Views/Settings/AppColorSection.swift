@@ -12,13 +12,9 @@ struct AppColorSection: View {
                 
                 Spacer()
                 
-                Circle()
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .fill(colorManager.selectedColor.color)
-                    .frame(width: 20, height: 20)
-                    .overlay(
-                        Circle()
-                            .strokeBorder(.secondary.opacity(0.2), lineWidth: 1)
-                    )
+                    .frame(width: 18, height: 18)
             }
         }
     }

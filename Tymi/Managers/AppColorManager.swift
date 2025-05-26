@@ -17,7 +17,7 @@ final class AppColorManager: ObservableObject {
         .purple,
         .softLavender,
         .pink,
-        .nord,
+        .sky,
         .brown,
         .gray,
         .colorPicker

@@ -24,21 +24,21 @@ struct MainTabView: View {
                 HomeView()
             }
             .tabItem {
-                Label("home".localized, systemImage: "house")
+                Label("home".localized, systemImage: "house.fill")
             }
             
             NavigationStack {
                 StatisticsView()
             }
             .tabItem {
-                Label("statistics".localized, systemImage: "chart.bar")
+                Label("statistics".localized, systemImage: "chart.bar.fill")
             }
             
             NavigationStack {
                 SettingsView()
             }
             .tabItem {
-                Label("settings".localized, systemImage: "gear")
+                Label("settings".localized, systemImage: "gearshape.fill")
             }
         }
         .preferredColorScheme(themeMode.colorScheme)

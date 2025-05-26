@@ -14,15 +14,16 @@ struct UnifiedFolderPickerView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
+    @Environment(\.editMode) private var editMode
+    @ObservedObject private var colorManager = AppColorManager.shared
     
     @Query(sort: [SortDescriptor(\HabitFolder.displayOrder)])
     private var folders: [HabitFolder]
     
-    @State private var isEditMode = false
     @State private var isShowingNewFolderSheet = false
     @State private var folderToEdit: HabitFolder?
-    @State private var folderToDelete: HabitFolder?
-    @State private var isDeleteAlertPresented = false
+    @State private var selectedForDeletion: Set<HabitFolder.ID> = []
+    @State private var isDeleteSelectedAlertPresented = false
     
     // For NewHabitView NavigationLink
     init(selectedFolders: Binding<Set<HabitFolder>>) {
@@ -49,83 +50,28 @@ struct UnifiedFolderPickerView: View {
     }
     
     var body: some View {
-        List {
-            if folders.isEmpty {
-                // No folders yet - show create folder prominently
-                Section {
-                    Button {
-                        isShowingNewFolderSheet = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title2)
-                                .foregroundStyle(.blue)
-                                .frame(width: 30, height: 30)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("create_first_folder".localized)
-                                    .font(.headline)
-                                    .foregroundStyle(.blue)
-                                
-                                Text("organize_habits_with_folders".localized)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    .buttonStyle(.plain)
+        Group {
+            if isFromSettings && editMode?.wrappedValue == .active {
+                // В edit mode - с selection
+                List(selection: $selectedForDeletion) {
+                    listContent
                 }
             } else {
-                // Show existing folders
-                Section {
-                    ForEach(folders) { folder in
-                        if isFromSettings {
-                            // Settings mode - show folder details
-                            settingsFolderRow(folder: folder)
-                        } else {
-                            // Selection mode - show checkboxes
-                            selectionFolderRow(folder: folder)
-                        }
-                    }
-                    .onMove(perform: isEditMode ? moveFolders : nil)
-                    .onDelete(perform: isEditMode ? deleteFolders : nil)
-                }
-                
-                // Add Folder button at the end when folders exist
-                Section {
-                    Button {
-                        isShowingNewFolderSheet = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title2)
-                                .foregroundStyle(.blue)
-                                .frame(width: 30, height: 30)
-                            
-                            Text("add_folder".localized)
-                                .font(.headline)
-                                .foregroundStyle(.blue)
-                            
-                            Spacer()
-                        }
-                    }
-                    .buttonStyle(.plain)
+                // В обычном режиме - без selection
+                List {
+                    listContent
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle(isFromSettings ? "folders".localized : "add_to_folders".localized)
         .navigationBarTitleDisplayMode(isFromSettings ? .large : .inline)
         .toolbar {
             if isMoveToFolderMode {
-                // Move to Folder modal - Save/Cancel buttons
+                // Move to Folder modal buttons
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("cancel".localized) {
-                        dismiss()
-                    }
+                    Button("cancel".localized) { dismiss() }
                 }
-                
                 ToolbarItem(placement: .confirmationAction) {
                     Button("save".localized) {
                         onFoldersSelected?(selectedFolders)
@@ -133,99 +79,104 @@ struct UnifiedFolderPickerView: View {
                     }
                 }
             } else if isFromSettings && !folders.isEmpty {
-                // Settings toolbar with Edit/Done (только когда есть папки)
+                // НАТИВНАЯ EditButton
                 ToolbarItem(placement: .primaryAction) {
-                    Button(isEditMode ? "done".localized : "edit".localized) {
-                        withAnimation {
-                            isEditMode.toggle()
-                        }
-                    }
+                    EditButton()
                 }
             }
-            // Для NewHabitView NavigationLink - никаких toolbar кнопок!
         }
-        .environment(\.editMode, isEditMode ? .constant(.active) : .constant(.inactive))
+        .safeAreaInset(edge: .bottom) {
+            if !selectedForDeletion.isEmpty && isFromSettings {
+                bottomDeleteToolbar
+            }
+        }
+        .onChange(of: editMode?.wrappedValue) { _, newValue in
+            if newValue != .active {
+                selectedForDeletion.removeAll()
+            }
+        }
         .sheet(isPresented: $isShowingNewFolderSheet) {
             NewFolderView()
         }
         .sheet(item: $folderToEdit) { folder in
             NewFolderView(folder: folder)
         }
-        .alert("delete_folder_confirmation".localized, isPresented: $isDeleteAlertPresented) {
-            Button("cancel".localized, role: .cancel) {
-                folderToDelete = nil
-            }
+        .alert("delete_folders_confirmation".localized, isPresented: $isDeleteSelectedAlertPresented) {
+            Button("cancel".localized, role: .cancel) {}
             Button("delete".localized, role: .destructive) {
-                if let folder = folderToDelete {
-                    deleteFolder(folder)
-                }
-                folderToDelete = nil
+                deleteSelectedFolders()
             }
         } message: {
-            if let folder = folderToDelete {
-                Text("delete_folder_description".localized(with: folder.habitsCount))
+            Text("delete_folders_message".localized(with: selectedForDeletion.count))
+        }
+    }
+    
+    // MARK: - List Content
+    @ViewBuilder
+    private var listContent: some View {
+        Section(
+            header: Text("folders".localized),
+            footer: shouldShowEditFooter ? Text("folders_edit_footer".localized) : nil
+        ) {
+            // Create folder button
+            createFolderButton
+            
+            if !folders.isEmpty {
+                // Folders list
+                ForEach(folders) { folder in
+                    if isFromSettings {
+                        folderRow(folder)
+                    } else {
+                        selectionFolderRow(folder: folder)
+                    }
+                }
+                .onMove(perform: moveFolders)
             }
         }
     }
     
-    // MARK: - Row Views
-    
+    // MARK: - Create Folder Button
     @ViewBuilder
-    private func settingsFolderRow(folder: HabitFolder) -> some View {
-        if isEditMode {
-            // Edit mode - simple row for reordering/deleting
+    private var createFolderButton: some View {
+        Button {
+            isShowingNewFolderSheet = true
+        } label: {
             HStack {
-                if let iconName = folder.iconName {
-                    Image(systemName: iconName)
-                        .font(.title2)
-                        .foregroundStyle(folder.color.color)
-                        .frame(width: 30, height: 30)
-                }
+                Image(systemName: "plus")
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(folder.name)
-                        .font(.headline)
-                        .lineLimit(1)
-                    
-                    Text("habits_count".localized(with: folder.habitsCount))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                Text("create_folder".localized)
+                    .font(.headline)
                 
                 Spacer()
             }
-        } else {
-            // Normal mode - tappable row
-            Button {
+        }
+    }
+    
+    // MARK: - Folder Row
+    @ViewBuilder
+    private func folderRow(_ folder: HabitFolder) -> some View {
+        Button {
+            // В edit mode не открываем редактирование
+            if editMode?.wrappedValue != .active {
                 folderToEdit = folder
-            } label: {
-                HStack {
-                    if let iconName = folder.iconName {
-                        Image(systemName: iconName)
-                            .font(.title2)
-                            .foregroundStyle(folder.color.color)
-                            .frame(width: 30, height: 30)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(folder.name)
-                            .font(.headline)
-                            .lineLimit(1)
-                        
-                        Text("habits_count".localized(with: folder.habitsCount))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    Spacer()
-                    
+            }
+        } label: {
+            HStack {
+                Text(folder.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                
+                Spacer()
+                
+                // Убираем chevron в edit mode
+                if editMode?.wrappedValue != .active {
                     Image(systemName: "chevron.right")
+                        .foregroundStyle(Color(.systemGray2))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
             }
-            .buttonStyle(.plain)
         }
+        .buttonStyle(.borderless)
     }
     
     @ViewBuilder
@@ -234,23 +185,10 @@ struct UnifiedFolderPickerView: View {
             toggleFolderSelection(folder)
         } label: {
             HStack {
-                if let iconName = folder.iconName {
-                    Image(systemName: iconName)
-                        .font(.title2)
-                        .foregroundStyle(folder.color.color)
-                        .frame(width: 30, height: 30)
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(folder.name)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                    
-                    Text("habits_count".localized(with: folder.habitsCount))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                Text(folder.name)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
                 
                 Spacer()
                 
@@ -261,7 +199,30 @@ struct UnifiedFolderPickerView: View {
                 }
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.borderless)
+    }
+    
+    // MARK: - Bottom Toolbar
+    @ViewBuilder
+    private var bottomDeleteToolbar: some View {
+        HStack {
+            Text("items_selected".localized(with: selectedForDeletion.count))
+                .foregroundStyle(.secondary)
+            
+            Spacer()
+            
+            Button("delete".localized) {
+                isDeleteSelectedAlertPresented = true
+            }
+            .foregroundStyle(.red)
+        }
+        .padding()
+        .background(.regularMaterial, in: Rectangle())
+    }
+    
+    // MARK: - Computed Properties
+    private var shouldShowEditFooter: Bool {
+        return isFromSettings && !folders.isEmpty
     }
     
     // MARK: - Helper Methods
@@ -275,11 +236,29 @@ struct UnifiedFolderPickerView: View {
         HapticManager.shared.playSelection()
     }
     
+    private func deleteSelectedFolders() {
+        let foldersToDelete = folders.filter { selectedForDeletion.contains($0.id) }
+        
+        for folder in foldersToDelete {
+            if let habits = folder.habits {
+                for habit in habits {
+                    habit.removeFromFolder(folder)
+                }
+            }
+            modelContext.delete(folder)
+        }
+        
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.play(.error)
+        
+        selectedForDeletion.removeAll()
+    }
+    
     private func moveFolders(from source: IndexSet, to destination: Int) {
         var foldersArray = Array(folders)
         foldersArray.move(fromOffsets: source, toOffset: destination)
         
-        // Update display order
         for (index, folder) in foldersArray.enumerated() {
             folder.displayOrder = index
         }
@@ -287,30 +266,5 @@ struct UnifiedFolderPickerView: View {
         try? modelContext.save()
         habitsUpdateService.triggerUpdate()
         HapticManager.shared.playSelection()
-    }
-    
-    private func deleteFolders(at offsets: IndexSet) {
-        for index in offsets {
-            let folder = folders[index]
-            folderToDelete = folder
-            isDeleteAlertPresented = true
-            break // Handle one at a time for confirmation
-        }
-    }
-    
-    private func deleteFolder(_ folder: HabitFolder) {
-        // Move all habits from this folder to no folder
-        if let habits = folder.habits {
-            for habit in habits {
-                habit.removeFromFolder(folder)
-            }
-        }
-        
-        // Delete the folder
-        modelContext.delete(folder)
-        
-        try? modelContext.save()
-        habitsUpdateService.triggerUpdate()
-        HapticManager.shared.play(.error)
     }
 }

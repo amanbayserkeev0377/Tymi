@@ -226,6 +226,7 @@ struct HomeView: View {
     }
     
     // MARK: - Folder Picker Section
+    // MARK: - Folder Picker Section
     private var folderPickerSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -252,33 +253,27 @@ struct HomeView: View {
                 }
                 .buttonStyle(.plain)
                 
-                // Folder buttons
+                // Folder buttons - только название, без иконок и цветов
                 ForEach(allFolders) { folder in
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             selectedFolder = selectedFolder?.uuid == folder.uuid ? nil : folder
                         }
                     } label: {
-                        HStack(spacing: 4) {
-                            if let iconName = folder.iconName {
-                                Image(systemName: iconName)
-                                    .font(.caption)
-                            }
-                            Text(folder.name)
-                        }
-                        .font(.subheadline)
-                        .fontWeight(selectedFolder?.uuid == folder.uuid ? .semibold : .regular)
-                        .foregroundStyle(selectedFolder?.uuid == folder.uuid ? .primary : .secondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            Capsule()
-                                .fill(selectedFolder?.uuid == folder.uuid ? folder.color.color.opacity(0.1) : Color.clear)
-                        )
-                        .overlay(
-                            Capsule()
-                                .stroke(selectedFolder?.uuid == folder.uuid ? folder.color.color.opacity(0.3) : Color.clear, lineWidth: 1)
-                        )
+                        Text(folder.name)
+                            .font(.subheadline)
+                            .fontWeight(selectedFolder?.uuid == folder.uuid ? .semibold : .regular)
+                            .foregroundStyle(selectedFolder?.uuid == folder.uuid ? .primary : .secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule()
+                                    .fill(selectedFolder?.uuid == folder.uuid ? Color.primary.opacity(0.1) : Color.clear)
+                            )
+                            .overlay(
+                                Capsule()
+                                    .stroke(selectedFolder?.uuid == folder.uuid ? Color.primary.opacity(0.3) : Color.clear, lineWidth: 1)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -372,10 +367,7 @@ struct HomeView: View {
                                     moveHabitToFolders(habit, folders: Array(currentFolders))
                                 } label: {
                                     HStack {
-                                        if let iconName = folder.iconName {
-                                            Image(systemName: iconName)
-                                        }
-                                        Text(folder.name)
+                                        Text(folder.name) // убрали иконку
                                         Spacer()
                                         if habit.belongsToFolder(folder) {
                                             Image(systemName: "checkmark")
