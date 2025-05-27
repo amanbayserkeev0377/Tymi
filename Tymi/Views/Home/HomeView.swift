@@ -123,26 +123,9 @@ struct HomeView: View {
                 }
             }
         }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(formattedNavigationTitle(for: selectedDate))
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                HStack {
-                    Text(formattedNavigationTitle(for: selectedDate))
-                        .font(.headline.bold())
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    
-                    // Folder indicator if selected
-                    if let selectedFolder = selectedFolder {
-                        Text("• \(selectedFolder.name)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-            }
-            
             ToolbarItem(placement: .topBarTrailing) {
                 if !Calendar.current.isDateInToday(selectedDate) {
                     Button(action: {
@@ -197,6 +180,7 @@ struct HomeView: View {
                     }
                 )
             }
+            .presentationDetents([.fraction(0.7)])
             .presentationDragIndicator(.visible)
             .presentationCornerRadius(30)
         }
@@ -226,59 +210,103 @@ struct HomeView: View {
     }
     
     // MARK: - Folder Picker Section
-    // MARK: - Folder Picker Section
     private var folderPickerSection: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                // "All" button
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        selectedFolder = nil
-                    }
-                } label: {
-                    Text("all".localized)
-                        .font(.subheadline)
-                        .fontWeight(selectedFolder == nil ? .semibold : .regular)
-                        .foregroundStyle(selectedFolder == nil ? .primary : .secondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            Capsule()
-                                .fill(selectedFolder == nil ? Color.primary.opacity(0.1) : Color.clear)
-                        )
-                        .overlay(
-                            Capsule()
-                                .stroke(selectedFolder == nil ? Color.primary.opacity(0.3) : Color.clear, lineWidth: 1)
-                        )
-                }
-                .buttonStyle(.plain)
-                
-                // Folder buttons - только название, без иконок и цветов
-                ForEach(allFolders) { folder in
+        VStack(spacing: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 24) {
+                    // "All" button
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            selectedFolder = selectedFolder?.uuid == folder.uuid ? nil : folder
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            selectedFolder = nil
                         }
                     } label: {
-                        Text(folder.name)
+                        Text("all".localized)
                             .font(.subheadline)
-                            .fontWeight(selectedFolder?.uuid == folder.uuid ? .semibold : .regular)
-                            .foregroundStyle(selectedFolder?.uuid == folder.uuid ? .primary : .secondary)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                Capsule()
-                                    .fill(selectedFolder?.uuid == folder.uuid ? Color.primary.opacity(0.1) : Color.clear)
-                            )
-                            .overlay(
-                                Capsule()
-                                    .stroke(selectedFolder?.uuid == folder.uuid ? Color.primary.opacity(0.3) : Color.clear, lineWidth: 1)
-                            )
+                            .fontWeight(selectedFolder == nil ? .semibold : .medium)
+                            .foregroundStyle(selectedFolder == nil ? .primary : .secondary)
+                            .padding(.vertical, 12)
                     }
                     .buttonStyle(.plain)
+                    .background(
+                        // Невидимый геометрический маркер для "All"
+                        GeometryReader { geometry in
+                            Color.clear
+                                .preference(key: TabPreferenceKey.self,
+                                          value: selectedFolder == nil ?
+                                            [TabPreference(id: "all", bounds: geometry.frame(in: .named("tabContainer")))] :
+                                            [])
+                        }
+                    )
+                    
+                    // Folder buttons
+                    ForEach(allFolders) { folder in
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedFolder = selectedFolder?.uuid == folder.uuid ? nil : folder
+                            }
+                        } label: {
+                            Text(folder.name)
+                                .font(.subheadline)
+                                .fontWeight(selectedFolder?.uuid == folder.uuid ? .semibold : .medium)
+                                .foregroundStyle(selectedFolder?.uuid == folder.uuid ? .primary : .secondary)
+                                .padding(.vertical, 12)
+                        }
+                        .buttonStyle(.plain)
+                        .background(
+                            // Невидимый геометрический маркер для каждой папки
+                            GeometryReader { geometry in
+                                Color.clear
+                                    .preference(key: TabPreferenceKey.self,
+                                              value: selectedFolder?.uuid == folder.uuid ?
+                                                [TabPreference(id: folder.id, bounds: geometry.frame(in: .named("tabContainer")))] :
+                                                [])
+                            }
+                        )
+                    }
                 }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
             }
-            .padding(.horizontal, 4)
+            .coordinateSpace(name: "tabContainer")
+            
+            ZStack(alignment: .leading) {
+                // Фоновый divider
+                Divider()
+                    .opacity(0.1)
+                
+                // Скользящее подчеркивание
+                Rectangle()
+                    .fill(Color.primary)
+                    .frame(width: activeTabWidth, height: 2)
+                    .offset(x: activeTabOffset)
+                    .animation(.easeInOut(duration: 0.3), value: activeTabOffset)
+                    .animation(.easeInOut(duration: 0.3), value: activeTabWidth)
+            }
+        }
+        .onPreferenceChange(TabPreferenceKey.self) { preferences in
+            // Находим активную вкладку и обновляем позицию подчеркивания
+            if let activeTab = preferences.first(where: { !$0.id.isEmpty }) {
+                activeTabOffset = activeTab.bounds.minX
+                activeTabWidth = activeTab.bounds.width
+            }
+        }
+    }
+    
+    // MARK: - Состояние для скользящего подчеркивания
+    @State private var activeTabOffset: CGFloat = 0
+    @State private var activeTabWidth: CGFloat = 0
+
+    // MARK: - Preference Key для отслеживания позиций табов
+    struct TabPreference: Equatable {
+        let id: String
+        let bounds: CGRect
+    }
+
+    struct TabPreferenceKey: PreferenceKey {
+        static var defaultValue: [TabPreference] = []
+        
+        static func reduce(value: inout [TabPreference], nextValue: () -> [TabPreference]) {
+            value.append(contentsOf: nextValue())
         }
     }
     
@@ -286,7 +314,7 @@ struct HomeView: View {
     private func habitList(actionService: HabitActionService) -> some View {
         List {
             ForEach(activeHabitsForDate) { habit in
-                HabitRowNative(habit: habit, date: selectedDate) {
+                HabitRowView(habit: habit, date: selectedDate) {
                     selectedHabit = habit
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
@@ -302,7 +330,24 @@ struct HomeView: View {
                     .disabled(habit.isCompletedForDate(selectedDate))
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    // Pin/Unpin (blue)
+                    // Delete
+                    Button(role: .destructive) {
+                        habitForProgress = habit
+                        alertState.isDeleteAlertPresented = true
+                    } label: {
+                        Label("delete".localized, systemImage: "trash")
+                    }
+                    .tint(.red)
+                    
+                    // Archive
+                    Button {
+                        archiveHabit(habit)
+                    } label: {
+                        Label("archive".localized, systemImage: "archivebox")
+                    }
+                    .tint(.gray)
+                    
+                    // Pin/Unpin
                     Button {
                         pinHabit(habit)
                     } label: {
@@ -311,23 +356,7 @@ struct HomeView: View {
                             systemImage: habit.isPinned ? "pin.slash" : "pin"
                         )
                     }
-                    .tint(.blue)
-                    
-                    // Archive (orange)
-                    Button {
-                        archiveHabit(habit)
-                    } label: {
-                        Label("archive".localized, systemImage: "archivebox")
-                    }
                     .tint(.orange)
-                    
-                    // Delete (red)
-                    Button(role: .destructive) {
-                        habitForProgress = habit
-                        alertState.isDeleteAlertPresented = true
-                    } label: {
-                        Label("delete".localized, systemImage: "trash")
-                    }
                 }
                 .contextMenu {
                     // Complete
@@ -367,7 +396,7 @@ struct HomeView: View {
                                     moveHabitToFolders(habit, folders: Array(currentFolders))
                                 } label: {
                                     HStack {
-                                        Text(folder.name) // убрали иконку
+                                        Text(folder.name)
                                         Spacer()
                                         if habit.belongsToFolder(folder) {
                                             Image(systemName: "checkmark")
@@ -379,23 +408,6 @@ struct HomeView: View {
                             Label("move_to_folder".localized, systemImage: "folder")
                         }
                     }
-                    
-                    // Statistics
-                    Button {
-                        selectedHabitForStats = habit
-                    } label: {
-                        Label("statistics".localized, systemImage: "chart.line.text.clipboard")
-                    }
-                    
-                    // Edit
-                    Button {
-                        habitToEdit = habit
-                    } label: {
-                        Label("edit".localized, systemImage: "pencil")
-                    }
-                    
-                    Divider()
-                    
                     // Pin/Unpin
                     Button {
                         pinHabit(habit)
@@ -404,6 +416,13 @@ struct HomeView: View {
                             habit.isPinned ? "unpin".localized : "pin".localized,
                             systemImage: habit.isPinned ? "pin.slash" : "pin"
                         )
+                    }
+                    
+                    // Edit
+                    Button {
+                        habitToEdit = habit
+                    } label: {
+                        Label("edit".localized, systemImage: "pencil")
                     }
                     
                     // Archive
@@ -422,6 +441,7 @@ struct HomeView: View {
                     } label: {
                         Label("delete".localized, systemImage: "trash")
                     }
+                    .tint(.red)
                 }
             }
             .onMove(perform: moveHabits) // Add reorder functionality
@@ -440,13 +460,13 @@ struct HomeView: View {
     
     private func formattedNavigationTitle(for date: Date) -> String {
         if isToday(date) {
-            return "today".localized.uppercased()
+            return "today".localized.capitalized
         } else if isYesterday(date) {
-            return "yesterday".localized.uppercased()
+            return "yesterday".localized.capitalized
         } else {
             let formatter = DateFormatter()
             formatter.dateFormat = "EEEE, d MMM"
-            return formatter.string(from: date).uppercased()
+            return formatter.string(from: date).capitalized
         }
     }
     

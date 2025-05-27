@@ -3,32 +3,23 @@ import SwiftData
 
 struct FolderSection: View {
     @Binding var selectedFolders: Set<HabitFolder>
-    let allFolders: [HabitFolder]
     
     var body: some View {
         NavigationLink {
-            UnifiedFolderPickerView(selectedFolders: $selectedFolders)
+            FolderManagementView(mode: .selection(binding: $selectedFolders))
         } label: {
             HStack {
-                Label {
-                    Text("folders".localized)
-                } icon: {
-                    Image(systemName: "folder")
-                }
+                Label("folders".localized, systemImage: "folder")
                 
                 Spacer()
                 
-                VStack(alignment: .trailing, spacing: 2) {
-                    if selectedFolders.isEmpty {
-                        Text("no_folders_selected".localized)
-                            .foregroundStyle(.secondary)
-                    } else if selectedFolders.count == 1 {
-                        Text(selectedFolders.first!.name)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("folders_count_selected".localized(with: selectedFolders.count))
-                            .foregroundStyle(.secondary)
-                    }
+                if selectedFolders.isEmpty {
+                    Text("folders_none_selected".localized)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(selectedFolders.map { $0.name }.joined(separator: ", "))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.trailing)
                 }
             }
         }

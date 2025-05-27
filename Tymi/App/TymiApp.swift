@@ -46,35 +46,55 @@ struct TymiApp: App {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .background:
-                // Сохраняем данные при уходе в фон для лучшей синхронизации
-                do {
-                    try container.mainContext.save()
-                    print("✅ Data saved on background")
-                } catch {
-                    print("❌ Failed to save on background: \(error)")
-                }
-                
-                // Сохраняем данные из сервисов
-                Task {
-                    HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
-                    HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
-                }
+                handleAppBackground()
                 
             case .active:
-                // При возвращении обновляем UI для получения изменений с других устройств
-                habitsUpdateService.triggerUpdate()
-                print("✅ App became active, triggering UI update")
+                handleAppActive()
                 
             case .inactive:
-                // Сохраняем при неактивном состоянии
-                Task {
-                    HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
-                    HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
-                }
+                handleAppInactive()
                 
             @unknown default:
                 break
             }
+        }
+    }
+    
+    // MARK: - App Lifecycle Methods
+    
+    private func handleAppBackground() {
+        // ИСПРАВЛЕНО: Останавливаем все таймеры перед сохранением
+        HabitTimerService.shared.stopAllTimers()
+        
+        // Сохраняем данные при уходе в фон для лучшей синхронизации
+        do {
+            try container.mainContext.save()
+            print("✅ Data saved on background")
+        } catch {
+            print("❌ Failed to save on background: \(error)")
+        }
+        
+        // Сохраняем данные из сервисов
+        Task {
+            HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+            HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+        }
+    }
+    
+    private func handleAppActive() {
+        // При возвращении обновляем UI для получения изменений с других устройств
+        habitsUpdateService.triggerUpdate()
+        print("✅ App became active, triggering UI update")
+    }
+    
+    private func handleAppInactive() {
+        // ИСПРАВЛЕНО: Также останавливаем таймеры при переходе в неактивное состояние
+        HabitTimerService.shared.stopAllTimers()
+        
+        // Сохраняем при неактивном состоянии
+        Task {
+            HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+            HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
         }
     }
 }

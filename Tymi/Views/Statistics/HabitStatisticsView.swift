@@ -14,7 +14,7 @@ struct HabitStatisticsView: View {
     @State private var detailViewModel: HabitDetailViewModel?
     @State private var showingResetAlert = false
     @State private var alertState = AlertState()
-    @State private var updateCounter = 0 // Счётчик обновлений для UI
+    @State private var updateCounter = 0 // Оставляем для календаря
     
     // MARK: - Initialization
     init(habit: Habit) {
@@ -89,6 +89,7 @@ struct HabitStatisticsView: View {
                 } label: {
                     Label("reset_all_history".localized,
                           systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                        .tint(.primary)
                 }
                 
                 Button(role: .destructive) {
@@ -107,14 +108,14 @@ struct HabitStatisticsView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                XmarkView {
+                Button("done".localized) {
                     dismiss()
                 }
             }
         }
+        // ИСПРАВЛЕНО: Просто обновляем статистику, не пересоздаем ViewModel
         .onChange(of: updateCounter) { _, _ in
-            // Пересоздаем viewModel для гарантированного обновления
-            viewModel = HabitStatsViewModel(habit: habit)
+            viewModel.refresh()
         }
         // Обработчики успеха/ошибки для хаптической обратной связи
         .onChange(of: alertState.successFeedbackTrigger) { _, newValue in
@@ -210,13 +211,13 @@ struct HabitStatisticsView: View {
         
         tempViewModel.completeHabit()
         tempViewModel.saveIfNeeded()
-        viewModel.calculateStats()
+        
+        // ИСПРАВЛЕНО: Просто обновляем статистику
+        viewModel.refresh()
         
         habitsUpdateService.triggerUpdate()
         
         HapticManager.shared.play(.success)
-        
-        viewModel = HabitStatsViewModel(habit: habit)
         
         updateCounter += 1
     }
@@ -242,13 +243,11 @@ struct HabitStatisticsView: View {
         tempViewModel.handleCountInput()
         tempViewModel.saveIfNeeded()
         
-        // Обновляем статистику
-        viewModel.calculateStats()
+        // ИСПРАВЛЕНО: Просто обновляем статистику
+        viewModel.refresh()
         
         // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()
-        
-        viewModel = HabitStatsViewModel(habit: habit)
         
         // Принудительно обновляем UI календаря
         updateCounter += 1
@@ -283,13 +282,11 @@ struct HabitStatisticsView: View {
         tempViewModel.handleTimeInput()
         tempViewModel.saveIfNeeded()
         
-        // Обновляем статистику
-        viewModel.calculateStats()
+        // ИСПРАВЛЕНО: Просто обновляем статистику
+        viewModel.refresh()
         
         // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()
-        
-        viewModel = HabitStatsViewModel(habit: habit)
         
         // Принудительно обновляем UI календаря
         updateCounter += 1
@@ -312,16 +309,14 @@ struct HabitStatisticsView: View {
         tempViewModel.resetProgress()
         tempViewModel.saveIfNeeded()
         
-        // Обновляем статистику
-        viewModel.calculateStats()
+        // ИСПРАВЛЕНО: Просто обновляем статистику
+        viewModel.refresh()
         
         // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()
         
         // Воспроизводим хаптик ошибки, как это делается в HabitDetailView
         HapticManager.shared.play(.error)
-        
-        viewModel = HabitStatsViewModel(habit: habit)
         
         // Принудительно обновляем UI календаря
         updateCounter += 1
@@ -341,8 +336,8 @@ struct HabitStatisticsView: View {
         // Сохраняем изменения
         try? modelContext.save()
         
-        // Пересоздаем viewModel для гарантированного обновления
-        viewModel = HabitStatsViewModel(habit: habit)
+        // ИСПРАВЛЕНО: Просто обновляем статистику
+        viewModel.refresh()
         
         // Триггерим обновление UI через сервис
         habitsUpdateService.triggerUpdate()

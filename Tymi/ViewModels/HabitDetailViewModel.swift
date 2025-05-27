@@ -118,10 +118,12 @@ final class HabitDetailViewModel {
     private func setupObservers() {
         cancellables?.cancel()
         cancellables = Task { [weak self, date] in
-            guard let self else { return }
             let observedDate = date
             
             while !Task.isCancelled {
+
+                guard let self = self else { break }
+                
                 if self.date == observedDate && self.habit.type == .time && self.isTimerRunning {
                     let newProgress = self.progressService.getCurrentProgress(for: self.habitId)
                     if self.currentProgress != newProgress {
@@ -502,6 +504,19 @@ final class HabitDetailViewModel {
         if hasChanges || habitProgress.isDirty {
             saveProgress()
         }
+    }
+    
+    func forceCleanup() {
+        cancellables?.cancel()
+        cancellables = nil
+        onHabitDeleted = nil
+        
+        if isTimerRunning {
+            progressService.stopTimer(for: habitId)
+            isTimerRunning = false
+        }
+        
+        saveIfNeeded()
     }
     
     func cleanup(stopTimer: Bool = true) {

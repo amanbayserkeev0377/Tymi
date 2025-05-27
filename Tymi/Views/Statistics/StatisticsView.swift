@@ -47,23 +47,26 @@ struct StatisticsView: View {
                                             Image(iconName)
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
-                                                .frame(width: 30, height: 30)
-                                                .foregroundStyle(.primary)
+                                                .frame(width: 28, height: 28)
+                                                .foregroundStyle(habit.iconColor.color)
                                         } else {
                                             // SF Symbol
                                             Image(systemName: iconName)
-                                                .foregroundStyle(.primary)
-                                                .frame(width: 30)
+                                                .font(.system(size: 24))
+                                                .frame(width: 24, height: 24)
+                                                .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
                                         }
                                     }
                                     
                                     Text(habit.title)
+                                        .tint(.primary)
                                     
                                     Spacer()
                                     
                                     Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(Color(uiColor: .systemGray3))
+                                        .font(.footnote)
+                                        .fontWeight(.bold)
                                 }
                             }
                         }

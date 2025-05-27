@@ -37,7 +37,7 @@ struct ProgressControlSection: View {
                     .frame(minWidth: 44, minHeight: 44)
                     .background(
                         Circle()
-                            .fill(Color.gray.opacity(0.1))
+                            .fill(AppColorManager.shared.selectedColor.color.opacity(0.1))
                     )
             }
             .decreaseHaptic(trigger: decrementTrigger)
@@ -66,7 +66,7 @@ struct ProgressControlSection: View {
                     .frame(minWidth: 44, minHeight: 44)
                     .background(
                         Circle()
-                            .fill(Color.gray.opacity(0.1))
+                            .fill(AppColorManager.shared.selectedColor.color.opacity(0.1))
                     )
             }
             .increaseHaptic(trigger: incrementTrigger)

@@ -4,47 +4,71 @@ import SwiftData
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system
-
+    
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    // Archived habits section
+                // Appearance
+                Section(
+                    header: Text("settings_header_appearance".localized),
+                    footer: Text("settings_footer_language")
+                ) {
+                    AppColorSection()
+                    AppIconSection()
+                    AppearanceSection()
+                    WeekStartSection()
+                    LanguageSection()
+                }
+                // Data
+                Section(header: Text("settings_header_data".localized)) {
+                    // Archived habits
                     NavigationLink {
                         ArchivedHabitsView()
                     } label: {
                         HStack {
-                            Label("archived_habits".localized, systemImage: "archivebox")
+                            Label(
+                                title: { Text("archived_habits".localized) },
+                                icon: {
+                                    Image(systemName: "archivebox.fill")
+                                        .withIOSSettingsIcon(lightColors: [
+                                            Color(#colorLiteral(red: 0.7333333333, green: 0.7333333333, blue: 0.7607843137, alpha: 1)),
+                                            Color(#colorLiteral(red: 0.3019607843, green: 0.3019607843, blue: 0.3254901961, alpha: 1))
+                                        ])
+                                }
+                            )
                             Spacer()
                             ArchivedHabitsCountBadge()
                         }
                     }
-                    
-                    // Folders management
+                    // Folders
                     NavigationLink {
-                        UnifiedFolderPickerView()
+                        FolderManagementView(mode: .management, )
                     } label: {
-                        Label("folders".localized, systemImage: "folder")
+                        Label(
+                            title: { Text("folders".localized) },
+                            icon: {
+                                Image(systemName: "folder.fill")
+                                    .withIOSSettingsIcon(lightColors: [
+                                        Color(#colorLiteral(red: 0.4, green: 0.7843137255, blue: 1, alpha: 1)),
+                                        Color(#colorLiteral(red: 0.0, green: 0.4784313725, blue: 0.8, alpha: 1))
+                                    ])
+                            }
+                        )
                     }
-                    
-                    AppIconSection()
-                    AppearanceSection()
-                    AppColorSection()
-                    WeekStartSection()
-                    LanguageSection()
+                    //                    NavigationLink {
+                    //                        CloudKitSyncView()
+                    //                    } label: {
+                    //                        Label("icloud_sync".localized, systemImage: "icloud")
+                    //                    }
                 }
                 
-                Section {
-//                    NavigationLink {
-//                        CloudKitSyncView()
-//                    } label: {
-//                        Label("icloud_sync".localized, systemImage: "icloud")
-//                    }
-                    
+                // Sounds & Feedback
+                Section(header: Text("settings_header_sounds_feedback".localized)) {
                     NotificationsSection()
                     HapticsSection()
                 }
                 
+                // Legal
                 AboutSection()
                 
                 // Tymi - version ...

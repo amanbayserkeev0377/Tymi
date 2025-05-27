@@ -5,6 +5,7 @@ struct ArchivedHabitsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
+    @Environment(\.editMode) private var editMode
     @ObservedObject private var colorManager = AppColorManager.shared
     
     // Query only archived habits
@@ -16,80 +17,166 @@ struct ArchivedHabitsView: View {
     )
     private var archivedHabits: [Habit]
     
-    @State private var habitToDelete: Habit? = nil
-    @State private var isDeleteAlertPresented = false
+    @State private var selectedForDeletion: Set<Habit.ID> = []
+    @State private var isDeleteSelectedAlertPresented = false
+    @State private var selectedHabitForStats: Habit? = nil
     
     var body: some View {
-        List {
-            if archivedHabits.isEmpty {
-                ContentUnavailableView(
-                    "no_archived_habits".localized,
-                    systemImage: "archivebox",
-                    description: Text("archived_habits_empty_description".localized)
-                )
-                .listRowBackground(Color.clear)
+        Group {
+            if editMode?.wrappedValue == .active {
+                List(selection: $selectedForDeletion) {
+                    listContent
+                }
             } else {
-                Section {
-                    ForEach(archivedHabits) { habit in
-                        ArchivedHabitRow(habit: habit) {
-                            unarchiveHabit(habit)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            // Unarchive action
-                            Button {
-                                unarchiveHabit(habit)
-                            } label: {
-                                Label("unarchive".localized, systemImage: "tray.and.arrow.up")
-                            }
-                            .tint(.blue)
-                            
-                            // Delete permanently action
-                            Button(role: .destructive) {
-                                habitToDelete = habit
-                                isDeleteAlertPresented = true
-                            } label: {
-                                Label("delete_permanently".localized, systemImage: "trash")
-                            }
-                        }
-                        .contextMenu {
-                            Button {
-                                unarchiveHabit(habit)
-                            } label: {
-                                Label("unarchive".localized, systemImage: "tray.and.arrow.up")
-                            }
-                            
-                            Button(role: .destructive) {
-                                habitToDelete = habit
-                                isDeleteAlertPresented = true
-                            } label: {
-                                Label("delete_permanently".localized, systemImage: "trash")
+                List {
+                    listContent
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(navigationTitle)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            if !archivedHabits.isEmpty {
+                ToolbarItem(placement: .primaryAction) {
+                    EditButton()
+                }
+            }
+            
+            if !selectedForDeletion.isEmpty {
+                ToolbarItem(placement: .bottomBar) {
+                    HStack {
+                        // Unarchive button
+                        Button {
+                            unarchiveSelectedHabits()
+                        } label: {
+                            HStack {
+                                Text("unarchive".localized)
+                                Image(systemName: "tray.and.arrow.up")
                             }
                         }
-                    }
-                } footer: {
-                    if !archivedHabits.isEmpty {
-                        Text("archived_habits_footer".localized)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                        .tint(.cyan)
+                        
+                        Spacer()
+                        
+                        // Delete button
+                        Button {
+                            isDeleteSelectedAlertPresented = true
+                        } label: {
+                            HStack {
+                                Text("delete".localized)
+                                Image(systemName: "trash")
+                            }
+                        }
+                        .tint(.red)
                     }
                 }
             }
         }
-        .navigationTitle("archived_habits".localized)
-        .navigationBarTitleDisplayMode(.large)
-        .alert("delete_permanently_confirmation".localized, isPresented: $isDeleteAlertPresented) {
-            Button("cancel".localized, role: .cancel) {
-                habitToDelete = nil
+        .onChange(of: editMode?.wrappedValue) { _, newValue in
+            if newValue != .active {
+                selectedForDeletion.removeAll()
             }
+        }
+        .alert("delete_permanently_confirmation".localized, isPresented: $isDeleteSelectedAlertPresented) {
+            Button("cancel".localized, role: .cancel) {}
             Button("delete_permanently".localized, role: .destructive) {
-                if let habit = habitToDelete {
-                    deleteHabitPermanently(habit)
-                }
-                habitToDelete = nil
+                deleteSelectedHabits()
             }
         } message: {
             Text("delete_permanently_description".localized)
         }
+        .sheet(item: $selectedHabitForStats) { habit in
+            NavigationStack {
+                HabitStatisticsView(habit: habit)
+            }
+            .presentationDragIndicator(.visible)
+        }
+    }
+    
+    // MARK: - Navigation Title
+    private var navigationTitle: String {
+        if editMode?.wrappedValue == .active && !selectedForDeletion.isEmpty {
+            return "general_items_selected".localized(with: selectedForDeletion.count)
+        } else {
+            return "archived_habits".localized
+        }
+    }
+    
+    // MARK: - List Content
+    @ViewBuilder
+    private var listContent: some View {
+        if archivedHabits.isEmpty {
+            ContentUnavailableView(
+                "no_archived_habits".localized,
+                systemImage: "archivebox",
+                description: Text("archived_habits_empty_description".localized)
+            )
+            .listRowBackground(Color.clear)
+        } else {
+            Section {
+                ForEach(archivedHabits) { habit in
+                    archivedHabitRow(habit)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Archived Habit Row
+    @ViewBuilder
+    private func archivedHabitRow(_ habit: Habit) -> some View {
+        Button {
+            // Только если НЕ в edit mode - открываем статистику
+            if editMode?.wrappedValue != .active {
+                selectedHabitForStats = habit
+            }
+        } label: {
+            HStack {
+                // Icon слева
+                let iconName = habit.iconName ?? "checkmark"
+                
+                if iconName.hasPrefix("icon_") {
+                    // Кастомная иконка
+                    Image(iconName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 28, height: 28)
+                        .foregroundStyle(habit.iconColor.color)
+                } else {
+                    // SF Symbol
+                    Image(systemName: iconName)
+                        .font(.title3)
+                        .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
+                        .frame(width: 28, height: 28)
+                }
+                
+                // Название привычки (одна строка)
+                Text(habit.title)
+                    .font(.body)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+                    .tint(.primary)
+                
+                Spacer()
+                
+                // Unarchive button справа (только если НЕ в edit mode)
+                if editMode?.wrappedValue != .active {
+                    Button(action: {
+                        unarchiveHabit(habit)
+                    }) {
+                        Image(systemName: "tray.and.arrow.up")
+                            .font(.system(size: 16))
+                            .frame(width: 32, height: 32)
+                            .background(
+                                Circle()
+                                    .fill(.primary.opacity(0.1))
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.vertical, 8)
     }
     
     // MARK: - Helper Methods
@@ -101,87 +188,36 @@ struct ArchivedHabitsView: View {
         HapticManager.shared.play(.success)
     }
     
-    private func deleteHabitPermanently(_ habit: Habit) {
-        // Cancel notifications
-        NotificationManager.shared.cancelNotifications(for: habit)
+    private func unarchiveSelectedHabits() {
+        let habitsToUnarchive = archivedHabits.filter { selectedForDeletion.contains($0.id) }
         
-        // Delete from model context
-        modelContext.delete(habit)
+        for habit in habitsToUnarchive {
+            habit.isArchived = false
+        }
+        
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.play(.success)
+        
+        selectedForDeletion.removeAll()
+    }
+    
+    private func deleteSelectedHabits() {
+        let habitsToDelete = archivedHabits.filter { selectedForDeletion.contains($0.id) }
+        
+        for habit in habitsToDelete {
+            // Cancel notifications
+            NotificationManager.shared.cancelNotifications(for: habit)
+            
+            // Delete from model context
+            modelContext.delete(habit)
+        }
         
         try? modelContext.save()
         habitsUpdateService.triggerUpdate()
         HapticManager.shared.play(.error)
-    }
-}
-
-// MARK: - Archived Habit Row Component
-
-struct ArchivedHabitRow: View {
-    let habit: Habit
-    let onUnarchive: () -> Void
-    
-    @Environment(\.colorScheme) private var colorScheme
-    @ObservedObject private var colorManager = AppColorManager.shared
-    
-    var body: some View {
-        HStack {
-            // Icon
-            let iconName = habit.iconName ?? "checkmark"
-
-            if iconName.hasPrefix("icon_") {
-                // Кастомная иконка
-                Image(iconName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 30)
-                    .foregroundStyle(habit.iconColor.color)
-                    .padding(.trailing, 8)
-            } else {
-                // SF Symbol
-                Image(systemName: iconName)
-                    .font(.title2)
-                    .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
-                    .frame(width: 30, height: 30)
-                    .padding(.trailing, 8)
-            }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(habit.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                
-                HStack(spacing: 8) {
-                    Text("goal_format".localized(with: habit.formattedGoal))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    // Separator dot
-                    Text("•")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    // Archive date (using creation date as placeholder)
-                    Text("archived_date_format".localized(with: formattedDate(habit.createdAt)))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            
-            Spacer()
-            
-            // Unarchive button
-            Button(action: onUnarchive) {
-                Image(systemName: "tray.and.arrow.up")
-                    .font(.system(size: 16))
-                    .frame(width: 32, height: 32)
-                    .background(
-                        Circle()
-                            .fill(.primary.opacity(0.1))
-                    )
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.vertical, 4)
+        
+        selectedForDeletion.removeAll()
     }
     
     private func formattedDate(_ date: Date) -> String {

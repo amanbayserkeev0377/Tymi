@@ -18,7 +18,13 @@ struct AppearanceSection: View {
         HStack {
             Label(
                 title: { Text("appearance".localized) },
-                icon: { Image(systemName: "swirl.circle.righthalf.filled.inverse") }
+                icon: {
+                    Image(systemName: "swirl.circle.righthalf.filled.inverse")
+                        .withIOSSettingsIcon(lightColors: [
+                            Color(#colorLiteral(red: 0.4274509804, green: 0.5019607843, blue: 0.6823529412, alpha: 1)),
+                            Color(#colorLiteral(red: 0.1490196078, green: 0.2196078431, blue: 0.3568627451, alpha: 1))
+                        ])
+                }
             )
             
             Spacer()
@@ -47,7 +53,7 @@ struct AppearanceSection: View {
                     Image(systemName: "chevron.up.chevron.down")
                         .font(.footnote)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
             }
             .tint(.primary)

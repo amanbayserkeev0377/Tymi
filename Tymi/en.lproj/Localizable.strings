@@ -1,17 +1,15 @@
-// Settings - Archived habits
+/* General */
+"general_items_selected" = "%d Selected";
 
-"archive" = "Archive";
-"archived_habits" = "Archived Habits";
-"no_archived_habits" = "No Archived Habits";
-"archived_habits_empty_description" = "Archived habits will appear here";
-"unarchive" = "Unarchive";
-"delete_permanently" = "Delete Permanently";
-"delete_permanently_confirmation" = "Delete Permanently?";
-"delete_permanently_description" = "This habit and all its history will be permanently deleted. This action cannot be undone.";
-"archived_habits_footer" = "Swipe left to unarchive or delete";
-"archived_date_format" = "Archived %@";
+/* Settings header,footer */
+"settings_header_appearance" = "Appearance & Language";
+"settings_header_data" = "Data & Organization";
+"settings_header_sounds_feedback" = "Sounds & Feedback";
+"settings_header_support" = "Support & Feedback";
+"settings_header_legal" = "Legal";
+"settings_footer_language" = "You can change the app language in the system settings.";
 
-// Settings - App Icon
+/* Settings - App Icon */
 "app_icon" = "App Icon";
 "app_icon_aura_name" = "Aura";
 "app_icon_blaze_name" = "Blaze";
@@ -27,13 +25,43 @@
 "app_icon_silver_blue_name" = "Silver Blue";
 "app_icon_sunrise_name" = "Sunrise";
 
-// Settings - Appearance
+/* Settings - App Color */
+"app_color" = "App Color";
+
+/* Settings - Appearance */
 "appearance" = "Appearance";
 "appearance_dark" = "Dark";
 "appearance_light" = "Light";
 "appearance_system" = "System";
 
-// Settings - iCloud Sync
+/* Settings - Week Start */
+"week_start_day" = "Week Start";
+"week_start_system" = "System";
+
+/* Settings - Archived habits */
+"archive" = "Archive";
+"archived_habits" = "Archived Habits";
+"no_archived_habits" = "No Archived Habits";
+"archived_habits_empty_description" = "Archived habits will appear here";
+"unarchive" = "Unarchive";
+"delete_permanently" = "Delete Permanently";
+"delete_permanently_confirmation" = "Delete Permanently?";
+"delete_permanently_description" = "This habit and all its history will be permanently deleted. This action cannot be undone.";
+"archived_habits_footer" = "Swipe left to unarchive or delete";
+"archived_date_format" = "Archived %@";
+
+/* Settings & NewHabitView - Folders */
+"folders" = "Folders";
+"folders_new_folder" = "New Folder";
+"folders_edit_folder" = "Edit Folder";
+"folders_create_folder" = "Create a Folder";
+"folders_folder_name" = "Folder Name";
+"folders_edit_footer" = "Tap 'Edit' to change the order or delete folders. Folder management is also available in the Settings.";
+"folders_none_selected" = "None";
+"folders_alert_delete_folders" = "Deleting the folder will not delete your habits.";
+
+
+/* Settings - iCloud Sync */
 "icloud_sync" = "iCloud Sync";
 "icloud_sync_status" = "Sync Status";
 "icloud_sync_active" = "Active";
@@ -55,44 +83,26 @@
 "icloud_unknown_error" = "Unknown Error";
 "icloud_check_failed" = "Check Failed";
 
-// Settings - How to use
-"how_to_use" = "How to use";
-"howto_calendar_body" = "The weekly calendar at the top of the Home screen allows you to navigate between days and see your progress. Tap on any date to view and update habits for that day.";
-"howto_calendar_title" = "Using the Calendar";
-"howto_count_type_body" = "For habits with a specific number goal (e.g., drinking 8 glasses of water).";
-"howto_count_type_title" = "Count";
-"howto_create_habit_body" = "Start by creating a habit you want to track. Give it a name, set a goal, and choose a tracking type.";
-"howto_create_habit_title" = "Create Your First Habit";
-"howto_daily_tracking_body" = "Tap on a habit to record your progress. For count habits, use + or - buttons. For time habits, use the timer or manually add time.";
-"howto_daily_tracking_title" = "Daily Tracking";
-"howto_habit_types_body" = "Tymi offers two types of habits to track different activities:";
-"howto_habit_types_title" = "Choose a Habit Type";
-"howto_notifications_body" = "Don't forget your habits! Set up reminders when creating or editing a habit to get notifications at your specified times.";
-"howto_notifications_title" = "Setting Reminders";
-"howto_personalization_body" = "Customize the app appearance, set your preferred starting day of the week, and manage your habits from the Settings tab.";
-"howto_personalization_title" = "Personalize Your Experience";
-"howto_settings_title" = "Settings and Customization";
-"howto_start_body" = "Tymi helps you build and maintain habits by tracking your daily progress. Here's how to get started:";
-"howto_start_title" = "Getting Started";
-"howto_statistics_title" = "Understanding Statistics";
-"howto_stats_detail_body" = "To see detailed stats for a habit, tap on the habit and select the Statistics option. Here you'll find your performance over time.";
-"howto_stats_detail_title" = "Detailed Statistics";
-"howto_streaks_body" = "A streak is the number of consecutive days you've completed a habit. Maintain your streak by hitting your goal every day.";
-"howto_streaks_title" = "Building Streaks";
-"howto_tap_plus" = "Tap the + button in the top right corner of the Home screen.";
-"howto_time_type_body" = "For habits measured by duration (e.g., reading for 30 minutes).";
-"howto_time_type_title" = "Time";
-"howto_tip_1" = "Start with just a few habits and gradually add more as they become automatic.";
-"howto_tip_2" = "Be realistic with your goals - it's better to consistently achieve smaller goals than fail at larger ones.";
-"howto_tip_3" = "Use the statistics view to identify patterns and make adjustments to your habits.";
-"howto_tip_4" = "Even if you miss a day, don't give up! Just pick up where you left off.";
-"howto_tips_title" = "Tips for Success";
-"howto_tracking_title" = "Tracking Your Progress";
+/* Settings - Terms of Service */
+"tos_contact_body" = "If you have any questions, feel free to contact me.";
+"tos_contact_email_label" = "Email";
+"tos_contact_telegram_label" = "Telegram";
+"tos_contact_title" = "Contact Me";
+"tos_intro_body" = "This app is created for personal use to help you track your habits. By using Tymi, you agree to the following terms:";
+"tos_intro_title" = "Thank you for choosing Tymi!";
+"tos_privacy_body" = "The app does not collect or transmit personal data.";
+"tos_privacy_title" = "Privacy";
+"tos_risk_body" = "You use the app at your own risk - I am not responsible for data loss or other possible issues.";
+"tos_risk_title" = "Use at Your Own Risk";
+"tos_updates_body" = "From time to time, I may update the app and terms to make it better.";
+"tos_updates_title" = "Updates";
+"tos_warranty_body" = "The app is provided without any warranties - I try to make everything work well but cannot guarantee perfect accuracy.";
+"tos_warranty_title" = "No Warranty";
 
-// Settings - Rate App
+/* Settings - Rate App */
 "rate_app" = "Rate App";
 
-// Settings - Share App
+/* Settings - Share App */
 "share_app" = "Share App";
 
 
@@ -230,26 +240,12 @@
 "time" = "Time";
 "times" = "times";
 "today" = "Today";
-"tos_contact_body" = "If you have any questions, feel free to contact me.";
-"tos_contact_email_label" = "Email";
-"tos_contact_telegram_label" = "Telegram";
-"tos_contact_title" = "Contact Me";
-"tos_intro_body" = "This app is created for personal use to help you track your habits. By using Tymi, you agree to the following terms:";
-"tos_intro_title" = "Thank you for choosing Tymi!";
-"tos_privacy_body" = "The app does not collect or transmit personal data.";
-"tos_privacy_title" = "Privacy";
-"tos_risk_body" = "You use the app at your own risk - I am not responsible for data loss or other possible issues.";
-"tos_risk_title" = "Use at Your Own Risk";
-"tos_updates_body" = "From time to time, I may update the app and terms to make it better.";
-"tos_updates_title" = "Updates";
-"tos_warranty_body" = "The app is provided without any warranties - I try to make everything work well but cannot guarantee perfect accuracy.";
-"tos_warranty_title" = "No Warranty";
+
 "total" = "Total";
 "try_different_date" = "Try selecting a different date";
 "Tymi – %@ %@" = "Tymi – %1$@ %2$@";
 "version" = "version";
-"week_start_day" = "Week Start";
-"week_start_system" = "System";
+
 "will_repeat_weekly" = "Will repeat weekly on these days";
 "yesterday" = "Yesterday";
 

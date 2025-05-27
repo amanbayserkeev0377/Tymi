@@ -11,7 +11,7 @@ struct NameFieldSection: View {
                     .autocorrectionDisabled()
                     .focused($isFocused)
             } icon: {
-                Image(systemName: "pencil.line")
+                Image(systemName: "pencil")
             }
         }
     }

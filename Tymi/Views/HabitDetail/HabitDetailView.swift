@@ -30,38 +30,51 @@ struct HabitDetailView: View {
         ZStack {
             if let viewModel = viewModel, isContentReady {
                 habitDetailContent(viewModel: viewModel)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar { habitDetailToolbar }
+                    .onAppear {
+                        setupViewModel()
+                    }
+                    .onChange(of: date) { _, newDate in
+                        viewModel.saveIfNeeded()
+                        setupViewModel(with: newDate)
+                    }
+                    .onDisappear {
+                        if !isManuallyDismissing {
+                            viewModel.saveIfNeeded()
+                            viewModel.cleanup(stopTimer: true)
+                        } else {
+                            viewModel.forceCleanup()
+                        }
+                    }
+                    .alert("close_habit_detail".localized, isPresented: $isTimerStopAlertPresented) {
+                        Button("cancel".localized, role: .cancel) { }
+                        Button("close".localized, role: .destructive) {
+                            isManuallyDismissing = true
+                            viewModel.saveIfNeeded()
+                            viewModel.cleanup(stopTimer: true)
+                            dismiss()
+                        }
+                    }
+                    .sheet(isPresented: $isEditPresented) {
+                        NewHabitView(habit: habit)
+                    }
+                    .interactiveDismissDisabled(viewModel.isTimerRunning == true)
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                        viewModel.saveIfNeeded()
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+                        viewModel.forceCleanup()
+                    }
             } else {
-                loadingView
+                ProgressView()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar { habitDetailToolbar }
+                    .onAppear {
+                        setupViewModel()
+                    }
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar { habitDetailToolbar }
-        .onAppear {
-            setupViewModel()
-        }
-        .onChange(of: date) { _, newDate in
-            viewModel?.saveIfNeeded()
-            setupViewModel(with: newDate)
-        }
-        .onDisappear {
-            if !isManuallyDismissing {
-                viewModel?.saveIfNeeded()
-                viewModel?.cleanup(stopTimer: true)
-            }
-        }
-        .alert("close_habit_detail".localized, isPresented: $isTimerStopAlertPresented) {
-            Button("cancel".localized, role: .cancel) { }
-            Button("close".localized, role: .destructive) {
-                isManuallyDismissing = true
-                viewModel?.saveIfNeeded()
-                viewModel?.cleanup(stopTimer: true)
-                dismiss()
-            }
-        }
-        .sheet(isPresented: $isEditPresented) {
-            NewHabitView(habit: habit)
-        }
-        .interactiveDismissDisabled(viewModel?.isTimerRunning == true)
     }
     
     // MARK: - Subviews
@@ -97,10 +110,10 @@ struct HabitDetailView: View {
             actionButtonsView(viewModel: viewModel)
             
             if isSmallDevice {
-                        Spacer().frame(height: 20)
-                    } else {
-                        Spacer()
-                    }
+                Spacer().frame(height: 20)
+            } else {
+                Spacer()
+            }
         }
         .safeAreaInset(edge: .bottom) {
             completeButtonView(viewModel: viewModel)
@@ -213,7 +226,7 @@ struct HabitDetailView: View {
                 .background(
                     viewModel.isAlreadyCompleted
                     ? Color(uiColor: .systemGray)
-                    : Color.primary.opacity(0.8)
+                    : AppColorManager.shared.selectedColor.color.opacity(0.8)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
         }
@@ -223,23 +236,14 @@ struct HabitDetailView: View {
         .padding(.vertical, 8)
         .background(Color(uiColor: .systemBackground))
     }
-    
-    // Индикатор загрузки
-    private var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-            Spacer()
-        }
-    }
-    
+        
     // Toolbar
     @ToolbarContentBuilder
     private var habitDetailToolbar: some ToolbarContent {
         // Кнопка "Закрыть" только если таймер активен
         ToolbarItem(placement: .cancellationAction) {
             if viewModel?.isTimerRunning == true {
-                XmarkView {
+                Button("close".localized) {
                     isTimerStopAlertPresented = true
                 }
             }
@@ -267,6 +271,13 @@ struct HabitDetailView: View {
                     Label("edit".localized, systemImage: "pencil")
                 }
                 
+                // Кнопка архивирования
+                Button {
+                    archiveHabit()
+                } label: {
+                    Label("archive".localized, systemImage: "archivebox")
+                }
+                
                 // Кнопка удаления
                 Button(role: .destructive) {
                     viewModel?.alertState.isDeleteAlertPresented = true
@@ -281,8 +292,7 @@ struct HabitDetailView: View {
                     .frame(width: 28, height: 28)
                     .background(
                         Circle()
-                            .fill(colorScheme == .dark ? Color.black.opacity(0.2) : Color.white.opacity(0.8))
-                            .stroke(Color.primary.opacity(0.1), lineWidth: 0.5)
+                            .fill(AppColorManager.shared.selectedColor.color.opacity(0.1))
                     )
             }
         }
@@ -304,5 +314,18 @@ struct HabitDetailView: View {
         
         viewModel = vm
         isContentReady = true
+    }
+    
+    private func archiveHabit() {
+        habit.isArchived = true
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.play(.success)
+        
+        if let onDelete = onDelete {
+            onDelete()
+        } else {
+            dismiss()
+        }
     }
 }

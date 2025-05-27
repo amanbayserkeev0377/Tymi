@@ -1,14 +1,13 @@
 import SwiftUI
 
-// MARK: - Native Habit Row (простая нативная строка)
-struct HabitRowNative: View {
+struct HabitRowView: View {
     let habit: Habit
     let date: Date
     let onTap: () -> Void
     
-    private let ringSize: CGFloat = 44
-    private let lineWidth: CGFloat = 5.5
-    private let iconSize: CGFloat = 18
+    private let ringSize: CGFloat = 54
+    private let lineWidth: CGFloat = 6.5
+    private let iconSize: CGFloat = 21
     
     private var adaptedFontSize: CGFloat {
         let value = habit.formattedProgressValue(for: date)
@@ -21,35 +20,46 @@ struct HabitRowNative: View {
     }
     
     var body: some View {
-        Button(action: onTap) {
+        Button(action: {
+            HapticManager.shared.playSelection()
+            onTap()
+        }) {
             HStack(spacing: 12) {
-                // Pin indicator
-                if habit.isPinned {
-                    Image(systemName: "pin")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .frame(width: 12)
-                } else {
-                    Spacer()
-                        .frame(width: 12)
-                }
-                
-                // Icon - ИСПРАВЛЕННАЯ ВЕРСИЯ
+                // Icon - увеличенная
                 let iconName = habit.iconName ?? "checkmark"
                 
-                if iconName.hasPrefix("icon_") {
-                    // Кастомная иконка
-                    Image(iconName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 28, height: 28)
-                        .foregroundStyle(habit.iconColor.color)
-                } else {
-                    // SF Symbol
-                    Image(systemName: iconName)
-                        .font(.title3)
-                        .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
-                        .frame(width: 28, height: 28)
+                // Icon с pin overlay
+                ZStack(alignment: .topTrailing) {
+                    // Основная иконка
+                    if iconName.hasPrefix("icon_") {
+                        Image(iconName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 32, height: 32)
+                            .foregroundStyle(habit.iconColor.color)
+                            .frame(width: 52, height: 52)
+                            .background(
+                                Circle()
+                                    .fill(habit.iconColor.color.opacity(0.1))
+                            )
+                    } else {
+                        Image(systemName: iconName)
+                            .font(.system(size: 26))
+                            .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
+                            .frame(width: 52, height: 52)
+                            .background(
+                                Circle()
+                                    .fill((habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color).opacity(0.1))
+                            )
+                    }
+                    
+                    // Pin indicator как badge
+                    if habit.isPinned {
+                        Image(systemName: "pin")
+                            .font(.system(size: 10))
+                            .foregroundStyle(Color(uiColor: .systemGray2))
+                            .frame(width: 16, height: 16)
+                    }
                 }
                 
                 // Title and goal
@@ -78,8 +88,6 @@ struct HabitRowNative: View {
                     iconSize: iconSize
                 )
             }
-            .padding(.vertical, 8)
         }
-        .buttonStyle(.plain)
     }
 }

@@ -5,8 +5,6 @@ import SwiftData
 final class HabitFolder: Hashable {
     var uuid: UUID = UUID()
     var name: String = ""
-    var color: HabitIconColor = HabitIconColor.primary
-    var iconName: String? = "folder"
     var createdAt: Date = Date()
     var displayOrder: Int = 0
     
@@ -45,27 +43,17 @@ final class HabitFolder: Hashable {
     
     init(
         name: String = "",
-        color: HabitIconColor = .primary,
-        iconName: String? = "folder",
         displayOrder: Int = 0
     ) {
         self.uuid = UUID()
         self.name = name
-        self.color = color
-        self.iconName = iconName
         self.displayOrder = displayOrder
         self.createdAt = Date()
     }
     
     // MARK: - Methods
     
-    func update(
-        name: String,
-        color: HabitIconColor,
-        iconName: String?
-    ) {
+    func update(name: String) {
         self.name = name
-        self.color = color
-        self.iconName = iconName
     }
 }

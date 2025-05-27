@@ -21,28 +21,70 @@ struct ExternalLinkModifier: ViewModifier {
     }
 }
 
+// MARK: - New Styled External Link Modifier
+struct StyledExternalLinkModifier: ViewModifier {
+    let lightColors: [Color]
+    var trailingText: String? = nil
+    
+    func body(content: Content) -> some View {
+        HStack {
+            content
+            
+            Spacer()
+            
+            if let text = trailingText {
+                Text(text)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Image(systemName: "arrow.up.right")
+                .font(.footnote)
+                .fontWeight(.bold)
+                .foregroundStyle(.tertiary)
+        }
+    }
+}
+
 extension View {
     func withExternalLinkIcon(trailingText: String? = nil) -> some View {
         self.modifier(ExternalLinkModifier(trailingText: trailingText))
+    }
+    
+    // New method for styled external links
+    func withStyledExternalLink(lightColors: [Color], trailingText: String? = nil) -> some View {
+        Label(
+            title: { self },
+            icon: {
+                Image(systemName: "arrow.up.right") // This will be overridden
+                    .withIOSSettingsIcon(lightColors: lightColors)
+            }
+        )
+        .modifier(StyledExternalLinkModifier(lightColors: lightColors, trailingText: trailingText))
     }
 }
 
 struct AboutSection: View {
     var body: some View {
-        Section {
-            // How to Use
-            NavigationLink(destination: HowToUseView()) {
-                Label("how_to_use".localized, systemImage: "questionmark.app")
-            }
-            
+        
+        // MARK: - Support & Feedback
+        Section(header: Text("settings_header_support".localized)) {
             // Rate App
             Button {
                 if let url = URL(string: "https://apps.apple.com/app/idXXXXXXXXXX") {
                     UIApplication.shared.open(url)
                 }
             } label: {
-                Label("rate_app".localized, systemImage: "star")
-                    .withExternalLinkIcon()
+                Label(
+                    title: { Text("rate_app".localized) },
+                    icon: {
+                        Image(systemName: "star.fill")
+                            .withIOSSettingsIcon(lightColors: [
+                                Color(#colorLiteral(red: 1, green: 0.8, blue: 0.2, alpha: 1)),
+                                Color(#colorLiteral(red: 0.8, green: 0.5333333333, blue: 0.0, alpha: 1))
+                            ])
+                    }
+                )
+                .withExternalLinkIcon()
             }
             .tint(.primary)
             
@@ -59,8 +101,17 @@ struct AboutSection: View {
                     rootVC.present(activityVC, animated: true)
                 }
             } label: {
-                Label("share_app".localized, systemImage: "square.and.arrow.up")
-                    .withExternalLinkIcon()
+                Label(
+                    title: { Text("share_app".localized) },
+                    icon: {
+                        Image(systemName: "square.and.arrow.up.fill")
+                            .withIOSSettingsIcon(lightColors: [
+                                Color(#colorLiteral(red: 0.4666666667, green: 0.8666666667, blue: 0.4, alpha: 1)),
+                                Color(#colorLiteral(red: 0.1176470588, green: 0.5647058824, blue: 0.1176470588, alpha: 1))
+                            ])
+                    }
+                )
+                .withExternalLinkIcon()
             }
             .tint(.primary)
             
@@ -70,8 +121,17 @@ struct AboutSection: View {
                     UIApplication.shared.open(url)
                 }
             } label: {
-                Label("contact_developer".localized, systemImage: "ellipsis.message")
-                    .withExternalLinkIcon()
+                Label(
+                    title: { Text("contact_developer".localized) },
+                    icon: {
+                        Image(systemName: "ellipsis.message.fill")
+                            .withIOSSettingsIcon(lightColors: [
+                                Color(#colorLiteral(red: 0.7333333333, green: 0.4666666667, blue: 1, alpha: 1)),
+                                Color(#colorLiteral(red: 0.4666666667, green: 0.1176470588, blue: 0.7333333333, alpha: 1))
+                            ])
+                    }
+                )
+                .withExternalLinkIcon()
             }
             .tint(.primary)
             
@@ -81,23 +141,48 @@ struct AboutSection: View {
                     UIApplication.shared.open(url)
                 }
             } label: {
-                Label("report_bug".localized, systemImage: "ladybug")
-                    .withExternalLinkIcon()
+                Label(
+                    title: { Text("report_bug".localized) },
+                    icon: {
+                        Image(systemName: "ladybug.fill")
+                            .withIOSSettingsIcon(lightColors: [
+                                Color(#colorLiteral(red: 1, green: 0.4, blue: 0.4, alpha: 1)),
+                                Color(#colorLiteral(red: 0.7333333333, green: 0.0666666667, blue: 0.0666666667, alpha: 1))
+                            ])
+                    }
+                )
+                .withExternalLinkIcon()
             }
             .tint(.primary)
         }
         
         // MARK: - Legal
-        
-        // Terms of Service
-        Section {
+        Section(header: Text("settings_header_legal".localized)) {
             NavigationLink(destination: TermsOfServiceView()) {
-                Label("terms_of_service".localized, systemImage: "text.document")
+                Label(
+                    title: { Text("terms_of_service".localized) },
+                    icon: {
+                        Image(systemName: "text.document")
+                            .withIOSSettingsIcon(lightColors: [
+                                Color(#colorLiteral(red: 0.6, green: 0.6, blue: 0.6, alpha: 1)),
+                                Color(#colorLiteral(red: 0.3333333333, green: 0.3333333333, blue: 0.3333333333, alpha: 1))
+                            ])
+                    }
+                )
             }
             
             // Privacy Policy
             NavigationLink(destination: PrivacyPolicyView()) {
-                Label("privacy_policy".localized, systemImage: "lock")
+                Label(
+                    title: { Text("privacy_policy".localized) },
+                    icon: {
+                        Image(systemName: "lock")
+                            .withIOSSettingsIcon(lightColors: [
+                                Color(#colorLiteral(red: 0.5019607843, green: 0.5019607843, blue: 0.5019607843, alpha: 1)),
+                                Color(#colorLiteral(red: 0.2549019608, green: 0.2549019608, blue: 0.2549019608, alpha: 1))
+                            ])
+                    }
+                )
             }
         }
     }

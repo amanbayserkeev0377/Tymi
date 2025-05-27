@@ -90,8 +90,8 @@ struct NewHabitView: View {
                     IconSection(selectedIcon: $selectedIcon, selectedColor: $selectedIconColor)
                 }
                 
-                // Folders
-                FolderSection(selectedFolders: $selectedFolders, allFolders: allFolders)
+                // Folder
+                FolderSection(selectedFolders: $selectedFolders)
                 
                 // Goal
                 GoalSection(

@@ -49,7 +49,13 @@ struct WeekStartSection: View {
         HStack {
             Label(
                 title: { Text("week_start_day".localized) },
-                icon: { Image(systemName: "calendar") }
+                icon: {
+                    Image(systemName: "calendar")
+                        .withIOSSettingsIcon(lightColors: [
+                            Color(#colorLiteral(red: 0.4666666667, green: 0.8666666667, blue: 0.4, alpha: 1)),
+                            Color(#colorLiteral(red: 0.1176470588, green: 0.5647058824, blue: 0.1176470588, alpha: 1))
+                        ])
+                }
             )
             
             Spacer()
@@ -73,7 +79,7 @@ struct WeekStartSection: View {
                     Image(systemName: "chevron.up.chevron.down")
                         .font(.footnote)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
             }
             .tint(.primary)

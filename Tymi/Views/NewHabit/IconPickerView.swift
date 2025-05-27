@@ -23,7 +23,7 @@ struct IconPickerView: View {
     
     /// Icon size based on device and dynamic type
     private var iconSize: CGFloat {
-        let baseSize: CGFloat = horizontalSizeClass == .compact ? 34 : 40
+        let baseSize: CGFloat = horizontalSizeClass == .compact ? 36 : 42
         let typeMultiplier = dynamicTypeMultiplier
         return baseSize * typeMultiplier
     }
@@ -95,8 +95,7 @@ struct IconPickerView: View {
         ]),
         
         IconCategory(name: "pro".localized, icons: [
-            "icon_instagram", "icon_vk", "icon_telegram", "icon_duolingo",
-            "icon_toothbrush", "icon_tooth"
+            "icon_instagram", "icon_vk", "icon_telegram", "icon_duolingo", "icon_android", "icon_konoha",
         ], isCustom: true)
     ]
     
@@ -109,7 +108,6 @@ struct IconPickerView: View {
             colorPickerSection
         }
         .navigationTitle("choose_icon".localized)
-        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             if selectedIcon == nil {
                 selectedIcon = defaultIcon

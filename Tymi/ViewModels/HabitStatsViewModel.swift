@@ -10,22 +10,36 @@ class HabitStatsViewModel {
     var bestStreak: Int = 0
     var totalValue: Int = 0
     
-    private var updateCounter: Int = 0
+    // Убираем updateCounter - он нам больше не нужен
     
     init(habit: Habit) {
         self.habit = habit
         calculateStats()
     }
     
+    // MARK: - Public Methods
+    
+    /// Обновляет статистику без пересоздания ViewModel
+    func refresh() {
+        calculateStats()
+    }
+    
+    // MARK: - Private Methods
+    
     func calculateStats() {
         let calendar = Calendar.current
-        _ = Date()
         
         // Получаем все даты завершения
         var completedDates: [Date] = []
         var completedDaysSet = Set<Date>()
         
-        guard let completions = habit.completions else { return }
+        guard let completions = habit.completions else {
+            // Сбрасываем значения если нет завершений
+            currentStreak = 0
+            bestStreak = 0
+            totalValue = 0
+            return
+        }
         
         // Собираем данные о завершениях
         for completion in completions {
@@ -40,20 +54,10 @@ class HabitStatsViewModel {
             }
         }
         
-        // Сохраняем предыдущие значения
-        let oldCurrentStreak = currentStreak
-        let oldBestStreak = bestStreak
-        let oldTotalValue = totalValue
-        
         // Обновляем значения
         totalValue = completedDaysSet.count
         currentStreak = calculateCurrentStreak(completedDates: completedDates)
         bestStreak = calculateBestStreak(completedDates: completedDates)
-        
-        // Если значения изменились, увеличиваем счетчик для триггера обновления UI
-        if oldCurrentStreak != currentStreak || oldBestStreak != bestStreak || oldTotalValue != totalValue {
-            updateCounter += 1
-        }
     }
     
     // Вычисление текущей серии

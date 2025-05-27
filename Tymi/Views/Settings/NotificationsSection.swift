@@ -13,6 +13,10 @@ struct NotificationsSection: View {
                 title: { Text("notifications".localized) },
                 icon: {
                     Image(systemName: "bell.badge.fill")
+                        .withIOSSettingsIcon(lightColors: [
+                            Color(#colorLiteral(red: 1, green: 0.3, blue: 0.3, alpha: 1)),
+                            Color(#colorLiteral(red: 0.8, green: 0.1, blue: 0.1, alpha: 1))
+                        ])
                         .symbolEffect(.bounce, options: .repeat(1), value: notificationsEnabled)
                 }
             )
@@ -56,5 +60,11 @@ struct NotificationsSection: View {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
         }
+    }
+}
+
+#Preview {
+    List {
+        NotificationsSection()
     }
 }

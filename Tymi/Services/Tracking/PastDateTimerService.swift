@@ -1,5 +1,3 @@
-// PastDateTimerService.swift
-
 import SwiftUI
 import SwiftData
 
@@ -19,6 +17,8 @@ final class PastDateTimerService: ProgressTrackingService {
     
     deinit {
         timer?.invalidate()
+        timer = nil
+        onUpdateCallback = nil
     }
     
     // MARK: - ProgressTrackingService Implementation
@@ -121,6 +121,7 @@ final class PastDateTimerService: ProgressTrackingService {
     private func startLocalTimer() {
         // Останавливаем текущий таймер, если он существует
         timer?.invalidate()
+        timer = nil
         
         // Запускаем таймер для обновления UI каждые 0.5 секунды
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
@@ -137,7 +138,24 @@ final class PastDateTimerService: ProgressTrackingService {
         }
         
         // Добавляем таймер в общий режим выполнения для более надежной работы
-        RunLoop.current.add(timer!, forMode: .common)
+        if let timer = timer {
+            RunLoop.current.add(timer, forMode: .common)
+        }
+    }
+    
+    // MARK: - Public Methods для управления состоянием
+    
+    /// Принудительно останавливает все активные таймеры
+    func stopAllTimers() {
+        let activeHabits = Array(startTimes.keys)
+        for habitId in activeHabits {
+            stopTimer(for: habitId)
+        }
+    }
+    
+    /// Проверяет, есть ли активные таймеры
+    var hasActiveTimers: Bool {
+        return !startTimes.isEmpty
     }
     
     // Заглушки для требуемых методов протокола

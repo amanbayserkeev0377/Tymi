@@ -5,45 +5,40 @@ struct StreaksView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            // Левый лавровый венок
             Image(systemName: "laurel.leading")
                 .font(.system(size: 36))
                 .foregroundColor(.secondary)
                 .accessibility(hidden: true)
             
-            // Три колонки статистики
             Group {
-                // Текущая серия
+                // Streak
                 StatColumn(
                     value: "\(viewModel.currentStreak)",
                     label: "streak".localized
                 )
                 
-                // Лучшая серия
+                // Best
                 StatColumn(
                     value: "\(viewModel.bestStreak)",
                     label: "best".localized
                 )
                 
-                // Всего
+                // Total
                 StatColumn(
                     value: "\(viewModel.totalValue)",
                     label: "total".localized
                 )
             }
             
-            // Правый лавровый венок
             Image(systemName: "laurel.trailing")
                 .font(.system(size: 36))
                 .foregroundColor(.secondary)
                 .accessibility(hidden: true)
         }
         .padding(.vertical, 8)
-        .id("streaks-\(viewModel.currentStreak)-\(viewModel.bestStreak)-\(viewModel.totalValue)")
     }
 }
 
-// Выделяем колонку статистики в отдельный компонент
 struct StatColumn: View {
     let value: String
     let label: String

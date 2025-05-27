@@ -18,12 +18,14 @@ final class HabitTimerService: ProgressTrackingService {
     
     deinit {
         timer?.invalidate()
+        timer = nil
     }
     
     // MARK: - Timer Management
     private func startUITimer() {
         // Останавливаем текущий таймер, если он существует
         timer?.invalidate()
+        timer = nil
         
         // Запускаем таймер только для обновления UI
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
@@ -146,6 +148,20 @@ final class HabitTimerService: ProgressTrackingService {
         progressUpdates[habitId] = 0
         
         saveState()
+    }
+    
+    // MARK: - Public Methods для управления состоянием
+    
+    /// Принудительно останавливает все активные таймеры (для выхода из приложения)
+    func stopAllTimers() {
+        if let activeId = activeHabitId {
+            stopTimer(for: activeId)
+        }
+    }
+    
+    /// Проверяет, есть ли активные таймеры
+    var hasActiveTimers: Bool {
+        return activeHabitId != nil
     }
     
     // MARK: - Persistence

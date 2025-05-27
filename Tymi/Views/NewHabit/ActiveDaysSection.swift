@@ -60,16 +60,17 @@ struct ActiveDaysSelectionView: View {
         List {
             Section {
                 Button {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         activeDays = Array(repeating: true, count: 7)
                     }
                 } label: {
                     HStack {
                         Text("everyday".localized)
+                            .tint(.primary)
                         Spacer()
-                        if activeDays.allSatisfy({ $0 }) {
-                            Image(systemName: "checkmark")
-                        }
+                        Image(systemName: "checkmark")
+                            .opacity(activeDays.allSatisfy({ $0 }) ? 1 : 0)
+                            .animation(.easeInOut, value: activeDays.allSatisfy({ $0 }))
                     }
                 }
             }
@@ -77,16 +78,17 @@ struct ActiveDaysSelectionView: View {
             Section(header: Text("select_days".localized), footer: Text(selectedDaysDescription).font(.footnote)) {
                 ForEach(0..<7) { index in
                     Button {
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             activeDays[index].toggle()
                         }
                     } label: {
                         HStack {
                             Text(weekdaySymbols[index])
+                                .tint(.primary)
                             Spacer()
-                            if activeDays[index] {
-                                Image(systemName: "checkmark")
-                            }
+                            Image(systemName: "checkmark")
+                                .opacity(activeDays[index] ? 1 : 0)
+                                .animation(.easeInOut, value: activeDays[index])
                         }
                     }
                 }
