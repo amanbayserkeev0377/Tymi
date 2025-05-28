@@ -58,7 +58,7 @@
 "folders_folder_name" = "Folder Name";
 "folders_edit_footer" = "Tap 'Edit' to change the order or delete folders. Folder management is also available in the Settings.";
 "folders_none_selected" = "None";
-"folders_alert_delete_folders" = "Deleting the folder will not delete your habits.";
+"folders_alert_delete_folders" = "Deleting the folders will not delete your habits.";
 
 
 /* Settings - iCloud Sync */

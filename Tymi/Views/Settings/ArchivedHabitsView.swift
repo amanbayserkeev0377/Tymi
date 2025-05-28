@@ -20,6 +20,8 @@ struct ArchivedHabitsView: View {
     @State private var selectedForDeletion: Set<Habit.ID> = []
     @State private var isDeleteSelectedAlertPresented = false
     @State private var selectedHabitForStats: Habit? = nil
+    @State private var habitToDelete: Habit? = nil
+    @State private var isDeleteAlertPresented = false
     
     var body: some View {
         Group {
@@ -86,6 +88,17 @@ struct ArchivedHabitsView: View {
         } message: {
             Text("delete_permanently_description".localized)
         }
+        .alert("delete_habit_confirmation".localized, isPresented: $isDeleteAlertPresented) {
+            Button("cancel".localized, role: .cancel) {
+                habitToDelete = nil
+            }
+            Button("delete".localized, role: .destructive) {
+                if let habit = habitToDelete {
+                    deleteHabit(habit)
+                }
+                habitToDelete = nil
+            }
+        }
         .sheet(item: $selectedHabitForStats) { habit in
             NavigationStack {
                 HabitStatisticsView(habit: habit)
@@ -117,6 +130,24 @@ struct ArchivedHabitsView: View {
             Section {
                 ForEach(archivedHabits) { habit in
                     archivedHabitRow(habit)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            // Delete action (red)
+                            Button(role: .destructive) {
+                                habitToDelete = habit
+                                isDeleteAlertPresented = true
+                            } label: {
+                                Label("delete".localized, systemImage: "trash")
+                            }
+                            .tint(.red)
+                            
+                            // Unarchive action (cyan)
+                            Button {
+                                unarchiveHabit(habit)
+                            } label: {
+                                Label("unarchive".localized, systemImage: "tray.and.arrow.up")
+                            }
+                            .tint(.cyan)
+                        }
                 }
             }
         }
@@ -136,37 +167,23 @@ struct ArchivedHabitsView: View {
                 let iconName = habit.iconName ?? "checkmark"
                 
                 Image(systemName: iconName)
-                    .font(.title3)
+                    .font(.system(size: 24))
+                    .frame(width: 24, height: 24)
                     .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
-                    .frame(width: 28, height: 28)
                 
                 // Название привычки (одна строка)
                 Text(habit.title)
-                    .font(.body)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
                     .tint(.primary)
                 
                 Spacer()
                 
-                // Unarchive button справа (только если НЕ в edit mode)
-                if editMode?.wrappedValue != .active {
-                    Button(action: {
-                        unarchiveHabit(habit)
-                    }) {
-                        Image(systemName: "tray.and.arrow.up")
-                            .font(.system(size: 16))
-                            .frame(width: 32, height: 32)
-                            .background(
-                                Circle()
-                                    .fill(.primary.opacity(0.1))
-                            )
-                    }
-                    .buttonStyle(.plain)
-                }
+                // Chevron для показа что можно нажать (как в StatisticsView)
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(Color(uiColor: .systemGray3))
+                    .font(.footnote)
+                    .fontWeight(.bold)
             }
         }
-        .padding(.vertical, 8)
     }
     
     // MARK: - Helper Methods
@@ -176,6 +193,18 @@ struct ArchivedHabitsView: View {
         try? modelContext.save()
         habitsUpdateService.triggerUpdate()
         HapticManager.shared.play(.success)
+    }
+    
+    private func deleteHabit(_ habit: Habit) {
+        // Cancel notifications
+        NotificationManager.shared.cancelNotifications(for: habit)
+        
+        // Delete from model context
+        modelContext.delete(habit)
+        
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.play(.error)
     }
     
     private func unarchiveSelectedHabits() {

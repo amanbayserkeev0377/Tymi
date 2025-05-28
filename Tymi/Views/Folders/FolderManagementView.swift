@@ -21,6 +21,8 @@ struct FolderManagementView: View {
     @State private var folderToEdit: HabitFolder?
     @State private var selectedForDeletion: Set<HabitFolder.ID> = []
     @State private var isDeleteSelectedAlertPresented = false
+    @State private var folderToDelete: HabitFolder?
+    @State private var isDeleteAlertPresented = false
     
     var body: some View {
         Group {
@@ -78,6 +80,17 @@ struct FolderManagementView: View {
                 deleteSelectedFolders()
             }
         }
+        .alert("folders_alert_delete_folders".localized, isPresented: $isDeleteAlertPresented) {
+            Button("cancel".localized, role: .cancel) {
+                folderToDelete = nil
+            }
+            Button("delete".localized, role: .destructive) {
+                if let folder = folderToDelete {
+                    deleteFolder(folder)
+                }
+                folderToDelete = nil
+            }
+        }
     }
     
     // MARK: - Navigation Title
@@ -102,6 +115,16 @@ struct FolderManagementView: View {
                 // Folders list
                 ForEach(folders) { folder in
                     folderRow(folder)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            // Delete action (red)
+                            Button(role: .destructive) {
+                                folderToDelete = folder
+                                isDeleteAlertPresented = true
+                            } label: {
+                                Label("delete".localized, systemImage: "trash")
+                            }
+                            .tint(.red)
+                        }
                 }
                 .onMove(perform: moveFolders)
             }
@@ -184,6 +207,22 @@ struct FolderManagementView: View {
             // Режим управления - редактировать
             folderToEdit = folder
         }
+    }
+    
+    private func deleteFolder(_ folder: HabitFolder) {
+        // Удаляем папку из всех привычек
+        if let habits = folder.habits {
+            for habit in habits {
+                habit.removeFromFolder(folder)
+            }
+        }
+        
+        // Удаляем папку
+        modelContext.delete(folder)
+        
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.play(.error)
     }
     
     private func deleteSelectedFolders() {
