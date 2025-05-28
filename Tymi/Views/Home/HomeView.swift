@@ -396,9 +396,9 @@ struct HomeView: View {
                                     RoundedRectangle(cornerRadius: 10)
                                         .strokeBorder(
                                             selectedFolder == nil ?
-                                            AppColorManager.shared.selectedColor.color.opacity(0.5) :
+                                            AppColorManager.shared.selectedColor.color.opacity(0.2) :
                                                 Color.clear,
-                                            lineWidth: 0.7
+                                            lineWidth: 1
                                         )
                                 )
                         )
@@ -427,9 +427,9 @@ struct HomeView: View {
                                         RoundedRectangle(cornerRadius: 10)
                                             .strokeBorder(
                                                 selectedFolder?.uuid == folder.uuid ?
-                                                AppColorManager.shared.selectedColor.color.opacity(0.5) :
+                                                AppColorManager.shared.selectedColor.color.opacity(0.2) :
                                                     Color.clear,
-                                                lineWidth: 0.7
+                                                lineWidth: 1
                                             )
                                     )
                             )

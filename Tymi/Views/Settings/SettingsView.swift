@@ -55,11 +55,24 @@ struct SettingsView: View {
                             }
                         )
                     }
-                    //                    NavigationLink {
-                    //                        CloudKitSyncView()
-                    //                    } label: {
-                    //                        Label("icloud_sync".localized, systemImage: "icloud")
-                    //                    }
+                    NavigationLink {
+                        CloudKitSyncView()
+                    } label: {
+                        Label(
+                            title: { Text("icloud_sync".localized) },
+                            icon: {
+                                Image(systemName: "icloud.fill")
+                                    .withGradientIcon(
+                                        colors: [
+                                            Color(#colorLiteral(red: 0.5846864419, green: 0.8865533615, blue: 1, alpha: 1)),
+                                            Color(#colorLiteral(red: 0.2244010968, green: 0.5001963656, blue: 0.9326009076, alpha: 1))
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                            }
+                        )
+                    }
                 }
                 
                 // Sounds & Feedback
