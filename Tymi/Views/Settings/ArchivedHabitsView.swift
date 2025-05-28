@@ -135,20 +135,10 @@ struct ArchivedHabitsView: View {
                 // Icon слева
                 let iconName = habit.iconName ?? "checkmark"
                 
-                if iconName.hasPrefix("icon_") {
-                    // Кастомная иконка
-                    Image(iconName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 28, height: 28)
-                        .foregroundStyle(habit.iconColor.color)
-                } else {
-                    // SF Symbol
-                    Image(systemName: iconName)
-                        .font(.title3)
-                        .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
-                        .frame(width: 28, height: 28)
-                }
+                Image(systemName: iconName)
+                    .font(.title3)
+                    .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
+                    .frame(width: 28, height: 28)
                 
                 // Название привычки (одна строка)
                 Text(habit.title)

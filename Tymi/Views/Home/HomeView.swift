@@ -6,6 +6,8 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
+    @ObservedObject private var colorManager = AppColorManager.shared
+    @State private var isEditMode = false
     
     // Query for all habit folders
     @Query(sort: [SortDescriptor(\HabitFolder.displayOrder)])
@@ -51,6 +53,8 @@ struct HomeView: View {
     @State private var alertState = AlertState()
     @State private var habitForProgress: Habit? = nil
     @State private var selectedFolder: HabitFolder? = nil
+    @State private var selectedForAction: Set<PersistentIdentifier> = []
+    @State private var showingMoveToFolder = false
 
     // Computed property for filtering habits based on selected date
     private var activeHabitsForDate: [Habit] {
@@ -65,6 +69,19 @@ struct HomeView: View {
         return !activeHabitsForDate.isEmpty
     }
     
+    // MARK: - Computed Properties
+    private var navigationTitle: String {
+        if isEditMode && !selectedForAction.isEmpty {
+            return "general_items_selected".localized(with: selectedForAction.count)
+        } else {
+            return formattedNavigationTitle(for: selectedDate)
+        }
+    }
+    
+    private var selectedHabitsArray: [Habit] {
+        activeHabitsForDate.filter { selectedForAction.contains($0.persistentModelID) }
+    }
+    
     // MARK: - Body
     var body: some View {
         let actionService = HabitActionService(
@@ -76,17 +93,109 @@ struct HomeView: View {
         )
         
         NavigationStack {
-            contentView(actionService: actionService)
+            ZStack {
+                contentView(actionService: actionService)
+                
+                // FAB - показывать только если не в edit mode
+                if !isEditMode {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                showingNewHabit = true
+                            }) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 24))
+                                    .frame(width: 56, height: 56)
+                                    .background(
+                                        Circle()
+                                            .fill(colorManager.selectedColor.color.opacity(0.1))
+                                    )
+                            }
+                            .padding(.trailing, 20)
+                            .padding(.bottom, 20)
+                        }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingNewHabit) {
+            NewHabitView(initialFolder: selectedFolder)
+        }
+        .sheet(item: $selectedHabit) { habit in
+            NavigationStack {
+                HabitDetailView(
+                    habit: habit,
+                    date: selectedDate,
+                    onDelete: {
+                        selectedHabit = nil
+                    },
+                    onShowStats: {
+                        selectedHabit = nil
+                        selectedHabitForStats = habit
+                    }
+                )
+            }
+            .presentationDetents([
+                UIDevice.current.userInterfaceIdiom == .pad ? .large :
+                UIScreen.main.bounds.height <= 667 ? .fraction(0.8) : .fraction(0.7)
+            ])
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(30)
+        }
+        .sheet(item: $selectedHabitForStats) { habit in
+            NavigationStack {
+                HabitStatisticsView(habit: habit)
+            }
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $habitToEdit) { habit in
+            NewHabitView(habit: habit)
+        }
+        .sheet(isPresented: $showingMoveToFolder) {
+            MoveToFolderView(habits: selectedHabitsArray)
+        }
+        .onChange(of: isEditMode) { _, newValue in
+            if !newValue {
+                selectedForAction.removeAll()
+            }
+        }
+        .onChange(of: activeHabitsForDate.count) { _, newCount in
+            // Если все привычки исчезли во время edit mode, выходим из него
+            if isEditMode && newCount == 0 {
+                withAnimation {
+                    isEditMode = false
+                }
+            }
+        }
+        .onChange(of: selectedDate) { _, _ in
+            habitsUpdateService.triggerUpdate()
+        }
+        .alert("delete_habit_confirmation".localized, isPresented: $alertState.isDeleteAlertPresented) {
+            Button("cancel".localized, role: .cancel) {
+                habitForProgress = nil
+            }
+            Button("delete".localized, role: .destructive) {
+                if let habit = habitForProgress {
+                    actionService.deleteHabit(habit)
+                } else if !selectedForAction.isEmpty {
+                    deleteSelectedHabits()
+                }
+                habitForProgress = nil
+            }
         }
     }
     
     private func contentView(actionService: HabitActionService) -> some View {
         VStack(spacing: 0) {
-            // Calendar at the top
-            WeeklyCalendarView(selectedDate: $selectedDate)
+            // Calendar at the top - скрывать в edit mode
+            if !isEditMode {
+                WeeklyCalendarView(selectedDate: $selectedDate)
+            }
             
-            // Folder picker section - after calendar
-            if !allFolders.isEmpty {
+            // Folder picker section - скрывать в edit mode
+            if !allFolders.isEmpty && !isEditMode {
                 folderPickerSection
                     .padding(.horizontal)
                     .padding(.vertical, 8)
@@ -123,341 +232,86 @@ struct HomeView: View {
                 }
             }
         }
-        .navigationTitle(formattedNavigationTitle(for: selectedDate))
+        .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                if !Calendar.current.isDateInToday(selectedDate) {
-                    Button(action: {
-                        withAnimation {
-                            selectedDate = Date()
-                        }
-                    }) {
-                        HStack(spacing: 2) {
-                            Text("today".localized)
-                                .font(.footnote)
-                                .foregroundStyle(Color.gray.opacity(0.7))
-                            Image(systemName: "arrow.uturn.left")
-                                .font(.system(size: 9))
-                                .foregroundStyle(Color.gray.opacity(0.7))
-                        }
-                        .padding(.vertical, 2)
-                        .padding(.horizontal, 6)
-                    }
-                    .buttonStyle(.plain)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .strokeBorder(Color.gray.opacity(0.7), lineWidth: 1)
-                    )
-                }
-            }
-            
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: {
-                    showingNewHabit = true
-                }) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 16))
-                        .frame(width: 36, height: 36)
-                        .padding(4)
-                }
-            }
-        }
-        .sheet(isPresented: $showingNewHabit) {
-            NewHabitView(initialFolder: selectedFolder)
-        }
-        .sheet(item: $selectedHabit) { habit in
-            NavigationStack {
-                HabitDetailView(
-                    habit: habit,
-                    date: selectedDate,
-                    onDelete: {
-                        selectedHabit = nil
-                    },
-                    onShowStats: {
-                        selectedHabit = nil
-                        selectedHabitForStats = habit
-                    }
-                )
-            }
-            .presentationDetents([.fraction(0.7)])
-            .presentationDragIndicator(.visible)
-            .presentationCornerRadius(30)
-        }
-        .sheet(item: $selectedHabitForStats) { habit in
-            NavigationStack {
-                HabitStatisticsView(habit: habit)
-            }
-            .presentationDragIndicator(.visible)
-        }
-        .sheet(item: $habitToEdit) { habit in
-            NewHabitView(habit: habit)
-        }
-        .onChange(of: selectedDate) { _, _ in
-            habitsUpdateService.triggerUpdate()
-        }
-        .alert("delete_habit_confirmation".localized, isPresented: $alertState.isDeleteAlertPresented) {
-            Button("cancel".localized, role: .cancel) {
-                habitForProgress = nil
-            }
-            Button("delete".localized, role: .destructive) {
-                if let habit = habitForProgress {
-                    actionService.deleteHabit(habit)
-                }
-                habitForProgress = nil
-            }
-        }
-    }
-    
-    // MARK: - Folder Picker Section
-    private var folderPickerSection: some View {
-        VStack(spacing: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 24) {
-                    // "All" button
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            selectedFolder = nil
-                        }
-                    } label: {
-                        Text("all".localized)
-                            .font(.subheadline)
-                            .fontWeight(selectedFolder == nil ? .semibold : .medium)
-                            .foregroundStyle(selectedFolder == nil ? .primary : .secondary)
-                            .padding(.vertical, 12)
-                    }
-                    .buttonStyle(.plain)
-                    .background(
-                        // Невидимый геометрический маркер для "All"
-                        GeometryReader { geometry in
-                            Color.clear
-                                .preference(key: TabPreferenceKey.self,
-                                          value: selectedFolder == nil ?
-                                            [TabPreference(id: "all", bounds: geometry.frame(in: .named("tabContainer")))] :
-                                            [])
-                        }
-                    )
-                    
-                    // Folder buttons
-                    ForEach(allFolders) { folder in
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                selectedFolder = selectedFolder?.uuid == folder.uuid ? nil : folder
+            // Today button - скрывать в edit mode
+            if !isEditMode {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !Calendar.current.isDateInToday(selectedDate) {
+                        Button(action: {
+                            withAnimation {
+                                selectedDate = Date()
                             }
-                        } label: {
-                            Text(folder.name)
-                                .font(.subheadline)
-                                .fontWeight(selectedFolder?.uuid == folder.uuid ? .semibold : .medium)
-                                .foregroundStyle(selectedFolder?.uuid == folder.uuid ? .primary : .secondary)
-                                .padding(.vertical, 12)
+                        }) {
+                            HStack(spacing: 2) {
+                                Text("today".localized)
+                                    .font(.footnote)
+                                    .foregroundStyle(Color.gray.opacity(0.7))
+                                Image(systemName: "arrow.uturn.left")
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(Color.gray.opacity(0.7))
+                            }
+                            .padding(.vertical, 2)
+                            .padding(.horizontal, 6)
                         }
                         .buttonStyle(.plain)
                         .background(
-                            // Невидимый геометрический маркер для каждой папки
-                            GeometryReader { geometry in
-                                Color.clear
-                                    .preference(key: TabPreferenceKey.self,
-                                              value: selectedFolder?.uuid == folder.uuid ?
-                                                [TabPreference(id: folder.id, bounds: geometry.frame(in: .named("tabContainer")))] :
-                                                [])
-                            }
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(Color.gray.opacity(0.7), lineWidth: 1)
                         )
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
             }
-            .coordinateSpace(name: "tabContainer")
             
-            ZStack(alignment: .leading) {
-                // Фоновый divider
-                Divider()
-                    .opacity(0.1)
-                
-                // Скользящее подчеркивание
-                Rectangle()
-                    .fill(Color.primary)
-                    .frame(width: activeTabWidth, height: 2)
-                    .offset(x: activeTabOffset)
-                    .animation(.easeInOut(duration: 0.3), value: activeTabOffset)
-                    .animation(.easeInOut(duration: 0.3), value: activeTabWidth)
-            }
-        }
-        .onPreferenceChange(TabPreferenceKey.self) { preferences in
-            // Находим активную вкладку и обновляем позицию подчеркивания
-            if let activeTab = preferences.first(where: { !$0.id.isEmpty }) {
-                activeTabOffset = activeTab.bounds.minX
-                activeTabWidth = activeTab.bounds.width
-            }
-        }
-    }
-    
-    // MARK: - Состояние для скользящего подчеркивания
-    @State private var activeTabOffset: CGFloat = 0
-    @State private var activeTabWidth: CGFloat = 0
-
-    // MARK: - Preference Key для отслеживания позиций табов
-    struct TabPreference: Equatable {
-        let id: String
-        let bounds: CGRect
-    }
-
-    struct TabPreferenceKey: PreferenceKey {
-        static var defaultValue: [TabPreference] = []
-        
-        static func reduce(value: inout [TabPreference], nextValue: () -> [TabPreference]) {
-            value.append(contentsOf: nextValue())
-        }
-    }
-    
-    // MARK: - Habit Views (Native List)
-    private func habitList(actionService: HabitActionService) -> some View {
-        List {
-            ForEach(activeHabitsForDate) { habit in
-                HabitRowView(habit: habit, date: selectedDate) {
-                    selectedHabit = habit
-                }
-                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    // Complete action (green)
-                    Button {
-                        if !habit.isCompletedForDate(selectedDate) {
-                            actionService.completeHabit(habit, for: selectedDate)
+            // Edit/Done button
+            if !baseHabits.isEmpty {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(isEditMode ? "done".localized : "edit".localized) {
+                        withAnimation {
+                            isEditMode.toggle()
                         }
-                    } label: {
-                        Label("complete".localized, systemImage: "checkmark")
                     }
-                    .tint(.green)
-                    .disabled(habit.isCompletedForDate(selectedDate))
                 }
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    // Delete
-                    Button(role: .destructive) {
-                        habitForProgress = habit
-                        alertState.isDeleteAlertPresented = true
-                    } label: {
-                        Label("delete".localized, systemImage: "trash")
-                    }
-                    .tint(.red)
-                    
-                    // Archive
-                    Button {
-                        archiveHabit(habit)
-                    } label: {
-                        Label("archive".localized, systemImage: "archivebox")
-                    }
-                    .tint(.gray)
-                    
-                    // Pin/Unpin
-                    Button {
-                        pinHabit(habit)
-                    } label: {
-                        Label(
-                            habit.isPinned ? "unpin".localized : "pin".localized,
-                            systemImage: habit.isPinned ? "pin.slash" : "pin"
-                        )
-                    }
-                    .tint(.orange)
-                }
-                .contextMenu {
-                    // Complete
-                    Button {
-                        if !habit.isCompletedForDate(selectedDate) {
-                            actionService.completeHabit(habit, for: selectedDate)
-                        }
-                    } label: {
-                        Label("complete".localized, systemImage: "checkmark")
-                    }
-                    .disabled(habit.isCompletedForDate(selectedDate))
-                    
-                    Divider()
-                    
-                    // Move to Folder - Submenu
-                    if !allFolders.isEmpty {
-                        Menu {
-                            // Remove from all folders
-                            Button {
-                                moveHabitToFolders(habit, folders: [])
-                            } label: {
-                                Label("no_folder".localized, systemImage: "minus.circle")
-                            }
-                            
-                            Divider()
-                            
-                            // Individual folders
-                            ForEach(allFolders) { folder in
-                                Button {
-                                    // Toggle folder membership
-                                    var currentFolders = Set(habit.folders ?? [])
-                                    if currentFolders.contains(folder) {
-                                        currentFolders.remove(folder)
-                                    } else {
-                                        currentFolders.insert(folder)
-                                    }
-                                    moveHabitToFolders(habit, folders: Array(currentFolders))
-                                } label: {
-                                    HStack {
-                                        Text(folder.name)
-                                        Spacer()
-                                        if habit.belongsToFolder(folder) {
-                                            Image(systemName: "checkmark")
-                                        }
-                                    }
-                                }
-                            }
+            }
+            
+            // Bottom toolbar для edit mode
+            if !selectedForAction.isEmpty {
+                ToolbarItem(placement: .bottomBar) {
+                    HStack {
+                        Button {
+                            showingMoveToFolder = true
                         } label: {
-                            Label("move_to_folder".localized, systemImage: "folder")
+                            VStack(spacing: 4) {
+                                Image(systemName: "folder")
+                                    .font(.system(size: 16))
+                                Text("move".localized)
+                                    .font(.caption)
+                            }
                         }
+                        .disabled(allFolders.isEmpty)
+                        
+                        Spacer()
+                        
+                        Button {
+                            alertState.isDeleteAlertPresented = true
+                        } label: {
+                            VStack(spacing: 4) {
+                                Image(systemName: "trash")
+                                    .font(.system(size: 16))
+                                Text("delete".localized)
+                                    .font(.caption)
+                            }
+                        }
+                        .tint(.red)
                     }
-                    // Pin/Unpin
-                    Button {
-                        pinHabit(habit)
-                    } label: {
-                        Label(
-                            habit.isPinned ? "unpin".localized : "pin".localized,
-                            systemImage: habit.isPinned ? "pin.slash" : "pin"
-                        )
-                    }
-                    
-                    // Edit
-                    Button {
-                        habitToEdit = habit
-                    } label: {
-                        Label("edit".localized, systemImage: "pencil")
-                    }
-                    
-                    // Archive
-                    Button {
-                        archiveHabit(habit)
-                    } label: {
-                        Label("archive".localized, systemImage: "archivebox")
-                    }
-                    
-                    Divider()
-                    
-                    // Delete
-                    Button(role: .destructive) {
-                        habitForProgress = habit
-                        alertState.isDeleteAlertPresented = true
-                    } label: {
-                        Label("delete".localized, systemImage: "trash")
-                    }
-                    .tint(.red)
+                    .padding(.horizontal)
                 }
             }
-            .onMove(perform: moveHabits) // Add reorder functionality
         }
-        .listStyle(.plain)
     }
     
-    // MARK: - Helper Methods
-    private func isToday(_ date: Date) -> Bool {
-        return Calendar.current.isDateInToday(date)
-    }
-    
-    private func isYesterday(_ date: Date) -> Bool {
-        return Calendar.current.isDateInYesterday(date)
-    }
-    
+    // MARK: - Navigation Title
     private func formattedNavigationTitle(for date: Date) -> String {
         if isToday(date) {
             return "today".localized.capitalized
@@ -468,6 +322,287 @@ struct HomeView: View {
             formatter.dateFormat = "EEEE, d MMM"
             return formatter.string(from: date).capitalized
         }
+    }
+    
+    // MARK: - Edit Mode Habit Row
+    private func editModeHabitRow(_ habit: Habit) -> some View {
+        HStack(spacing: 12) {
+            // Icon без ProgressRing
+            let iconName = habit.iconName ?? "checkmark"
+            
+            Image(systemName: iconName)
+                .font(.system(size: 26))
+                .foregroundStyle(habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color)
+                .frame(width: 52, height: 52)
+                .background(
+                    Circle()
+                        .fill((habit.iconName == nil ? colorManager.selectedColor.color : habit.iconColor.color).opacity(0.1))
+                )
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(habit.title)
+                    .font(.body)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+                
+                Text("goal_format".localized(with: habit.formattedGoal))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+        }
+        .contentShape(Rectangle()) // КРИТИЧЕСКИ ВАЖНО для selection
+    }
+    
+    // MARK: - Delete Selected Habits
+    private func deleteSelectedHabits() {
+        let habitsToDelete = activeHabitsForDate.filter { selectedForAction.contains($0.persistentModelID) }
+        
+        for habit in habitsToDelete {
+            NotificationManager.shared.cancelNotifications(for: habit)
+            modelContext.delete(habit)
+        }
+        
+        try? modelContext.save()
+        habitsUpdateService.triggerUpdate()
+        HapticManager.shared.play(.error)
+        
+        selectedForAction.removeAll()
+    }
+    
+    // MARK: - Folder Picker Section
+    private var folderPickerSection: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                // "All" button
+                Button {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        selectedFolder = nil
+                    }
+                } label: {
+                    Text("all".localized)
+                        .font(.footnote)
+                        .fontWeight(selectedFolder == nil ? .semibold : .medium)
+                        .foregroundStyle(selectedFolder == nil ? .primary : .secondary)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(selectedFolder == nil ?
+                                    AppColorManager.shared.selectedColor.color.opacity(0.1) :
+                                    Color.clear)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .strokeBorder(
+                                            selectedFolder == nil ?
+                                            AppColorManager.shared.selectedColor.color.opacity(0.5) :
+                                                Color.clear,
+                                            lineWidth: 0.7
+                                        )
+                                )
+                        )
+                }
+                .buttonStyle(.plain)
+                
+                // Folder buttons
+                ForEach(allFolders) { folder in
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            selectedFolder = selectedFolder?.uuid == folder.uuid ? nil : folder
+                        }
+                    } label: {
+                        Text(folder.name)
+                            .font(.footnote)
+                            .fontWeight(selectedFolder?.uuid == folder.uuid ? .semibold : .medium)
+                            .foregroundStyle(selectedFolder?.uuid == folder.uuid ? .primary : .secondary)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(selectedFolder?.uuid == folder.uuid ?
+                                        AppColorManager.shared.selectedColor.color.opacity(0.1) :
+                                        Color.clear)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .strokeBorder(
+                                                selectedFolder?.uuid == folder.uuid ?
+                                                AppColorManager.shared.selectedColor.color.opacity(0.5) :
+                                                    Color.clear,
+                                                lineWidth: 0.7
+                                            )
+                                    )
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
+        }
+    }
+    
+    // MARK: - Habit Views (Native List)
+    private func habitList(actionService: HabitActionService) -> some View {
+        Group {
+            if isEditMode {
+                List(selection: $selectedForAction) {
+                    ForEach(activeHabitsForDate) { habit in
+                        editModeHabitRow(habit)
+                            .tag(habit.persistentModelID)
+                    }
+                    .onMove(perform: moveHabits) // Перетаскивание в edit mode
+                }
+                .listStyle(.plain)
+                .environment(\.editMode, .constant(.active)) // Принудительно активируем edit mode для List
+            } else {
+                List {
+                    ForEach(activeHabitsForDate) { habit in
+                        HabitRowView(habit: habit, date: selectedDate) {
+                            selectedHabit = habit
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            // Complete action (green)
+                            Button {
+                                if !habit.isCompletedForDate(selectedDate) {
+                                    actionService.completeHabit(habit, for: selectedDate)
+                                }
+                            } label: {
+                                Label("complete".localized, systemImage: "checkmark")
+                            }
+                            .tint(.green)
+                            .disabled(habit.isCompletedForDate(selectedDate))
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            // Delete
+                            Button(role: .destructive) {
+                                habitForProgress = habit
+                                alertState.isDeleteAlertPresented = true
+                            } label: {
+                                Label("delete".localized, systemImage: "trash")
+                            }
+                            .tint(.red)
+                            
+                            // Archive
+                            Button {
+                                archiveHabit(habit)
+                            } label: {
+                                Label("archive".localized, systemImage: "archivebox")
+                            }
+                            .tint(.gray)
+                            
+                            // Pin/Unpin
+                            Button {
+                                pinHabit(habit)
+                            } label: {
+                                Label(
+                                    habit.isPinned ? "unpin".localized : "pin".localized,
+                                    systemImage: habit.isPinned ? "pin.slash" : "pin"
+                                )
+                            }
+                            .tint(.orange)
+                        }
+                        .contextMenu {
+                            // Complete
+                            Button {
+                                if !habit.isCompletedForDate(selectedDate) {
+                                    actionService.completeHabit(habit, for: selectedDate)
+                                }
+                            } label: {
+                                Label("complete".localized, systemImage: "checkmark")
+                            }
+                            .disabled(habit.isCompletedForDate(selectedDate))
+                            
+                            Divider()
+                            
+                            // Move to Folder - Submenu
+                            if !allFolders.isEmpty {
+                                Menu {
+                                    // Remove from all folders
+                                    Button {
+                                        moveHabitToFolders(habit, folders: [])
+                                    } label: {
+                                        Label("no_folder".localized, systemImage: "minus.circle")
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    // Individual folders
+                                    ForEach(allFolders) { folder in
+                                        Button {
+                                            // Toggle folder membership
+                                            var currentFolders = Set(habit.folders ?? [])
+                                            if currentFolders.contains(folder) {
+                                                currentFolders.remove(folder)
+                                            } else {
+                                                currentFolders.insert(folder)
+                                            }
+                                            moveHabitToFolders(habit, folders: Array(currentFolders))
+                                        } label: {
+                                            HStack {
+                                                Text(folder.name)
+                                                Spacer()
+                                                if habit.belongsToFolder(folder) {
+                                                    Image(systemName: "checkmark")
+                                                }
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    Label("move_to_folder".localized, systemImage: "folder")
+                                }
+                            }
+                            // Pin/Unpin
+                            Button {
+                                pinHabit(habit)
+                            } label: {
+                                Label(
+                                    habit.isPinned ? "unpin".localized : "pin".localized,
+                                    systemImage: habit.isPinned ? "pin.slash" : "pin"
+                                )
+                            }
+                            
+                            // Edit
+                            Button {
+                                habitToEdit = habit
+                            } label: {
+                                Label("edit".localized, systemImage: "pencil")
+                            }
+                            
+                            // Archive
+                            Button {
+                                archiveHabit(habit)
+                            } label: {
+                                Label("archive".localized, systemImage: "archivebox")
+                            }
+                            
+                            Divider()
+                            
+                            // Delete
+                            Button(role: .destructive) {
+                                habitForProgress = habit
+                                alertState.isDeleteAlertPresented = true
+                            } label: {
+                                Label("delete".localized, systemImage: "trash")
+                            }
+                            .tint(.red)
+                        }
+                    }
+                    // Перетаскивание только в обычном режиме
+                    // .onMove(perform: moveHabits) - убираем отсюда
+                }
+                .listStyle(.plain)
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func isToday(_ date: Date) -> Bool {
+        return Calendar.current.isDateInToday(date)
+    }
+    
+    private func isYesterday(_ date: Date) -> Bool {
+        return Calendar.current.isDateInYesterday(date)
     }
     
     // MARK: - Move to Folders Method

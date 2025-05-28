@@ -19,11 +19,14 @@ struct AppIconPickerView: View {
                         
                         Text(icon.displayName)
                             .font(.headline)
+                            .foregroundStyle(.primary)
                         
                         Spacer()
                         
                         if iconManager.currentIcon.id == icon.id {
                             Image(systemName: "checkmark")
+                                .withAppAccent()
+                                .font(.title3)
                         }
                     }
                     .contentShape(Rectangle())

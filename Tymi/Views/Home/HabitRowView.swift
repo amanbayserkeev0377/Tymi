@@ -31,27 +31,14 @@ struct HabitRowView: View {
                 // Icon с pin overlay
                 ZStack(alignment: .topTrailing) {
                     // Основная иконка
-                    if iconName.hasPrefix("icon_") {
-                        Image(iconName)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 32, height: 32)
-                            .foregroundStyle(habit.iconColor.color)
-                            .frame(width: 52, height: 52)
-                            .background(
-                                Circle()
-                                    .fill(habit.iconColor.color.opacity(0.1))
-                            )
-                    } else {
-                        Image(systemName: iconName)
-                            .font(.system(size: 26))
-                            .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
-                            .frame(width: 52, height: 52)
-                            .background(
-                                Circle()
-                                    .fill((habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color).opacity(0.1))
-                            )
-                    }
+                    Image(systemName: iconName)
+                        .font(.system(size: 26))
+                        .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
+                        .frame(width: 52, height: 52)
+                        .background(
+                            Circle()
+                                .fill((habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color).opacity(0.1))
+                        )
                     
                     // Pin indicator как badge
                     if habit.isPinned {

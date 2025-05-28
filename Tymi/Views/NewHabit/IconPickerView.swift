@@ -5,6 +5,9 @@ struct IconPickerView: View {
     @Binding var selectedIcon: String?
     @Binding var selectedColor: HabitIconColor
     
+    // MARK: - State
+    @State private var customColor = HabitIconColor.customColor
+    
     // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
@@ -14,10 +17,6 @@ struct IconPickerView: View {
     
     // MARK: - Constants
     private let defaultIcon = "checkmark"
-    
-    // MARK: - State
-    @State private var customColor = HabitIconColor.customColor
-    @State private var searchText = ""
     
     // MARK: - Adaptive Properties
     
@@ -92,22 +91,25 @@ struct IconPickerView: View {
             "cart.fill", "takeoutbag.and.cup.and.straw.fill", "gift.fill", "house.fill", "stroller.fill",
             "face.smiling.fill", "envelope.fill", "phone.fill", "beach.umbrella.fill", "pawprint.fill",
             "creditcard.fill", "banknote.fill", "location.fill", "hand.palm.facing.fill", "steeringwheel.and.hands"
-        ]),
-        
-        IconCategory(name: "pro".localized, icons: [
-            "icon_instagram", "icon_vk", "icon_telegram", "icon_duolingo", "icon_android", "icon_konoha",
-        ], isCustom: true)
+        ])
     ]
     
     // MARK: - Body
     
     var body: some View {
         VStack(spacing: 0) {
-            searchBarSection
             iconGridSection
             colorPickerSection
         }
         .navigationTitle("choose_icon".localized)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("done".localized) {
+                    dismiss()
+                }
+            }
+        }
         .onAppear {
             if selectedIcon == nil {
                 selectedIcon = defaultIcon
@@ -117,54 +119,20 @@ struct IconPickerView: View {
     
     // MARK: - View Components
     
-    /// Search bar section at the top
-    private var searchBarSection: some View {
-        VStack {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                
-                TextField("search_icons".localized, text: $searchText)
-                    .textFieldStyle(.plain)
-                
-                if !searchText.isEmpty {
-                    Button {
-                        searchText = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                    }
-                    .accessibilityLabel("clear_search".localized)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color(UIColor.systemGray5))
-            .cornerRadius(10)
-            .padding(.horizontal)
-            .padding(.bottom, 8)
-        }
-        .padding(.top, 8)
-        .background(Color(UIColor.systemGroupedBackground))
-    }
-    
     /// Main icon grid section
     private var iconGridSection: some View {
         List {
             ForEach(categories, id: \.name) { category in
-                let filteredIcons = searchIcons(in: category.icons, searchText: searchText)
-                
-                if !filteredIcons.isEmpty {
-                    Section(header: Text(category.name)) {
-                        LazyVGrid(columns: adaptiveColumns, spacing: 10) {
-                            ForEach(filteredIcons, id: \.self) { iconName in
-                                iconButton(for: iconName, in: category)
-                            }
+                Section(header: Text(category.name)) {
+                    LazyVGrid(columns: adaptiveColumns, spacing: 10) {
+                        ForEach(category.icons, id: \.self) { iconName in
+                            iconButton(for: iconName, in: category)
                         }
-                        .padding(.vertical, 10)
                     }
-                    .listSectionSeparator(.hidden)
-                    .listRowBackground(Color(UIColor.systemGroupedBackground))
+                    .padding(.vertical, 10)
                 }
+                .listSectionSeparator(.hidden)
+                .listRowBackground(Color(UIColor.systemGroupedBackground))
             }
         }
         .listStyle(.insetGrouped)
@@ -192,7 +160,6 @@ struct IconPickerView: View {
     private func iconButton(for iconName: String, in category: IconCategory) -> some View {
         Button {
             selectedIcon = iconName
-            dismiss()
         } label: {
             VStack {
                 iconImage(for: iconName, isCustom: category.isCustom)
@@ -205,8 +172,10 @@ struct IconPickerView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(
-                        Color.primary.opacity(selectedIcon == iconName ? 0.3 : 0.1),
+                    .strokeBorder(
+                        selectedIcon == iconName ? 
+                            (selectedColor == .colorPicker ? customColor : selectedColor.color) :
+                            Color.primary.opacity(0.1),
                         lineWidth: selectedIcon == iconName ? 2 : 1
                     )
             )
@@ -217,24 +186,14 @@ struct IconPickerView: View {
     
     /// Icon image with proper sizing and styling
     private func iconImage(for iconName: String, isCustom: Bool) -> some View {
-        Group {
-            if isCustom {
-                Image(iconName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: iconSize, height: iconSize)
-                    .foregroundStyle(selectedColor == .colorPicker ? customColor : selectedColor.color)
-            } else {
-                Image(systemName: iconName)
-                    .font(.system(size: iconSize * 0.8, weight: .medium)) // Fixed size for consistency
-                    .frame(width: iconSize, height: iconSize)
-                    .foregroundStyle(
-                        iconName == defaultIcon
-                        ? colorManager.selectedColor.color
-                        : (selectedColor == .colorPicker ? customColor : selectedColor.color)
-                    )
-            }
-        }
+        Image(systemName: iconName)
+            .font(.system(size: iconSize * 0.8, weight: .medium))
+            .frame(width: iconSize, height: iconSize)
+            .foregroundStyle(
+                iconName == defaultIcon
+                ? colorManager.selectedColor.color
+                : (selectedColor == .colorPicker ? customColor : selectedColor.color)
+            )
     }
     
     /// Individual color button
@@ -269,38 +228,9 @@ struct IconPickerView: View {
             .accessibilityLabel("custom_color_picker".localized)
     }
     
-    // MARK: - Helper Methods
-    
-    /// Search through icons with smart filtering
-    private func searchIcons(in icons: [String], searchText: String) -> [String] {
-        guard !searchText.isEmpty else { return icons }
-        
-        let lowercasedSearch = searchText.lowercased()
-        
-        return icons.filter { iconName in
-            // Search by technical name (icon_telegram)
-            if iconName.lowercased().contains(lowercasedSearch) {
-                return true
-            }
-            
-            // Search by clean name (telegram from icon_telegram)
-            let cleanName = iconName.replacingOccurrences(of: "icon_", with: "")
-            if cleanName.lowercased().contains(lowercasedSearch) {
-                return true
-            }
-            
-            return false
-        }
-    }
-    
     /// Accessibility label for icons
     private func iconAccessibilityLabel(for iconName: String, isCustom: Bool) -> String {
-        if isCustom {
-            let cleanName = iconName.replacingOccurrences(of: "icon_", with: "")
-            return "\(cleanName) icon"
-        } else {
-            return "\(iconName) icon"
-        }
+        return "\(iconName) icon"
     }
 }
 

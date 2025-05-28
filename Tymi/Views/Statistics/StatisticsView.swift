@@ -42,20 +42,10 @@ struct StatisticsView: View {
                             } label: {
                                 HStack {
                                     if let iconName = habit.iconName {
-                                        if iconName.hasPrefix("icon_") {
-                                            // Кастомная иконка
-                                            Image(iconName)
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fit)
-                                                .frame(width: 28, height: 28)
-                                                .foregroundStyle(habit.iconColor.color)
-                                        } else {
-                                            // SF Symbol
-                                            Image(systemName: iconName)
-                                                .font(.system(size: 24))
-                                                .frame(width: 24, height: 24)
-                                                .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
-                                        }
+                                        Image(systemName: iconName)
+                                            .font(.system(size: 24))
+                                            .frame(width: 24, height: 24)
+                                            .foregroundStyle(habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color)
                                     }
                                     
                                     Text(habit.title)

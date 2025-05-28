@@ -163,19 +163,9 @@ struct HabitDetailView: View {
         HStack(spacing: 8) {
             // Иконка слева от текста Goal (если она установлена)
             if let iconName = habit.iconName {
-                if iconName.hasPrefix("icon_") {
-                    // Кастомная иконка
-                    Image(iconName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(.secondary)
-                } else {
-                    // SF Symbol
-                    Image(systemName: iconName)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                Image(systemName: iconName)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
             
             // Текст goal по центру
