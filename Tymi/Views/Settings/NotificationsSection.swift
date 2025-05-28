@@ -27,13 +27,13 @@ struct NotificationsSection: View {
                 await handleNotificationToggle(newValue)
             }
         }
-        .alert("notification_permission".localized, isPresented: $isNotificationPermissionAlertPresented) {
-            Button("cancel".localized, role: .cancel) { }
+        .alert("alert_notifications_permission".localized, isPresented: $isNotificationPermissionAlertPresented) {
+            Button("button_cancel".localized, role: .cancel) { }
             Button("settings".localized) {
                 openSettings()
             }
         } message: {
-            Text("permission_for_notifications".localized)
+            Text("alert_notifications_permission_message".localized)
         }
     }
     

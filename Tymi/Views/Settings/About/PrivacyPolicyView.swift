@@ -29,7 +29,7 @@ struct PrivacyPolicyView: View {
                     }
                 }
                 
-                // Local Data Storage
+                // Data Storage
                 Group {
                     Text("privacy_storage_title".localized)
                         .font(.title2)
@@ -40,6 +40,7 @@ struct PrivacyPolicyView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("privacy_storage_item_1".localized)
                         Text("privacy_storage_item_2".localized)
+                        Text("privacy_storage_item_3".localized)
                     }
                     
                     Text("privacy_storage_implication".localized)
@@ -49,6 +50,23 @@ struct PrivacyPolicyView: View {
                         Text("privacy_storage_implication_2".localized)
                         Text("privacy_storage_implication_3".localized)
                         Text("privacy_storage_implication_4".localized)
+                    }
+                }
+                
+                // iCloud Synchronization (НОВЫЙ РАЗДЕЛ)
+                Group {
+                    Text("privacy_icloud_title".localized)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("privacy_icloud_body".localized)
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("privacy_icloud_item_1".localized)
+                        Text("privacy_icloud_item_2".localized)
+                        Text("privacy_icloud_item_3".localized)
+                        Text("privacy_icloud_item_4".localized)
+                        Text("privacy_icloud_item_5".localized)
                     }
                 }
                 
@@ -80,6 +98,7 @@ struct PrivacyPolicyView: View {
                         Text("privacy_collection_item_2".localized)
                         Text("privacy_collection_item_3".localized)
                         Text("privacy_collection_item_4".localized)
+                        Text("privacy_collection_item_5".localized)
                     }
                 }
                 
@@ -93,6 +112,15 @@ struct PrivacyPolicyView: View {
                         Text("privacy_security_item_1".localized)
                         Text("privacy_security_item_2".localized)
                     }
+                }
+                
+                // Apple Services (НОВЫЙ РАЗДЕЛ)
+                Group {
+                    Text("privacy_apple_title".localized)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("privacy_apple_body".localized)
                 }
                 
                 // Children's Privacy

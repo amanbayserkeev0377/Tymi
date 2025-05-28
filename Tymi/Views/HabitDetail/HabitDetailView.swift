@@ -47,9 +47,9 @@ struct HabitDetailView: View {
                             viewModel.forceCleanup()
                         }
                     }
-                    .alert("close_habit_detail".localized, isPresented: $isTimerStopAlertPresented) {
-                        Button("cancel".localized, role: .cancel) { }
-                        Button("close".localized, role: .destructive) {
+                    .alert("alert_close_timer".localized, isPresented: $isTimerStopAlertPresented) {
+                        Button("button_cancel".localized, role: .cancel) { }
+                        Button("button_close".localized, role: .destructive) {
                             isManuallyDismissing = true
                             viewModel.saveIfNeeded()
                             viewModel.cleanup(stopTimer: true)
@@ -233,7 +233,7 @@ struct HabitDetailView: View {
         // Кнопка "Закрыть" только если таймер активен
         ToolbarItem(placement: .cancellationAction) {
             if viewModel?.isTimerRunning == true {
-                Button("close".localized) {
+                Button("button_close".localized) {
                     isTimerStopAlertPresented = true
                 }
             }
@@ -258,7 +258,7 @@ struct HabitDetailView: View {
                 Button {
                     isEditPresented = true
                 } label: {
-                    Label("edit".localized, systemImage: "pencil")
+                    Label("button_edit".localized, systemImage: "pencil")
                 }
                 
                 // Кнопка архивирования
@@ -272,7 +272,7 @@ struct HabitDetailView: View {
                 Button(role: .destructive) {
                     viewModel?.alertState.isDeleteAlertPresented = true
                 } label: {
-                    Label("delete".localized, systemImage: "trash")
+                    Label("button_delete".localized, systemImage: "trash")
                 }
                 .tint(.red)
             } label: {

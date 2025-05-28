@@ -22,9 +22,45 @@ struct FolderManagementView: View {
     @State private var selectedForDeletion: Set<HabitFolder.ID> = []
     @State private var isDeleteSelectedAlertPresented = false
     @State private var folderToDelete: HabitFolder?
-    @State private var isDeleteAlertPresented = false
+    @State private var isDeleteSingleAlertPresented = false
     
     var body: some View {
+        mainContent
+            .listStyle(.insetGrouped)
+            .navigationTitle(navigationTitle)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar { toolbarContent }
+            .onChange(of: editMode?.wrappedValue) { _, newValue in
+                if newValue != .active {
+                    selectedForDeletion.removeAll()
+                }
+            }
+            .sheet(isPresented: $isShowingNewFolderSheet) {
+                NewFolderView()
+            }
+            .sheet(item: $folderToEdit) { folder in
+                NewFolderView(folder: folder)
+            }
+            .deleteMultipleFoldersAlert(
+                isPresented: $isDeleteSelectedAlertPresented,
+                foldersCount: selectedForDeletion.count,
+                onDelete: deleteSelectedFolders
+            )
+            .deleteSingleFolderAlert(
+                isPresented: $isDeleteSingleAlertPresented,
+                folderName: folderToDelete?.name ?? "",
+                onDelete: {
+                    if let folder = folderToDelete {
+                        deleteFolder(folder)
+                    }
+                    folderToDelete = nil
+                }
+            )
+    }
+    
+    // MARK: - Main Content
+    @ViewBuilder
+    private var mainContent: some View {
         Group {
             if editMode?.wrappedValue == .active {
                 List(selection: $selectedForDeletion) {
@@ -36,59 +72,31 @@ struct FolderManagementView: View {
                 }
             }
         }
-        .listStyle(.insetGrouped)
-        .navigationTitle(navigationTitle)
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            if !folders.isEmpty {
-                ToolbarItem(placement: .primaryAction) {
-                    EditButton()
-                }
+    }
+    
+    // MARK: - Toolbar Content
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        if !folders.isEmpty {
+            ToolbarItem(placement: .primaryAction) {
+                EditButton()
             }
-            
-            if !selectedForDeletion.isEmpty {
-                ToolbarItem(placement: .bottomBar) {
-                    HStack {
-                        Spacer()
-                        Button {
-                            isDeleteSelectedAlertPresented = true
-                        } label: {
-                            HStack {
-                                Text("delete".localized)
-                                Image(systemName: "trash")
-                            }
+        }
+        
+        if !selectedForDeletion.isEmpty {
+            ToolbarItem(placement: .bottomBar) {
+                HStack {
+                    Spacer()
+                    Button {
+                        isDeleteSelectedAlertPresented = true
+                    } label: {
+                        HStack {
+                            Text("button_delete".localized)
+                            Image(systemName: "trash")
                         }
-                        .tint(.red)
                     }
+                    .tint(.red)
                 }
-            }
-        }
-        .onChange(of: editMode?.wrappedValue) { _, newValue in
-            if newValue != .active {
-                selectedForDeletion.removeAll()
-            }
-        }
-        .sheet(isPresented: $isShowingNewFolderSheet) {
-            NewFolderView()
-        }
-        .sheet(item: $folderToEdit) { folder in
-            NewFolderView(folder: folder)
-        }
-        .alert("folders_alert_delete_folders".localized, isPresented: $isDeleteSelectedAlertPresented) {
-            Button("cancel".localized, role: .cancel) {}
-            Button("delete".localized, role: .destructive) {
-                deleteSelectedFolders()
-            }
-        }
-        .alert("folders_alert_delete_folders".localized, isPresented: $isDeleteAlertPresented) {
-            Button("cancel".localized, role: .cancel) {
-                folderToDelete = nil
-            }
-            Button("delete".localized, role: .destructive) {
-                if let folder = folderToDelete {
-                    deleteFolder(folder)
-                }
-                folderToDelete = nil
             }
         }
     }
@@ -96,7 +104,7 @@ struct FolderManagementView: View {
     // MARK: - Navigation Title
     private var navigationTitle: String {
         if editMode?.wrappedValue == .active && !selectedForDeletion.isEmpty {
-            return "general_items_selected".localized(with: selectedForDeletion.count)
+            return "items_selected".localized(with: selectedForDeletion.count)
         } else {
             return "folders".localized
         }
@@ -108,22 +116,26 @@ struct FolderManagementView: View {
         Section(
             footer: shouldShowEditFooter ? Text("folders_edit_footer".localized) : nil
         ) {
-            // Create folder button
-            createFolderButton
+            // Create folder button - показывать только если НЕ в edit mode
+            if editMode?.wrappedValue != .active {
+                createFolderButton
+            }
             
             if !folders.isEmpty {
                 // Folders list
                 ForEach(folders) { folder in
                     folderRow(folder)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            // Delete action (red)
-                            Button(role: .destructive) {
-                                folderToDelete = folder
-                                isDeleteAlertPresented = true
-                            } label: {
-                                Label("delete".localized, systemImage: "trash")
+                            // Delete action (red) - показывать только если НЕ в edit mode
+                            if editMode?.wrappedValue != .active {
+                                Button(role: .destructive) {
+                                    folderToDelete = folder
+                                    isDeleteSingleAlertPresented = true
+                                } label: {
+                                    Label("button_delete".localized, systemImage: "trash")
+                                }
+                                .tint(.red)
                             }
-                            .tint(.red)
                         }
                 }
                 .onMove(perform: moveFolders)

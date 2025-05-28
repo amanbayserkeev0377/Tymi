@@ -1,9 +1,135 @@
+/* ===================== Alerts ===================== */
+
+// Delete Habit Alerts
+"alert_delete_habit" = "Адатты өчүрүү";
+"alert_delete_habit_message" = "Сиз чындап эле «%@» адатты өчүргүңүз келеби?";
+
+"alert_delete_multiple_habits" = "Тандалган адаттарды өчүрүү";
+"alert_delete_multiple_habits_message" = "Сиз чындап эле %d тандалган адатты түбөлүккө өчүргүңүз келеби?";
+
+// Folder Delete Alerts
+"alert_delete_folder" = "Папканы өчүрүү";
+"alert_delete_folder_message" = "«%@» папканы өчүрсөң, адаттарың өзгөрбөйт. Жалгашасыңбы?";
+
+"alert_delete_folders" = "Папкаларды өчүрүү";
+"alert_delete_folders_message" = "%d папканы өчүрсөң, адаттарың өзгөрбөйт. Жалгашасыңбы?";
+
+// Progress Input Alerts
+"alert_add_count" = "Саан кошуу";
+"alert_add_count_message" = "Кошулуучу аткарылган иштердин санын киргизиңиз";
+
+"alert_add_time" = "Убакыт кошуу";
+"alert_add_time_message" = "Бул адатка сарптаган убакытыңызды киргизиңиз";
+
+// History Reset Alert
+"alert_reset_history" = "Тарыхты өчүрүү";
+"alert_reset_history_message" = "Бул адаттын бардык аткарылган маалыматын биротоло өчүрөт. Бул аракетти кайтарууга болбойт.";
+
+// Timer Close Alert
+"alert_close_timer" = "Таймерди токтотуу";
+"alert_close_timer_message" = "Жабуу иштеп жаткан таймерди токтотот. Улантасыңбы?";
+
+// Notifications Permission Alert
+"alert_notifications_permission" = "Эскертме үчүн уруксат керек";
+"alert_notifications_permission_message" = "Адат эскертмелерин алуу үчүн Жөндөөлөрдө эскертмелерди иштетиңиз.";
+
+
+/* ===================== Buttons ===================== */
+"button_add" = "Кошуу";
+"button_done" = "Бүттү";
+"button_delete" = "Жоюу";
+"button_cancel" = "Токтотуу";
+"button_close" = "Жабуу";
+"button_pin" = "Тиктеп коюу";
+"button_unpin" = "Тиктеп коюуну алуу";
+"button_edit" = "Түзөтүү";
+"button_save" = "Сактоо";
+"button_reset" = "Өчүрүү";
+"button_reset_progress" = "Прогрессти өчүрүү";
+"complete" = "Аткаруу";
+"completed" = "Аткарылды";
+
+/* ===================== General ===================== */
+"today" = "Бүгүн";
+"yesterday" = "Кечээ";
+"items_selected" = "%d тандалды";
+"count" = "Сан";
+"time" = "Убакыт";
+"times" = "жолу";
+"hours" = "Саат";
+"goal" = "Максат: %@";
+"minutes_format" = "%d м";
+"hours_format" = "%d с";
+"hours_less_than_24" = "сааттар (24төн аз)";
+"hours_minutes_format" = "%d с %d м";
+"minutes" = "Мүнөт";
+"minutes_less_than_60" = "мүнөттөр (60тан аз)";
+"total" = "Жалпы";
+"version" = "версия";
+
+/* ===================== Main Tab View ===================== */
+"home" = "Башкы";
+"statistics" = "Статистика";
+"settings" = "Жөндөөлөр";
+
+/* ===================== New Habit View ===================== */
+"habit_name" = "Адаттын аты";
+"icon" = "Белги";
+"goalsection_choose_time" = "Убакытты тандаңыз (с:м)";
+"goalsection_enter_count" = "Санын жазыңыз";
 "active_days" = "Активдүү күндөр";
-"add" = "Кошуу";
+"everyday" = "Күн сайын";
+"every_week" = "Жума сайын";
+"select_days" = "Күндөрдү танда";
+"will_repeat_weekly" = "Бул күндөрдө жума сайын кайталанат";
+"reminders" = "Эскертүүлөр";
+"reminder" = "Эскертүү";
+
+/* ===================== Other ===================== */
 "add_count" = "Санын кошуу";
 "add_progress" = "Прогрессти кошуу";
 "add_reminder" = "Кошуу";
 "add_time" = "Убакыт кошуу";
+"choose_icon" = "Белги тандоо";
+"create_habit" = "Адат түзүү";
+"daily_goal" = "Максат";
+"delete_habit" = "Адатты өчүрүү";
+"edit_habit" = "Адатты оңдоо";
+"future_self_thank_you" = "Биринчи адатыңызды түзүү үчүн “+” басыңыз.";
+"goal_format" = "Максат: %@";
+"habits" = "Адаттар";
+"health" = "Саламаттык";
+"hobbies" = "Кызыгуу";
+"lifestyle" = "Жашоо";
+"loading_calendar" = "Календарь жүктөлүүдө…";
+"no_habits" = "Азырынча адаттар жок.";
+"no_habits_for_date" = "Бул күнү адаттар жок";
+"no_icon" = "Белгисиз";
+"productivity" = "Натыйжалуулук";
+"reset_all_history" = "Тарыхты өчүрүү";
+"reset_button_label" = "Кайра орнотуу";
+"start_date" = "Башталган күн";
+"streak" = "Катасыз";
+
+/* ===================== Notifications ===================== */
+"notifications_habit_time" = "Адатыңа убакыт келди!";
+"notifications_dont_forget" = "Унутпаңыз: %@";
+
+/* ===================== Settings: Section Headers & Footers ===================== */
+"settings_header_appearance" = "Көрүнүш жана тил";
+"settings_header_data" = "Маалымат жана уюштуруу";
+"settings_header_sounds_feedback" = "Үндөр жана жооп";
+"settings_header_support" = "Колдоо жана пикир";
+"settings_header_legal" = "Юридикалык маалымат";
+"settings_footer_language" = "Тилди тутум жөндөөлөрүнөн өзгөртсөңүз болот.";
+
+/* ===================== Settings: App Color ===================== */
+"app_color" = "Колдонмо түсү";
+"app_color_preview_header" = "Алдын ала көрүү";
+"app_color_preview_footer" = "Колдонмо түсү сиз тандаган түскө жараша өзгөрөт.";
+"app_color_colors_header" = "Түстөр";
+
+/* ===================== Settings: App Icon ===================== */
 "app_icon" = "Колдонмо белгиси";
 "app_icon_aura_name" = "Аура";
 "app_icon_blaze_name" = "Жалын";
@@ -16,161 +142,48 @@
 "app_icon_minimal_dark_name" = "Түнкү Минимализм";
 "app_icon_minimal_light_name" = "Күндүзгү Минимализм";
 "app_icon_paper_name" = "Кагаз";
-"app_icon_silver_blue_name" = "Көк Күмүш";
+"app_icon_silver_wire_name" = "Көк Күмүш";
 "app_icon_sunrise_name" = "Таң";
+
+/* ===================== Settings: Appearance ===================== */
 "appearance" = "Көрүнүш";
 "appearance_dark" = "Түн";
 "appearance_light" = "Күндүз";
 "appearance_system" = "Тутумдук";
-"best" = "Эң мыкты";
-"cancel" = "Токтотуу";
-"choose_icon" = "Белги тандоо";
-"close" = "Жабуу";
-"close_button_label" = "Жабуу";
-"close_habit_detail" = "Жабуу таймерди токтотот. Улантасыңбы?";
-"complete" = "Аткаруу";
-"completed" = "Аткарылды";
-"contact_developer" = "Разработчик менен байланышуу";
-"count" = "Сан";
-"create_habit" = "Адат түзүү";
-"daily_goal" = "Максат";
-"delete" = "Жоюу";
-"delete_habit" = "Адатты өчүрүү";
-"delete_habit_confirmation" = "Бул адатты жоёбуз деп ишенесизби? Бул аракетти кайтарууга болбойт";
-"done" = "Бүттү";
-"dont_forget" = "Унутпаңыз: %@";
-"edit" = "Түзөтүү";
-"edit_habit" = "Адатты оңдоо";
-"enter_completion_count" = "Бул адатты канча жолу аткарганыңызды киргизиңиз";
-"enter_time_spent" = "Бул адатка кеткен убактыңызды киргизиңиз";
-"every_week" = "Жума сайын";
-"everyday" = "Күн сайын";
-"future_self_thank_you" = "Биринчи адатыңызды түзүү үчүн “+” басыңыз.";
-"goal" = "Максат: %@";
-"goal_format" = "Максат: %@";
-"goalsection_choose_time" = "Убакытты тандаңыз (с:м)";
-"goalsection_enter_count" = "Санын киргизиңиз";
-"habit_name" = "Адаттын аты";
-"habit_time" = "Адатыңа убакыт келди!";
-"habits" = "Адаттар";
-"haptics" = "Вибрациялуу жооп";
-"health" = "Саламаттык";
-"hobbies" = "Кызыгуу";
-"home" = "Башкы";
-"hours" = "Саат";
-"hours_format" = "%d с";
-"hours_less_than_24" = "сааттар (24 төн аз)";
-"hours_minutes_format" = "%d с %d м";
-"icon" = "Белги";
-"in_kyrgyzstan" = "менен жасалган";
-"language" = "Тил";
-"legal" = "Юридикалык маалымат";
-"lifestyle" = "Жашоо";
-"loading_calendar" = "Календарь жүктөлүүдө…";
-"made_with" = "Кыргызстанда";
-"manual_entry_button_label" = "Кол менен киргизүү";
-"minutes" = "Мүнөт";
-"minutes_format" = "%d м";
-"minutes_less_than_60" = "мүнөттөр (60 тан аз)";
-"no_active_habits" = "Активдүү адаттар жок";
-"no_habits" = "Азырынча адаттар жок.";
-"no_habits_for_date" = "Бул күнү сизде адаттар жок\n";
-"no_icon" = "Белгисиз";
-"notification_permission" = "Уруксат керек";
-"notifications" = "Эскертмелер";
-"notifications.permission.description" = "Tymi сизге белгиленген убакта адаттарыңызды аткарууну эскертип туруу үчүн билдирүүлөрдү жөнөтөт.";
-"okay" = "Жакшы";
-"pause_button_label" = "Токтотуу";
-"permission_for_notifications" = "Эскертмелерди алуу үчүн системалык жөндөөлөрдө уруксат берүү керек";
-"play_button_label" = "Ойнотуу";
-"privacy_changes_body" = "Саясат жаңыртылышы мүмкүн. Бул баракчаны мезгил-мезгили менен текшерүү сунушталат. Жаңыртуулар жарыялангандан кийин күчүнө кирет.";
-"privacy_changes_title" = "Саясатты жаңыртуу";
-"privacy_children_body" = "Колдонмо 13 жашка чейинки балдар үчүн атайын иштелип чыккан эмес, бирок бардык курактагы колдонуучулар үчүн коопсуз.";
-"privacy_children_title" = "Балдардын купуялыгы";
-"privacy_collection_body" = "Колдонмо маалыматтарды чогултпайт жана үчүнчү тараптар менен бөлүшпөйт:";
-"privacy_collection_item_1" = "• Колдонуу аналитикасы жок";
-"privacy_collection_item_2" = "• Жүрүм-турумду көзөмөлдөө жок";
-"privacy_collection_item_3" = "• Үчүнчү тараптар менен маалымат бөлүшүү жок";
-"privacy_collection_item_4" = "• Жарнама трекерлери же SDK жок";
-"privacy_collection_title" = "Маалымат чогултуу жана бөлүшүү";
-"privacy_contact_body" = "Купуялык боюнча суроолор же сунуштар үчүн байланышсаңыз болот:";
-"privacy_contact_email_label" = "Электрондук почта";
-"privacy_contact_telegram_label" = "Телеграм";
-"privacy_contact_title" = "Байланыш маалыматы";
-"privacy_data_body" = "Колдонмо төмөнкү маалыматтарды колдонот:";
-"privacy_data_item_1" = "• Адаттар тууралуу маалымат — аталыштар, максаттар, прогресс жана колдонуучу тарабынан коюлган параметрлер";
-"privacy_data_item_2" = "• Колдонмо жөндөөлөрү — тема, жуманын башталышы жана башка артыкчылыктар";
-"privacy_data_item_3" = "• Аткаруу статистикасы — даталар, убакыт жана адаттардын прогрессинин динамикасы";
-"privacy_data_title" = "Чогултулган маалымат";
-"privacy_intro_body" = "Tymi адаттарды көзөмөлдөө колдонмосу колдонуучулардын купуялыгын сыйлайт. Бул бөлүмдө кандай маалыматтар колдонулганы, кайда сакталганы жана кантип иштетилгени сүрөттөлөт.";
-"privacy_intro_title" = "Киришүү";
-"privacy_notifications_body" = "Эгер уруксат берилсе, колдонмо жергиликтүү адат эскертмелерин жөнөтүшү мүмкүн:";
-"privacy_notifications_item_1" = "• Эскертмелер колдонуучу тарабынан жөндөлөт";
-"privacy_notifications_item_2" = "• Каалаган убакта жөндөөлөр аркылуу өчүрүлүшү мүмкүн";
-"privacy_notifications_item_3" = "• Жергиликтүү иштетилет жана үчүнчү тарап кызматтары менен бөлүшүлбөйт";
-"privacy_notifications_title" = "Эскертмелер";
-"privacy_policy" = "Купуялык саясаты";
-"privacy_security_item_1" = "• Маалыматтар коопсуз iOS контейнерлеринде сакталат";
-"privacy_security_item_2" = "• Колдонмону жок кылуу бардык байланышкан маалыматтарды жок кылат";
-"privacy_security_title" = "Коопсуздук";
-"privacy_storage_body" = "Бардык маалыматтар төмөнкү технологияларды колдонуу менен жергиликтүү түрдө түзмөктө сакталат:";
-"privacy_storage_implication" = "Бул дегенди билдирет:";
-"privacy_storage_implication_1" = "• Маалыматтар түзмөктөн чыкпайт";
-"privacy_storage_implication_2" = "• Булут кызматтары колдонулбайт";
-"privacy_storage_implication_3" = "• Колдонуучу өз маалыматтарын толук көзөмөлдөйт";
-"privacy_storage_implication_4" = "• Колдонмону жок кылуу бардык маалыматтарды жок кылат";
-"privacy_storage_item_1" = "• SwiftData — адаттарды жана тарыхты сактоо үчүн колдонулат";
-"privacy_storage_item_2" = "• UserDefaults — колдонуучунун жөндөөлөрүн сактоо";
-"privacy_storage_title" = "Жергиликтүү маалымат сактоо";
-"privacy_updated_date" = "Акыркы жаңыртуу: 16-май, 2025-жыл";
-"privacy_updated_title" = "Акыркы жаңыртуу";
-"productivity" = "Натыйжалуулук";
-"rate_app" = "Баалоо";
-"reminder" = "Эскертүү";
-"reminders" = "Эскертүүлөр";
-"reorder" = "Иреттөө";
-"report_bug" = "Катаны билдирүү";
-"reset" = "Өчүрүү";
-"reset_all_history" = "Тарыхты өчүрүү";
-"reset_button_label" = "Кайра орнотуу";
-"reset_history" = "Тарыхты өчүрөсүзбү?";
-"reset_history_alert" = "Бул адат боюнча бардык маалыматты кайтарылгыс өчүрөт.";
-"reset_progress" = "Прогрессти өчүрүү";
-"save" = "Сактоо";
-"search_icons" = "Белгилерди издөө";
-"select_days" = "Күндөрдү танда";
-"settings" = "Жөндөөлөр";
-"share_app" = "Бөлүшүү";
-"start_date" = "Башталган күн";
-"statistics" = "Статистика";
-"streak" = "Катасыз";
-"terms_of_service" = "Кызмат шарттары";
-"time" = "Убакыт";
-"times" = "жолу";
-"today" = "Бүгүн";
-"tos_contact_body" = "Суроолоруңуз болсо, мен менен байланышуудан тартынбаңыз.";
-"tos_contact_email_label" = "Электрондук почта";
-"tos_contact_telegram_label" = "Телеграм";
-"tos_contact_title" = "Мен менен байланыш";
-"tos_intro_body" = "Бул колдонмо жеке колдонууга арналган жана сизге адаттарыңызды көзөмөлдөөгө жардам берет. Tymi колдонуп, төмөнкү шарттарга макул болосуз:";
-"tos_intro_title" = "Tymi тандаганыңыз үчүн рахмат!";
-"tos_privacy_body" = "Колдонмо жеке маалыматтарды чогултпайт жана өткөрбөйт.";
-"tos_privacy_title" = "Жеке маалыматтар";
-"tos_risk_body" = "Колдонмону өзүңүздүн тобокелчилигиңизде колдонуп жатасыз - маалымат жоготуу же башка көйгөйлөр үчүн жоопкерчилик албайм.";
-"tos_risk_title" = "Колдонуу өз тобокелчилигиңизде";
-"tos_updates_body" = "Кээде колдонмо жана шарттар жакшыртуу үчүн жаңыртылышы мүмкүн.";
-"tos_updates_title" = "Жаңыртуулар";
-"tos_warranty_body" = "Колдонмо эч кандай кепилдиктерсиз берилет - баары жакшы иштеши үчүн аракет кылам, бирок толук тактыкты кепилдей албайм.";
-"tos_warranty_title" = "Кепилдик жок";
-"total" = "Жалпы";
-"try_different_date" = "Башка күндү тандап көрүңүз";
-"Tymi – %@ %@" = "Tymi – %1$@ %2$@";
-"version" = "версия";
+
+/* ===================== Settings: Week Start ===================== */
 "week_start_day" = "Жуманын башталышы";
 "week_start_system" = "Тутумдагыдай";
-"will_repeat_weekly" = "Бул күндөрдө жума сайын кайталанат";
-"yesterday" = "Кечээ";
 
+/* ===================== Settings: Language ===================== */
+"language" = "Тил";
+
+/* ===================== Settings: Archived Habits ===================== */
+"archive" = "Архивдөө";
+"archived_habits" = "Архивделген адаттар";
+"no_archived_habits" = "Архивделген адаттар жок";
+"unarchive" = "Архивден чыгаруу";
+"archived_habits_footer" = "Солго сүрүп, архивден чыгарыңыз же жойуңуз";
+"archived_date_format" = "Архивделди %@";
+"archived_habits_footer" = "Солго сүрүңүз, архивден чыгаруу же өчүрүү үчүн";
+
+
+/* ===================== Settings & General: Folders ===================== */
+"folders" = "Папкалар";
+"folders_all" = "Баары";
+"folders_move" = "Жылдыруу";
+"folders_new_folder" = "Жаңы папка";
+"folders_edit_folder" = "Папканы оңдоо";
+"folders_create_folder" = "Папка түзүү";
+"folders_select_folder" = "Папканы тандаңыз";
+"folders_folder_name" = "Папканын аты";
+"folders_edit_footer" = "Тартипти өзгөртүү же папканы жоюу үчүн «Түзөтүү» баскычын басыңыз. Папкаларды жөндөөлөрдөн да башкара аласыз.";
+"folders_none_selected" = "Жок";
+"folders_move_to_folder" = "Папкага көчүрүү";
+"folders_no_folder" = "Папкасыз";
+"folders_no_habits" = "Бул папкада адаттар жок";
+
+/* ===================== Settings: iCloud Sync ===================== */
 "icloud_sync" = "iCloud байланыш";
 "icloud_sync_status" = "Синхрондоштуруу абалы";
 "icloud_sync_active" = "Иштеп жатат";
@@ -191,3 +204,97 @@
 "icloud_temporarily_unavailable" = "Азыр жеткиликсиз";
 "icloud_unknown_error" = "Белгисиз ката чыкты";
 "icloud_check_failed" = "Текшерүү ишке ашкан жок";
+
+/* ===================== Settings: Sounds & Feedback ===================== */
+"notifications" = "Эскертмелер";
+"haptics" = "Вибрациялуу жооп";
+
+/* ===================== Settings: Support & Feedback ===================== */
+"rate_app" = "Баалоо";
+"share_app" = "Бөлүшүү";
+"contact_developer" = "Разработчик менен байланышуу";
+"report_bug" = "Катаны билдирүү";
+
+/* ===================== Settings: Terms of Service ===================== */
+"terms_of_service" = "Кызмат шарттары";
+"tos_intro_title" = "Tymi тандаганыңыз үчүн рахмат!";
+"tos_intro_body" = "Бул колдонмо адаттарыңызды көзөмөлдөө үчүн жеке колдонууга арналган. Tymi колдонуп, төмөнкү шарттарга макул болосуз:";
+"tos_privacy_title" = "Жеке маалыматтар";
+"tos_privacy_body" = "Колдонмо маалыматтарды жергиликтүү сактайт жана iCloud аркылуу синхрондошот. Биз сиздин жеке маалыматыңызды чогултпайбыз же бөлүшпөйбүз. Көбүрөөк маалымат алуу үчүн Купуялык Саясатын караңыз.";
+"tos_icloud_title" = "iCloud менен иштөө";
+"tos_icloud_body" = "iCloud'га киргенде, адаттарыңыз Apple түзмөктөрүңүздө синхрондошот. Маалыматтар сиздин жеке iCloud'ыңызда сакталат жана Apple'дин шарттары менен жөнгө салынат.";
+"tos_risk_title" = "Колдонуу өз тобокелчилигиңизде";
+"tos_risk_body" = "Колдонмону өзүңүздүн тобокелчилигиңизде колдонуп жатасыз. Биз ишенимдүү кызмат берүүгө аракет кылабыз, бирок маалымат жоготуу же башка маселелер үчүн жооп бербейбиз.";
+"tos_updates_title" = "Жаңыртуулар";
+"tos_updates_body" = "Колдонмо менен шарттарды жакшыртуу үчүн кээде жаңыртабыз. Колдонууну улантуу менен жаңыртууларга макул болосуз.";
+"tos_warranty_title" = "Кепилдик жок";
+"tos_warranty_body" = "Колдонмо «кандай болсо ошондой» берилет. Баары жакшы иштеши үчүн аракет кылабыз, бирок толук тактыкты кепилдей албайбыз.";
+"tos_contact_title" = "Байланыш";
+"tos_contact_body" = "Суроолоруңуз болсо, биз менен байланышуудан тартынбаңыз:";
+"tos_contact_email_label" = "Электрондук почта";
+"tos_contact_telegram_label" = "Телеграм";
+
+/* ===================== Settings: Privacy Policy ===================== */
+"privacy_policy" = "Купуялык Саясаты";
+"privacy_updated_title" = "Акыркы жаңыртуу";
+"privacy_updated_date" = "Жаңыртылды: 28-май, 2025";
+"privacy_intro_title" = "Киришүү";
+"privacy_intro_body" = "Tymi адаттарды көзөмөлдөө колдонмосу сиздин купуялыгыңызды сыйлайт. Бул бөлүмдө кандай маалыматтар колдонулуп, кайда сакталып, кантип иштетилери түшүндүрүлөт.";
+"privacy_data_title" = "Чогулган маалымат";
+"privacy_data_body" = "Колдонмо төмөнкү маалыматтарды колдонот:";
+"privacy_data_item_1" = "• Адаттар — аталыштар, максаттар, прогресс жана сиз койгон параметрлер";
+"privacy_data_item_2" = "• Колдонмо жөндөөлөрү — тема, жуманын башталышы жана башка тандоолор";
+"privacy_data_item_3" = "• Статистика — даталар, убакыт жана адаттардын прогресси";
+"privacy_storage_title" = "Маалыматты сактоо";
+"privacy_storage_body" = "Маалыматтар төмөнкү жолдор менен сакталат:";
+"privacy_storage_item_1" = "• SwiftData аркылуу жергиликтүү сактоо (адаттар жана прогресс)";
+"privacy_storage_item_2" = "• UserDefaults аркылуу жөндөөлөр жана тандоолор";
+"privacy_storage_item_3" = "• iCloud аркылуу автоматтык синхрондоштуруу (кирген колдонуучулар үчүн)";
+"privacy_storage_implication" = "Бул сактоо ыкмасы төмөнкүлөрдү билдирет:";
+"privacy_storage_implication_1" = "• Жергиликтүү маалыматтар түзмөгүңүздө коопсуз сакталат";
+"privacy_storage_implication_2" = "• iCloud'га киргенде автоматтык синхрондоштуруу иштейт";
+"privacy_storage_implication_3" = "• Маалыматтарыңызды Apple ID аркылуу толук көзөмөлдөйсүз";
+"privacy_storage_implication_4" = "• Колдонмону өчүрсөңүз, жергиликтүү маалыматтар жок болот; iCloud маалыматтарын Apple ID жөндөөлөрүнөн башкара аласыз";
+"privacy_icloud_title" = "iCloud Синхрондоштуруу";
+"privacy_icloud_body" = "Эгер iCloud жеткиликтүү болсо, маалыматтар автоматтык түрдө синхрондошот:";
+"privacy_icloud_item_1" = "• Адаттар бардык Apple түзмөктөрүндө синхрондошот";
+"privacy_icloud_item_2" = "• Маалыматтар сиздин жеке iCloud контейнериңизде сакталат";
+"privacy_icloud_item_3" = "• Apple ID аркылуу гана жеткиликтүү";
+"privacy_icloud_item_4" = "• Apple'дин iCloud шарттары жана купуялык саясаты колдонулат";
+"privacy_icloud_item_5" = "• iCloud'га кирбесеңиз, маалыматтар жергиликтүү гана сакталат";
+"privacy_notifications_title" = "Эскертмелер";
+"privacy_notifications_body" = "Уруксат берсеңиз, колдонмо жергиликтүү эскертүүлөрдү жөнөтөт:";
+"privacy_notifications_item_1" = "• Эскертүүлөрдү сиз өзүңүз орнотосуз";
+"privacy_notifications_item_2" = "• Каалаган убакта жөндөөлөрдөн өчүрсөңүз болот";
+"privacy_notifications_item_3" = "• Жергиликтүү иштетилет, башкаларга берилбейт";
+"privacy_collection_title" = "Маалымат чогултуу жана бөлүшүү";
+"privacy_collection_body" = "Колдонмо маалыматтарды чогултпайт жана башкаларга бөлүшпөйт:";
+"privacy_collection_item_1" = "• Колдонуу аналитикасы жок";
+"privacy_collection_item_2" = "• Жүрүм-турум көзөмөлдөнбөйт";
+"privacy_collection_item_3" = "• Маалыматтар башкаларга берилбейт";
+"privacy_collection_item_4" = "• Жарнама трекерлери же башка SDK жок";
+"privacy_collection_item_5" = "• iCloud маалыматтары Apple'дин коопсуз түзүмүндө сакталат";
+"privacy_security_title" = "Коопсуздук";
+"privacy_security_item_1" = "• Маалыматтар iOS контейнерлеринде жана iCloud'да коопсуз сакталат";
+"privacy_security_item_2" = "• iCloud маалыматтары Apple'дин шифрлөө жана коопсуздук чаралары менен корголот";
+"privacy_apple_title" = "Apple Кызматтары";
+"privacy_apple_body" = "iCloud синхрондоштуруу колдонулса, маалыматтар Apple'дин Купуялык Саясаты менен жөнгө салынат. Биз iCloud маалыматтарыңызга кире албайбыз.";
+"privacy_children_title" = "Балдардын купуялыгы";
+"privacy_children_body" = "Колдонмо 13 жашка чейинки балдар үчүн атайын иштелип чыккан эмес, бирок бардык жаштагылар үчүн коопсуз.";
+"privacy_changes_title" = "Саясатты жаңыртуу";
+"privacy_changes_body" = "Саясат кээде жаңырышы мүмкүн. Бул бөлүмдү мезгил-мезгили менен текшериңиз. Жаңыртуулар жарыялангандан кийин күчүнө кирет.";
+"privacy_contact_title" = "Байланыш маалыматы";
+"privacy_contact_body" = "Купуялык боюнча суроолор же сунуштар болсо, байланышыңыз:";
+"privacy_contact_email_label" = "Электрондук почта";
+"privacy_contact_telegram_label" = "Телеграм";
+
+/* ===================== Settings: Tymi - version ===================== */
+"Tymi – %@ %@" = "Tymi – %1$@ %2$@";
+"made_with" = "Кыргызстанда";
+"in_kyrgyzstan" = "менен жасалган";
+
+/* ===================== Empty State View ===================== */
+"empty_view_largetitle" = "Бүгүн башта, эртең өс";
+"empty_view_title3" = "Кадам-кадам";
+"empty_view_tap" = "Бас";
+"empty_view_to_create_habit" = "биринчи адатыңды түзүү үчүн";

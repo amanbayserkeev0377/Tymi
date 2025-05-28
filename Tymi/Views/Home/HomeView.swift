@@ -22,6 +22,23 @@ struct HomeView: View {
     private var allBaseHabits: [Habit]
 
     private var baseHabits: [Habit] {
+        // Сбрасываем selectedFolder если папка больше не существует
+        if let selectedFolder = selectedFolder,
+           !allFolders.contains(where: { $0.uuid == selectedFolder.uuid }) {
+            DispatchQueue.main.async {
+                self.selectedFolder = nil
+            }
+            return allBaseHabits.sorted { first, second in
+                if first.isPinned != second.isPinned {
+                    return first.isPinned && !second.isPinned
+                }
+                if first.displayOrder != second.displayOrder {
+                    return first.displayOrder < second.displayOrder
+                }
+                return first.createdAt < second.createdAt
+            }
+        }
+        
         let filteredHabits: [Habit]
         
         if let selectedFolder = selectedFolder {
@@ -71,8 +88,13 @@ struct HomeView: View {
     
     // MARK: - Computed Properties
     private var navigationTitle: String {
+        // Если показывается EmptyStateView - пустой title
+        if allBaseHabits.isEmpty {
+            return ""
+        }
+        
         if isEditMode && !selectedForAction.isEmpty {
-            return "general_items_selected".localized(with: selectedForAction.count)
+            return "items_selected".localized(with: selectedForAction.count)
         } else {
             return formattedNavigationTitle(for: selectedDate)
         }
@@ -172,17 +194,28 @@ struct HomeView: View {
         .onChange(of: selectedDate) { _, _ in
             habitsUpdateService.triggerUpdate()
         }
-        .alert("delete_habit_confirmation".localized, isPresented: $alertState.isDeleteAlertPresented) {
-            Button("cancel".localized, role: .cancel) {
+        .alert(
+            habitForProgress != nil ? "alert_delete_habit".localized : "alert_delete_multiple_habits".localized,
+            isPresented: $alertState.isDeleteAlertPresented
+        ) {
+            Button("button_cancel".localized, role: .cancel) {
                 habitForProgress = nil
             }
-            Button("delete".localized, role: .destructive) {
+            Button("button_delete".localized, role: .destructive) {
                 if let habit = habitForProgress {
+                    // Single delete
                     actionService.deleteHabit(habit)
-                } else if !selectedForAction.isEmpty {
+                } else {
+                    // Multiple delete
                     deleteSelectedHabits()
                 }
                 habitForProgress = nil
+            }
+        } message: {
+            if let habit = habitForProgress {
+                Text("alert_delete_habit_message".localized(with: habit.title))
+            } else {
+                Text("alert_delete_multiple_habits_message".localized(with: selectedForAction.count))
             }
         }
     }
@@ -201,30 +234,25 @@ struct HomeView: View {
                     .padding(.vertical, 8)
             }
             
-            if baseHabits.isEmpty {
+            if allBaseHabits.isEmpty {
+                // Нет привычек вообще - показываем EmptyStateView
+                EmptyStateView()
+            } else if baseHabits.isEmpty && selectedFolder != nil {
+                // Есть привычки, но в выбранной папке их нет
                 ScrollView {
-                    if selectedFolder != nil {
-                        // Empty state for selected folder
-                        VStack(spacing: 20) {
-                            Spacer()
-                            Image(systemName: "folder")
-                                .font(.system(size: 60))
-                                .foregroundStyle(.secondary)
-                            Text("no_habits_in_folder".localized)
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                            Text("create_first_habit_in_folder".localized)
-                                .font(.subheadline)
-                                .foregroundStyle(.tertiary)
-                                .multilineTextAlignment(.center)
-                            Spacer()
-                        }
-                    } else {
-                        EmptyStateView()
+                    VStack(spacing: 20) {
+                        Spacer()
+                        Image(systemName: "folder")
+                            .font(.system(size: 60))
+                            .foregroundStyle(.secondary)
+                        Text("folders_no_habits".localized)
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
                     }
                 }
             } else {
-                // Habits list
+                // Есть привычки для отображения
                 if hasHabitsForDate {
                     habitList(actionService: actionService)
                 } else {
@@ -267,7 +295,7 @@ struct HomeView: View {
             // Edit/Done button
             if !baseHabits.isEmpty {
                 ToolbarItem(placement: .primaryAction) {
-                    Button(isEditMode ? "done".localized : "edit".localized) {
+                    Button(isEditMode ? "button_done".localized : "button_edit".localized) {
                         withAnimation {
                             isEditMode.toggle()
                         }
@@ -285,7 +313,7 @@ struct HomeView: View {
                             VStack(spacing: 4) {
                                 Image(systemName: "folder")
                                     .font(.system(size: 16))
-                                Text("move".localized)
+                                Text("folders_move".localized)
                                     .font(.caption)
                             }
                         }
@@ -299,7 +327,7 @@ struct HomeView: View {
                             VStack(spacing: 4) {
                                 Image(systemName: "trash")
                                     .font(.system(size: 16))
-                                Text("delete".localized)
+                                Text("button_delete".localized)
                                     .font(.caption)
                             }
                         }
@@ -381,7 +409,7 @@ struct HomeView: View {
                         selectedFolder = nil
                     }
                 } label: {
-                    Text("all".localized)
+                    Text("folders_all".localized)
                         .font(.footnote)
                         .fontWeight(selectedFolder == nil ? .semibold : .medium)
                         .foregroundStyle(selectedFolder == nil ? .primary : .secondary)
@@ -479,15 +507,15 @@ struct HomeView: View {
                                 habitForProgress = habit
                                 alertState.isDeleteAlertPresented = true
                             } label: {
-                                Label("delete".localized, systemImage: "trash")
+                                Label("button_delete".localized, systemImage: "trash")
                             }
                             .tint(.red)
                             
                             // Archive
                             Button {
-                                archiveHabit(habit)
+                                habitToEdit = habit
                             } label: {
-                                Label("archive".localized, systemImage: "archivebox")
+                                Label("button_edit".localized, systemImage: "pencil")
                             }
                             .tint(.gray)
                             
@@ -496,7 +524,7 @@ struct HomeView: View {
                                 pinHabit(habit)
                             } label: {
                                 Label(
-                                    habit.isPinned ? "unpin".localized : "pin".localized,
+                                    habit.isPinned ? "button_unpin".localized : "button_pin".localized,
                                     systemImage: habit.isPinned ? "pin.slash" : "pin"
                                 )
                             }
@@ -522,7 +550,7 @@ struct HomeView: View {
                                     Button {
                                         moveHabitToFolders(habit, folders: [])
                                     } label: {
-                                        Label("no_folder".localized, systemImage: "minus.circle")
+                                        Label("folders_no_folder".localized, systemImage: "minus.circle")
                                     }
                                     
                                     Divider()
@@ -549,7 +577,7 @@ struct HomeView: View {
                                         }
                                     }
                                 } label: {
-                                    Label("move_to_folder".localized, systemImage: "folder")
+                                    Label("folders_move_to_folder".localized, systemImage: "folder")
                                 }
                             }
                             // Pin/Unpin
@@ -557,7 +585,7 @@ struct HomeView: View {
                                 pinHabit(habit)
                             } label: {
                                 Label(
-                                    habit.isPinned ? "unpin".localized : "pin".localized,
+                                    habit.isPinned ? "button_unpin".localized : "button_pin".localized,
                                     systemImage: habit.isPinned ? "pin.slash" : "pin"
                                 )
                             }
@@ -566,7 +594,7 @@ struct HomeView: View {
                             Button {
                                 habitToEdit = habit
                             } label: {
-                                Label("edit".localized, systemImage: "pencil")
+                                Label("button_edit".localized, systemImage: "pencil")
                             }
                             
                             // Archive
@@ -583,7 +611,7 @@ struct HomeView: View {
                                 habitForProgress = habit
                                 alertState.isDeleteAlertPresented = true
                             } label: {
-                                Label("delete".localized, systemImage: "trash")
+                                Label("button_delete".localized, systemImage: "trash")
                             }
                             .tint(.red)
                         }

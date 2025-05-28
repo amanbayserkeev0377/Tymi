@@ -30,23 +30,21 @@ struct WeeklyCalendarView: View {
             ForEach(Array(weeks.enumerated()), id: \.element.first) { index, week in
                 HStack(spacing: 16) {
                     ForEach(week, id: \.self) { date in
-                        let hasHabitsForDate = hasActiveHabits(for: date)
-                        let isDateAvailable = isDateInAvailableRange(date)
+                        // Разбиваем сложные вычисления на простые переменные
+                        let hasHabits = hasActiveHabits(for: date)
+                        let isAvailable = isDateInAvailableRange(date)
+                        let isSelected = calendar.isDate(selectedDate, inSameDayAs: date)
+                        let progress = hasHabits ? (progressData[date] ?? 0) : 0
+                        let showRing = hasHabits && isAvailable
                         
                         DayProgressItem(
                             date: date,
-                            isSelected: calendar.isDate(selectedDate, inSameDayAs: date),
-                            progress: hasHabitsForDate ? (progressData[date] ?? 0) : 0,
+                            isSelected: isSelected,
+                            progress: progress,
                             onTap: {
-                                // Разрешаем тап только если есть привычки для этой даты
-                                if hasHabitsForDate && isDateAvailable {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        selectedDate = date
-                                    }
-                                    habitsUpdateService.triggerUpdate()
-                                }
+                                handleDateTap(date: date, hasHabits: hasHabits, isAvailable: isAvailable)
                             },
-                            showProgressRing: hasHabitsForDate && isDateAvailable
+                            showProgressRing: showRing
                         )
                         .frame(width: 35)
                     }
@@ -67,34 +65,66 @@ struct WeeklyCalendarView: View {
             findCurrentWeekIndex()
         }
         .onChange(of: selectedDate) { _, newDate in
-            if let weekIndex = findWeekIndex(for: newDate) {
-                withAnimation {
-                    currentWeekIndex = weekIndex
-                }
+            handleSelectedDateChange(newDate)
+        }
+        .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
+            handleHabitsUpdate()
+        }
+        .onChange(of: weekdayPrefs.firstDayOfWeek) { _, _ in
+            handleWeekdayPrefsChange()
+        }
+        .onChange(of: habitsData) { _, _ in
+            handleHabitsDataChange()
+        }
+    }
+    
+    // MARK: - Computed Properties
+    
+    // Упрощаем отслеживание изменений в привычках
+    private var habitsData: [String] {
+        habits.map { "\($0.startDate.timeIntervalSince1970)-\($0.isArchived)" }
+    }
+    
+    // MARK: - Event Handlers
+    
+    private func handleDateTap(date: Date, hasHabits: Bool, isAvailable: Bool) {
+        if hasHabits && isAvailable {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                selectedDate = date
             }
             habitsUpdateService.triggerUpdate()
         }
-        .onChange(of: habitsUpdateService.lastUpdateTimestamp) { _, _ in
-            // Полное обновление при изменении привычек
-            calculateAvailableDateRange()
-            generateWeeks()
-            loadProgressData()
-            findCurrentWeekIndex()
+    }
+    
+    private func handleSelectedDateChange(_ newDate: Date) {
+        if let weekIndex = findWeekIndex(for: newDate) {
+            withAnimation {
+                currentWeekIndex = weekIndex
+            }
         }
-        .onChange(of: weekdayPrefs.firstDayOfWeek) { _, _ in
-            weeks = []
-            calculateAvailableDateRange()
-            generateWeeks()
-            findCurrentWeekIndex()
-            loadProgressData()
-        }
-        // Отслеживание изменений в самих привычках
-        .onChange(of: habits.map { ($0.startDate, $0.isArchived) }) { _, _ in
-            calculateAvailableDateRange()
-            generateWeeks()
-            loadProgressData()
-            findCurrentWeekIndex()
-        }
+        habitsUpdateService.triggerUpdate()
+    }
+    
+    private func handleHabitsUpdate() {
+        calculateAvailableDateRange()
+        generateWeeks()
+        loadProgressData()
+        findCurrentWeekIndex()
+    }
+    
+    private func handleWeekdayPrefsChange() {
+        weeks = []
+        calculateAvailableDateRange()
+        generateWeeks()
+        findCurrentWeekIndex()
+        loadProgressData()
+    }
+    
+    private func handleHabitsDataChange() {
+        calculateAvailableDateRange()
+        generateWeeks()
+        loadProgressData()
+        findCurrentWeekIndex()
     }
     
     // MARK: - Smart Date Range Calculation

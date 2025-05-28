@@ -108,7 +108,7 @@ struct HabitStatisticsView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("done".localized) {
+                Button("button_done".localized) {
                     dismiss()
                 }
             }
@@ -141,13 +141,13 @@ struct HabitStatisticsView: View {
                 handleTimeInput()
             }
         )
-        .alert("reset_history", isPresented: $showingResetAlert) {
-            Button("cancel".localized, role: .cancel) { }
-            Button("reset".localized, role: .destructive) {
+        .alert("alert_reset_history", isPresented: $showingResetAlert) {
+            Button("button_cancel".localized, role: .cancel) { }
+            Button("button_reset".localized, role: .destructive) {
                 resetHabitHistory()
             }
         } message: {
-            Text("reset_history_alert".localized)
+            Text("alert_reset_history_message".localized)
         }
     }
     

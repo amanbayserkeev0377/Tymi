@@ -26,7 +26,6 @@ struct ActionButtonsSection: View {
                     .symbolEffect(.rotate, options: .speed(4.5), value: resetPressed)
             }
             .errorHaptic(trigger: resetPressed)
-            .accessibilityLabel("reset_button_label".localized)
             
             if habit.type == .time {
                 // 2. Play/Pause
@@ -41,7 +40,6 @@ struct ActionButtonsSection: View {
                         .frame(minWidth: 52, minHeight: 52)
                 }
                 .hapticFeedback(.impact(weight: .medium), trigger: togglePressed)
-                .accessibilityLabel(isTimerRunning ? "pause_button_label".localized : "play_button_label".localized)
             }
             
             // 3. Manual Entry

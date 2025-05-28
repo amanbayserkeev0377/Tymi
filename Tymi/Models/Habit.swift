@@ -95,14 +95,6 @@ final class Habit {
         return folders?.contains(where: { $0.uuid == folder.uuid }) ?? false
     }
     
-    /// Get all folder names as comma-separated string
-    var folderNamesString: String {
-        guard let folders = folders, !folders.isEmpty else {
-            return "no_folder".localized
-        }
-        return folders.map { $0.name }.joined(separator: ", ")
-    }
-    
     /// Check if habit has any folders
     var hasFolders: Bool {
         return !(folders?.isEmpty ?? true)

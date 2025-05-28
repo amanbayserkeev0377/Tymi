@@ -14,6 +14,24 @@ struct TermsOfServiceView: View {
                     Text("tos_intro_body".localized)
                 }
                 
+                // Privacy and Data
+                Group {
+                    Text("tos_privacy_title".localized)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("tos_privacy_body".localized)
+                }
+                
+                // iCloud Integration
+                Group {
+                    Text("tos_icloud_title".localized)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("tos_icloud_body".localized)
+                }
+                
                 // Warranty Disclaimer
                 Group {
                     Text("tos_warranty_title".localized)
@@ -39,15 +57,6 @@ struct TermsOfServiceView: View {
                         .fontWeight(.bold)
                     
                     Text("tos_updates_body".localized)
-                }
-                
-                // Data Privacy
-                Group {
-                    Text("tos_privacy_title".localized)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    Text("tos_privacy_body".localized)
                 }
                 
                 // Contact

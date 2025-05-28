@@ -51,17 +51,17 @@ struct AppColorPickerView: View {
                 
                 // Buttons preview
                 HStack {
-                    Button("close".localized) {}
+                    Button("button_close".localized) {}
                         .tint(colorManager.selectedColor.color)
                     
                     Spacer()
                     
-                    Button("edit".localized) {}
+                    Button("button_edit".localized) {}
                         .tint(colorManager.selectedColor.color)
                     
                     Spacer()
                     
-                    Button("done".localized) {}
+                    Button("button_done".localized) {}
                         .tint(colorManager.selectedColor.color)
                 }
                 .listRowInsets(EdgeInsets())
@@ -84,7 +84,9 @@ struct AppColorPickerView: View {
                 .listRowInsets(EdgeInsets())
                 .padding()
             } header: {
-                Text("preview".localized)
+                Text("app_color_preview_header".localized)
+            } footer: {
+                Text("app_color_preview_footer".localized)
             }
             
             Section {
@@ -142,7 +144,7 @@ struct AppColorPickerView: View {
                 }
                 .padding(.vertical, 8)
             } header: {
-                Text("colors".localized)
+                Text("app_color_colors_header".localized)
             }
         }
         .navigationTitle("app_color".localized)

@@ -20,7 +20,7 @@ struct MoveToFolderView: View {
                     toggleNoFolder()
                 } label: {
                     HStack {
-                        Text("no_folder".localized)
+                        Text("folders_no_folder".localized)
                         Spacer()
                         Image(systemName: "checkmark")
                             .opacity(selectedFolders.isEmpty ? 1 : 0)
@@ -41,17 +41,17 @@ struct MoveToFolderView: View {
                     }
                 }
             }
-            .navigationTitle("move_to_folder".localized)
+            .navigationTitle("folders_select_folder".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("cancel".localized) {
+                    Button("button_cancel".localized) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("move".localized) {
+                    Button("button_done".localized) {
                         moveHabits()
                         dismiss()
                     }

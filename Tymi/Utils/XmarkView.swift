@@ -29,7 +29,6 @@ struct XmarkView: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain) // Removes default button styling
-        .accessibilityLabel("close_button_label".localized)
     }
 }
 

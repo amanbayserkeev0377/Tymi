@@ -162,10 +162,10 @@ struct MonthlyCalendarView: View {
                     onActionRequested(.resetProgress, date)
                 }
             } label: {
-                Text("reset_progress".localized)
+                Text("button_reset_progress".localized)
             }
             
-            Button("cancel".localized, role: .cancel) {}
+            Button("button_cancel".localized, role: .cancel) {}
         }
     }
     

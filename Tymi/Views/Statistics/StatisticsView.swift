@@ -28,13 +28,10 @@ struct StatisticsView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                if habits.isEmpty {
-                    Text("no_habits".localized)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding()
-                } else {
+            if habits.isEmpty {
+                StatisticsEmptyStateView()
+            } else {
+                List {
                     Section {
                         ForEach(habits) { habit in
                             Button {
@@ -63,13 +60,44 @@ struct StatisticsView: View {
                     }
                 }
             }
-            .navigationTitle("statistics".localized)
-            .sheet(item: $selectedHabitForStats) { habit in
-                NavigationStack {
-                    HabitStatisticsView(habit: habit)
-                }
-                .presentationDragIndicator(.visible)
-            }
         }
+        .navigationTitle(habits.isEmpty ? "" : "statistics".localized) // Убираем title когда пусто
+        .navigationBarTitleDisplayMode(habits.isEmpty ? .inline : .large) // inline когда пусто
+        .sheet(item: $selectedHabitForStats) { habit in
+            NavigationStack {
+                HabitStatisticsView(habit: habit)
+            }
+            .presentationDragIndicator(.visible)
+        }
+    }
+}
+
+// MARK: - Statistics Empty State
+
+struct StatisticsEmptyStateView: View {
+    @State private var isAnimating = false
+    @ObservedObject private var colorManager = AppColorManager.shared
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            
+            Image(systemName: "chart.line.text.clipboard")
+                .font(.system(size: 120, weight: .thin))
+                .foregroundStyle(colorManager.selectedColor.color.opacity(0.3))
+                .scaleEffect(isAnimating ? 1.05 : 0.98)
+                .animation(
+                    .easeInOut(duration: 2.0)
+                    .repeatForever(autoreverses: true),
+                    value: isAnimating
+                )
+                .onAppear {
+                    isAnimating = true
+                }
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(UIColor.systemGroupedBackground))
     }
 }

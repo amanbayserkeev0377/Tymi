@@ -44,13 +44,13 @@ struct NewFolderView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("cancel".localized) {
+                    Button("button_cancel".localized) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("save".localized) {
+                    Button("button_save".localized) {
                         saveFolder()
                     }
                     .disabled(!isFormValid)

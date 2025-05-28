@@ -21,7 +21,7 @@ struct ArchivedHabitsView: View {
     @State private var isDeleteSelectedAlertPresented = false
     @State private var selectedHabitForStats: Habit? = nil
     @State private var habitToDelete: Habit? = nil
-    @State private var isDeleteAlertPresented = false
+    @State private var isDeleteSingleAlertPresented = false
     
     var body: some View {
         Group {
@@ -66,7 +66,7 @@ struct ArchivedHabitsView: View {
                             isDeleteSelectedAlertPresented = true
                         } label: {
                             HStack {
-                                Text("delete".localized)
+                                Text("button_delete".localized)
                                 Image(systemName: "trash")
                             }
                         }
@@ -80,25 +80,16 @@ struct ArchivedHabitsView: View {
                 selectedForDeletion.removeAll()
             }
         }
-        .alert("delete_permanently_confirmation".localized, isPresented: $isDeleteSelectedAlertPresented) {
-            Button("cancel".localized, role: .cancel) {}
-            Button("delete_permanently".localized, role: .destructive) {
-                deleteSelectedHabits()
-            }
-        } message: {
-            Text("delete_permanently_description".localized)
-        }
-        .alert("delete_habit_confirmation".localized, isPresented: $isDeleteAlertPresented) {
-            Button("cancel".localized, role: .cancel) {
-                habitToDelete = nil
-            }
-            Button("delete".localized, role: .destructive) {
-                if let habit = habitToDelete {
-                    deleteHabit(habit)
-                }
-                habitToDelete = nil
-            }
-        }
+        .deleteSingleHabitAlert(
+            isPresented: $isDeleteSingleAlertPresented,
+            habitName: habitToDelete?.title ?? "",
+            onDelete: { /* single delete */ }
+        )
+        .deleteMultipleHabitsAlert(
+            isPresented: $isDeleteSelectedAlertPresented,
+            habitsCount: selectedForDeletion.count,
+            onDelete: { /* multiple delete */ }
+        )
         .sheet(item: $selectedHabitForStats) { habit in
             NavigationStack {
                 HabitStatisticsView(habit: habit)
@@ -110,7 +101,7 @@ struct ArchivedHabitsView: View {
     // MARK: - Navigation Title
     private var navigationTitle: String {
         if editMode?.wrappedValue == .active && !selectedForDeletion.isEmpty {
-            return "general_items_selected".localized(with: selectedForDeletion.count)
+            return "items_selected".localized(with: selectedForDeletion.count)
         } else {
             return "archived_habits".localized
         }
@@ -122,21 +113,25 @@ struct ArchivedHabitsView: View {
         if archivedHabits.isEmpty {
             ContentUnavailableView(
                 "no_archived_habits".localized,
-                systemImage: "archivebox",
-                description: Text("archived_habits_empty_description".localized)
+                systemImage: "archivebox"
             )
             .listRowBackground(Color.clear)
         } else {
-            Section {
+            // ИСПРАВЛЕНО: Добавлен footer с подсказкой
+            Section(
+                footer: Text("archived_habits_footer".localized)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            ) {
                 ForEach(archivedHabits) { habit in
                     archivedHabitRow(habit)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             // Delete action (red)
                             Button(role: .destructive) {
                                 habitToDelete = habit
-                                isDeleteAlertPresented = true
+                                isDeleteSingleAlertPresented = true
                             } label: {
-                                Label("delete".localized, systemImage: "trash")
+                                Label("button_delete".localized, systemImage: "trash")
                             }
                             .tint(.red)
                             
@@ -237,13 +232,6 @@ struct ArchivedHabitsView: View {
         HapticManager.shared.play(.error)
         
         selectedForDeletion.removeAll()
-    }
-    
-    private func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
     }
 }
 

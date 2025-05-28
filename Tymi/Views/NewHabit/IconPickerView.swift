@@ -105,7 +105,7 @@ struct IconPickerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("done".localized) {
+                Button("button_done".localized) {
                     dismiss()
                 }
             }

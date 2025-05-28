@@ -27,7 +27,6 @@ struct AlertState: Equatable {
 
 // MARK: - Alert Modifiers
 
-
 // Count Input Alert
 struct CountInputAlertModifier: ViewModifier {
     @Binding var isPresented: Bool
@@ -40,11 +39,11 @@ struct CountInputAlertModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .alert("add_count".localized, isPresented: $isPresented) {
+            .alert("alert_add_count".localized, isPresented: $isPresented) {
                 TextField("count".localized, text: $inputText)
                     .keyboardType(.numberPad)
-                Button("cancel".localized, role: .cancel) { }
-                Button("add".localized) {
+                Button("button_cancel".localized, role: .cancel) { }
+                Button("button_add".localized) {
                     if let count = Int(inputText) {
                         progressService.addProgress(count, for: habitId)
                         onCountInput()
@@ -55,7 +54,7 @@ struct CountInputAlertModifier: ViewModifier {
                     inputText = ""
                 }
             } message: {
-                Text("enter_completion_count".localized)
+                Text("alert_add_count_message".localized)
             }
     }
 }
@@ -73,34 +72,97 @@ struct TimeInputAlertModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .alert("add_time".localized, isPresented: $isPresented) {
+            .alert("alert_add_time".localized, isPresented: $isPresented) {
                 TextField("hours_less_than_24".localized, text: $hoursText)
                     .keyboardType(.numberPad)
                 TextField("minutes_less_than_60".localized, text: $minutesText)
                     .keyboardType(.numberPad)
-                Button("cancel".localized, role: .cancel) { }
-                Button("add".localized) {
-                    // Передаем управление в ViewModel, где должна быть вся логика
+                Button("button_cancel".localized, role: .cancel) { }
+                Button("button_add".localized) {
                     onTimeInput()
                 }
             } message: {
-                Text("enter_time_spent".localized)
+                Text("alert_add_time_message".localized)
             }
     }
 }
 
-// Delete Habit Alert
-struct DeleteHabitAlertModifier: ViewModifier {
+// MARK: - Unified Delete Alerts
+
+// Single Habit Delete Alert
+struct DeleteSingleHabitAlertModifier: ViewModifier {
     @Binding var isPresented: Bool
+    let habitName: String
     let onDelete: () -> Void
     
     func body(content: Content) -> some View {
         content
-            .alert("delete_habit_confirmation".localized, isPresented: $isPresented) {
-                Button("cancel".localized, role: .cancel) { }
-                Button("delete".localized, role: .destructive) {
+            .alert("alert_delete_habit".localized, isPresented: $isPresented) {
+                Button("button_cancel".localized, role: .cancel) { }
+                Button("button_delete".localized, role: .destructive) {
                     onDelete()
                 }
+            } message: {
+                Text("alert_delete_habit_message".localized(with: habitName))
+            }
+    }
+}
+
+// Multiple Habits Delete Alert
+struct DeleteMultipleHabitsAlertModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    let habitsCount: Int
+    let onDelete: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .alert("alert_delete_multiple_habits".localized, isPresented: $isPresented) {
+                Button("button_cancel".localized, role: .cancel) { }
+                Button("button_delete".localized, role: .destructive) {
+                    onDelete()
+                }
+            } message: {
+                Text("alert_delete_multiple_habits_message".localized(with: habitsCount))
+            }
+    }
+}
+
+// MARK: - Folder Delete Alerts
+
+// Single Folder Delete Alert
+struct DeleteSingleFolderAlertModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    let folderName: String
+    let onDelete: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .alert("alert_delete_folder".localized, isPresented: $isPresented) {
+                Button("button_cancel".localized, role: .cancel) { }
+                Button("button_delete".localized, role: .destructive) {
+                    onDelete()
+                }
+            } message: {
+                Text("alert_delete_folder_message".localized(with: folderName))
+            }
+    }
+}
+
+// Multiple Folders Delete Alert
+struct DeleteMultipleFoldersAlertModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    let foldersCount: Int
+    let onDelete: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .alert("alert_delete_folders".localized, isPresented: $isPresented) {
+                Button("button_cancel".localized, role: .cancel) { }
+                Button("button_delete".localized, role: .destructive) {
+                    onDelete()
+                }
+            } message: {
+                Text("alert_delete_folders_message".localized(with: foldersCount))
             }
     }
 }
@@ -151,11 +213,65 @@ extension View {
         ))
     }
     
-    func deleteHabitAlert(isPresented: Binding<Bool>, onDelete: @escaping () -> Void) -> some View {
-        self.modifier(DeleteHabitAlertModifier(isPresented: isPresented, onDelete: onDelete))
+    // MARK: - Unified Delete Alert Extensions
+    
+    /// Alert for deleting a single habit
+    func deleteSingleHabitAlert(
+        isPresented: Binding<Bool>,
+        habitName: String,
+        onDelete: @escaping () -> Void
+    ) -> some View {
+        self.modifier(DeleteSingleHabitAlertModifier(
+            isPresented: isPresented,
+            habitName: habitName,
+            onDelete: onDelete
+        ))
     }
     
-    // Упрощенный комбинированный модификатор для HabitDetailView - удаляем параметр onReset
+    /// Alert for deleting multiple habits
+    func deleteMultipleHabitsAlert(
+        isPresented: Binding<Bool>,
+        habitsCount: Int,
+        onDelete: @escaping () -> Void
+    ) -> some View {
+        self.modifier(DeleteMultipleHabitsAlertModifier(
+            isPresented: isPresented,
+            habitsCount: habitsCount,
+            onDelete: onDelete
+        ))
+    }
+    
+    // MARK: - Folder Delete Alert Extensions
+
+    /// Alert for deleting a single folder
+    func deleteSingleFolderAlert(
+        isPresented: Binding<Bool>,
+        folderName: String,
+        onDelete: @escaping () -> Void
+    ) -> some View {
+        self.modifier(DeleteSingleFolderAlertModifier(
+            isPresented: isPresented,
+            folderName: folderName,
+            onDelete: onDelete
+        ))
+    }
+
+    /// Alert for deleting multiple folders
+    func deleteMultipleFoldersAlert(
+        isPresented: Binding<Bool>,
+        foldersCount: Int,
+        onDelete: @escaping () -> Void
+    ) -> some View {
+        self.modifier(DeleteMultipleFoldersAlertModifier(
+            isPresented: isPresented,
+            foldersCount: foldersCount,
+            onDelete: onDelete
+        ))
+    }
+    
+    // MARK: - Legacy Combined Modifier for HabitDetailView
+    
+    /// Combined alerts for HabitDetailView (backward compatibility)
     func habitAlerts(
         alertState: Binding<AlertState>,
         habit: Habit,
@@ -165,8 +281,11 @@ extension View {
         onTimeInput: @escaping () -> Void
     ) -> some View {
         self
-        // Удаляем вызов resetProgressAlert
-            .deleteHabitAlert(isPresented: alertState.isDeleteAlertPresented, onDelete: onDelete)
+            .deleteSingleHabitAlert(
+                isPresented: alertState.isDeleteAlertPresented,
+                habitName: habit.title,
+                onDelete: onDelete
+            )
             .countInputAlert(
                 isPresented: alertState.isCountAlertPresented,
                 inputText: alertState.countInputText,

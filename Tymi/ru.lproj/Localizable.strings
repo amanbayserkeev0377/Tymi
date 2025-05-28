@@ -1,20 +1,135 @@
-"archive" = "Архивировать";
-"archived_habits" = "Архивированные привычки";
-"no_archived_habits" = "Нет архивированных привычек";
-"archived_habits_empty_description" = "Архивированные привычки будут показаны здесь";
-"unarchive" = "Разархивировать";
-"delete_permanently" = "Удалить навсегда";
-"delete_permanently_confirmation" = "Удалить навсегда?";
-"delete_permanently_description" = "Эта привычка и вся её история будут удалены навсегда. Это действие нельзя отменить.";
-"archived_habits_footer" = "Смахните влево для разархивирования или удаления";
-"archived_date_format" = "Архивировано %@";
+/* ===================== Alerts ===================== */
 
+// Delete Habit Alerts
+"alert_delete_habit" = "Удалить привычку";
+"alert_delete_habit_message" = "Вы уверены, что хотите удалить «%@»?";
+
+"alert_delete_multiple_habits" = "Удалить выбранные привычки";
+"alert_delete_multiple_habits_message" = "Вы уверены, что хотите удалить %d выбранных привычек?";
+
+// Folder Delete Alerts
+"alert_delete_folder" = "Удалить папку";
+"alert_delete_folder_message" = "Удалить «%@»? Ваши привычки останутся без изменений.";
+
+"alert_delete_folders" = "Удалить папки";
+"alert_delete_folders_message" = "Удалить %d папок? Ваши привычки останутся без изменений.";
+
+// Progress Input Alerts
+"alert_add_count" = "Добавить количество";
+"alert_add_count_message" = "Введите количество выполнений для добавления";
+
+"alert_add_time" = "Добавить время";
+"alert_add_time_message" = "Введите время, потраченное на эту привычку";
+
+// History Reset Alert
+"alert_reset_history" = "Сбросить историю";
+"alert_reset_history_message" = "Это безвозвратно удалит все данные о выполнении привычки. Это действие нельзя отменить.";
+
+// Timer Close Alert
+"alert_close_timer" = "Остановить таймер";
+"alert_close_timer_message" = "Закрытие остановит запущенный таймер. Продолжить?";
+
+// Notifications Permission Alert
+"alert_notifications_permission" = "Требуется разрешение на уведомления";
+"alert_notifications_permission_message" = "Для получения напоминаний о привычках включите уведомления в Настройках.";
+
+
+/* ===================== Buttons ===================== */
+"button_add" = "Добавить";
+"button_done" = "Готово";
+"button_delete" = "Удалить";
+"button_cancel" = "Отмена";
+"button_close" = "Закрыть";
+"button_pin" = "Закрепить";
+"button_unpin" = "Открепить";
+"button_edit" = "Изменить";
+"button_save" = "Сохранить";
+"button_reset" = "Сбросить";
+"button_reset_progress" = "Сбросить прогресс";
+"complete" = "Выполнить";
+"completed" = "Выполнено";
+
+/* ===================== General ===================== */
+"today" = "Сегодня";
+"yesterday" = "Вчера";
+"items_selected" = "%d выбрано";
+"count" = "Количество";
+"time" = "Время";
+"times" = "раз";
+"hours" = "Часы";
+"goal" = "Цель: %@";
+"minutes_format" = "%d м";
+"hours_format" = "%d ч";
+"hours_less_than_24" = "часы (меньше 24)";
+"hours_minutes_format" = "%d ч %d м";
+"minutes" = "Минуты";
+"minutes_less_than_60" = "минуты (меньше 60)";
+"total" = "Всего";
+"version" = "версия";
+
+/* ===================== Main Tab View ===================== */
+"home" = "Главная";
+"statistics" = "Статистика";
+"settings" = "Настройки";
+
+/* ===================== New Habit View ===================== */
+"habit_name" = "Название привычки";
+"icon" = "Иконка";
+"goalsection_choose_time" = "Выберите время (ч:м)";
+"goalsection_enter_count" = "Введите число";
 "active_days" = "Активные дни";
-"add" = "Добавить";
+"everyday" = "Ежедневно";
+"every_week" = "Еженедельно";
+"select_days" = "Выберите дни";
+"will_repeat_weekly" = "Будет повторяться еженедельно в эти дни";
+"reminders" = "Напоминания";
+"reminder" = "Напоминание";
+
+/* ===================== Other ===================== */
 "add_count" = "Добавить количество";
 "add_progress" = "Добавить прогресс";
 "add_reminder" = "Добавить";
 "add_time" = "Добавить время";
+"choose_icon" = "Выбрать иконку";
+"create_habit" = "Создать привычку";
+"daily_goal" = "Цель";
+"delete_habit" = "Удалить привычку";
+"edit_habit" = "Редактировать";
+"future_self_thank_you" = "Нажмите “+” чтобы создать свою первую привычку.";
+"goal_format" = "Цель: %@";
+"habits" = "Привычки";
+"health" = "Здоровье";
+"hobbies" = "Хобби";
+"lifestyle" = "Образ жизни";
+"loading_calendar" = "Календарь загружается…";
+"no_habits" = "У вас пока нет привычек.";
+"no_habits_for_date" = "В этот день у вас нет привычек";
+"no_icon" = "Без иконки";
+"productivity" = "Продуктивность";
+"reset_all_history" = "Сбросить историю";
+"reset_button_label" = "Сброс";
+"start_date" = "Дата начала";
+"streak" = "Подряд";
+
+/* ===================== Notifications ===================== */
+"notifications_habit_time" = "Время для привычки!";
+"notifications_dont_forget" = "Не забудьте выполнить: %@";
+
+/* ===================== Settings: Section Headers & Footers ===================== */
+"settings_header_appearance" = "Внешний вид и язык";
+"settings_header_data" = "Данные и организация";
+"settings_header_sounds_feedback" = "Звуки и отклик";
+"settings_header_support" = "Поддержка и обратная связь";
+"settings_header_legal" = "Правовая информация";
+"settings_footer_language" = "Язык приложения можно изменить в системных настройках.";
+
+/* ===================== Settings: App Color ===================== */
+"app_color" = "Цвет приложения";
+"app_color_preview_header" = "Предпросмотр";
+"app_color_preview_footer" = "Цвет приложения изменяется в зависимости от выбранного вами цвета.";
+"app_color_colors_header" = "Цвета";
+
+/* ===================== Settings: App Icon ===================== */
 "app_icon" = "Иконка приложения";
 "app_icon_aura_name" = "Аура";
 "app_icon_blaze_name" = "Пламя";
@@ -29,159 +144,46 @@
 "app_icon_paper_name" = "Бумага";
 "app_icon_silver_blue_name" = "Металлик Блюз";
 "app_icon_sunrise_name" = "Восход";
+
+/* ===================== Settings: Appearance ===================== */
 "appearance" = "Внешний вид";
 "appearance_dark" = "Тёмный";
 "appearance_light" = "Светлый";
 "appearance_system" = "Системный";
-"best" = "Рекорд";
-"cancel" = "Отмена";
-"choose_icon" = "Выбрать иконку";
-"close" = "Закрыть";
-"close_button_label" = "Закрыть";
-"close_habit_detail" = "Закрытие остановит таймер. Продолжить?";
-"complete" = "Выполнить";
-"completed" = "Выполнено";
-"contact_developer" = "Связаться с разработчиком";
-"count" = "Количество";
-"create_habit" = "Создать привычку";
-"daily_goal" = "Цель";
-"delete" = "Удалить";
-"delete_habit" = "Удалить привычку";
-"delete_habit_confirmation" = "Вы уверены, что хотите удалить эту привычку? Это действие нельзя отменить.";
-"done" = "Готово";
-"dont_forget" = "Не забудьте выполнить: %@";
-"edit" = "Изменить";
-"edit_habit" = "Редактировать";
-"enter_completion_count" = "Введите количество раз, когда вы выполнили эту привычку";
-"enter_time_spent" = "Введите время, потраченное на эту привычку";
-"every_week" = "Еженедельно";
-"everyday" = "Ежедневно";
-"future_self_thank_you" = "Нажмите “+” чтобы создать свою первую привычку.";
-"goal" = "Цель: %@";
-"goal_format" = "Цель: %@";
-"goalsection_choose_time" = "Выберите время (ч:м)";
-"goalsection_enter_count" = "Введите число";
-"habit_name" = "Название привычки";
-"habit_time" = "Время для привычки";
-"habits" = "Привычки";
-"haptics" = "Виброотклик";
-"health" = "Здоровье";
-"hobbies" = "Хобби";
-"home" = "Главная";
-"hours" = "Часы";
-"hours_format" = "%d ч";
-"hours_less_than_24" = "часы (меньше 24)";
-"hours_minutes_format" = "%d ч %d м";
-"icon" = "Иконка";
-"in_kyrgyzstan" = "в Кыргызстане";
-"language" = "Язык";
-"legal" = "Правовая информация";
-"lifestyle" = "Образ жизни";
-"loading_calendar" = "Календарь загружается…";
-"made_with" = "Сделано с";
-"manual_entry_button_label" = "Ввод вручную";
-"minutes" = "Минуты";
-"minutes_format" = "%d м";
-"minutes_less_than_60" = "минуты (меньше 60)";
-"no_active_habits" = "Нет активных привычек";
-"no_habits" = "У вас пока нет привычек.";
-"no_habits_for_date" = "В этот день у вас нет привычек";
-"no_icon" = "Без иконки";
-"notification_permission" = "Необходимо разрешение";
-"notifications" = "Уведомления";
-"notifications.permission.description" = "Tymi отправляет уведомления, чтобы напоминать вам о выполнении привычек в запланированное время.";
-"okay" = "Хорошо";
-"pause_button_label" = "Пауза";
-"permission_for_notifications" = "Для получения уведомлений необходимо предоставить разрешение в настройках системы";
-"play_button_label" = "Воспроизведение";
-"privacy_changes_body" = "Политика может обновляться. Рекомендуется периодически проверять эту страницу. Обновления вступают в силу после публикации.";
-"privacy_changes_title" = "Изменения в политике";
-"privacy_children_body" = "Приложение не предназначено специально для детей младше 13 лет, но безопасно для пользователей любого возраста.";
-"privacy_children_title" = "Детская конфиденциальность";
-"privacy_collection_body" = "Приложение не собирает данные и не передаёт их третьим лицам:";
-"privacy_collection_item_1" = "• Отсутствует аналитика использования";
-"privacy_collection_item_2" = "• Нет отслеживания поведения";
-"privacy_collection_item_3" = "• Нет передачи данных третьим сторонам";
-"privacy_collection_item_4" = "• Нет рекламных трекеров или SDK";
-"privacy_collection_title" = "Сбор и передача данных";
-"privacy_contact_body" = "По вопросам или предложениям по поводу конфиденциальности можно связаться:";
-"privacy_contact_email_label" = "Электронная почта";
-"privacy_contact_telegram_label" = "Телеграм";
-"privacy_contact_title" = "Контактная информация";
-"privacy_data_body" = "Приложение использует следующую информацию:";
-"privacy_data_item_1" = "• Данные о привычках — названия, цели, прогресс и параметры, заданные пользователем";
-"privacy_data_item_2" = "• Настройки приложения — тема оформления, начало недели и другие предпочтения";
-"privacy_data_item_3" = "• Статистика выполнения — даты, время и динамика выполнения привычек";
-"privacy_data_title" = "Собираемая информация";
-"privacy_intro_body" = "Приложение Tymi для отслеживания привычек уважает конфиденциальность пользователей. В этом разделе описано, какие данные используются, где они хранятся и как обрабатываются.";
-"privacy_intro_title" = "Введение";
-"privacy_notifications_body" = "При наличии разрешения приложение может отправлять локальные напоминания о привычках:";
-"privacy_notifications_item_1" = "• Уведомления настраиваются пользователем";
-"privacy_notifications_item_2" = "• Можно отключить в любое время через настройки";
-"privacy_notifications_item_3" = "• Обрабатываются локально и не передаются сторонним сервисам";
-"privacy_notifications_title" = "Уведомления";
-"privacy_policy" = "Конфиденциальность";
-"privacy_security_item_1" = "• Данные хранятся в защищённых контейнерах iOS";
-"privacy_security_item_2" = "• При удалении приложения удаляются все связанные данные";
-"privacy_security_title" = "Безопасность";
-"privacy_storage_body" = "Все данные хранятся только локально на устройстве с помощью следующих технологий:";
-"privacy_storage_implication" = "Это означает, что:";
-"privacy_storage_implication_1" = "• Данные не покидают пределы устройства";
-"privacy_storage_implication_2" = "• Отсутствует использование облачных сервисов";
-"privacy_storage_implication_3" = "• Пользователь полностью контролирует свои данные";
-"privacy_storage_implication_4" = "• Удаление приложения приведёт к удалению всех данных";
-"privacy_storage_item_1" = "• SwiftData — используется для хранения привычек и истории";
-"privacy_storage_item_2" = "• UserDefaults — хранение пользовательских настроек";
-"privacy_storage_title" = "Местное хранение данных";
-"privacy_updated_date" = "Последнее обновление: 16 мая 2025 г.";
-"privacy_updated_title" = "Дата последнего обновления";
-"productivity" = "Продуктивность";
-"rate_app" = "Оценить";
-"reminder" = "Напоминание";
-"reminders" = "Напоминания";
-"reorder" = "Упорядочить";
-"report_bug" = "Сообщить об ошибке";
-"reset" = "Сбросить";
-"reset_all_history" = "Сбросить историю";
-"reset_button_label" = "Сброс";
-"reset_history" = "Сбросить историю?";
-"reset_history_alert" = "Это безвозвратно удалит все данные о привычке.";
-"reset_progress" = "Сбросить прогресс";
-"save" = "Сохранить";
-"search_icons" = "Поиск иконок";
-"select_days" = "Выберите дни";
-"settings" = "Настройки";
-"share_app" = "Поделиться";
-"start_date" = "Дата начала";
-"statistics" = "Статистика";
-"streak" = "Подряд";
-"terms_of_service" = "Условия использования";
-"time" = "Время";
-"times" = "раз";
-"today" = "Сегодня";
-"tos_contact_body" = "Если у вас есть вопросы, не стесняйтесь связаться со мной.";
-"tos_contact_email_label" = "Электронная почта";
-"tos_contact_telegram_label" = "Телеграм";
-"tos_contact_title" = "Связь со мной";
-"tos_intro_body" = "Это приложение создано для личного использования, чтобы помочь вам отслеживать свои привычки. Используя Tymi, вы соглашаетесь с следующими условиями:";
-"tos_intro_title" = "Спасибо, что выбрали Tymi!";
-"tos_privacy_body" = "Приложение не собирает и не передаёт личные данные.";
-"tos_privacy_title" = "Конфиденциальность";
-"tos_risk_body" = "Вы используете приложение на свой страх и риск - я не несу ответственности за потерю данных или другие возможные проблемы.";
-"tos_risk_title" = "Использование на ваш страх и риск";
-"tos_updates_body" = "Время от времени я могу обновлять приложение и условия, чтобы сделать его лучше.";
-"tos_updates_title" = "Обновления";
-"tos_warranty_body" = "Приложение предоставляется без гарантий - я стараюсь, чтобы всё работало хорошо, но не могу обещать идеальную точность.";
-"tos_warranty_title" = "Отсутствие гарантий";
-"total" = "Всего";
-"try_different_date" = "Попробуйте выбрать другую дату";
-"Tymi – %@ %@" = "Tymi – %1$@ %2$@";
-"version" = "версия";
+
+/* ===================== Settings: Week Start ===================== */
 "week_start_day" = "Начало недели";
 "week_start_system" = "Как в системе";
-"will_repeat_weekly" = "Будет повторяться еженедельно в эти дни";
-"yesterday" = "Вчера";
 
+/* ===================== Settings: Language ===================== */
+"language" = "Язык";
+
+/* ===================== Settings: Archived Habits ===================== */
+"archive" = "Архивировать";
+"archived_habits" = "Архив";
+"no_archived_habits" = "Нет архивированных привычек";
+"unarchive" = "Разархивировать";
+"archived_habits_footer" = "Смахните влево для разархивирования или удаления";
+"archived_date_format" = "Архивировано %@";
+"archived_habits_footer" = "Смахните влево, чтобы восстановить из архива или удалить";
+
+
+/* ===================== Settings & General: Folders ===================== */
+"folders" = "Папки";
+"folders_all" = "Все";
+"folders_move" = "Переместить";
+"folders_new_folder" = "Новая папка";
+"folders_edit_folder" = "Редактировать папку";
+"folders_create_folder" = "Создать папку";
+"folders_select_folder" = "Выберите папку";
+"folders_folder_name" = "Название папки";
+"folders_edit_footer" = "Нажмите «Редактировать» для изменения порядка или удаления папок. Управление папками также доступно в настройках.";
+"folders_none_selected" = "Нет";
+"folders_move_to_folder" = "Переместить в папку";
+"folders_no_folder" = "Без папки";
+"folders_no_habits" = "В этой папке нет привычек";
+
+/* ===================== Settings: iCloud Sync ===================== */
 "icloud_sync" = "iCloud синхронизация";
 "icloud_sync_status" = "Статус синхронизации";
 "icloud_sync_active" = "Активна";
@@ -202,3 +204,97 @@
 "icloud_temporarily_unavailable" = "Временно недоступен";
 "icloud_unknown_error" = "Неизвестная ошибка";
 "icloud_check_failed" = "Проверка не удалась";
+
+/* ===================== Settings: Sounds & Feedback ===================== */
+"notifications" = "Уведомления";
+"haptics" = "Виброотклик";
+
+/* ===================== Settings: Support & Feedback ===================== */
+"rate_app" = "Оценить";
+"share_app" = "Поделиться";
+"contact_developer" = "Связаться с разработчиком";
+"report_bug" = "Сообщить об ошибке";
+
+/* ===================== Settings: Terms of Service ===================== */
+"terms_of_service" = "Условия использования";
+"tos_intro_title" = "Спасибо, что выбрали Tymi!";
+"tos_intro_body" = "Это приложение создано для личного использования, чтобы помочь вам отслеживать свои привычки. Используя Tymi, вы соглашаетесь с следующими условиями:";
+"tos_privacy_title" = "Конфиденциальность и данные";
+"tos_privacy_body" = "Приложение хранит данные локально и может синхронизировать их через iCloud при входе в систему. Мы не собираем, не анализируем и не передаём ваши личные данные третьим лицам. Подробности в нашей Политике конфиденциальности.";
+"tos_icloud_title" = "Интеграция с iCloud";
+"tos_icloud_body" = "При входе в iCloud данные привычек автоматически синхронизируются между устройствами Apple. Данные хранятся в вашем личном контейнере iCloud и регулируются Условиями и Политикой конфиденциальности Apple.";
+"tos_risk_title" = "Использование на ваш страх и риск";
+"tos_risk_body" = "Вы используете приложение на свой страх и риск. Мы стремимся обеспечить надёжную работу, но не несём ответственности за потерю данных, проблемы с синхронизацией или другие технические неполадки.";
+"tos_updates_title" = "Обновления";
+"tos_updates_body" = "Мы можем периодически обновлять приложение и условия для улучшения функциональности и пользовательского опыта. Продолжение использования приложения означает согласие с обновлениями.";
+"tos_warranty_title" = "Отсутствие гарантий";
+"tos_warranty_body" = "Приложение предоставляется «как есть» без каких-либо гарантий. Мы стараемся обеспечить правильную работу, но не можем гарантировать идеальную точность или бесперебойное функционирование.";
+"tos_contact_title" = "Связь";
+"tos_contact_body" = "Если у вас есть вопросы по условиям или приложению, не стесняйтесь связаться с нами:";
+"tos_contact_email_label" = "Электронная почта";
+"tos_contact_telegram_label" = "Telegram";
+
+/* ===================== Settings: Privacy Policy ===================== */
+"privacy_policy" = "Политика конфиденциальности";
+"privacy_updated_title" = "Дата обновления";
+"privacy_updated_date" = "Обновлено: 28 мая 2025 г.";
+"privacy_intro_title" = "Введение";
+"privacy_intro_body" = "Приложение Tymi для отслеживания привычек уважает конфиденциальность пользователей. В этом разделе описывается, какие данные используются, где они хранятся и как обрабатываются.";
+"privacy_data_title" = "Собираемая информация";
+"privacy_data_body" = "Приложение использует следующую информацию:";
+"privacy_data_item_1" = "• Данные привычек — названия, цели, прогресс и заданные пользователем параметры";
+"privacy_data_item_2" = "• Настройки приложения — тема, начало недели и другие предпочтения";
+"privacy_data_item_3" = "• Статистика использования — даты, время и динамика выполнения привычек";
+"privacy_storage_title" = "Хранение данных";
+"privacy_storage_body" = "Данные хранятся с использованием следующих методов:";
+"privacy_storage_item_1" = "• Локальное хранилище через SwiftData для данных привычек и прогресса";
+"privacy_storage_item_2" = "• UserDefaults для настроек приложения и предпочтений";
+"privacy_storage_item_3" = "• Автоматическая синхронизация с iCloud через CloudKit для авторизованных пользователей";
+"privacy_storage_implication" = "Такой подход к хранению данных означает:";
+"privacy_storage_implication_1" = "• Локальные данные всегда хранятся безопасно на устройстве";
+"privacy_storage_implication_2" = "• Синхронизация с iCloud происходит автоматически при входе в iCloud";
+"privacy_storage_implication_3" = "• Полный контроль над данными осуществляется через Apple ID";
+"privacy_storage_implication_4" = "• Удаление приложения удаляет локальные данные; данные в iCloud можно управлять через настройки Apple ID";
+"privacy_icloud_title" = "Синхронизация с iCloud";
+"privacy_icloud_body" = "При наличии доступа приложение автоматически синхронизирует данные через iCloud:";
+"privacy_icloud_item_1" = "• Данные привычек синхронизируются между всеми устройствами Apple";
+"privacy_icloud_item_2" = "• Данные хранятся в личном контейнере iCloud";
+"privacy_icloud_item_3" = "• Доступ возможен только через Apple ID";
+"privacy_icloud_item_4" = "• Применяются условия и политика конфиденциальности iCloud от Apple";
+"privacy_icloud_item_5" = "• При отсутствии входа в iCloud данные остаются только на устройстве";
+"privacy_notifications_title" = "Уведомления";
+"privacy_notifications_body" = "При разрешении приложение может отправлять локальные напоминания о привычках:";
+"privacy_notifications_item_1" = "• Уведомления настраиваются пользователем";
+"privacy_notifications_item_2" = "• Их можно отключить в любой момент через настройки";
+"privacy_notifications_item_3" = "• Обрабатываются локально и не передаются сторонним сервисам";
+"privacy_collection_title" = "Сбор и передача данных";
+"privacy_collection_body" = "Приложение не собирает и не передаёт данные третьим лицам:";
+"privacy_collection_item_1" = "• Без аналитики использования";
+"privacy_collection_item_2" = "• Без отслеживания поведения";
+"privacy_collection_item_3" = "• Без передачи данных третьим сторонам";
+"privacy_collection_item_4" = "• Без рекламных трекеров и сторонних SDK";
+"privacy_collection_item_5" = "• Данные iCloud (при синхронизации) хранятся в защищённой инфраструктуре Apple";
+"privacy_security_title" = "Безопасность";
+"privacy_security_item_1" = "• Данные хранятся в защищённых контейнерах iOS и в iCloud (при активации)";
+"privacy_security_item_2" = "• Данные в iCloud защищены средствами шифрования и безопасности Apple";
+"privacy_apple_title" = "Сервисы Apple";
+"privacy_apple_body" = "При использовании синхронизации iCloud обработка данных регулируется политикой конфиденциальности Apple. Доступ к данным iCloud отсутствует.";
+"privacy_children_title" = "Конфиденциальность детей";
+"privacy_children_body" = "Приложение не предназначено специально для детей младше 13 лет, но безопасно для пользователей любого возраста.";
+"privacy_changes_title" = "Обновления политики";
+"privacy_changes_body" = "Политика может обновляться. Рекомендуется периодически проверять этот раздел. Обновления вступают в силу с момента публикации.";
+"privacy_contact_title" = "Контактная информация";
+"privacy_contact_body" = "По вопросам или предложениям, связанным с конфиденциальностью, можно связаться по:";
+"privacy_contact_email_label" = "Электронная почта";
+"privacy_contact_telegram_label" = "Telegram";
+
+/* ===================== Settings: Tymi - version ===================== */
+"Tymi – %@ %@" = "Tymi – %1$@ %2$@";
+"made_with" = "Сделано с";
+"in_kyrgyzstan" = "в Кыргызстане";
+
+/* ===================== Empty State View ===================== */
+"empty_view_largetitle" = "Начни сегодня, расти завтра";
+"empty_view_title3" = "Шаг за шагом";
+"empty_view_tap" = "Нажмите";
+"empty_view_to_create_habit" = "чтобы создать свою первую привычку";

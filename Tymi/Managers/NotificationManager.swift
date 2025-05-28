@@ -92,8 +92,8 @@ class NotificationManager {
                 let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
                 
                 let content = UNMutableNotificationContent()
-                content.title = "habit_time".localized
-                content.body = "dont_forget".localized(with: habit.title)
+                content.title = "notifications_habit_time".localized
+                content.body = "notifications_dont_forget".localized(with: habit.title)
                 content.sound = .default
                 
                 let request = UNNotificationRequest(
