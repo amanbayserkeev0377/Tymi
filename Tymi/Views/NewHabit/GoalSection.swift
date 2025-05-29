@@ -12,9 +12,13 @@ struct GoalSection: View {
     
     var body: some View {
         Section {
-            HStack {
-                Label("daily_goal".localized, systemImage: "trophy")
+            HStack(spacing: 12) {
+                Image(systemName: "trophy")
+                    .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                    .font(.system(size: 20))
                     .symbolEffect(.bounce, options: .repeat(1), value: selectedType)
+                    .frame(width: 30)
+                Text("daily_goal".localized)
                 
                 Spacer()
                 
@@ -29,7 +33,13 @@ struct GoalSection: View {
             
             // Компонент ввода в зависимости от типа
             if selectedType == .count {
-                Label {
+                HStack(spacing: 12) {
+                    Image(systemName: "number")
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color.opacity(0.5))
+                        .font(.system(size: 22))
+                        .frame(width: 30)
+                        .clipped()
+                    
                     TextField("goalsection_enter_count".localized, text: $countText)
                         .keyboardType(.numberPad)
                         .focused($isFocused)
@@ -39,27 +49,26 @@ struct GoalSection: View {
                                 countGoal = min(number, 999999)
                             }
                         }
-                } icon: {
-                    Image(systemName: "number")
-                        .foregroundStyle(.secondary)
                 }
             } else {
-                Label {
-                    HStack {
-                        Text("goalsection_choose_time".localized)
-                            .foregroundStyle(.secondary)
-                        
-                        Spacer()
-                        DatePicker("", selection: $timeDate, displayedComponents: .hourAndMinute)
-                            .datePickerStyle(.compact)
-                            .labelsHidden()
-                            .onChange(of: timeDate) { _, _ in
-                                updateHoursAndMinutesFromTimeDate()
-                            }
-                    }
-                } icon: {
+                HStack(spacing: 12) {
                     Image(systemName: "clock")
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color.opacity(0.5))
+                        .font(.system(size: 22))
+                        .frame(width: 30)
+                        .clipped()
+                    
+                    Text("goalsection_choose_time".localized)
                         .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                    
+                    DatePicker("", selection: $timeDate, displayedComponents: .hourAndMinute)
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
+                        .onChange(of: timeDate) { _, _ in
+                            updateHoursAndMinutesFromTimeDate()
+                        }
                 }
             }
         }

@@ -6,7 +6,13 @@
 	objectVersion = 90;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		072DD4122DE81C3F00157BF8 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 072DD4112DE81C3F00157BF8 /* StoreKit.framework */; };
+		072DD4152DE8243500157BF8 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 072DD4142DE8243500157BF8 /* RevenueCat */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		072DD4112DE81C3F00157BF8 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		07A95EFA2D9849F300044A7A /* Tymi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tymi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -35,15 +41,26 @@
 		07A95EF72D9849F300044A7A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				072DD4152DE8243500157BF8 /* RevenueCat in Frameworks */,
+				072DD4122DE81C3F00157BF8 /* StoreKit.framework in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		072DD4102DE81C3F00157BF8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				072DD4112DE81C3F00157BF8 /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		07A95EF12D9849F300044A7A = {
 			isa = PBXGroup;
 			children = (
 				07A95EFC2D9849F300044A7A /* Tymi */,
+				072DD4102DE81C3F00157BF8 /* Frameworks */,
 				07A95EFB2D9849F300044A7A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -73,6 +90,9 @@
 				07A95EFC2D9849F300044A7A /* Tymi */,
 			);
 			name = Tymi;
+			packageProductDependencies = (
+				072DD4142DE8243500157BF8 /* RevenueCat */,
+			);
 			productName = Tymi;
 			productReference = 07A95EFA2D9849F300044A7A /* Tymi.app */;
 			productType = "com.apple.product-type.application";
@@ -104,6 +124,7 @@
 			mainGroup = 07A95EF12D9849F300044A7A;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				072DD4132DE8243500157BF8 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 07A95EFB2D9849F300044A7A /* Products */;
@@ -363,6 +384,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		072DD4132DE8243500157BF8 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.25.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		072DD4142DE8243500157BF8 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 072DD4132DE8243500157BF8 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 07A95EF22D9849F300044A7A /* Project object */;
 }

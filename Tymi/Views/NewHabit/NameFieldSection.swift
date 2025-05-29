@@ -5,14 +5,15 @@ struct NameFieldSection: View {
     @FocusState.Binding var isFocused: Bool
     
     var body: some View {
-        HStack {
-            Label {
-                TextField("habit_name".localized, text: $title)
-                    .autocorrectionDisabled()
-                    .focused($isFocused)
-            } icon: {
-                Image(systemName: "pencil")
-            }
+        HStack(spacing: 12) {
+            Image(systemName: "pencil")
+                .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                .font(.system(size: 22))
+                .frame(width: 30)
+                .clipped()
+            TextField("habit_name".localized, text: $title)
+                .autocorrectionDisabled()
+                .focused($isFocused)
         }
     }
 }

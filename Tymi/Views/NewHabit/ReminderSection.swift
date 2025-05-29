@@ -9,8 +9,14 @@ struct ReminderSection: View {
     var body: some View {
         Section {
             Toggle(isOn: $isReminderEnabled.animation()) {
-                Label("reminders".localized, systemImage: "bell.badge")
-                    .symbolEffect(.bounce, options: .repeat(1), value: isReminderEnabled)
+                HStack {
+                    Image(systemName: "bell.badge")
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                        .font(.system(size: 22))
+                        .frame(width: 30)
+                        .symbolEffect(.bounce, options: .repeat(1), value: isReminderEnabled)
+                    Text("reminders".localized)
+                }
             }
             .withToggleColor()
             

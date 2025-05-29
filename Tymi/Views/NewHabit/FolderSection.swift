@@ -8,8 +8,13 @@ struct FolderSection: View {
         NavigationLink {
             FolderManagementView(mode: .selection(binding: $selectedFolders))
         } label: {
-            HStack {
-                Label("folders".localized, systemImage: "folder")
+            HStack(spacing: 12) {
+                Image(systemName: "folder")
+                    .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                    .font(.system(size: 22))
+                    .frame(width: 30)
+                    .clipped()
+                Text("folders".localized)
                 
                 Spacer()
                 

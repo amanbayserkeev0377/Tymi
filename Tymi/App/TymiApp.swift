@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import RevenueCat
 
 @main
 struct TymiApp: App {
@@ -13,6 +14,9 @@ struct TymiApp: App {
     @State private var weekdayPrefs = WeekdayPreferences.shared
     
     init() {
+        // Configure RevenueCat FIRST
+        RevenueCatConfig.configure()
+        
         do {
             let schema = Schema([Habit.self, HabitCompletion.self, HabitFolder.self])
             
@@ -27,12 +31,12 @@ struct TymiApp: App {
             )
             
             print("✅ Local storage initialized successfully")
-             print("✅ CloudKit container initialized successfully")
+            print("✅ CloudKit container initialized successfully")
         } catch {
             print("❌ Local storage initialization error: \(error)")
-             print("❌ CloudKit initialization error: \(error)")
+            print("❌ CloudKit initialization error: \(error)")
             fatalError("Не удалось создать ModelContainer с локальным хранилищем: \(error)")
-             fatalError("Не удалось создать ModelContainer с CloudKit: \(error)")
+            fatalError("Не удалось создать ModelContainer с CloudKit: \(error)")
         }
     }
     
@@ -41,6 +45,7 @@ struct TymiApp: App {
             MainTabView()
                 .environment(habitsUpdateService)
                 .environment(weekdayPrefs)
+                .environment(ProManager.shared)
         }
         .modelContainer(container)
         .onChange(of: scenePhase) { _, newPhase in

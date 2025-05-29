@@ -215,7 +215,7 @@ struct HabitDetailView: View {
                 .padding(.vertical, 16)
                 .background(
                     viewModel.isAlreadyCompleted
-                    ? Color(uiColor: .systemGray)
+                    ? AppColorManager.shared.selectedColor.color.opacity(0.3)
                     : AppColorManager.shared.selectedColor.color.opacity(0.8)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))

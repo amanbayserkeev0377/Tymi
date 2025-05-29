@@ -5,9 +5,32 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system
     
+    @State private var showingPaywall = false
+    
     var body: some View {
         NavigationStack {
             List {
+                // Тестовая секция - УДАЛИТЬ ПОТОМ!
+                Section("Debug - Remove Later") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Pro Status: \(ProManager.shared.isPro ? "✅ Active" : "❌ Not Active")")
+                        Text("Loading: \(ProManager.shared.isLoading ? "🔄 Loading..." : "✅ Ready")")
+                        
+                        Button("Test Paywall") {
+                            showingPaywall = true
+                        }
+                        
+                        Button("Refresh Pro Status") {
+                            ProManager.shared.checkProStatus()
+                        }
+                        
+                        if ProManager.shared.isPro {
+                            Text("Max Habits: \(ProManager.shared.maxHabitsCount == Int.max ? "Unlimited" : "\(ProManager.shared.maxHabitsCount)")")
+                        }
+                    }
+                    .font(.caption)
+                }
+                
                 // Appearance
                 Section(
                     header: Text("settings_header_appearance".localized),
@@ -115,6 +138,9 @@ struct SettingsView: View {
             }
             .listStyle(.insetGrouped)
             .navigationTitle("settings".localized)
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
         .preferredColorScheme(themeMode.colorScheme)
     }

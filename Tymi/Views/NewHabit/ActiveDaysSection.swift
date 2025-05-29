@@ -21,7 +21,12 @@ struct ActiveDaysSection: View {
     var body: some View {
         NavigationLink(destination: ActiveDaysSelectionView(activeDays: $activeDays)) {
             HStack {
-                Label("active_days".localized, systemImage: "cloud.sun")
+                Image(systemName: "cloud.sun")
+                    .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                    .font(.system(size: 22))
+                    .frame(width: 30)
+                    .clipped()
+                Text("active_days".localized)
                 
                 Spacer()
                 

@@ -5,7 +5,14 @@ struct StartDateSection: View {
     
     var body: some View {
         HStack {
-            Label("start_date".localized, systemImage: "calendar.badge.clock")
+            Image(systemName: "calendar.badge.clock")
+                .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                .font(.system(size: 22))
+                .frame(width: 30)
+                .clipped()
+                      
+                      
+            Text("start_date".localized)
             
             Spacer()
             

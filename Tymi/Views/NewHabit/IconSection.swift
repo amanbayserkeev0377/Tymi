@@ -14,14 +14,15 @@ struct IconSection: View {
                 selectedColor: $selectedColor
             )
         } label: {
-            HStack {
-                Label {
-                    Text("icon".localized)
-                } icon: {
-                    let iconName = selectedIcon ?? defaultIcon
-                    Image(systemName: iconName)
-                        .foregroundStyle(iconName == defaultIcon ? colorManager.selectedColor.color : selectedColor.color)
-                }
+            HStack(spacing: 12) {
+                Image(systemName: selectedIcon ?? "checkmark")
+                    .foregroundStyle(selectedIcon == "checkmark" ? AppColorManager.shared.selectedColor.color : selectedColor.color)
+                    .font(.system(size: 22))
+                    .frame(width: 30)
+                    .clipped()
+                Text("icon".localized)
+                
+                Spacer()
             }
         }
     }

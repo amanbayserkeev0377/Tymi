@@ -44,10 +44,9 @@ struct HabitStatisticsView: View {
             Section {
                 // Start date
                 HStack {
-                    Label(
-                        title: { Text("start_date".localized) },
-                        icon: { Image(systemName: "calendar.badge.clock") }
-                    )
+                    Image(systemName: "calendar.badge.clock")
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                    Text("start_date".localized)
                     
                     Spacer()
                     
@@ -57,10 +56,9 @@ struct HabitStatisticsView: View {
                 
                 // Goal
                 HStack {
-                    Label(
-                        title: { Text("daily_goal".localized) },
-                        icon: { Image(systemName: "trophy") }
-                    )
+                    Image(systemName: "trophy")
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                    Text("daily_goal".localized)
                     
                     Spacer()
                     
@@ -70,10 +68,9 @@ struct HabitStatisticsView: View {
                 
                 // Active days
                 HStack {
-                    Label(
-                        title: { Text("active_days".localized) },
-                        icon: { Image(systemName: "cloud.sun") }
-                    )
+                    Image(systemName: "cloud.sun")
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                    Text("active_days".localized)
                     
                     Spacer()
                     
@@ -81,25 +78,27 @@ struct HabitStatisticsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             // Reset history
             Section {
                 Button {
                     showingResetAlert = true
                 } label: {
-                    Label("reset_all_history".localized,
-                          systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
-                        .tint(.primary)
+                    HStack {
+                        Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                            .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                        Text("reset_all_history".localized)
+                    }
                 }
+                .tint(.primary)
                 
                 Button(role: .destructive) {
                     alertState.isDeleteAlertPresented = true
                 } label: {
-                    Label {
-                        Text("delete_habit".localized)
-                    } icon: {
+                    HStack {
                         Image(systemName: "trash")
                             .foregroundStyle(.red)
+                        Text("delete_habit".localized)
                     }
                 }
             }
