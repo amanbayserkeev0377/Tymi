@@ -117,33 +117,59 @@ final class HabitDetailViewModel {
     // MARK: - Observer Setup
     private func setupObservers() {
         cancellables?.cancel()
-        cancellables = Task { [weak self, date] in
-            let observedDate = date
-            
+        cancellables = Task { [weak self] in
             while !Task.isCancelled {
-
                 guard let self = self else { break }
                 
-                if self.date == observedDate && self.habit.type == .time && self.isTimerRunning {
-                    let newProgress = self.progressService.getCurrentProgress(for: self.habitId)
-                    if self.currentProgress != newProgress {
-                        self.currentProgress = newProgress
-                        self.habitProgress.value = newProgress
-                        self.habitProgress.isDirty = true
-                        self.updateProgressMetrics()
-                        self.hasChanges = true
-                    }
-                    let isRunning = self.progressService.isTimerRunning(for: self.habitId)
-                    if self.isTimerRunning != isRunning {
-                        self.isTimerRunning = isRunning
-                    }
+                // Для одного таймера логика максимально простая
+                let serviceTimerState = self.progressService.isTimerRunning(for: self.habitId)
+                let serviceProgress = self.progressService.getCurrentProgress(for: self.habitId)
+                
+                if self.isTimerRunning != serviceTimerState {
+                    self.isTimerRunning = serviceTimerState
+                    print("🔄 ViewModel timer state: \(serviceTimerState) for \(self.habitId)")
                 }
+                
+                if self.habit.type == .time && self.currentProgress != serviceProgress {
+                    self.currentProgress = serviceProgress
+                    self.habitProgress.value = serviceProgress
+                    self.habitProgress.isDirty = true
+                    self.updateProgressMetrics()
+                    self.hasChanges = true
+                    print("🔄 ViewModel progress: \(serviceProgress) for \(self.habitId)")
+                }
+                
                 do {
-                    try await Task.sleep(for: .milliseconds(1000))
+                    try await Task.sleep(nanoseconds: 1_000_000_000) // 1 секунда
                 } catch {
                     break
                 }
             }
+        }
+    }
+    
+    // MARK: - Public Methods
+    func refreshFromService() {
+        print("🔄 refreshFromService() called for habit \(habitId)")
+        print("🔄 Current ViewModel state - timer: \(isTimerRunning), progress: \(currentProgress)")
+        
+        let serviceTimerState = progressService.isTimerRunning(for: habitId)
+        let serviceProgress = progressService.getCurrentProgress(for: habitId)
+        
+        print("🔄 Service state - timer: \(serviceTimerState), progress: \(serviceProgress)")
+        
+        if isTimerRunning != serviceTimerState {
+            isTimerRunning = serviceTimerState
+            print("✅ Timer state updated: \(serviceTimerState)")
+        }
+        
+        if currentProgress != serviceProgress {
+            currentProgress = serviceProgress
+            habitProgress.value = serviceProgress
+            habitProgress.isDirty = true
+            updateProgressMetrics()
+            hasChanges = true
+            print("✅ Progress updated: \(serviceProgress)")
         }
     }
     
@@ -171,7 +197,19 @@ final class HabitDetailViewModel {
         }
     }
     
-    
+    // MARK: - Helper method for syncing with service
+    private func syncWithProgressService() {
+        // Always update the progress service with current ViewModel value
+        progressService.resetProgress(for: habitId)
+        if habitProgress.value > 0 {
+            progressService.addProgress(habitProgress.value, for: habitId)
+        }
+        
+        // Update current progress from service to ensure consistency
+        currentProgress = progressService.getCurrentProgress(for: habitId)
+        
+        print("🔄 Synced with service: ViewModel=\(habitProgress.value), Service=\(currentProgress)")
+    }
     
     // MARK: - Timer Management
     /// Toggles the timer state (start/stop) for time-based habits.
@@ -211,17 +249,15 @@ final class HabitDetailViewModel {
     func addTimeValue(_ seconds: Int) {
         if isTimerRunning {
             isTimerRunning = false
-            if isTodayView {
-                progressService.stopTimer(for: habitId)
-            }
+            progressService.stopTimer(for: habitId)
         }
         habitProgress.value += seconds
         habitProgress.isDirty = true
         currentProgress = habitProgress.value
-        if isTodayView {
-            progressService.resetProgress(for: habitId)
-            progressService.addProgress(currentProgress, for: habitId)
-        }
+        
+        // Sync with progress service for all dates
+        syncWithProgressService()
+        
         updateProgressMetrics()
         hasChanges = true
         saveProgress()
@@ -246,42 +282,40 @@ final class HabitDetailViewModel {
                 habitProgress.value += 1
                 habitProgress.isDirty = true
                 currentProgress = habitProgress.value
-                if isTodayView {
-                    progressService.resetProgress(for: habitId)
-                    progressService.addProgress(currentProgress, for: habitId)
-                }
+                
+                // ✅ FIXED: Sync with progress service for ALL dates
+                syncWithProgressService()
+                
                 updateProgressMetrics()
                 hasChanges = true
             } else {
                 alertState.errorFeedbackTrigger.toggle()
             }
         } else {
+            // Stop timer first if running
             if isTimerRunning {
                 progressService.stopTimer(for: habitId)
                 isTimerRunning = false
             }
+            
             if habitProgress.value + 60 <= Limits.maxTimeSeconds {
                 habitProgress.value += 60
                 habitProgress.isDirty = true
                 currentProgress = habitProgress.value
-                if isTodayView {
-                    progressService.resetProgress(for: habitId)
-                    progressService.addProgress(currentProgress, for: habitId)
-                }
+                
+                // ✅ FIXED: Sync with progress service for ALL dates
+                syncWithProgressService()
+                
                 updateProgressMetrics()
                 hasChanges = true
             } else {
                 habitProgress.value = Limits.maxTimeSeconds
                 habitProgress.isDirty = true
                 currentProgress = Limits.maxTimeSeconds
-                if isTimerRunning {
-                    progressService.stopTimer(for: habitId)
-                    isTimerRunning = false
-                }
-                if isTodayView {
-                    progressService.resetProgress(for: habitId)
-                    progressService.addProgress(Limits.maxTimeSeconds, for: habitId)
-                }
+                
+                // ✅ FIXED: Sync with progress service for ALL dates
+                syncWithProgressService()
+                
                 updateProgressMetrics()
                 hasChanges = true
                 alertState.successFeedbackTrigger.toggle()
@@ -289,6 +323,7 @@ final class HabitDetailViewModel {
         }
         saveProgress()
     }
+    
     /// Decrements progress by 1 for count habits or by 1 minute (60 seconds) for time habits.
     /// For time habits, stops any running timer before decrementing.
     func decrementProgress() {
@@ -297,35 +332,38 @@ final class HabitDetailViewModel {
                 habitProgress.value -= 1
                 habitProgress.isDirty = true
                 currentProgress = habitProgress.value
-                if isTodayView {
-                    progressService.resetProgress(for: habitId)
-                    progressService.addProgress(currentProgress, for: habitId)
-                }
+                
+                // ✅ FIXED: Sync with progress service for ALL dates
+                syncWithProgressService()
+                
                 updateProgressMetrics()
                 hasChanges = true
             }
         } else {
+            // Stop timer first if running
             if isTimerRunning {
                 progressService.stopTimer(for: habitId)
                 isTimerRunning = false
             }
+            
             if habitProgress.value >= 60 {
                 habitProgress.value -= 60
                 habitProgress.isDirty = true
                 currentProgress = habitProgress.value
-                if isTodayView {
-                    progressService.resetProgress(for: habitId)
-                    progressService.addProgress(currentProgress, for: habitId)
-                }
+                
+                // ✅ FIXED: Sync with progress service for ALL dates
+                syncWithProgressService()
+                
                 updateProgressMetrics()
                 hasChanges = true
             } else if habitProgress.value > 0 {
                 habitProgress.value = 0
                 habitProgress.isDirty = true
                 currentProgress = 0
-                if isTodayView {
-                    progressService.resetProgress(for: habitId)
-                }
+                
+                // ✅ FIXED: Sync with progress service for ALL dates
+                syncWithProgressService()
+                
                 updateProgressMetrics()
                 hasChanges = true
             }
@@ -361,10 +399,10 @@ final class HabitDetailViewModel {
         habitProgress.value = habit.goal
         habitProgress.isDirty = true
         currentProgress = habit.goal
-        if isTodayView {
-            progressService.resetProgress(for: habitId)
-            progressService.addProgress(habit.goal, for: habitId)
-        }
+        
+        // ✅ FIXED: Sync with progress service for ALL dates
+        syncWithProgressService()
+        
         updateProgressMetrics()
         hasChanges = true
         saveProgress()
@@ -384,8 +422,10 @@ final class HabitDetailViewModel {
                 habitProgress.value = Limits.maxCount
                 habitProgress.isDirty = true
                 currentProgress = Limits.maxCount
-                progressService.resetProgress(for: habitId)
-                progressService.addProgress(currentProgress, for: habitId)
+                
+                // ✅ FIXED: Sync with progress service for ALL dates
+                syncWithProgressService()
+                
                 updateProgressMetrics()
                 hasChanges = true
                 alertState.successFeedbackTrigger.toggle()
@@ -396,8 +436,10 @@ final class HabitDetailViewModel {
             habitProgress.value += value
             habitProgress.isDirty = true
             currentProgress = habitProgress.value
-            progressService.resetProgress(for: habitId)
-            progressService.addProgress(currentProgress, for: habitId)
+            
+            // ✅ FIXED: Sync with progress service for ALL dates
+            syncWithProgressService()
+            
             updateProgressMetrics()
             hasChanges = true
             alertState.successFeedbackTrigger.toggle()
@@ -424,10 +466,10 @@ final class HabitDetailViewModel {
                 habitProgress.value = Limits.maxTimeSeconds
                 habitProgress.isDirty = true
                 currentProgress = Limits.maxTimeSeconds
-                if isTodayView {
-                    progressService.resetProgress(for: habitId)
-                    progressService.addProgress(Limits.maxTimeSeconds, for: habitId)
-                }
+                
+                // ✅ FIXED: Sync with progress service for ALL dates
+                syncWithProgressService()
+                
                 updateProgressMetrics()
                 hasChanges = true
                 alertState.successFeedbackTrigger.toggle()
@@ -438,10 +480,10 @@ final class HabitDetailViewModel {
             habitProgress.value += secondsToAdd
             habitProgress.isDirty = true
             currentProgress = habitProgress.value
-            if isTodayView {
-                progressService.resetProgress(for: habitId)
-                progressService.addProgress(habitProgress.value, for: habitId)
-            }
+            
+            // ✅ FIXED: Sync with progress service for ALL dates
+            syncWithProgressService()
+            
             updateProgressMetrics()
             hasChanges = true
             alertState.successFeedbackTrigger.toggle()

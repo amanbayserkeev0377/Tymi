@@ -6,30 +6,15 @@ struct SettingsView: View {
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system
     
     @State private var showingPaywall = false
+    @State private var showingRestoreAlert = false
+    @State private var restoreAlertMessage = ""
+    @State private var isRestoring = false
     
     var body: some View {
         NavigationStack {
             List {
-                // Тестовая секция - УДАЛИТЬ ПОТОМ!
-                Section("Debug - Remove Later") {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Pro Status: \(ProManager.shared.isPro ? "✅ Active" : "❌ Not Active")")
-                        Text("Loading: \(ProManager.shared.isLoading ? "🔄 Loading..." : "✅ Ready")")
-                        
-                        Button("Test Paywall") {
-                            showingPaywall = true
-                        }
-                        
-                        Button("Refresh Pro Status") {
-                            ProManager.shared.checkProStatus()
-                        }
-                        
-                        if ProManager.shared.isPro {
-                            Text("Max Habits: \(ProManager.shared.maxHabitsCount == Int.max ? "Unlimited" : "\(ProManager.shared.maxHabitsCount)")")
-                        }
-                    }
-                    .font(.caption)
-                }
+                
+                ProSettingsSection()
                 
                 // Appearance
                 Section(
@@ -42,41 +27,50 @@ struct SettingsView: View {
                     WeekStartSection()
                     LanguageSection()
                 }
+                
                 // Data
                 Section(header: Text("settings_header_data".localized)) {
-                    // Archived habits
-                    NavigationLink {
-                        ArchivedHabitsView()
-                    } label: {
-                        HStack {
+                    
+                    // Folders
+                    if ProManager.shared.canUseFolders {
+                        // Pro users - normal navigation
+                        NavigationLink {
+                            FolderManagementView(mode: .management)
+                        } label: {
                             Label(
-                                title: { Text("archived_habits".localized) },
+                                title: { Text("folders".localized) },
                                 icon: {
-                                    Image(systemName: "archivebox.fill")
+                                    Image(systemName: "folder.fill")
                                         .withIOSSettingsIcon(lightColors: [
-                                            Color(#colorLiteral(red: 0.7333333333, green: 0.7333333333, blue: 0.7607843137, alpha: 1)),
-                                            Color(#colorLiteral(red: 0.3019607843, green: 0.3019607843, blue: 0.3254901961, alpha: 1))
+                                            Color(#colorLiteral(red: 0.4, green: 0.7843137255, blue: 1, alpha: 1)),
+                                            Color(#colorLiteral(red: 0.0, green: 0.4784313725, blue: 0.8, alpha: 1))
                                         ])
                                 }
                             )
-                            Spacer()
-                            ArchivedHabitsCountBadge()
                         }
-                    }
-                    // Folders
-                    NavigationLink {
-                        FolderManagementView(mode: .management, )
-                    } label: {
-                        Label(
-                            title: { Text("folders".localized) },
-                            icon: {
-                                Image(systemName: "folder.fill")
-                                    .withIOSSettingsIcon(lightColors: [
-                                        Color(#colorLiteral(red: 0.4, green: 0.7843137255, blue: 1, alpha: 1)),
-                                        Color(#colorLiteral(red: 0.0, green: 0.4784313725, blue: 0.8, alpha: 1))
-                                    ])
+                    } else {
+                        // Free users - show Pro badge and paywall
+                        Button {
+                            showingPaywall = true
+                        } label: {
+                            HStack {
+                                Label(
+                                    title: { Text("folders".localized) },
+                                    icon: {
+                                        Image(systemName: "folder.fill")
+                                            .withIOSSettingsIcon(lightColors: [
+                                                Color(#colorLiteral(red: 0.4, green: 0.7843137255, blue: 1, alpha: 1)),
+                                                Color(#colorLiteral(red: 0.0, green: 0.4784313725, blue: 0.8, alpha: 1))
+                                            ])
+                                    }
+                                )
+                                
+                                Spacer()
+                                
+                                ProLockBadge()
                             }
-                        )
+                        }
+                        .tint(.primary)
                     }
                     NavigationLink {
                         CloudKitSyncView()
@@ -96,6 +90,25 @@ struct SettingsView: View {
                             }
                         )
                     }
+                    // Archived habits
+                    NavigationLink {
+                        ArchivedHabitsView()
+                    } label: {
+                        HStack {
+                            Label(
+                                title: { Text("archived_habits".localized) },
+                                icon: {
+                                    Image(systemName: "archivebox.fill")
+                                        .withIOSSettingsIcon(lightColors: [
+                                            Color(#colorLiteral(red: 0.7333333333, green: 0.7333333333, blue: 0.7607843137, alpha: 1)),
+                                            Color(#colorLiteral(red: 0.3019607843, green: 0.3019607843, blue: 0.3254901961, alpha: 1))
+                                        ])
+                                }
+                            )
+                            Spacer()
+                            ArchivedHabitsCountBadge()
+                        }
+                    }
                 }
                 
                 // Sounds & Feedback
@@ -106,6 +119,43 @@ struct SettingsView: View {
                 
                 // Legal
                 AboutSection()
+                
+                // MARK: - Purchases Section
+                Section {
+                    Button {
+                        restorePurchases()
+                    } label: {
+                        HStack {
+                            Label(
+                                title: { Text("restore_purchases".localized) },
+                                icon: {
+                                    Image(systemName: "dollarsign.arrow.trianglehead.counterclockwise.rotate.90")
+                                        .withIOSSettingsIcon(lightColors: [
+                                            Color(#colorLiteral(red: 0.4666666667, green: 0.8666666667, blue: 0.4, alpha: 1)),
+                                            Color(#colorLiteral(red: 0.1176470588, green: 0.5647058824, blue: 0.1176470588, alpha: 1))
+                                        ])
+                                }
+                            )
+                            
+                            Spacer()
+                            
+                            if isRestoring {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            }
+                        }
+                    }
+                    .tint(.primary)
+                    .disabled(isRestoring)
+                }
+                
+#if DEBUG
+                Section("Debug Controls") {
+                    Button("Toggle Pro Status") {
+                        ProManager.shared.toggleProStatusForTesting()
+                    }
+                }
+#endif
                 
                 // Tymi - version ...
                 Section {
@@ -142,6 +192,34 @@ struct SettingsView: View {
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
         }
+        .alert("restore_purchases".localized, isPresented: $showingRestoreAlert) {
+            Button("button_ok".localized) { }
+        } message: {
+            Text(restoreAlertMessage)
+        }
         .preferredColorScheme(themeMode.colorScheme)
+    }
+    
+    // MARK: - Helper Methods
+    private func restorePurchases() {
+        isRestoring = true
+        HapticManager.shared.playImpact(.light)
+        
+        Task {
+            let success = await ProManager.shared.restorePurchases()
+            
+            await MainActor.run {
+                isRestoring = false
+                
+                if success {
+                    restoreAlertMessage = "restore_purchases_success".localized
+                    HapticManager.shared.play(.success)
+                } else {
+                    restoreAlertMessage = "restore_purchases_no_purchases".localized
+                }
+                
+                showingRestoreAlert = true
+            }
+        }
     }
 }

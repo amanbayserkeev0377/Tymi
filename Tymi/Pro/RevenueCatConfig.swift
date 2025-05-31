@@ -30,7 +30,7 @@ struct RevenueCatConfig {
     
     private static func setUserAttributes() {
         // Example: Set user locale
-        Purchases.shared.setAttributes(["locale": Locale.current.identifier])
+        Purchases.shared.attribution.setAttributes(["locale": Locale.current.identifier])
     }
 }
 

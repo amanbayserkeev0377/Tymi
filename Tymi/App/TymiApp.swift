@@ -66,40 +66,55 @@ struct TymiApp: App {
     }
     
     // MARK: - App Lifecycle Methods
-    
+
     private func handleAppBackground() {
-        // ИСПРАВЛЕНО: Останавливаем все таймеры перед сохранением
-        HabitTimerService.shared.stopAllTimers()
+        print("📱 App going to background")
         
-        // Сохраняем данные при уходе в фон для лучшей синхронизации
+        // ✅ ONLY save current progress to SwiftData
+        // DON'T stop timers - let them continue in background
+        Task {
+            await saveTimerStates()
+        }
+        
+        // Save SwiftData
         do {
             try container.mainContext.save()
             print("✅ Data saved on background")
         } catch {
             print("❌ Failed to save on background: \(error)")
         }
-        
-        // Сохраняем данные из сервисов
-        Task {
-            HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
-            HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
-        }
     }
-    
+
     private func handleAppActive() {
-        // При возвращении обновляем UI для получения изменений с других устройств
+        print("📱 App became active")
+        
+        // Just update UI - timers should still be running
         habitsUpdateService.triggerUpdate()
         print("✅ App became active, triggering UI update")
     }
-    
+
     private func handleAppInactive() {
-        // ИСПРАВЛЕНО: Также останавливаем таймеры при переходе в неактивное состояние
-        HabitTimerService.shared.stopAllTimers()
+        print("📱 App became inactive")
         
-        // Сохраняем при неактивном состоянии
+        // Save current state without stopping timers
         Task {
-            HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
-            HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+            await saveTimerStates()
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func saveTimerStates() async {
+        // Save all active timer states to SwiftData (but don't stop them)
+        HabitTimerService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+        HabitCounterService.shared.persistAllCompletionsToSwiftData(modelContext: container.mainContext)
+        
+        // Save SwiftData context
+        do {
+            try container.mainContext.save()
+            print("✅ Timer states saved to SwiftData")
+        } catch {
+            print("❌ Failed to save timer states: \(error)")
         }
     }
 }

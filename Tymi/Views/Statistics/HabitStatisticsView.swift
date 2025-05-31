@@ -38,6 +38,19 @@ struct HabitStatisticsView: View {
                 )
                 .listRowInsets(EdgeInsets())
                 .frame(maxWidth: .infinity)
+            } footer: {
+                HStack(spacing: 8) {
+                    Image(systemName: "hand.tap")
+                        .font(.footnote)
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color)
+                    
+                    Text("habit_statistics_view".localized)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                }
+                .padding(.top, 8)
             }
             .listSectionSeparator(.hidden)
             
@@ -78,7 +91,7 @@ struct HabitStatisticsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-
+            
             // Reset history
             Section {
                 Button {

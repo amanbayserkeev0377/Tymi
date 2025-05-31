@@ -40,11 +40,11 @@ struct HabitRowView: View {
                                 .fill((habit.iconName == nil ? AppColorManager.shared.selectedColor.color : habit.iconColor.color).opacity(0.1))
                         )
                     
-                    // Pin indicator как badge
+                    // Pin indicator badge
                     if habit.isPinned {
-                        Image(systemName: "pin")
+                        Image(systemName: "pin.fill")
                             .font(.system(size: 10))
-                            .foregroundStyle(Color(uiColor: .systemGray2))
+                            .foregroundStyle(AppColorManager.shared.selectedColor.color)
                             .frame(width: 16, height: 16)
                     }
                 }

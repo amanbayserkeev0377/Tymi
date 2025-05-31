@@ -63,6 +63,9 @@ struct HabitDetailView: View {
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                         viewModel.saveIfNeeded()
                     }
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                        viewModel.refreshFromService()
+                    }
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
                         viewModel.forceCleanup()
                     }
@@ -85,7 +88,6 @@ struct HabitDetailView: View {
             Text(habit.title)
                 .font(.largeTitle.bold())
                 .lineLimit(1)
-                .minimumScaleFactor(0.8)
                 .padding(.horizontal)
                 .padding(.top, 0)
                 .padding(.bottom, 4)

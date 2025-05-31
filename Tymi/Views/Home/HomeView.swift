@@ -8,6 +8,7 @@ struct HomeView: View {
     @Environment(HabitsUpdateService.self) private var habitsUpdateService
     @ObservedObject private var colorManager = AppColorManager.shared
     @State private var isEditMode = false
+    @State private var showingPaywall = false
     
     // Query for all habit folders
     @Query(sort: [SortDescriptor(\HabitFolder.displayOrder)])
@@ -20,7 +21,7 @@ struct HomeView: View {
         sort: [SortDescriptor(\Habit.displayOrder), SortDescriptor(\Habit.createdAt)]
     )
     private var allBaseHabits: [Habit]
-
+    
     private var baseHabits: [Habit] {
         // Сбрасываем selectedFolder если папка больше не существует
         if let selectedFolder = selectedFolder,
@@ -72,7 +73,7 @@ struct HomeView: View {
     @State private var selectedFolder: HabitFolder? = nil
     @State private var selectedForAction: Set<PersistentIdentifier> = []
     @State private var showingMoveToFolder = false
-
+    
     // Computed property for filtering habits based on selected date
     private var activeHabitsForDate: [Habit] {
         baseHabits.filter { habit in
@@ -125,16 +126,29 @@ struct HomeView: View {
                         HStack {
                             Spacer()
                             Button(action: {
-                                showingNewHabit = true
+                                if !ProManager.shared.isPro && allBaseHabits.count >= 3 {
+                                    showingPaywall = true
+                                } else {
+                                    showingNewHabit = true
+                                }
                             }) {
                                 Image(systemName: "plus")
-                                    .font(.system(size: 24))
-                                    .frame(width: 56, height: 56)
+                                    .font(.system(size: 24, weight: .semibold))
+                                    .foregroundStyle(colorManager.selectedColor.color)
+                                    .frame(width: 52, height: 52)
                                     .background(
                                         Circle()
-                                            .fill(colorManager.selectedColor.color.opacity(0.1))
+                                            .fill(colorManager.selectedColor.color.opacity(0.05))
+                                            .overlay(
+                                                Circle()
+                                                    .strokeBorder(
+                                                        colorManager.selectedColor.color.opacity(0.1),
+                                                        lineWidth: 0.7
+                                                    )
+                                            )
                                     )
                             }
+                            .buttonStyle(.plain)
                             .padding(.trailing, 20)
                             .padding(.bottom, 20)
                         }
@@ -161,10 +175,13 @@ struct HomeView: View {
             }
             .presentationDetents([
                 UIDevice.current.userInterfaceIdiom == .pad ? .large :
-                UIScreen.main.bounds.height <= 667 ? .fraction(0.8) : .fraction(0.7)
+                    UIScreen.main.bounds.height <= 667 ? .fraction(0.8) : .fraction(0.7)
             ])
             .presentationDragIndicator(.visible)
             .presentationCornerRadius(30)
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
         .sheet(item: $selectedHabitForStats) { habit in
             NavigationStack {
@@ -222,41 +239,46 @@ struct HomeView: View {
     
     private func contentView(actionService: HabitActionService) -> some View {
         VStack(spacing: 0) {
-            // Calendar at the top - скрывать в edit mode
-            if !isEditMode {
-                WeeklyCalendarView(selectedDate: $selectedDate)
-            }
-            
-            // Folder picker section - скрывать в edit mode
-            if !allFolders.isEmpty && !isEditMode {
-                folderPickerSection
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-            }
             
             if allBaseHabits.isEmpty {
-                // Нет привычек вообще - показываем EmptyStateView
+                // Нет привычек вообще - показываем только EmptyStateView
                 EmptyStateView()
-            } else if baseHabits.isEmpty && selectedFolder != nil {
-                // Есть привычки, но в выбранной папке их нет
-                ScrollView {
-                    VStack(spacing: 20) {
-                        Spacer()
-                        Image(systemName: "folder")
-                            .font(.system(size: 60))
-                            .foregroundStyle(.secondary)
-                        Text("folders_no_habits".localized)
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
+            } else {
+                // Есть привычки - показываем календарь и папки
+                
+                // Calendar at the top - скрывать в edit mode
+                if !isEditMode {
+                    WeeklyCalendarView(selectedDate: $selectedDate)
+                }
+                
+                // Folder picker section - скрывать в edit mode
+                if !allFolders.isEmpty && !isEditMode {
+                    folderPickerSection
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                }
+                
+                if baseHabits.isEmpty && selectedFolder != nil {
+                    // Есть привычки, но в выбранной папке их нет
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            Spacer()
+                            Image(systemName: "folder")
+                                .font(.system(size: 60))
+                                .foregroundStyle(.secondary)
+                            Text("folders_no_habits".localized)
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                    }
+                } else {
+                    // Есть привычки для отображения
+                    if hasHabitsForDate {
+                        habitList(actionService: actionService)
+                    } else {
                         Spacer()
                     }
-                }
-            } else {
-                // Есть привычки для отображения
-                if hasHabitsForDate {
-                    habitList(actionService: actionService)
-                } else {
-                    Spacer()
                 }
             }
         }
@@ -418,8 +440,8 @@ struct HomeView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(selectedFolder == nil ?
-                                    AppColorManager.shared.selectedColor.color.opacity(0.1) :
-                                    Color.clear)
+                                      AppColorManager.shared.selectedColor.color.opacity(0.1) :
+                                        Color.clear)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
                                         .strokeBorder(
@@ -449,8 +471,8 @@ struct HomeView: View {
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(selectedFolder?.uuid == folder.uuid ?
-                                        AppColorManager.shared.selectedColor.color.opacity(0.1) :
-                                        Color.clear)
+                                          AppColorManager.shared.selectedColor.color.opacity(0.1) :
+                                            Color.clear)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
                                             .strokeBorder(
@@ -616,8 +638,6 @@ struct HomeView: View {
                             .tint(.red)
                         }
                     }
-                    // Перетаскивание только в обычном режиме
-                    // .onMove(perform: moveHabits) - убираем отсюда
                 }
                 .listStyle(.plain)
             }

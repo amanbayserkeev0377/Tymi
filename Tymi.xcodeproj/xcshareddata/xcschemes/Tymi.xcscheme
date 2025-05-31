@@ -64,7 +64,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
-         identifier = "../../Tymi/App/Tymi.storekit">
+         identifier = "../../Tymi/Pro/Tymi.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction

@@ -44,6 +44,7 @@
 "button_unpin" = "Unpin";
 "button_edit" = "Edit";
 "button_save" = "Save";
+"button_ok" = "OK";
 "button_reset" = "Reset";
 "button_reset_progress" = "Reset progress";
 "complete" = "Complete";
@@ -110,6 +111,7 @@
 "reset_button_label" = "Reset";
 "start_date" = "Start date";
 "streak" = "Streak";
+"habit_statistics_view" = "Tap dates to edit progress";
 
 /* ===================== Notifications ===================== */
 
@@ -303,6 +305,43 @@
 "privacy_contact_email_label" = "Email";
 "privacy_contact_telegram_label" = "Telegram";
 
+
+/* ===================== Settings - Purchases ===================== */
+"restore_purchases" = "Restore Purchases";
+"restore_purchases_success" = "Purchases restored successfully!";
+"restore_purchases_no_purchases" = "No purchases to restore.";
+
+/* ===================== PayWall ===================== */
+
+"paywall_purchase_result_title" = "Purchase Result";
+"paywall_ok_button" = "OK";
+"paywall_header_title" = "Build Better Habits";
+"paywall_processing_button" = "Processing...";
+"paywall_subscribe_button" = "Subscribe";
+"paywall_start_free_trial_button" = "Start 7 Days Free";
+"paywall_restore_purchases_button" = "Restore Purchases";
+"paywall_regional_pricing_notice" = "Prices may vary by region and are determined based on local economic conditions and purchasing power.";
+"paywall_family_sharing_button" = "Supports Family Sharing";
+"paywall_legal_text" = "Payment will be charged to your Apple ID account at confirmation of purchase. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period.";
+"paywall_terms_of_service_button" = "Terms of Service";
+"paywall_privacy_policy_button" = "Privacy Policy";
+"paywall_purchase_success_message" = "Welcome to Tymi Pro! 🎉";
+"paywall_purchase_failed_message" = "Purchase failed. Please try again.";
+"paywall_restore_success_message" = "Purchases restored successfully!";
+"paywall_no_purchases_to_restore_message" = "No purchases to restore.";
+"paywall_unlimited_habits_title" = "Unlimited Habits";
+"paywall_unlimited_habits_description" = "Create as many habits as you need";
+"paywall_habit_folders_title" = "Habit Folders";
+"paywall_habit_folders_description" = "Organize habits in custom folders";
+"paywall_custom_colors_icons_title" = "Custom Colors & Icons";
+"paywall_custom_colors_icons_description" = "Personalize with themes and app icons";
+"paywall_support_creator_title" = "Support the Creator";
+"paywall_support_creator_description" = "One person, no team — your help makes a difference";
+"paywall_yearly_plan" = "Yearly";
+"paywall_monthly_plan" = "Monthly";
+"paywall_monthly_description" = "Less than a cup of coffee";
+"paywall_yearly_description" = "Try it free for 7 days";
+"paywall_free_trial_label" = "FREE TRIAL";
 
 /* ===================== Settings: Tymi - version===================== */
 "Tymi – %@ %@" = "Tymi – %1$@ %2$@";

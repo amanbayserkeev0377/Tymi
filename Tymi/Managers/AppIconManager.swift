@@ -116,6 +116,21 @@ enum AppIcon: Hashable, Identifiable {
         case .silverBlue(_): return "app_icon_silver_blue_name".localized
         }
     }
+    
+    // MARK: - Pro Features
+    var isBasicIcon: Bool {
+        switch self {
+        case .main, .light, .dark:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var requiresPro: Bool {
+        return !isBasicIcon
+    }
+    
 }
 
 // MARK: - AppIconManager Class

@@ -92,9 +92,9 @@ struct DayProgressItem: View, Equatable {
         } else if isSelected {
             return .primary // Выбранный день primary
         } else if isFutureDate {
-            return .secondary.opacity(0.6) // Будущие дни серые и прозрачные
+            return .primary // Будущие дни
         } else {
-            return .secondary // Остальные дни серые
+            return .primary // Остальные дни
         }
     }
     
@@ -145,7 +145,6 @@ struct DayProgressItem: View, Equatable {
                     .frame(width: 4, height: 4)
                     .opacity(isSelected ? 1 : 0) // Показывать только для выбранного дня
             }
-            .opacity(isFutureDate || !showProgressRing ? 0.6 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
         .disabled(isFutureDate || !isValidDate)

@@ -52,8 +52,8 @@ struct WeekStartSection: View {
                 icon: {
                     Image(systemName: "calendar")
                         .withIOSSettingsIcon(lightColors: [
-                            Color(#colorLiteral(red: 0.4666666667, green: 0.8666666667, blue: 0.4, alpha: 1)),
-                            Color(#colorLiteral(red: 0.1176470588, green: 0.5647058824, blue: 0.1176470588, alpha: 1))
+                            Color(#colorLiteral(red: 0.75, green: 0.65, blue: 0.55, alpha: 1)),
+                            Color(#colorLiteral(red: 0.4, green: 0.35, blue: 0.3, alpha: 1))
                         ])
                 }
             )

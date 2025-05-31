@@ -8,11 +8,32 @@ class ProManager {
     private(set) var isPro: Bool = false
     private(set) var offerings: Offerings?
     private(set) var isLoading: Bool = false
-    
     private init() {
         checkProStatus()
         loadOfferings()
     }
+    
+#if DEBUG
+// MARK: - Debug Methods (только для тестирования)
+@MainActor
+func resetProStatusForTesting() {
+    isPro = false
+    print("🧪 Pro status reset for testing")
+}
+
+@MainActor
+func setProStatusForTesting(_ status: Bool) {
+    isPro = status
+    print("🧪 Pro status set to: \(status)")
+}
+
+func toggleProStatusForTesting() {
+    Task { @MainActor in
+        isPro.toggle()
+        print("🧪 Pro status toggled to: \(isPro)")
+    }
+}
+#endif
     
     // MARK: - Pro Status
     
