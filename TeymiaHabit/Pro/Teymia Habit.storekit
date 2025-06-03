@@ -1,0 +1,174 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "81B8648E",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : true,
+      "internalID" : "6746750661",
+      "localizations" : [
+        {
+          "description" : "Пожизненный Pro: все функции навсегда",
+          "displayName" : "Пожизненный доступ к Pro",
+          "locale" : "ru"
+        },
+        {
+          "description" : "Unlock all Pro features forever. Pay once!",
+          "displayName" : "Lifetime Pro Access",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.amanbayserkeev.teymiahabit.pro_lifetime",
+      "referenceName" : "Teymia Habit Pro Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6746747903",
+    "_developerTeamID" : "SXCBCPV7Y9",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 770641181.70287204,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21700072",
+      "localizations" : [
+
+      ],
+      "name" : "Teymia Habit Pro Subscriptions",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "0.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "6746749724",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited habits & premium features",
+              "displayName" : "Teymia Habit Pro Monthly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Безлимит привычек и премиум функции",
+              "displayName" : "Teymia Habit Pro месячная",
+              "locale" : "ru"
+            }
+          ],
+          "productID" : "com.amanbayserkeev.teymiahabit.pro_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Teymia Habit Pro Monthly",
+          "subscriptionGroupID" : "21700072",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "5.99",
+          "familyShareable" : true,
+          "groupNumber" : 2,
+          "internalID" : "6746750078",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited habits & premium features",
+              "displayName" : "Teymia Habit Pro Yearly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Безлимит привычек и премиум функции",
+              "displayName" : "Teymia Habit Pro Годовая",
+              "locale" : "ru"
+            }
+          ],
+          "productID" : "com.amanbayserkeev.teymiahabit.pro_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Teymia Habit Pro Yearly",
+          "subscriptionGroupID" : "21700072",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

@@ -1,0 +1,360 @@
+/* ===================== Alerts ===================== */
+
+// Delete Habit Alerts
+"alert_delete_habit" = "Delete Habit";
+"alert_delete_habit_message" = "Are you sure you want to delete «%@»?";
+
+"alert_delete_multiple_habits" = "Delete Selected Habits";
+"alert_delete_multiple_habits_message" = "Are you sure you want to delete %d selected habits?";
+
+// Folder Delete Alerts
+"alert_delete_folder" = "Delete Folder";
+"alert_delete_folder_message" = "Delete «%@»? Your habits won't be deleted.";
+
+"alert_delete_folders" = "Delete Folders";
+"alert_delete_folders_message" = "Delete %d folders? Your habits won't be deleted.";
+
+// Progress Input Alerts
+"alert_add_count" = "Add Count";
+"alert_add_count_message" = "Enter the number of completions to add";
+
+"alert_add_time" = "Add Time";
+"alert_add_time_message" = "Enter the time you spent on this habit";
+
+// History Reset Alert
+"alert_reset_history" = "Reset History";
+"alert_reset_history_message" = "This will permanently delete all habit completion data. This action cannot be undone.";
+
+// Timer Close Alert
+"alert_close_timer" = "Stop Timer";
+"alert_close_timer_message" = "Closing will stop the running timer. Continue?";
+
+// Notifications Permission Alert
+"alert_notifications_permission" = "Notification Permission Required";
+"alert_notifications_permission_message" = "To receive habit reminders, please enable notifications in Settings.";
+
+
+/* ===================== Buttons ===================== */
+"button_add" = "Add";
+"button_done" = "Done";
+"button_delete" = "Delete";
+"button_cancel" = "Cancel";
+"button_close" = "Close";
+"button_pin" = "Pin";
+"button_unpin" = "Unpin";
+"button_edit" = "Edit";
+"button_save" = "Save";
+"button_ok" = "OK";
+"button_reset" = "Reset";
+"button_reset_progress" = "Reset progress";
+"complete" = "Complete";
+"completed" = "Completed";
+
+/* ===================== General ===================== */
+"today" = "Today";
+"yesterday" = "Yesterday";
+"items_selected" = "%d Selected";
+"count" = "Count";
+"time" = "Time";
+"times" = "times";
+"hours" = "Hours";
+"goal" = "Goal: %@";
+"minutes_format" = "%d m";
+"hours_format" = "%d hr";
+"hours_less_than_24" = "hours (less than 24)";
+"hours_minutes_format" = "%d hr %d m";
+"minutes" = "Minutes";
+"minutes_less_than_60" = "minutes (less than 60)";
+"streak" = "Streak";
+"best" = "Best";
+"total" = "Total";
+"version" = "version";
+
+/* ===================== Main Tab View ===================== */
+"home" = "Home";
+"statistics" = "Statistics";
+"settings" = "Settings";
+
+/* ===================== New Habit View ===================== */
+"habit_name" = "Habit Name";
+"icon" = "Icon";
+"goalsection_choose_time" = "Choose time (hr:min)";
+"goalsection_enter_count" = "Enter count";
+"active_days" = "Active days";
+"everyday" = "Everyday";
+"every_week" = "Every week";
+"select_days" = "Select days";
+"will_repeat_weekly" = "Will repeat weekly on these days";
+"reminders" = "Reminders";
+"reminder" = "Reminder";
+
+/* ===================== Other ===================== */
+"add_count" = "Add Count";
+"add_progress" = "Add progress";
+"add_reminder" = "Add";
+"add_time" = "Add Time";
+"choose_icon" = "Choose Icon";
+"create_habit" = "Create Habit";
+"daily_goal" = "Goal";
+"delete_habit" = "Delete habit";
+"edit_habit" = "Edit Habit";
+"future_self_thank_you" = "Tap '+' to add your first habit.";
+"goal_format" = "Goal: %@";
+"habits" = "Habits";
+"health" = "Health";
+"hobbies" = "Hobbies";
+"lifestyle" = "Lifestyle";
+"loading_calendar" = "Loading calendar…";
+"no_habits" = "You don't have any habits yet.";
+"no_habits_for_date" = "No habits for this date";
+"no_icon" = "No icon";
+"productivity" = "Productivity";
+"reset_all_history" = "Reset history";
+"reset_button_label" = "Reset";
+"start_date" = "Start date";
+"habit_statistics_view" = "Tap dates to edit progress";
+
+/* ===================== Notifications ===================== */
+
+"notifications_habit_time" = "Time for your habit!";
+"notifications_dont_forget" = "Don't forget to do: %@";
+
+/* ===================== Settings: Section Headers & Footers ===================== */
+"settings_header_appearance" = "Appearance & Language";
+"settings_header_data" = "Data & Organization";
+"settings_header_sounds_feedback" = "Sounds & Feedback";
+"settings_header_support" = "Support & Feedback";
+"settings_header_legal" = "Legal";
+"settings_footer_language" = "You can change the app language in the system settings.";
+
+/* ===================== Settings: App Color ===================== */
+"app_color" = "App Color";
+"app_color_preview_header" = "Preview";
+"app_color_preview_footer" = "The app color changes according to your selected color.";
+"app_color_colors_header" = "Colors";
+
+/* ===================== Settings: App Icon ===================== */
+"app_icon" = "App Icon";
+"app_icon_aura_name" = "Aura";
+"app_icon_blaze_name" = "Blaze";
+"app_icon_bliss_name" = "Bliss";
+"app_icon_chill_name" = "Chill";
+"app_icon_dark_name" = "Dark";
+"app_icon_dream_name" = "Dream";
+"app_icon_light_name" = "Light";
+"app_icon_main_name" = "Main";
+"app_icon_minimal_dark_name" = "Minimal Dark";
+"app_icon_minimal_light_name" = "Minimal Light";
+"app_icon_paper_name" = "Paper";
+"app_icon_silver_blue_name" = "Silver Blue";
+"app_icon_sunrise_name" = "Sunrise";
+
+/* ===================== Settings: Appearance ===================== */
+"appearance" = "Appearance";
+"appearance_dark" = "Dark";
+"appearance_light" = "Light";
+"appearance_system" = "System";
+
+/* ===================== Settings: Week Start ===================== */
+"week_start_day" = "Week Start";
+"week_start_system" = "System";
+
+/* ===================== Settings: Language ===================== */
+"language" = "Language";
+
+/* ===================== Settings: Archived Habits ===================== */
+"archive" = "Archive";
+"archived_habits" = "Archived Habits";
+"no_archived_habits" = "No Archived Habits";
+"unarchive" = "Unarchive";
+"archived_habits_footer" = "Swipe left to unarchive or delete";
+"archived_date_format" = "Archived %@";
+
+
+/* ===================== Settings & General: Folders ===================== */
+"folders" = "Folders";
+"folders_all" = "All";
+"folders_move" = "Move";
+"folders_new_folder" = "New Folder";
+"folders_edit_folder" = "Edit Folder";
+"folders_create_folder" = "Create a Folder";
+"folders_select_folder" = "Select a Folder";
+"folders_folder_name" = "Folder Name";
+"folders_edit_footer" = "Tap 'Edit' to change the order or delete folders. Folder management is also available in the Settings.";
+"folders_none_selected" = "None";
+"folders_move_to_folder" = "Move to folder";
+"folders_no_folder" = "No folder";
+"folders_no_habits" = "No habits in this folder";
+
+/* ===================== Settings: iCloud Sync ===================== */
+"icloud_sync" = "iCloud Sync";
+"icloud_sync_status" = "Sync Status";
+"icloud_sync_active" = "Active";
+"icloud_checking_status" = "Checking...";
+"icloud_not_signed_in" = "Sign in to iCloud";
+"icloud_restricted" = "iCloud is Restricted";
+"icloud_how_sync_works" = "How Sync Works";
+"icloud_automatic_backup" = "Automatic Backup";
+"icloud_automatic_backup_desc" = "All habits are automatically saved to your iCloud";
+"icloud_cross_device_sync" = "Cross-Device Sync";
+"icloud_cross_device_sync_desc" = "Access your habits on iPhone, iPad, and other devices";
+"icloud_private_secure" = "Privacy & Security";
+"icloud_private_secure_desc" = "Data is stored only in your personal iCloud";
+"icloud_troubleshooting" = "Troubleshooting";
+"icloud_signin_required" = "iCloud sign-in is required for syncing";
+"icloud_signin_steps" = "Settings → [Your Name] → iCloud → Sign In";
+"icloud_status_unknown" = "Status Unknown";
+"icloud_temporarily_unavailable" = "Temporarily Unavailable";
+"icloud_unknown_error" = "Unknown Error";
+"icloud_check_failed" = "Check Failed";
+
+/* ===================== Settings: Sounds & Feedback ===================== */
+"notifications" = "Notifications";
+"haptics" = "Haptics";
+
+/* ===================== Settings: Support & Feedback ===================== */
+"rate_app" = "Rate App";
+"share_app" = "Share App";
+"contact_developer" = "Contact Developer";
+"report_bug" = "Report a Bug";
+
+/* ===================== Settings: Terms of Service ===================== */
+"terms_of_service" = "Terms of Service";
+"tos_intro_title" = "Thank you for choosing Teymia Habit!";
+"tos_intro_body" = "This app is created for personal use to help you track your habits. By using Teymia Habit, you agree to the following terms:";
+
+"tos_privacy_title" = "Privacy and Data";
+"tos_privacy_body" = "The app stores your data locally and may sync it through iCloud when you're signed in. We do not collect, analyze, or share your personal data with third parties. For detailed information, please see our Privacy Policy.";
+
+"tos_icloud_title" = "iCloud Integration";
+"tos_icloud_body" = "When signed into iCloud, your habit data automatically syncs across your Apple devices. This data is stored in your private iCloud container and is governed by Apple's Terms of Service and Privacy Policy.";
+
+"tos_risk_title" = "Use at Your Own Risk";
+"tos_risk_body" = "You use the app at your own risk. While we strive to provide a reliable service, we are not responsible for data loss, sync issues, or other possible technical problems.";
+
+"tos_updates_title" = "Updates";
+"tos_updates_body" = "We may periodically update the app and these terms to improve functionality and user experience. Continued use of the app constitutes acceptance of any updates.";
+
+"tos_warranty_title" = "No Warranty";
+"tos_warranty_body" = "The app is provided 'as is' without warranties of any kind. While we work to ensure everything functions properly, we cannot guarantee perfect accuracy or uninterrupted service.";
+
+"tos_contact_title" = "Contact";
+"tos_contact_body" = "If you have any questions about these terms or the app, feel free to contact us:";
+"tos_contact_email_label" = "Email";
+"tos_contact_telegram_label" = "Telegram";
+
+/* ===================== Settings: Privacy Policy ===================== */
+"privacy_policy" = "Privacy Policy";
+"privacy_updated_title" = "Last Updated";
+"privacy_updated_date" = "Last updated: May 28, 2025";
+"privacy_intro_title" = "Introduction";
+"privacy_intro_body" = "The Teymia Habit habit tracking app respects user privacy. This section describes what data is used, where it is stored, and how it is processed.";
+"privacy_data_title" = "Collected Information";
+"privacy_data_body" = "The app uses the following information:";
+"privacy_data_item_1" = "• Habit data — names, goals, progress, and user-defined parameters";
+"privacy_data_item_2" = "• App settings — theme, week start, and other preferences";
+"privacy_data_item_3" = "• Performance statistics — dates, times, and habit progress trends";
+
+"privacy_storage_title" = "Data Storage";
+"privacy_storage_body" = "The app stores data using the following methods:";
+"privacy_storage_item_1" = "• Local storage using SwiftData for habits and progress data";
+"privacy_storage_item_2" = "• UserDefaults for app settings and preferences";
+"privacy_storage_item_3" = "• Automatic iCloud synchronization through CloudKit for signed-in users";
+"privacy_storage_implication" = "This storage approach means:";
+"privacy_storage_implication_1" = "• Local data is always stored securely on your device";
+"privacy_storage_implication_2" = "• iCloud sync happens automatically when signed into iCloud";
+"privacy_storage_implication_3" = "• You maintain full control over your data through your Apple ID";
+"privacy_storage_implication_4" = "• Deleting the app removes local data; iCloud data can be managed through Apple ID settings";
+
+"privacy_icloud_title" = "iCloud Synchronization";
+"privacy_icloud_body" = "The app automatically syncs data via iCloud when available:";
+"privacy_icloud_item_1" = "• Habit data synchronizes across all your Apple devices";
+"privacy_icloud_item_2" = "• Data is stored in your private iCloud container";
+"privacy_icloud_item_3" = "• Only accessible through your Apple ID";
+"privacy_icloud_item_4" = "• Governed by Apple's iCloud Terms and Privacy Policy";
+"privacy_icloud_item_5" = "• If not signed into iCloud, data remains local only";
+
+"privacy_notifications_title" = "Notifications";
+"privacy_notifications_body" = "If permitted, the app may send local habit reminders:";
+"privacy_notifications_item_1" = "• Notifications are configured by the user";
+"privacy_notifications_item_2" = "• Can be disabled at any time through settings";
+"privacy_notifications_item_3" = "• Processed locally and not shared with third-party services";
+
+"privacy_collection_title" = "Data Collection and Sharing";
+"privacy_collection_body" = "The app does not collect or share data with third parties:";
+"privacy_collection_item_1" = "• No usage analytics";
+"privacy_collection_item_2" = "• No behavior tracking";
+"privacy_collection_item_3" = "• No data sharing with third parties";
+"privacy_collection_item_4" = "• No advertising trackers or third-party SDKs";
+"privacy_collection_item_5" = "• iCloud data (when synced) is stored in Apple's secure infrastructure";
+
+"privacy_security_title" = "Security";
+"privacy_security_item_1" = "• Data is stored in secure iOS containers and iCloud (when enabled)";
+"privacy_security_item_2" = "• iCloud data is protected by Apple's encryption and security measures";
+"privacy_apple_title" = "Apple Services";
+"privacy_apple_body" = "When using iCloud sync, data processing is governed by Apple's Privacy Policy. We do not have access to your iCloud data.";
+
+"privacy_children_title" = "Children's Privacy";
+"privacy_children_body" = "The app is not specifically designed for children under 13, but it is safe for users of all ages.";
+
+"privacy_changes_title" = "Policy Updates";
+"privacy_changes_body" = "The policy may be updated. It is recommended to periodically check this page. Updates take effect upon publication.";
+
+"privacy_contact_title" = "Contact Information";
+"privacy_contact_body" = "For questions or suggestions regarding privacy, you can contact:";
+"privacy_contact_email_label" = "Email";
+"privacy_contact_telegram_label" = "Telegram";
+
+
+/* ===================== Settings - Purchases ===================== */
+"restore_purchases" = "Restore Purchases";
+"restore_purchases_success" = "Purchases restored successfully!";
+"restore_purchases_no_purchases" = "No purchases to restore.";
+
+/* ===================== PayWall ===================== */
+
+"paywall_purchase_result_title" = "Purchase Result";
+"paywall_ok_button" = "OK";
+"paywall_header_title" = "Build Better Habits";
+"paywall_processing_button" = "Processing...";
+"paywall_subscribe_button" = "Subscribe";
+"paywall_start_free_trial_button" = "Start 7 Days Free";
+"paywall_restore_purchases_button" = "Restore Purchases";
+"paywall_regional_pricing_notice" = "Prices may vary by region and are determined based on local economic conditions and purchasing power.";
+"paywall_family_sharing_button" = "Supports Family Sharing";
+"paywall_legal_text" = "Payment will be charged to your Apple ID account at confirmation of purchase. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period.";
+"paywall_purchase_success_message" = "Welcome to Teymia Habit Pro! 🎉";
+"paywall_purchase_failed_message" = "Purchase failed. Please try again.";
+"paywall_restore_success_message" = "Purchases restored successfully!";
+"paywall_no_purchases_to_restore_message" = "No purchases to restore.";
+"paywall_unlimited_habits_title" = "Unlimited Habits";
+"paywall_unlimited_habits_description" = "Create as many habits as you need";
+"paywall_habit_folders_title" = "Habit Folders";
+"paywall_habit_folders_description" = "Organize habits in custom folders";
+"paywall_custom_colors_icons_title" = "Custom Colors & Icons";
+"paywall_custom_colors_icons_description" = "Personalize with themes and app icons";
+"paywall_support_creator_title" = "Support the Creator";
+"paywall_support_creator_description" = "One person, no team — your help makes a difference";
+"paywall_yearly_plan" = "Yearly";
+"paywall_monthly_plan" = "Monthly";
+"paywall_monthly_description" = "Less than a cup of coffee";
+"paywall_yearly_description" = "Try it free for 7 days";
+"paywall_free_trial_label" = "FREE TRIAL";
+"paywall_7_days_free_trial" = "7 days free trial";
+"paywall_lifetime_plan" = "Lifetime";
+"paywall_best_value" = "Best Value";
+"paywall_lifetime_description" = "Pay once, use forever";
+"paywall_one_time_payment" = "One-time payment";
+"paywall_get_lifetime_button" = "Get Lifetime Access";
+
+/* ===================== Settings: Teymia Habit - version===================== */
+"Teymia Habit – %@ %@" = "Teymia Habit – %1$@ %2$@";
+"made_with" = "Made with";
+"in_kyrgyzstan" = "in Kyrgyzstan";
+
+/* ===================== Empty State View===================== */
+
+"empty_view_largetitle" = "Start Today, Grow Tomorrow";
+"empty_view_title3" = "Step by Step";
+"empty_view_tap" = "Tap";
+"empty_view_to_create_habit" = "to create your first habit";
