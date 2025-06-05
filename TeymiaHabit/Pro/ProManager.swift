@@ -80,15 +80,24 @@ func toggleProStatusForTesting() {
             }
             
             do {
-                let offerings = try await Purchases.shared.offerings()
+                // КРИТИЧНО: Добавляем таймаут для Apple Review
+                let offerings = try await withTimeout(seconds: 8) {
+                    try await Purchases.shared.offerings()
+                }
+                
                 await MainActor.run {
                     self.offerings = offerings
                     self.isLoading = false
                 }
-                print("✅ Offerings loaded successfully")
+                
+                print("✅ Offerings loaded: \(offerings.current?.availablePackages.count ?? 0) packages")
+                
             } catch {
-                print("❌ Error loading offerings: \(error)")
+                print("❌ Offerings timeout or error: \(error)")
+                
                 await MainActor.run {
+                    // Принудительно останавливаем загрузку после таймаута
+                    self.offerings = nil
                     self.isLoading = false
                 }
             }
@@ -137,6 +146,26 @@ func toggleProStatusForTesting() {
     }
     
     // MARK: - Helper Methods
+    
+    private func withTimeout<T>(seconds: TimeInterval, operation: @escaping () async throws -> T) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                try await operation()
+            }
+            
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                throw TimeoutError()
+            }
+            
+            guard let result = try await group.next() else {
+                throw TimeoutError()
+            }
+            
+            group.cancelAll()
+            return result
+        }
+    }
     
     private func updateProStatusFromCustomerInfo(_ customerInfo: CustomerInfo) async {
         // Check subscription entitlement
@@ -197,3 +226,5 @@ extension ProManager {
         isPro
     }
 }
+
+struct TimeoutError: Error {}

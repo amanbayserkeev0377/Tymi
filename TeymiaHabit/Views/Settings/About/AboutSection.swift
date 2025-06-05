@@ -87,7 +87,7 @@ struct AboutSection: View {
                 .withExternalLinkIcon()
             }
             .tint(.primary)
-
+            
             // Share App
             Button {
                 let activityVC = UIActivityViewController(
@@ -159,9 +159,14 @@ struct AboutSection: View {
             .tint(.primary)
         }
         
-        // MARK: - Legal
+        // MARK: - Legal (ОБНОВЛЕННЫЙ РАЗДЕЛ)
         Section(header: Text("settings_header_legal".localized)) {
-            NavigationLink(destination: TermsOfServiceView()) {
+            // Terms of Service - прямая ссылка
+            Button {
+                if let url = URL(string: "https://www.notion.so/Terms-of-Service-204d5178e65a80b89993e555ffd3511f") {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
                 Label(
                     title: { Text("terms_of_service".localized) },
                     icon: {
@@ -172,10 +177,16 @@ struct AboutSection: View {
                             ])
                     }
                 )
+                .withExternalLinkIcon()
             }
+            .tint(.primary)
             
-            // Privacy Policy
-            NavigationLink(destination: PrivacyPolicyView()) {
+            // Privacy Policy - прямая ссылка
+            Button {
+                if let url = URL(string: "https://www.notion.so/Privacy-Policy-1ffd5178e65a80d4b255fd5491fba4a8") {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
                 Label(
                     title: { Text("privacy_policy".localized) },
                     icon: {
@@ -186,7 +197,9 @@ struct AboutSection: View {
                             ])
                     }
                 )
+                .withExternalLinkIcon()
             }
+            .tint(.primary)
         }
     }
 }

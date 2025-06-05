@@ -3,7 +3,7 @@ import SwiftData
 import UserNotifications
 import RevenueCat
 
-@main
+ @main
 struct TeymiaHabitApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorScheme) private var colorScheme

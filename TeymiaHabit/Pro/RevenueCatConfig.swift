@@ -21,16 +21,16 @@ struct RevenueCatConfig {
     
     // MARK: - Configuration
     static func configure() {
-        // Configure RevenueCat
         #if DEBUG
         Purchases.logLevel = .debug
         #else
-        Purchases.logLevel = .error  // For production
+        Purchases.logLevel = .info  // Изменено для диагностики
         #endif
         
+        print("🔑 RevenueCat API Key: \(apiKey.prefix(10))...")
         Purchases.configure(withAPIKey: apiKey)
         
-        // Set user attributes if needed
+        print("✅ RevenueCat configured successfully")
         setUserAttributes()
     }
     
