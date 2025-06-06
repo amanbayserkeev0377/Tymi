@@ -208,6 +208,15 @@
 "icloud_unknown_error" = "Белгисиз ката чыкты";
 "icloud_check_failed" = "Текшерүү ишке ашкан жок";
 
+"icloud_force_sync" = "Синхрондоштуруу";
+"icloud_force_sync_desc" = "iCloud менен кол менен синхрондоштурууну баштоо";
+"icloud_last_sync" = "Акыркы синхрондоштуруу";
+"icloud_manual_sync" = "Кол менен синхрондоштуруу";
+"icloud_manual_sync_footer" = "Эгер маалымат башка түзмөктөрдө автоматтык түрдө чыкпаса, кол менен синхрондоштуруңуз";
+"icloud_today_at" = "Бүгүн %@";
+"icloud_yesterday_at" = "Кечээ %@";
+"icloud_database_error" = "iCloud маалымат базасына кирүү катасы";
+
 /* ===================== Settings: Sounds & Feedback ===================== */
 "notifications" = "Эскертмелер";
 "haptics" = "Вибрациялуу жооп";

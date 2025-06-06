@@ -172,7 +172,7 @@ struct NewHabitView: View {
                 iconName: selectedIcon,
                 iconColor: selectedIconColor,
                 activeDays: activeDays,
-                reminderTime: isReminderEnabled ? reminderTimes.first : nil,
+                reminderTimes: isReminderEnabled ? reminderTimes : nil,
                 startDate: Calendar.current.startOfDay(for: startDate)
             )
             

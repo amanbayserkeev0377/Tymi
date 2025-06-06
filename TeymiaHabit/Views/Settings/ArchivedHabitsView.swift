@@ -83,12 +83,19 @@ struct ArchivedHabitsView: View {
         .deleteSingleHabitAlert(
             isPresented: $isDeleteSingleAlertPresented,
             habitName: habitToDelete?.title ?? "",
-            onDelete: { /* single delete */ }
+            onDelete: {
+                if let habit = habitToDelete {
+                    deleteHabit(habit)
+                }
+                habitToDelete = nil
+            }
         )
         .deleteMultipleHabitsAlert(
             isPresented: $isDeleteSelectedAlertPresented,
             habitsCount: selectedForDeletion.count,
-            onDelete: { /* multiple delete */ }
+            onDelete: {
+                deleteSelectedHabits()
+            }
         )
         .sheet(item: $selectedHabitForStats) { habit in
             NavigationStack {

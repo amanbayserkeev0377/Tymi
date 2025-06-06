@@ -15,7 +15,7 @@
   ],
   "products" : [
     {
-      "displayPrice" : "9.99",
+      "displayPrice" : "24.99",
       "familyShareable" : true,
       "internalID" : "6746750661",
       "localizations" : [
@@ -39,7 +39,7 @@
     "_applicationInternalID" : "6746747903",
     "_developerTeamID" : "SXCBCPV7Y9",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 770641181.70287204,
+    "_lastSynchronizedDate" : 770892161.35345304,
     "_locale" : "en_US",
     "_storefront" : "USA",
     "_storeKitErrors" : [
@@ -105,7 +105,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "0.99",
+          "displayPrice" : "3.99",
           "familyShareable" : true,
           "groupNumber" : 1,
           "internalID" : "6746749724",
@@ -138,11 +138,16 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "5.99",
+          "displayPrice" : "19.99",
           "familyShareable" : true,
           "groupNumber" : 2,
           "internalID" : "6746750078",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "51C428E5",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
           "localizations" : [
             {
               "description" : "Unlimited habits & premium features",

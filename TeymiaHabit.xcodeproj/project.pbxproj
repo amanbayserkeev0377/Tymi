@@ -23,7 +23,6 @@
 				AppIconDev.xcassets,
 				"Info-Dev.plist",
 				Info.plist,
-				TeymiaHabit.cloudkit,
 			);
 			target = 07A95EF92D9849F300044A7A /* TeymiaHabit */;
 		};
@@ -33,7 +32,6 @@
 				AppIcon.xcassets,
 				"Info-Dev.plist",
 				Info.plist,
-				TeymiaHabit.cloudkit,
 			);
 			target = 07971CF52DF2AD66006B9C21 /* TeymiaHabit Dev */;
 		};

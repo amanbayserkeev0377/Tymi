@@ -362,13 +362,13 @@ struct PaywallView: View {
                 isPurchasing = false
                 
                 if success {
-                    alertMessage = "paywall_purchase_success_message".localized
                     HapticManager.shared.play(.success)
+                    dismiss()
                 } else {
                     alertMessage = "paywall_purchase_failed_message".localized
                     HapticManager.shared.play(.error)
+                    showingAlert = true
                 }
-                showingAlert = true
             }
         }
     }

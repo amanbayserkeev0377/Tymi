@@ -208,6 +208,15 @@
 "icloud_unknown_error" = "Неизвестная ошибка";
 "icloud_check_failed" = "Проверка не удалась";
 
+"icloud_force_sync" = "Синхронизировать";
+"icloud_force_sync_desc" = "Вручную запустить синхронизацию с iCloud";
+"icloud_last_sync" = "Последняя синхронизация";
+"icloud_manual_sync" = "Ручная синхронизация";
+"icloud_manual_sync_footer" = "Если данные не появляются на других устройствах, выполните синхронизацию вручную";
+"icloud_today_at" = "Сегодня в %@";
+"icloud_yesterday_at" = "Вчера в %@";
+"icloud_database_error" = "Ошибка доступа к iCloud";
+
 /* ===================== Settings: Sounds & Feedback ===================== */
 "notifications" = "Уведомления";
 "haptics" = "Виброотклик";

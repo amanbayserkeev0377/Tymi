@@ -63,8 +63,3 @@ struct NotificationsSection: View {
     }
 }
 
-#Preview {
-    List {
-        NotificationsSection()
-    }
-}
