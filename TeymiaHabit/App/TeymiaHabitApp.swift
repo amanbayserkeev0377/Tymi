@@ -3,7 +3,7 @@ import SwiftData
 import UserNotifications
 import RevenueCat
 
- @main
+@main
 struct TeymiaHabitApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorScheme) private var colorScheme
@@ -17,13 +17,19 @@ struct TeymiaHabitApp: App {
         // Configure RevenueCat FIRST
         RevenueCatConfig.configure()
         
+        // Print current app configuration
+        let appVersion = AppConfig.current
+        print("🚀 Starting \(appVersion.displayName) version")
+        print("📦 Bundle ID: \(Bundle.main.bundleIdentifier ?? "unknown")")
+        print("☁️ CloudKit Container: \(appVersion.cloudKitContainerID)")
+        
         do {
             let schema = Schema([Habit.self, HabitCompletion.self, HabitFolder.self])
             
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
-                cloudKitDatabase: .private("iCloud.com.amanbayserkeev.teymiahabit")
+                cloudKitDatabase: .private(appVersion.cloudKitContainerID)
             )
             container = try ModelContainer(
                 for: schema,
@@ -31,12 +37,10 @@ struct TeymiaHabitApp: App {
             )
             
             print("✅ Local storage initialized successfully")
-            print("✅ CloudKit container initialized successfully")
+            print("✅ CloudKit container initialized: \(appVersion.cloudKitContainerID)")
         } catch {
-            print("❌ Local storage initialization error: \(error)")
-            print("❌ CloudKit initialization error: \(error)")
-            fatalError("Не удалось создать ModelContainer с локальным хранилищем: \(error)")
-            fatalError("Не удалось создать ModelContainer с CloudKit: \(error)")
+            print("❌ ModelContainer initialization error: \(error)")
+            fatalError("Не удалось создать ModelContainer: \(error)")
         }
     }
     

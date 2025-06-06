@@ -4,7 +4,7 @@ import CloudKit
 struct CloudKitSyncView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var cloudKitStatus: CloudKitStatus = .checking
-    @State private var lastSyncTime: Date = Date()
+    @State private var lastSyncTime: Date?
     @State private var isSyncing: Bool = false
     
     private enum CloudKitStatus {
@@ -53,7 +53,7 @@ struct CloudKitSyncView: View {
                 .padding(.vertical, 2)
             }
             
-            // Manual Sync
+            // Manual Sync - только если CloudKit доступен
             if case .available = cloudKitStatus {
                 Section {
                     Button {
@@ -93,23 +93,25 @@ struct CloudKitSyncView: View {
                     .disabled(isSyncing)
                     .tint(.primary)
                     
-                    // Last sync time
-                    HStack {
-                        Image(systemName: "clock.fill")
-                            .foregroundStyle(.secondary)
-                            .frame(width: 30)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("icloud_last_sync".localized)
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                            
-                            Text(formatSyncTime(lastSyncTime))
-                                .font(.footnote)
+                    // Last sync time - показываем только если есть время
+                    if let lastSyncTime = lastSyncTime {
+                        HStack {
+                            Image(systemName: "clock.fill")
                                 .foregroundStyle(.secondary)
+                                .frame(width: 30)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("icloud_last_sync".localized)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                
+                                Text(formatSyncTime(lastSyncTime))
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
                         }
-                        
-                        Spacer()
                     }
                 } header: {
                     Text("icloud_manual_sync".localized)
@@ -166,6 +168,7 @@ struct CloudKitSyncView: View {
         .navigationTitle("icloud_sync".localized)
         .navigationBarTitleDisplayMode(.large)
         .onAppear {
+            loadLastSyncTime()
             checkCloudKitStatus()
         }
     }
@@ -176,18 +179,33 @@ struct CloudKitSyncView: View {
         
         Task {
             do {
+                // 1. Сначала сохраняем локальные изменения
                 try modelContext.save()
+                print("📱 Local changes saved to SwiftData")
                 
-                try await Task.sleep(nanoseconds: 1_500_000_000)
+                // 2. Даем CloudKit время на автоматическую синхронизацию
+                // SwiftData автоматически синхронизируется с CloudKit при save()
+                try await Task.sleep(nanoseconds: 3_000_000_000) // 3 секунды
                 
+                // 3. Проверяем доступность CloudKit
+                let container = CKContainer(identifier: "iCloud.com.amanbayserkeev.teymiahabit")
+                let accountStatus = try await container.accountStatus()
+                
+                guard accountStatus == .available else {
+                    throw CloudKitError.accountNotAvailable
+                }
+                
+                // 4. Обновляем время последней синхронизации
                 await MainActor.run {
-                    lastSyncTime = Date()
-                    UserDefaults.standard.set(lastSyncTime, forKey: "lastSyncTime")
+                    let now = Date()
+                    lastSyncTime = now
+                    UserDefaults.standard.set(now, forKey: "lastSyncTime")
                     isSyncing = false
                     HapticManager.shared.play(.success)
                 }
                 
                 print("✅ Manual iCloud sync completed")
+                
             } catch {
                 await MainActor.run {
                     isSyncing = false
@@ -195,6 +213,12 @@ struct CloudKitSyncView: View {
                 }
                 print("❌ Manual iCloud sync failed: \(error)")
             }
+        }
+    }
+    
+    private func loadLastSyncTime() {
+        if let savedTime = UserDefaults.standard.object(forKey: "lastSyncTime") as? Date {
+            lastSyncTime = savedTime
         }
     }
     
@@ -213,7 +237,6 @@ struct CloudKitSyncView: View {
             return formatter.string(from: date)
         }
     }
-    
     
     // MARK: - Icon Views
     @ViewBuilder
@@ -310,30 +333,55 @@ struct CloudKitSyncView: View {
     @MainActor
     private func checkAccountStatus() async {
         do {
-            let container = CKContainer(identifier: "iCloud.com.amanbayserkeev.teymiahabit")
+            let container = CKContainer(identifier: AppConfig.current.cloudKitContainerID)
             let accountStatus = try await container.accountStatus()
             
             switch accountStatus {
             case .available:
-                cloudKitStatus = .available
+                // Дополнительно проверяем доступность базы данных
+                do {
+                    let database = container.privateCloudDatabase
+                    _ = try await database.allRecordZones()
+                    cloudKitStatus = .available
+                    print("✅ CloudKit fully available")
+                } catch {
+                    cloudKitStatus = .error("icloud_database_error".localized)
+                    print("❌ CloudKit database error: \(error)")
+                }
+                
             case .noAccount:
                 cloudKitStatus = .unavailable
+                print("❌ No iCloud account")
+                
             case .restricted:
                 cloudKitStatus = .restricted
+                print("❌ iCloud account restricted")
+                
             case .couldNotDetermine:
                 cloudKitStatus = .error("icloud_status_unknown".localized)
+                print("❌ Could not determine iCloud status")
+                
             case .temporarilyUnavailable:
                 cloudKitStatus = .error("icloud_temporarily_unavailable".localized)
+                print("❌ iCloud temporarily unavailable")
+                
             @unknown default:
                 cloudKitStatus = .error("icloud_unknown_error".localized)
+                print("❌ Unknown iCloud error")
             }
         } catch {
             cloudKitStatus = .error("icloud_check_failed".localized)
+            print("❌ Failed to check CloudKit status: \(error)")
         }
     }
 }
 
-// MARK: - Helper Views
+// MARK: - Custom Error Types
+enum CloudKitError: Error {
+    case accountNotAvailable
+}
+
+// MARK: - Helper Views (без изменений)
 struct SyncInfoRow: View {
     let icon: String
     let title: String

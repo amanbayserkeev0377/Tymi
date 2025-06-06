@@ -207,6 +207,7 @@
 "icloud_temporarily_unavailable" = "Temporarily Unavailable";
 "icloud_unknown_error" = "Unknown Error";
 "icloud_check_failed" = "Check Failed";
+
 "icloud_force_sync" = "Force Sync";
 "icloud_force_sync_desc" = "Manually trigger iCloud synchronization";
 "icloud_last_sync" = "Last Sync";
@@ -214,6 +215,7 @@
 "icloud_manual_sync_footer" = "Use manual sync if data doesn't appear on other devices automatically";
 "icloud_today_at" = "Today at %@";
 "icloud_yesterday_at" = "Yesterday at %@";
+"icloud_database_error" = "iCloud database access error";
 
 /* ===================== Settings: Sounds & Feedback ===================== */
 "notifications" = "Notifications";
