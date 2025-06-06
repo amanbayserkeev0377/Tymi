@@ -7,16 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		072DD4122DE81C3F00157BF8 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 072DD4112DE81C3F00157BF8 /* StoreKit.framework */; };
 		072DD4152DE8243500157BF8 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 072DD4142DE8243500157BF8 /* RevenueCat */; };
 		07971CFA2DF2AD66006B9C21 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 07971CF62DF2AD66006B9C21 /* RevenueCat */; };
-		07971CFB2DF2AD66006B9C21 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 072DD4112DE81C3F00157BF8 /* StoreKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		072DD4112DE81C3F00157BF8 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		07971D002DF2AD66006B9C21 /* TeymiaHabit Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TeymiaHabit Dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		07971D022DF2AD67006B9C21 /* TeymiaHabit copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "TeymiaHabit copy-Info.plist"; path = "/Users/aman/Developer/Teymia Habit/TeymiaHabit copy-Info.plist"; sourceTree = "<absolute>"; };
 		07A95EFA2D9849F300044A7A /* TeymiaHabit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TeymiaHabit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -24,97 +20,20 @@
 		073339882DEEECEA00F43D31 /* Exceptions for "TeymiaHabit" folder in "TeymiaHabit" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				AppIconDev.xcassets,
+				"Info-Dev.plist",
 				Info.plist,
+				TeymiaHabit.cloudkit,
 			);
 			target = 07A95EF92D9849F300044A7A /* TeymiaHabit */;
 		};
 		07971D012DF2AD67006B9C21 /* Exceptions for "TeymiaHabit" folder in "TeymiaHabit Dev" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"/Localized: Localizable.strings",
-				App/AppConfig.swift,
-				App/MainTabView.swift,
-				App/TeymiaHabitApp.swift,
 				AppIcon.xcassets,
-				AppIconAlternate.xcassets,
-				Assets.xcassets,
+				"Info-Dev.plist",
 				Info.plist,
-				LaunchScreen.storyboard,
-				Managers/AppColorManager.swift,
-				Managers/AppIconManager.swift,
-				Managers/HapticManager.swift,
-				Managers/NotificationManager.swift,
-				Managers/ProgressStateManager.swift,
-				Models/Habit.swift,
-				Models/HabitCompletion.swift,
-				Models/HabitFolder.swift,
-				Models/HabitIconColor.swift,
-				Models/HabitProgress.swift,
-				Models/HabitType.swift,
-				Models/Weekday.swift,
-				Pro/PaywallView.swift,
-				Pro/ProGradientColors.swift,
-				Pro/ProLockBadge.swift,
-				Pro/ProManager.swift,
-				Pro/ProSettingsSection.swift,
-				Pro/RevenueCatConfig.swift,
-				"Pro/Teymia Habit.storekit",
-				Services/HabitActionService.swift,
-				Services/HabitsUpdateService.swift,
-				Services/Tracking/HabitCounterService.swift,
-				Services/Tracking/HabitTimerService.swift,
-				Services/Tracking/PastDateTimerService.swift,
-				Services/Tracking/ProgressServiceProvider.swift,
-				Services/Tracking/ProgressTrackingService.swift,
 				TeymiaHabit.cloudkit,
-				"Utils/Color+Hex.swift",
-				"Utils/String+Localization.swift",
-				Utils/TimeFormatting.swift,
-				Utils/XmarkView.swift,
-				ViewModels/HabitDetailViewModel.swift,
-				ViewModels/HabitStatsViewModel.swift,
-				Views/Folders/FolderManagementView.swift,
-				Views/Folders/MoveToFolderView.swift,
-				Views/Folders/NewFolderView.swift,
-				Views/HabitDetail/ActionButtonsSection.swift,
-				Views/HabitDetail/HabitDetailView.swift,
-				Views/HabitDetail/ProgressControlSection.swift,
-				Views/HabitDetail/ProgressRing.swift,
-				Views/Home/DayProgress/DayProgressItem.swift,
-				Views/Home/DayProgress/WeeklyCalendarView.swift,
-				Views/Home/EmptyStateView.swift,
-				Views/Home/HabitRowView.swift,
-				Views/Home/HomeView.swift,
-				Views/Modifiers/AlertModifiers.swift,
-				Views/Modifiers/AppColorModifier.swift,
-				Views/Modifiers/SettingsIconModifier.swift,
-				Views/Modifiers/ToggleColorModifier.swift,
-				Views/NewHabit/ActiveDaysSection.swift,
-				Views/NewHabit/FolderSection.swift,
-				Views/NewHabit/GoalSection.swift,
-				Views/NewHabit/IconPickerView.swift,
-				Views/NewHabit/IconSection.swift,
-				Views/NewHabit/NameFieldSection.swift,
-				Views/NewHabit/NewHabitView.swift,
-				Views/NewHabit/ReminderSection.swift,
-				Views/NewHabit/StartDateSection.swift,
-				Views/Settings/About/AboutSection.swift,
-				Views/Settings/AppColorSection.swift,
-				Views/Settings/AppearanceSection.swift,
-				Views/Settings/AppIconPickerView.swift,
-				Views/Settings/AppIconSection.swift,
-				Views/Settings/ArchivedHabitsView.swift,
-				Views/Settings/CloudKitSection.swift,
-				Views/Settings/HapticsSection.swift,
-				Views/Settings/LanguageSection.swift,
-				Views/Settings/NotificationsSection.swift,
-				Views/Settings/SettingsView.swift,
-				Views/Settings/WeekStartSection.swift,
-				Views/Statistics/HabitStatisticsView.swift,
-				Views/Statistics/MonthlyCalendarView.swift,
-				"Views/Statistics/Notification+Extension.swift",
-				Views/Statistics/StatisticsView.swift,
-				Views/Statistics/StreaksView.swift,
 			);
 			target = 07971CF52DF2AD66006B9C21 /* TeymiaHabit Dev */;
 		};
@@ -137,33 +56,21 @@
 			isa = PBXFrameworksBuildPhase;
 			files = (
 				07971CFA2DF2AD66006B9C21 /* RevenueCat in Frameworks */,
-				07971CFB2DF2AD66006B9C21 /* StoreKit.framework in Frameworks */,
 			);
 		};
 		07A95EF72D9849F300044A7A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
 				072DD4152DE8243500157BF8 /* RevenueCat in Frameworks */,
-				072DD4122DE81C3F00157BF8 /* StoreKit.framework in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		072DD4102DE81C3F00157BF8 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				072DD4112DE81C3F00157BF8 /* StoreKit.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		07A95EF12D9849F300044A7A = {
 			isa = PBXGroup;
 			children = (
 				07A95EFC2D9849F300044A7A /* TeymiaHabit */,
-				072DD4102DE81C3F00157BF8 /* Frameworks */,
-				07971D022DF2AD67006B9C21 /* TeymiaHabit copy-Info.plist */,
 				07A95EFB2D9849F300044A7A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -296,14 +203,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconDev;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = TeymiaHabit/TeymiaHabit.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "TeymiaHabit/TeymiaHabit-Dev.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = TeymiaHabit/Resources;
 				DEVELOPMENT_TEAM = SXCBCPV7Y9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "TeymiaHabit copy-Info.plist";
+				INFOPLIST_FILE = "TeymiaHabit/Info-Dev.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Teymia Habit Dev";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
@@ -338,14 +245,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconDev;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = TeymiaHabit/TeymiaHabit.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "TeymiaHabit/TeymiaHabit-Dev.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = TeymiaHabit/Resources;
 				DEVELOPMENT_TEAM = SXCBCPV7Y9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "TeymiaHabit copy-Info.plist";
+				INFOPLIST_FILE = "TeymiaHabit/Info-Dev.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Teymia Habit Dev";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
