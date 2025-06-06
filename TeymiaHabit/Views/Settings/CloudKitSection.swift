@@ -2,7 +2,10 @@ import SwiftUI
 import CloudKit
 
 struct CloudKitSyncView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var cloudKitStatus: CloudKitStatus = .checking
+    @State private var lastSyncTime: Date = Date()
+    @State private var isSyncing: Bool = false
     
     private enum CloudKitStatus {
         case checking, available, unavailable, restricted, error(String)
@@ -48,6 +51,71 @@ struct CloudKitSyncView: View {
                     }
                 }
                 .padding(.vertical, 2)
+            }
+            
+            // Manual Sync
+            if case .available = cloudKitStatus {
+                Section {
+                    Button {
+                        forceiCloudSync()
+                    } label: {
+                        HStack {
+                            Image(systemName: "arrow.triangle.2.circlepath.icloud.fill")
+                                .withGradientIcon(
+                                    colors: [
+                                        Color(#colorLiteral(red: 0.3411764706, green: 0.6235294118, blue: 1, alpha: 1)),
+                                        Color(#colorLiteral(red: 0.0, green: 0.3803921569, blue: 0.7647058824, alpha: 1))
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing,
+                                    fontSize: 20
+                                )
+                                .frame(width: 30)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("icloud_force_sync".localized)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                
+                                Text("icloud_force_sync_desc".localized)
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if isSyncing {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            }
+                        }
+                    }
+                    .disabled(isSyncing)
+                    .tint(.primary)
+                    
+                    // Last sync time
+                    HStack {
+                        Image(systemName: "clock.fill")
+                            .foregroundStyle(.secondary)
+                            .frame(width: 30)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("icloud_last_sync".localized)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                            
+                            Text(formatSyncTime(lastSyncTime))
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                    }
+                } header: {
+                    Text("icloud_manual_sync".localized)
+                } footer: {
+                    Text("icloud_manual_sync_footer".localized)
+                }
             }
             
             // How it works
@@ -102,6 +170,51 @@ struct CloudKitSyncView: View {
         }
     }
     
+    // MARK: - Manual Sync Methods
+    private func forceiCloudSync() {
+        isSyncing = true
+        
+        Task {
+            do {
+                try modelContext.save()
+                
+                try await Task.sleep(nanoseconds: 1_500_000_000)
+                
+                await MainActor.run {
+                    lastSyncTime = Date()
+                    UserDefaults.standard.set(lastSyncTime, forKey: "lastSyncTime")
+                    isSyncing = false
+                    HapticManager.shared.play(.success)
+                }
+                
+                print("✅ Manual iCloud sync completed")
+            } catch {
+                await MainActor.run {
+                    isSyncing = false
+                    HapticManager.shared.play(.error)
+                }
+                print("❌ Manual iCloud sync failed: \(error)")
+            }
+        }
+    }
+    
+    private func formatSyncTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) {
+            return "icloud_today_at".localized(with: formatter.string(from: date))
+        } else if calendar.isDateInYesterday(date) {
+            return "icloud_yesterday_at".localized(with: formatter.string(from: date))
+        } else {
+            formatter.dateStyle = .short
+            return formatter.string(from: date)
+        }
+    }
+    
+    
     // MARK: - Icon Views
     @ViewBuilder
     private func statusIcon(_ iconName: String) -> some View {
@@ -117,7 +230,7 @@ struct CloudKitSyncView: View {
                     endPoint: .bottom,
                     fontSize: 20
                 )
-                
+            
         case "checkmark.icloud.fill":
             Image(systemName: iconName)
                 .withGradientIcon(
@@ -129,7 +242,7 @@ struct CloudKitSyncView: View {
                     endPoint: .bottomTrailing,
                     fontSize: 20
                 )
-                
+            
         case "person.icloud.fill":
             Image(systemName: iconName)
                 .withGradientIcon(
@@ -141,7 +254,7 @@ struct CloudKitSyncView: View {
                     endPoint: .bottomTrailing,
                     fontSize: 20
                 )
-                
+            
         case "exclamationmark.icloud.fill":
             Image(systemName: iconName)
                 .withGradientIcon(
@@ -153,7 +266,7 @@ struct CloudKitSyncView: View {
                     endPoint: .bottom,
                     fontSize: 20
                 )
-                
+            
         case "xmark.icloud.fill":
             Image(systemName: iconName)
                 .withGradientIcon(
@@ -165,7 +278,7 @@ struct CloudKitSyncView: View {
                     endPoint: .bottomTrailing,
                     fontSize: 20
                 )
-                
+            
         default:
             Image(systemName: iconName)
                 .font(.title2)
@@ -261,7 +374,7 @@ struct SyncInfoRow: View {
                     endPoint: .bottomTrailing,
                     fontSize: 18
                 )
-                
+            
         case "arrow.trianglehead.2.clockwise.rotate.90.icloud.fill":
             Image(systemName: iconName)
                 .withGradientIcon(
@@ -273,7 +386,7 @@ struct SyncInfoRow: View {
                     endPoint: .bottom,
                     fontSize: 18
                 )
-                
+            
         case "lock.icloud.fill":
             Image(systemName: iconName)
                 .withGradientIcon(
@@ -285,7 +398,7 @@ struct SyncInfoRow: View {
                     endPoint: .bottomTrailing,
                     fontSize: 18
                 )
-                
+            
         default:
             Image(systemName: iconName)
                 .font(.title2)
