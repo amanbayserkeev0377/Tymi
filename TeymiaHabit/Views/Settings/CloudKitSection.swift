@@ -188,7 +188,7 @@ struct CloudKitSyncView: View {
                 try await Task.sleep(nanoseconds: 3_000_000_000) // 3 секунды
                 
                 // 3. Проверяем доступность CloudKit
-                let container = CKContainer(identifier: "iCloud.com.amanbayserkeev.teymiahabit")
+                let container = CKContainer(identifier: AppConfig.current.cloudKitContainerID)
                 let accountStatus = try await container.accountStatus()
                 
                 guard accountStatus == .available else {
@@ -333,20 +333,39 @@ struct CloudKitSyncView: View {
     @MainActor
     private func checkAccountStatus() async {
         do {
-            let container = CKContainer(identifier: AppConfig.current.cloudKitContainerID)
+            // 🔍 ДИАГНОСТИКА
+            let bundleId = Bundle.main.bundleIdentifier ?? "unknown"
+            let expectedContainerID = AppConfig.current.cloudKitContainerID
+            
+            print("🔍 [CloudKit Debug]")
+            print("🔍 Bundle ID: \(bundleId)")
+            print("🔍 Using Container: \(expectedContainerID)")
+            
+            // ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЙ CONTAINER ID (без дублирования)
+            let container = CKContainer(identifier: expectedContainerID)
+            
             let accountStatus = try await container.accountStatus()
+            print("🔍 Account Status: \(accountStatus)")
             
             switch accountStatus {
             case .available:
                 // Дополнительно проверяем доступность базы данных
                 do {
                     let database = container.privateCloudDatabase
-                    _ = try await database.allRecordZones()
+                    let zones = try await database.allRecordZones()
                     cloudKitStatus = .available
                     print("✅ CloudKit fully available")
+                    print("🔍 Found \(zones.count) record zones")
+                    
+                    // Проверяем есть ли записи
+                    let query = CKQuery(recordType: "CD_Habit", predicate: NSPredicate(value: true))
+                    let result = try await database.records(matching: query)
+                    print("🔍 Found \(result.matchResults.count) Habit records in CloudKit")
+                    
                 } catch {
                     cloudKitStatus = .error("icloud_database_error".localized)
                     print("❌ CloudKit database error: \(error)")
+                    print("❌ Error details: \(error.localizedDescription)")
                 }
                 
             case .noAccount:
@@ -372,6 +391,7 @@ struct CloudKitSyncView: View {
         } catch {
             cloudKitStatus = .error("icloud_check_failed".localized)
             print("❌ Failed to check CloudKit status: \(error)")
+            print("❌ Error details: \(error.localizedDescription)")
         }
     }
 }
