@@ -224,6 +224,8 @@
 /* ===================== Settings: Support & Feedback ===================== */
 "rate_app" = "Rate App";
 "share_app" = "Share App";
+"share_app_subject" = "Teymia Habit - Track Your Habits";
+"share_app_message" = "Build better habits with Teymia Habit! 🎯 Track your progress and stay motivated.";
 "contact_developer" = "Contact Developer";
 "report_bug" = "Report a Bug";
 

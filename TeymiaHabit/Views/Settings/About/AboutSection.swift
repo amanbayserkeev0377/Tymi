@@ -89,21 +89,11 @@ struct AboutSection: View {
             .tint(.primary)
             
             // Share App
-            Button {
-                let activityVC = UIActivityViewController(
-                    activityItems: [
-                        "Build better habits with Teymia Habit! 🎯 Track your progress and stay motivated.",
-                        URL(string: "https://apps.apple.com/app/id6746747903")!
-                    ],
-                    applicationActivities: nil
-                )
-                
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first,
-                   let rootVC = window.rootViewController {
-                    rootVC.present(activityVC, animated: true)
-                }
-            } label: {
+            ShareLink(
+                item: URL(string: "https://apps.apple.com/app/id6746747903")!,
+                subject: Text("share_app_subject".localized),
+                message: Text("share_app_message".localized)
+            ) {
                 Label(
                     title: { Text("share_app".localized) },
                     icon: {
@@ -117,7 +107,7 @@ struct AboutSection: View {
                 .withExternalLinkIcon()
             }
             .tint(.primary)
-            
+
             // Contact Developer
             Button {
                 if let url = URL(string: "https://t.me/amanbayserkeev0377") {

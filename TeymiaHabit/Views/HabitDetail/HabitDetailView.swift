@@ -87,7 +87,9 @@ struct HabitDetailView: View {
         VStack(spacing: 0) {
             Text(habit.title)
                 .font(.largeTitle.bold())
-                .lineLimit(1)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .minimumScaleFactor(0.8)
                 .padding(.horizontal)
                 .padding(.top, 0)
                 .padding(.bottom, 4)
