@@ -15,6 +15,7 @@ struct HabitStatisticsView: View {
     @State private var showingResetAlert = false
     @State private var alertState = AlertState()
     @State private var updateCounter = 0 // Оставляем для календаря
+    @State private var selectedTimeRange: ChartTimeRange = .month
     
     // MARK: - Initialization
     init(habit: Habit) {
@@ -53,6 +54,21 @@ struct HabitStatisticsView: View {
                 .padding(.top, 8)
             }
             .listSectionSeparator(.hidden)
+            
+            // Charts
+            Section {
+                TimeRangePicker(selection: $selectedTimeRange)
+                
+                if selectedTimeRange == .week {
+                    WeeklyHabitChart(habit: habit)
+                        .padding(.vertical, 8)
+                } else {
+                    HabitBarChart(habit: habit, timeRange: selectedTimeRange)
+                        .padding(.vertical, 8)
+                }
+            } header: {
+                Text("Progress Analysis")
+            }
             
             Section {
                 // Start date

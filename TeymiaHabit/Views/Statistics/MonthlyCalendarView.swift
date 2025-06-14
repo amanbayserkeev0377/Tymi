@@ -49,46 +49,38 @@ struct MonthlyCalendarView: View {
     
     var body: some View {
         VStack(spacing: 10) {
-            // Заголовок месяца и кнопки навигации в улучшенном макете (название слева, кнопки справа)
+            // Заголовок месяца и кнопки навигации
             HStack {
-                // Название месяца слева
+                // Previous month button (слева)
+                Button(action: showPreviousMonth) {
+                    Image(systemName: "chevron.left")
+                        .font(.headline)
+                        .foregroundStyle(canNavigateToPreviousMonth ? .primary : Color.gray.opacity(0.5))
+                        .contentShape(Rectangle())
+                        .frame(width: 30, height: 30)
+                }
+                .disabled(!canNavigateToPreviousMonth)
+                .buttonStyle(BorderlessButtonStyle())
+                
+                Spacer()
+                
+                // Название месяца по центру
                 Text(DateFormatter.capitalizedNominativeMonthYear(from: currentMonth))
                     .font(.headline)
                     .fontWeight(.medium)
                 
                 Spacer()
                 
-                // Кнопки справа
-                HStack(spacing: 16) {
-                    Button {
-                        if currentMonthIndex > 0 {
-                            currentMonthIndex -= 1
-                            generateCalendarDays()
-                        }
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(currentMonthIndex > 0 ? .primary : .gray.opacity(0.5))
-                            .contentShape(Rectangle())
-                            .frame(width: 30, height: 30)
-                    }
-                    .disabled(currentMonthIndex <= 0)
-                    .buttonStyle(BorderlessButtonStyle())
-                    
-                    Button {
-                        // Без анимации для повышения производительности
-                        if currentMonthIndex < months.count - 1 && !isNextMonthDisabled {
-                            currentMonthIndex += 1
-                            generateCalendarDays()
-                        }
-                    } label: {
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(isNextMonthDisabled ? .gray.opacity(0.5) : .primary)
-                            .contentShape(Rectangle())
-                            .frame(width: 30, height: 30)
-                    }
-                    .disabled(isNextMonthDisabled)
-                    .buttonStyle(BorderlessButtonStyle())
+                // Next month button (справа)
+                Button(action: showNextMonth) {
+                    Image(systemName: "chevron.right")
+                        .font(.headline)
+                        .foregroundStyle(canNavigateToNextMonth ? .primary : Color.gray.opacity(0.5))
+                        .contentShape(Rectangle())
+                        .frame(width: 30, height: 30)
                 }
+                .disabled(!canNavigateToNextMonth)
+                .buttonStyle(BorderlessButtonStyle())
             }
             .padding(.horizontal)
             .zIndex(1)
@@ -104,11 +96,30 @@ struct MonthlyCalendarView: View {
                 Text("loading_calendar".localized)
                     .frame(height: 250)
             } else {
-                // Месячная сетка
+                // Месячная сетка с swipe gestures
                 VStack {
                     monthGrid(forMonth: currentMonth)
                         .frame(height: min(CGFloat(calendarDays.count) * 55, 300))
                         .id("month-\(currentMonthIndex)-\(updateCounter)") // Уникальный ID обновляет контент
+                        .gesture(
+                            // Swipe gesture для навигации по месяцам (аналогично WeeklyHabitChart)
+                            DragGesture(minimumDistance: 50)
+                                .onEnded { value in
+                                    let horizontalDistance = value.translation.width
+                                    let verticalDistance = abs(value.translation.height)
+                                    
+                                    // Only handle primarily horizontal swipes
+                                    if abs(horizontalDistance) > verticalDistance * 2 {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            if horizontalDistance > 0 && canNavigateToPreviousMonth {
+                                                showPreviousMonth()
+                                            } else if horizontalDistance < 0 && canNavigateToNextMonth {
+                                                showNextMonth()
+                                            }
+                                        }
+                                    }
+                                }
+                        )
                 }
                 .background(Color.clear)
             }
@@ -228,13 +239,21 @@ struct MonthlyCalendarView: View {
         months.isEmpty ? Date() : months[currentMonthIndex]
     }
     
-    private var isNextMonthDisabled: Bool {
+    // MARK: - Navigation Logic (Updated)
+    
+    private var canNavigateToPreviousMonth: Bool {
+        return currentMonthIndex > 0
+    }
+    
+    private var canNavigateToNextMonth: Bool {
+        guard !months.isEmpty else { return false }
+        
         let currentMonthComponents = calendar.dateComponents([.year, .month], from: Date())
         let displayedMonthComponents = calendar.dateComponents([.year, .month], from: currentMonth)
         
-        return displayedMonthComponents.year! > currentMonthComponents.year! ||
-        (displayedMonthComponents.year! == currentMonthComponents.year! &&
-         displayedMonthComponents.month! >= currentMonthComponents.month!)
+        return !(displayedMonthComponents.year! > currentMonthComponents.year! ||
+                (displayedMonthComponents.year! == currentMonthComponents.year! &&
+                 displayedMonthComponents.month! >= currentMonthComponents.month!))
     }
     
     // MARK: - Methods
@@ -367,17 +386,22 @@ struct MonthlyCalendarView: View {
         }
     }
     
-    // Эти методы теперь вызываются напрямую из кнопок
+    // MARK: - Navigation Actions (Updated with Swipe Support)
+    
     private func showPreviousMonth() {
-        if currentMonthIndex > 0 {
-            currentMonthIndex -= 1
-        }
+        guard canNavigateToPreviousMonth else { return }
+        
+        // Используем ту же анимацию что и в WeeklyHabitChart для консистентности
+        currentMonthIndex -= 1
+        generateCalendarDays()
     }
     
     private func showNextMonth() {
-        if currentMonthIndex < months.count - 1 && !isNextMonthDisabled {
-            currentMonthIndex += 1
-        }
+        guard canNavigateToNextMonth else { return }
+        
+        // Используем ту же анимацию что и в WeeklyHabitChart для консистентности  
+        currentMonthIndex += 1
+        generateCalendarDays()
     }
     
     // MARK: - Formatters
