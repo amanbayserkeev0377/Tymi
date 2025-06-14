@@ -6,10 +6,10 @@ struct WeeklyHabitChart: View {
     let habit: Habit
     
     // MARK: - State
-    @State private var weeks: [Date] = [] // Список начал недель
+    @State private var weeks: [Date] = []
     @State private var currentWeekIndex: Int = 0
     @State private var chartData: [ChartDataPoint] = []
-    @State private var selectedDataPoint: ChartDataPoint?
+    @State private var selectedDate: Date?
     @State private var isLoading: Bool = false
     
     // MARK: - Calendar
@@ -23,7 +23,7 @@ struct WeeklyHabitChart: View {
             // Header with navigation and stats
             headerView
             
-            // Chart (дни недели показываются нативно внизу)
+            // Chart
             chartView
         }
         .onAppear {
@@ -32,11 +32,9 @@ struct WeeklyHabitChart: View {
             generateChartData()
         }
         .onChange(of: habit.goal) { _, _ in
-            // Обновляем chart при изменении goal
             generateChartData()
         }
         .onChange(of: habit.activeDays) { _, _ in
-            // Обновляем chart при изменении активных дней
             generateChartData()
         }
     }
@@ -45,9 +43,8 @@ struct WeeklyHabitChart: View {
     @ViewBuilder
     private var headerView: some View {
         VStack(spacing: 12) {
-            // Week range в самый верх по центру
+            // Week range navigation
             HStack {
-                // Previous week button (слева)
                 Button(action: showPreviousWeek) {
                     Image(systemName: "chevron.left")
                         .font(.headline)
@@ -60,14 +57,12 @@ struct WeeklyHabitChart: View {
                 
                 Spacer()
                 
-                // Week range (по центру в самом верху)
                 Text(weekRangeString)
                     .font(.headline)
                     .fontWeight(.medium)
                 
                 Spacer()
                 
-                // Next week button (справа)
                 Button(action: showNextWeek) {
                     Image(systemName: "chevron.right")
                         .font(.headline)
@@ -79,12 +74,12 @@ struct WeeklyHabitChart: View {
                 .buttonStyle(BorderlessButtonStyle())
             }
             
-            // Stats row - AVERAGE слева, TOTAL справа (ниже weekRange)
+            // Stats row
             HStack {
-                // AVERAGE (слева)
+                // AVERAGE
                 VStack(alignment: .leading, spacing: 2) {
-                    if let selectedDataPoint = selectedDataPoint {
-                        // Selected day stats
+                    if let selectedDate = selectedDate,
+                       let selectedDataPoint = chartData.first(where: { calendar.isDate($0.date, inSameDayAs: selectedDate) }) {
                         Text("DAILY")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -99,7 +94,6 @@ struct WeeklyHabitChart: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else {
-                        // Weekly average
                         Text("AVERAGE")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -118,7 +112,7 @@ struct WeeklyHabitChart: View {
                 
                 Spacer()
                 
-                // TOTAL (справа)
+                // TOTAL
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("TOTAL")
                         .font(.caption)
@@ -146,9 +140,12 @@ struct WeeklyHabitChart: View {
             ProgressView()
                 .frame(height: 200)
         } else if chartData.isEmpty {
-            Text("No data for this week")
-                .frame(height: 200)
-                .foregroundStyle(.secondary)
+            ContentUnavailableView(
+                "No Data",
+                systemImage: "chart.bar",
+                description: Text("No progress recorded for this week")
+            )
+            .frame(height: 200)
         } else {
             Chart(chartData) { dataPoint in
                 BarMark(
@@ -156,24 +153,26 @@ struct WeeklyHabitChart: View {
                     y: .value("Progress", dataPoint.value)
                 )
                 .foregroundStyle(barColor(for: dataPoint))
-                .cornerRadius(2)
-                .opacity(selectedDataPoint == nil ? 1.0 : 
-                        (selectedDataPoint?.id == dataPoint.id ? 1.0 : 0.5))
+                .cornerRadius(4) // Более современные углы
+                .opacity(selectedDate == nil ? 1.0 : 
+                        (calendar.isDate(dataPoint.date, inSameDayAs: selectedDate!) ? 1.0 : 0.4))
             }
             .frame(height: 200)
-            .padding(.horizontal, 8) // Добавляем padding чтобы буквы не обрезались
+            .chartPlotStyle { plotArea in
+                plotArea
+                    .background(.clear) // Чистый фон
+                    .cornerRadius(12)
+            }
             .chartXAxis {
-                // Принудительно показываем ВСЕ дни недели с правильным выравниванием
                 AxisMarks(values: chartData.map { $0.date }) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0))
-                    AxisValueLabel(centered: true) {
+                    AxisValueLabel {
                         if let date = value.as(Date.self) {
                             let weekdayIndex = calendar.component(.weekday, from: date) - 1
                             let letter = String(calendar.shortWeekdaySymbols[weekdayIndex].prefix(1))
                             Text(letter)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
                         }
                     }
                 }
@@ -186,33 +185,27 @@ struct WeeklyHabitChart: View {
                         if let intValue = value.as(Int.self) {
                             if habit.type == .time {
                                 Text(formatTimeWithoutSeconds(intValue))
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                             } else {
                                 Text("\(intValue)")
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
                     }
                 }
             }
-            .chartBackground { chartProxy in
-                GeometryReader { geometry in
-                    Rectangle()
-                        .fill(Color.clear)
-                        .contentShape(Rectangle())
-                        .onTapGesture { location in
-                            handleChartTap(location: location, geometry: geometry)
-                        }
-                }
+            .onTapGesture { location in
+                // Простой тап для выбора бара
+                handleSimpleTap(location: location)
             }
             .gesture(
-                // Swipe gesture for week navigation (non-conflicting)
                 DragGesture(minimumDistance: 50)
                     .onEnded { value in
                         let horizontalDistance = value.translation.width
                         let verticalDistance = abs(value.translation.height)
                         
-                        // Only handle primarily horizontal swipes
                         if abs(horizontalDistance) > verticalDistance * 2 {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 if horizontalDistance > 0 && canNavigateToPreviousWeek {
@@ -224,8 +217,71 @@ struct WeeklyHabitChart: View {
                         }
                     }
             )
+            .padding(.horizontal, 16)
             .id("week-\(currentWeekIndex)")
         }
+    }
+    
+    // MARK: - Navigation Methods
+    
+    private func handleSimpleTap(location: CGPoint) {
+        // Простая логика: определяем какой день недели по X координате
+        let chartWidth: CGFloat = UIScreen.main.bounds.width - 32 // Примерная ширина графика
+        let dayWidth = chartWidth / 7
+        let tappedDayIndex = Int(location.x / dayWidth)
+        
+        guard tappedDayIndex >= 0 && tappedDayIndex < chartData.count else { return }
+        
+        let tappedDate = chartData[tappedDayIndex].date
+        
+        if selectedDate != nil && calendar.isDate(selectedDate!, inSameDayAs: tappedDate) {
+            // Повторный тап - убираем выделение
+            selectedDate = nil
+        } else {
+            // Новый выбор
+            selectedDate = tappedDate
+            HapticManager.shared.playSelection() // Один раз при выборе
+        }
+    }
+    
+    private func showPreviousWeek() {
+        guard canNavigateToPreviousWeek else { return }
+        withAnimation(.easeInOut(duration: 0.3)) {
+            currentWeekIndex -= 1
+            selectedDate = nil
+            generateChartData()
+        }
+    }
+    
+    private func showNextWeek() {
+        guard canNavigateToNextWeek else { return }
+        withAnimation(.easeInOut(duration: 0.3)) {
+            currentWeekIndex += 1
+            selectedDate = nil
+            generateChartData()
+        }
+    }
+    
+    // MARK: - Bar Color
+    
+    private func barColor(for dataPoint: ChartDataPoint) -> Color {
+        let date = dataPoint.date
+        let value = dataPoint.value
+        
+        if !habit.isActiveOnDate(date) {
+            return Color.gray.opacity(0.2)
+        }
+        
+        if date > Date() {
+            return Color.gray.opacity(0.2)
+        }
+        
+        if value == 0 {
+            return Color.gray.opacity(0.3)
+        }
+        
+        // iOS 18+ более богатые цвета
+        return AppColorManager.shared.selectedColor.color.mix(with: .white, by: 0.1)
     }
     
     // MARK: - Computed Properties
@@ -245,14 +301,12 @@ struct WeeklyHabitChart: View {
         let formatter = DateFormatter()
         
         if calendar.isDate(currentWeekStart, equalTo: currentWeekEnd, toGranularity: .month) {
-            // Same month
             let startDay = calendar.component(.day, from: currentWeekStart)
             let endDay = calendar.component(.day, from: currentWeekEnd)
             formatter.dateFormat = "MMM yyyy"
             let monthYear = formatter.string(from: currentWeekStart)
             return "\(startDay)–\(endDay) \(monthYear)"
         } else {
-            // Different months
             formatter.dateFormat = "d MMM"
             let startString = formatter.string(from: currentWeekStart)
             let endString = formatter.string(from: currentWeekEnd)
@@ -292,7 +346,12 @@ struct WeeklyHabitChart: View {
         }
     }
     
-    // Форматирование времени без секунд для графиков
+    private var shortDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM"
+        return formatter
+    }
+    
     private func formatTimeWithoutSeconds(_ seconds: Int) -> String {
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
@@ -310,15 +369,13 @@ struct WeeklyHabitChart: View {
         guard !chartData.isEmpty else { return [0] }
         
         let maxValue = chartData.map { $0.value }.max() ?? 0
+        guard maxValue > 0 else { return [0] }
         
-        // Для времени показываем в часах, а не в секундах
         let displayMaxValue = habit.type == .time ? maxValue / 3600 : maxValue
-        let stepCount = 3
-        let step = max(1, displayMaxValue / stepCount)
+        let step = max(1, displayMaxValue / 3)
         
-        let values = Array(stride(from: 0, through: displayMaxValue + step, by: step)).prefix(4).map { $0 }
+        let values = [0, step, step * 2, step * 3].filter { $0 <= displayMaxValue + step/2 }
         
-        // Конвертируем обратно в секунды для времени
         return habit.type == .time ? values.map { $0 * 3600 } : values
     }
     
@@ -329,7 +386,6 @@ struct WeeklyHabitChart: View {
     private var canNavigateToNextWeek: Bool {
         guard !weeks.isEmpty else { return false }
         
-        // Don't go beyond current week
         let today = Date()
         let todayWeekStart = calendar.dateInterval(of: .weekOfYear, for: today)?.start ?? today
         
@@ -344,10 +400,8 @@ struct WeeklyHabitChart: View {
         let today = Date()
         let todayWeekStart = calendar.dateInterval(of: .weekOfYear, for: today)?.start ?? today
         
-        // Calculate habit start week
         let habitStartWeekStart = calendar.dateInterval(of: .weekOfYear, for: habit.startDate)?.start ?? habit.startDate
         
-        // Generate weeks from habit start to current week
         var weeksList: [Date] = []
         var currentWeek = habitStartWeekStart
         
@@ -364,11 +418,9 @@ struct WeeklyHabitChart: View {
         let today = Date()
         let todayWeekStart = calendar.dateInterval(of: .weekOfYear, for: today)?.start ?? today
         
-        // Find index of current week
         if let index = weeks.firstIndex(where: { calendar.isDate($0, equalTo: todayWeekStart, toGranularity: .day) }) {
             currentWeekIndex = index
         } else {
-            // Fallback to last week if current week not found
             currentWeekIndex = max(0, weeks.count - 1)
         }
     }
@@ -382,8 +434,7 @@ struct WeeklyHabitChart: View {
         let weekStart = currentWeekStart
         var data: [ChartDataPoint] = []
         
-        // Генерируем данные для ВСЕХ 7 дней недели принудительно
-        for dayOffset in 0...6 {  // 0...6 чтобы получить точно 7 дней
+        for dayOffset in 0...6 {
             guard let currentDate = calendar.date(byAdding: .day, value: dayOffset, to: weekStart) else { continue }
             
             let progress = habit.isActiveOnDate(currentDate) && currentDate >= habit.startDate && currentDate <= Date() 
@@ -393,81 +444,13 @@ struct WeeklyHabitChart: View {
             let dataPoint = ChartDataPoint(
                 date: currentDate,
                 value: progress,
-                goal: habit.goal, // Используем актуальный goal
+                goal: habit.goal,
                 habit: habit
             )
+            
             data.append(dataPoint)
         }
         
-        print("Generated \(data.count) chart data points") // Debug
         chartData = data
     }
-    
-    private func barColor(for dataPoint: ChartDataPoint) -> Color {
-        if dataPoint.isOverAchieved {
-            return .green
-        } else if dataPoint.isCompleted {
-            return AppColorManager.shared.selectedColor.color
-        } else if dataPoint.value > 0 {
-            return AppColorManager.shared.selectedColor.color.opacity(0.6)
-        } else {
-            return .gray.opacity(0.3)
-        }
-    }
-    
-    private func handleChartTap(location: CGPoint, geometry: GeometryProxy) {
-        guard !chartData.isEmpty else { return }
-        
-        let xPosition = location.x
-        let chartWidth = geometry.size.width
-        let dataPointWidth = chartWidth / CGFloat(chartData.count)
-        let index = Int(xPosition / dataPointWidth)
-        
-        if index >= 0 && index < chartData.count {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                selectedDataPoint = chartData[index]
-            }
-            
-            // Auto-hide selection after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedDataPoint = nil
-                }
-            }
-        }
-    }
-    
-    private func showPreviousWeek() {
-        guard canNavigateToPreviousWeek else { return }
-        
-        withAnimation(.easeInOut(duration: 0.3)) {
-            currentWeekIndex -= 1
-            selectedDataPoint = nil
-            generateChartData()
-        }
-    }
-    
-    private func showNextWeek() {
-        guard canNavigateToNextWeek else { return }
-        
-        withAnimation(.easeInOut(duration: 0.3)) {
-            currentWeekIndex += 1
-            selectedDataPoint = nil
-            generateChartData()
-        }
-    }
-    
-    // MARK: - Formatters
-    
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter
-    }()
-    
-    private let shortDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        return formatter
-    }()
 }
