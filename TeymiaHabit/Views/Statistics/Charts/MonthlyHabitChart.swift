@@ -42,6 +42,16 @@ struct MonthlyHabitChart: View {
             // React to external data changes (from calendar actions)
             generateChartData()
         }
+        .onChange(of: selectedDate) { oldValue, newValue in
+            // Haptic feedback only when selection actually changes
+            if let old = oldValue, let new = newValue, !calendar.isDate(old, inSameDayAs: new) {
+                HapticManager.shared.playSelection()
+            }
+            // Or when first selecting (nil -> Date)
+            else if oldValue == nil && newValue != nil {
+                HapticManager.shared.playSelection()
+            }
+        }
     }
     
     // MARK: - Header View

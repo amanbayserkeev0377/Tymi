@@ -42,6 +42,16 @@ struct YearlyHabitChart: View {
             // React to external data changes (from calendar actions)
             generateChartData()
         }
+        .onChange(of: selectedDate) { oldValue, newValue in
+            // Haptic feedback only when selection actually changes (for months use month granularity)
+            if let old = oldValue, let new = newValue, !calendar.isDate(old, equalTo: new, toGranularity: .month) {
+                HapticManager.shared.playSelection()
+            }
+            // Or when first selecting (nil -> Date)
+            else if oldValue == nil && newValue != nil {
+                HapticManager.shared.playSelection()
+            }
+        }
     }
     
     // MARK: - Header View
@@ -85,7 +95,7 @@ struct YearlyHabitChart: View {
                 // AVERAGE - align with left edge of first bar
                 VStack(alignment: .leading, spacing: 2) {
                     if let selectedDate = selectedDate,
-                       let selectedDataPoint = chartData.first(where: { calendar.isDate($0.date, equalTo: selectedDate, toGranularity: .month) }) {
+                       let selectedDataPoint = chartData.first(where: { calendar.isDate($0.date, inSameDayAs: selectedDate) }) {
                         Text("MONTHLY")
                             .font(.caption)
                             .foregroundStyle(.secondary)
