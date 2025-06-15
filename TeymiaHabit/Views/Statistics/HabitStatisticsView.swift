@@ -60,10 +60,13 @@ struct HabitStatisticsView: View {
                 TimeRangePicker(selection: $selectedTimeRange)
                 
                 if selectedTimeRange == .week {
-                    WeeklyHabitChart(habit: habit)
+                    WeeklyHabitChart(habit: habit, updateCounter: updateCounter)
                         .padding(.vertical, 8)
-                } else {
-                    HabitBarChart(habit: habit, timeRange: selectedTimeRange)
+                } else if selectedTimeRange == .month {
+                    MonthlyHabitChart(habit: habit, updateCounter: updateCounter)
+                        .padding(.vertical, 8)
+                } else { // .year
+                    YearlyHabitChart(habit: habit, updateCounter: updateCounter)
                         .padding(.vertical, 8)
                 }
             } header: {

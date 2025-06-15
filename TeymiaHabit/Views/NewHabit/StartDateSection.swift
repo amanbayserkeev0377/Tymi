@@ -11,7 +11,6 @@ struct StartDateSection: View {
                 .frame(width: 30)
                 .clipped()
                       
-                      
             Text("start_date".localized)
             
             Spacer()
@@ -19,7 +18,7 @@ struct StartDateSection: View {
             DatePicker(
                 "",
                 selection: $startDate,
-                in: ...Date(),
+                in: HistoryLimits.datePickerRange,
                 displayedComponents: .date
             )
             .datePickerStyle(.compact)

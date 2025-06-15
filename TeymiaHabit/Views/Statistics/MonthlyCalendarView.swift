@@ -51,13 +51,13 @@ struct MonthlyCalendarView: View {
         VStack(spacing: 10) {
             // Заголовок месяца и кнопки навигации
             HStack {
-                // Previous month button (слева)
+                // Previous month button (слева) - унифицированный с WeeklyHabitChart
                 Button(action: showPreviousMonth) {
                     Image(systemName: "chevron.left")
                         .font(.headline)
                         .foregroundStyle(canNavigateToPreviousMonth ? .primary : Color.gray.opacity(0.5))
                         .contentShape(Rectangle())
-                        .frame(width: 30, height: 30)
+                        .frame(width: 44, height: 44) // Увеличиваем до 44x44 как в WeeklyHabitChart
                 }
                 .disabled(!canNavigateToPreviousMonth)
                 .buttonStyle(BorderlessButtonStyle())
@@ -71,18 +71,18 @@ struct MonthlyCalendarView: View {
                 
                 Spacer()
                 
-                // Next month button (справа)
+                // Next month button (справа) - унифицированный с WeeklyHabitChart
                 Button(action: showNextMonth) {
                     Image(systemName: "chevron.right")
                         .font(.headline)
                         .foregroundStyle(canNavigateToNextMonth ? .primary : Color.gray.opacity(0.5))
                         .contentShape(Rectangle())
-                        .frame(width: 30, height: 30)
+                        .frame(width: 44, height: 44) // Увеличиваем до 44x44 как в WeeklyHabitChart
                 }
                 .disabled(!canNavigateToNextMonth)
                 .buttonStyle(BorderlessButtonStyle())
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 8)
             .zIndex(1)
             
             // Дни недели
@@ -252,8 +252,8 @@ struct MonthlyCalendarView: View {
         let displayedMonthComponents = calendar.dateComponents([.year, .month], from: currentMonth)
         
         return !(displayedMonthComponents.year! > currentMonthComponents.year! ||
-                (displayedMonthComponents.year! == currentMonthComponents.year! &&
-                 displayedMonthComponents.month! >= currentMonthComponents.month!))
+                 (displayedMonthComponents.year! == currentMonthComponents.year! &&
+                  displayedMonthComponents.month! >= currentMonthComponents.month!))
     }
     
     // MARK: - Methods
@@ -261,9 +261,8 @@ struct MonthlyCalendarView: View {
     private func generateMonths() {
         let today = Date()
         
-        // Ограничиваем startDate не более чем 1 годом назад
-        let oneYearAgo = calendar.date(byAdding: .year, value: -1, to: today) ?? today
-        let effectiveStartDate = max(habit.startDate, oneYearAgo)
+        // Применяем ограничение истории
+        let effectiveStartDate = HistoryLimits.limitStartDate(habit.startDate)
         
         // Создаем массив дат для месяцев - сначала получаем компоненты
         let startComponents = calendar.dateComponents([.year, .month], from: effectiveStartDate)
