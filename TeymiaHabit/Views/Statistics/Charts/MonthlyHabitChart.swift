@@ -118,7 +118,7 @@ struct MonthlyHabitChart: View {
                         Text(averageValueFormatted)
                             .font(.title2)
                             .fontWeight(.medium)
-                            .foregroundStyle(hasAnyProgress ? AppColorManager.shared.selectedColor.color : .secondary)
+                            .foregroundStyle(AppColorManager.shared.selectedColor.color)
                         
                         Text("This Month")
                             .font(.caption)
@@ -137,7 +137,7 @@ struct MonthlyHabitChart: View {
                     Text(monthlyTotalFormatted)
                         .font(.title2)
                         .fontWeight(.medium)
-                        .foregroundStyle(hasAnyProgress ? AppColorManager.shared.selectedColor.color : .secondary)
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color)
                     
                     Text("This Month")
                         .font(.caption)
@@ -155,58 +155,7 @@ struct MonthlyHabitChart: View {
         if isLoading {
             ProgressView()
                 .frame(height: 200)
-        } else if chartData.isEmpty {
-            ContentUnavailableView(
-                "No Data",
-                systemImage: "chart.bar",
-                description: Text("No progress recorded for this month")
-            )
-            .frame(height: 200)
-        } else if !hasAnyProgress {
-            // Empty state with grid lines
-            Chart(chartData) { dataPoint in
-                BarMark(
-                    x: .value("Day", dataPoint.date),
-                    y: .value("Progress", 0)
-                )
-                .foregroundStyle(Color.gray.opacity(0.1))
-                .cornerRadius(3)
-            }
-            .frame(height: 200)
-            .chartXAxis {
-                AxisMarks(values: xAxisValues) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
-                        .foregroundStyle(.gray.opacity(0.3))
-                    AxisValueLabel {
-                        if let date = value.as(Date.self) {
-                            Text("\(calendar.component(.day, from: date))")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .trailing, values: [0]) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
-                        .foregroundStyle(.gray.opacity(0.3))
-                    AxisValueLabel {
-                        Text("0")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .overlay(
-                Text("No progress this month")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .allowsHitTesting(false)
-            )
-            .gesture(dragGesture)
-            .id("month-\(currentMonthIndex)-\(updateCounter)")
         } else {
-            // Main chart with full grid lines
             Chart(chartData) { dataPoint in
                 BarMark(
                     x: .value("Day", dataPoint.date),
@@ -220,7 +169,6 @@ struct MonthlyHabitChart: View {
             .frame(height: 200)
             .chartXAxis {
                 AxisMarks(values: xAxisValues) { value in
-                    // Full vertical grid lines extending across entire chart
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
                         .foregroundStyle(.gray.opacity(0.3))
                     AxisValueLabel {
@@ -234,7 +182,6 @@ struct MonthlyHabitChart: View {
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: yAxisValues) { value in
-                    // Full horizontal grid lines extending across entire chart
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
                         .foregroundStyle(.gray.opacity(0.3))
                     AxisValueLabel {
@@ -284,11 +231,7 @@ struct MonthlyHabitChart: View {
                 }
             }
     }
-    
-    private var hasAnyProgress: Bool {
-        return chartData.contains { $0.value > 0 }
-    }
-    
+        
     private var currentMonth: Date {
         guard !months.isEmpty && currentMonthIndex >= 0 && currentMonthIndex < months.count else {
             return Date()
@@ -297,9 +240,7 @@ struct MonthlyHabitChart: View {
     }
     
     private var monthRangeString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: currentMonth)
+        return DateFormatter.capitalizedNominativeMonthYear(from: currentMonth)
     }
     
     private var averageValueFormatted: String {

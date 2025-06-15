@@ -95,7 +95,9 @@ struct YearlyHabitChart: View {
                 // AVERAGE - align with left edge of first bar
                 VStack(alignment: .leading, spacing: 2) {
                     if let selectedDate = selectedDate,
-                       let selectedDataPoint = chartData.first(where: { calendar.isDate($0.date, inSameDayAs: selectedDate) }) {
+                       let selectedDataPoint = chartData.first(where: { 
+                           calendar.isDate($0.date, equalTo: selectedDate, toGranularity: .month)
+                       }) {
                         Text("MONTHLY")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -106,7 +108,7 @@ struct YearlyHabitChart: View {
                             .fontWeight(.medium)
                             .foregroundStyle(AppColorManager.shared.selectedColor.color)
                         
-                        Text(monthYearFormatter.string(from: selectedDataPoint.date))
+                        Text(monthYearFormatter.string(from: selectedDataPoint.date).capitalized)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else {
@@ -118,7 +120,7 @@ struct YearlyHabitChart: View {
                         Text(averageValueFormatted)
                             .font(.title2)
                             .fontWeight(.medium)
-                            .foregroundStyle(hasAnyProgress ? AppColorManager.shared.selectedColor.color : .secondary)
+                            .foregroundStyle(AppColorManager.shared.selectedColor.color)
                         
                         Text("This Year")
                             .font(.caption)
@@ -137,7 +139,7 @@ struct YearlyHabitChart: View {
                     Text(yearlyTotalFormatted)
                         .font(.title2)
                         .fontWeight(.medium)
-                        .foregroundStyle(hasAnyProgress ? AppColorManager.shared.selectedColor.color : .secondary)
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color)
                     
                     Text("This Year")
                         .font(.caption)
@@ -154,78 +156,27 @@ struct YearlyHabitChart: View {
     private var chartView: some View {
         if isLoading {
             ProgressView()
-                .frame(height: 220)
-        } else if chartData.isEmpty {
-            ContentUnavailableView(
-                "No Data",
-                systemImage: "chart.bar",
-                description: Text("No progress recorded for this year")
-            )
-            .frame(height: 220)
-        } else if !hasAnyProgress {
-            // Empty state with grid lines
-            Chart(chartData) { dataPoint in
-                BarMark(
-                    x: .value("Month", dataPoint.date),
-                    y: .value("Progress", 0)
-                )
-                .foregroundStyle(Color.gray.opacity(0.1))
-                .cornerRadius(3)
-            }
-            .frame(height: 220)
-            .chartXAxis {
-                AxisMarks(values: xAxisValues) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
-                        .foregroundStyle(.gray.opacity(0.3))
-                    AxisValueLabel {
-                        if let date = value.as(Date.self) {
-                            Text(shortMonthFormatter.string(from: date))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .trailing, values: [0]) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
-                        .foregroundStyle(.gray.opacity(0.3))
-                    AxisValueLabel {
-                        Text("0")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .overlay(
-                Text("No progress this year")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .allowsHitTesting(false)
-            )
-            .gesture(dragGesture)
-            .id("year-\(currentYearIndex)-\(updateCounter)")
+                .frame(height: 200)
         } else {
-            // Main chart with full grid lines
             Chart(chartData) { dataPoint in
                 BarMark(
-                    x: .value("Month", dataPoint.date),
+                    x: .value("Month", dataPoint.date, unit: .month),
                     y: .value("Progress", dataPoint.value)
                 )
                 .foregroundStyle(barColor(for: dataPoint))
                 .cornerRadius(3)
                 .opacity(selectedDate == nil ? 1.0 : 
-                        (calendar.isDate(dataPoint.date, equalTo: selectedDate!, toGranularity: .month) ? 1.0 : 0.4))
+                        (calendar.component(.month, from: dataPoint.date) == calendar.component(.month, from: selectedDate!) &&
+                         calendar.component(.year, from: dataPoint.date) == calendar.component(.year, from: selectedDate!) ? 1.0 : 0.4))
             }
-            .frame(height: 220)
+            .frame(height: 200)
             .chartXAxis {
                 AxisMarks(values: xAxisValues) { value in
-                    // Full vertical grid lines extending across entire chart
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
                         .foregroundStyle(.gray.opacity(0.3))
                     AxisValueLabel {
                         if let date = value.as(Date.self) {
-                            Text(shortMonthFormatter.string(from: date))
+                            Text(firstLetterOfMonth(from: date))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -234,7 +185,6 @@ struct YearlyHabitChart: View {
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: yAxisValues) { value in
-                    // Full horizontal grid lines extending across entire chart
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
                         .foregroundStyle(.gray.opacity(0.3))
                     AxisValueLabel {
@@ -284,11 +234,7 @@ struct YearlyHabitChart: View {
                 }
             }
     }
-    
-    private var hasAnyProgress: Bool {
-        return chartData.contains { $0.value > 0 }
-    }
-    
+        
     private var currentYear: Date {
         guard !years.isEmpty && currentYearIndex >= 0 && currentYearIndex < years.count else {
             return Date()
@@ -334,7 +280,7 @@ struct YearlyHabitChart: View {
     
     private var monthYearFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM yyyy"
+        formatter.dateFormat = "LLLL"
         return formatter
     }
     
@@ -342,6 +288,13 @@ struct YearlyHabitChart: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM"
         return formatter
+    }
+    
+    private func firstLetterOfMonth(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM"
+        let monthName = formatter.string(from: date)
+        return String(monthName.prefix(1)).uppercased()
     }
     
     private func formatTimeWithoutSeconds(_ seconds: Int) -> String {

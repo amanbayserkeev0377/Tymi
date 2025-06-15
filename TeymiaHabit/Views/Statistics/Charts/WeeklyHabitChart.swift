@@ -118,7 +118,7 @@ struct WeeklyHabitChart: View {
                         Text(averageValueFormatted)
                             .font(.title2)
                             .fontWeight(.medium)
-                            .foregroundStyle(hasAnyProgress ? AppColorManager.shared.selectedColor.color : .secondary)
+                            .foregroundStyle(AppColorManager.shared.selectedColor.color)
                         
                         Text("This Week")
                             .font(.caption)
@@ -137,7 +137,7 @@ struct WeeklyHabitChart: View {
                     Text(weeklyTotalFormatted)
                         .font(.title2)
                         .fontWeight(.medium)
-                        .foregroundStyle(hasAnyProgress ? AppColorManager.shared.selectedColor.color : .secondary)
+                        .foregroundStyle(AppColorManager.shared.selectedColor.color)
                     
                     Text("This Week")
                         .font(.caption)
@@ -156,60 +156,7 @@ struct WeeklyHabitChart: View {
         if isLoading {
             ProgressView()
                 .frame(height: 200)
-        } else if chartData.isEmpty {
-            ContentUnavailableView(
-                "No Data",
-                systemImage: "chart.bar",
-                description: Text("No progress recorded for this week")
-            )
-            .frame(height: 200)
-        } else if !hasAnyProgress {
-            // Empty state with grid lines
-            Chart(chartData) { dataPoint in
-                BarMark(
-                    x: .value("Day", dataPoint.date, unit: .day),
-                    y: .value("Progress", 0)
-                )
-                .foregroundStyle(Color.gray.opacity(0.1))
-                .cornerRadius(4)
-            }
-            .frame(height: 200)
-            .chartXAxis {
-                AxisMarks(values: chartData.map { $0.date }) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
-                        .foregroundStyle(.gray.opacity(0.3))
-                    AxisValueLabel {
-                        if let date = value.as(Date.self) {
-                            let weekdayIndex = calendar.component(.weekday, from: date) - 1
-                            let shortName = calendar.shortWeekdaySymbols[weekdayIndex]
-                            Text(shortName)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .trailing, values: [0]) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
-                        .foregroundStyle(.gray.opacity(0.3))
-                    AxisValueLabel {
-                        Text("0")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .overlay(
-                Text("No progress this week")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .allowsHitTesting(false)
-            )
-            .gesture(dragGesture)
-            .id("week-\(currentWeekIndex)-\(updateCounter)") // Include updateCounter in ID
         } else {
-            // Main chart with full grid lines
             Chart(chartData) { dataPoint in
                 BarMark(
                     x: .value("Day", dataPoint.date, unit: .day),
@@ -223,7 +170,6 @@ struct WeeklyHabitChart: View {
             .frame(height: 200)
             .chartXAxis {
                 AxisMarks(values: chartData.map { $0.date }) { value in
-                    // Full vertical grid lines extending across entire chart
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
                         .foregroundStyle(.gray.opacity(0.3))
                     AxisValueLabel {
@@ -239,7 +185,6 @@ struct WeeklyHabitChart: View {
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: yAxisValues) { value in
-                    // Full horizontal grid lines extending across entire chart
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2]))
                         .foregroundStyle(.gray.opacity(0.3))
                     AxisValueLabel {
@@ -266,7 +211,7 @@ struct WeeklyHabitChart: View {
                     }
                 }
             }
-            .id("week-\(currentWeekIndex)-\(updateCounter)") // Include updateCounter in ID
+            .id("week-\(currentWeekIndex)-\(updateCounter)")
         }
     }
     
@@ -288,10 +233,6 @@ struct WeeklyHabitChart: View {
                     }
                 }
             }
-    }
-    
-    private var hasAnyProgress: Bool {
-        return chartData.contains { $0.value > 0 }
     }
     
     private var currentWeekStart: Date {

@@ -16,11 +16,15 @@ enum ChartTimeRange: String, CaseIterable {
     var days: Int {
         let calendar = Calendar.current
         switch self {
-        case .week: return 7
+        case .week: 
+            return 7
         case .month: 
             let range = calendar.range(of: .day, in: .month, for: Date())
             return range?.count ?? 30
-        case .year: return 365 // Тоже стоит сделать динамически
+        case .year: 
+            // Динамическое вычисление дней в году (учитывает високосные годы)
+            let range = calendar.range(of: .day, in: .year, for: Date())
+            return range?.count ?? 365
         }
     }
 }

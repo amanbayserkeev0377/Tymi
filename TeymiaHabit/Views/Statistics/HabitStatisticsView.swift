@@ -57,20 +57,27 @@ struct HabitStatisticsView: View {
             
             // Charts
             Section {
-                TimeRangePicker(selection: $selectedTimeRange)
-                
-                if selectedTimeRange == .week {
-                    WeeklyHabitChart(habit: habit, updateCounter: updateCounter)
-                        .padding(.vertical, 8)
-                } else if selectedTimeRange == .month {
-                    MonthlyHabitChart(habit: habit, updateCounter: updateCounter)
-                        .padding(.vertical, 8)
-                } else { // .year
-                    YearlyHabitChart(habit: habit, updateCounter: updateCounter)
-                        .padding(.vertical, 8)
+                VStack {
+                    TimeRangePicker(selection: $selectedTimeRange)
+                    
+                    switch selectedTimeRange {
+                    case .week:
+                        WeeklyHabitChart(habit: habit, updateCounter: updateCounter)
+                            .padding(.vertical, 8)
+                            .transition(.opacity)
+                            
+                    case .month:
+                        MonthlyHabitChart(habit: habit, updateCounter: updateCounter)
+                            .padding(.vertical, 8)
+                            .transition(.opacity)
+                            
+                    case .year:
+                        YearlyHabitChart(habit: habit, updateCounter: updateCounter)
+                            .padding(.vertical, 8)
+                            .transition(.opacity)
+                    }
                 }
-            } header: {
-                Text("Progress Analysis")
+                .animation(.easeInOut(duration: 0.4), value: selectedTimeRange)
             }
             
             Section {
